@@ -5,7 +5,7 @@ function recover_config_file(){
 }
 
 function use_dev(){
-    npm run params dev,dbhost,dbport,user,psd
+    npm run params dev,192.168.150.31,27017,iris,irispassword,rainbow-server
 }
 
 function use_qa(){

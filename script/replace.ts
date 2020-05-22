@@ -7,7 +7,7 @@ function list(val: string): string[] {
 
 program
     .option("-e, --environment <string>", "App environment")
-    .option("-p, --params <items>", "An list of app environment and bamboo build number, e.g.: dev", list)
+    .option("-p, --params <items>", "An list of app environment, e.g.: dev", list)
     .parse(process.argv);
 
 console.log('Replacing environments ...');
@@ -19,6 +19,7 @@ params:
 2: mongodb port
 3: mongodb account
 4: mongodb password
+5: mongodb database
 */
 
 if (program.params) {
@@ -32,6 +33,7 @@ if (program.params) {
             "dbPort": program.params[2],
             "dbUser": program.params[3],
             "dbPsd": program.params[4],
+            "dbName": program.params[5],
 
         }
     );
