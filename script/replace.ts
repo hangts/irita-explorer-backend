@@ -1,11 +1,11 @@
 import * as fs from 'fs';
-import * as program from 'commander';
+import program from 'commander';
 
 function list(val: string): string[] {
     return val.split(',')
 }
-
 program
+    .version('1.0.0')
     .option("-e, --environment <string>", "App environment")
     .option("-p, --params <items>", "An list of app environment, e.g.: dev", list)
     .parse(process.argv);
