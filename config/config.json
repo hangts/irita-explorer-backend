@@ -3,7 +3,8 @@
         "host":"${dbHost}",
         "port":"${dbPort}",
         "user":"${dbUser}",
-        "psd":"${dbPsd}"
+        "psd":"${dbPsd}",
+        "database":"${dbName}"
     },
     "env":"${env}"
 }

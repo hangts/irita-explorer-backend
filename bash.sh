@@ -5,7 +5,7 @@ function recover_config_file(){
 }
 
 function use_dev(){
-    npm run params dev,192.168.150.31,27017,iris,irispassword,rainbow-server
+    npm run params dev,192.168.150.31,27017,iris,irispassword,sync-iris
 }
 
 function use_qa(){
