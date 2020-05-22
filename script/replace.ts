@@ -12,6 +12,14 @@ program
 
 console.log('Replacing environments ...');
 
+/*
+params:
+0: environment,
+1: mongodb host
+2: mongodb port
+3: mongodb account
+4: mongodb password
+*/
 
 if (program.params) {
     //program.params[0]
@@ -27,7 +35,8 @@ if (program.params) {
 
         }
     );
-
+} else {
+    console.error('There is no params from config file or bamboo server!')
 }
 
 function replaceEnv(filesList: any[], params: object) {

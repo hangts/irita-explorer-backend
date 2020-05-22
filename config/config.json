@@ -5,5 +5,5 @@
         "user":"${dbUser}",
         "psd":"${dbPsd}"
     },
-    "env":"env"
+    "env":"${env}"
 }
