@@ -1,0 +1,9 @@
+{
+    "dbCfg":{
+        "host":"${dbHost}",
+        "port":"${dbPort}",
+        "user":"${dbUser}",
+        "psd":"${dbPsd}"
+    },
+    "env":"env"
+}
