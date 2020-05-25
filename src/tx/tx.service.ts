@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TxRepoDto, TxDto } from './tx.dto';
+import { TxRepoDto, TxDto } from './dto/tx.dto';
 import {Model} from 'mongoose';
 import {InjectModel} from '@nestjs/mongoose';
 import {txQueryParams, txPageParams} from './tx.types';
