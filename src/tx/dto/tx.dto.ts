@@ -1,5 +1,5 @@
 import { Document } from 'mongoose';
-import { IsString, IsInt } from 'class-validator';
+
 
 
 interface IAmount {
