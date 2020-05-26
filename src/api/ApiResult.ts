@@ -1,13 +1,9 @@
 import {ErrorCodes} from './ResultCodes';
 import { HttpException } from '@nestjs/common';
+import {IResultBase} from '../types';
 
-export interface ResultBase {
-  code: number;
-  data?: any;
-  message?: string;
-}
 
-export class Result<T> implements ResultBase{
+export class Result<T> implements IResultBase{
   public code: number = ErrorCodes.success;
   public data: T;
 
@@ -16,13 +12,13 @@ export class Result<T> implements ResultBase{
     this.code = code;
   }
 }
-
-export class ApiError extends HttpException{
+// node process will exit when javascript engine throw an Error obj, which
+// we should throw an httpException obj
+export class ApiError extends Error{
   public code: number = ErrorCodes.failed;
 
   constructor(message: string, code: number = ErrorCodes.failed){
-    super(message,403);
-    //Object.setPrototypeOf(this, FooError.prototype);
+    super(message);
     this.code = code;
   }
 }

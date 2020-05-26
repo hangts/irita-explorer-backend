@@ -1,3 +1,5 @@
+import {IQueryBase} from '../../types';
+
 export enum txType {
     AllType = '',
     Transfer = 'Transfer',
@@ -10,14 +12,5 @@ export enum txStatus {
     failed = 'failed',
 }
 
-export interface txQueryParams {
-    txType?: txType;
-    status?: txStatus;
-    beginTime?: number;
-    endTime?: number;
-}
 
-export interface txPageParams {
-    pageNumber: string,
-    pageSize: string,
-}
+export interface ITxQueryParams extends IQueryBase{}
