@@ -1,8 +1,8 @@
 import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
-import {ErrorCodes} from '../../api/ResultCodes';
-import {ApiError} from '../../api/ApiResult';
+import { ErrorCodes } from '../../api/ResultCodes';
+import { ApiError } from '../../api/ApiResult';
 
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
@@ -14,10 +14,11 @@ export class ValidationPipe implements PipeTransform<any> {
     const errors = await validate(object);
     if (errors.length > 0) {
       const errMsg: string = Object.values(errors[0].constraints)[0];
-      throw new ApiError(errMsg,ErrorCodes.InvalidRequest);
+      throw new ApiError(errMsg, ErrorCodes.InvalidRequest);
       //throw new BadRequestException(errMsg);
     }
     return value;
+
   }
 
   private toValidate(metatype: Function): boolean {

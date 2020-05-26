@@ -1,4 +1,5 @@
 import {ErrorCodes} from './ResultCodes';
+import { HttpException } from '@nestjs/common';
 
 export interface ResultBase {
   code: number;
@@ -16,11 +17,11 @@ export class Result<T> implements ResultBase{
   }
 }
 
-export class ApiError extends Error implements ResultBase{
+export class ApiError extends HttpException{
   public code: number = ErrorCodes.failed;
 
   constructor(message: string, code: number = ErrorCodes.failed){
-    super(message);
+    super(message,403);
     //Object.setPrototypeOf(this, FooError.prototype);
     this.code = code;
   }
