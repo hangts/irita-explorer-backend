@@ -53,27 +53,6 @@ interface ISigners {
     addr_bech32: string;
 }
 
-
-export class TxDto<T, R> {
-    amount: IAmount[];
-    block_height:number;
-    fee:IFee;
-    gas_limit: number;
-    gas_price:number;
-    gas_used: number;
-    gas_wanted: number;
-    hash: string;
-    log: string;
-    memo: string;
-    msgs:IMsgs<T>[];
-    signer: string;
-    status: string;
-    tags: R;
-    timestamp: string;
-    type: string;
-    monikers: any;
-}
-
 export interface TxRepoDto<T, M> extends Document {
     id: string;
     time: string;

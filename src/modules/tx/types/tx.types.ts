@@ -1,4 +1,4 @@
-import {IQueryBase} from '../../types';
+import {IQueryBase} from '../../../types';
 
 export enum txType {
     AllType = '',

@@ -1,5 +1,4 @@
 import { IsString, IsInt, Length } from 'class-validator';
-import { TxDto } from './tx.dto';
 
 //一般情况下, 非Base dto需要继承 Base dto, demo里随便写一些字段
 

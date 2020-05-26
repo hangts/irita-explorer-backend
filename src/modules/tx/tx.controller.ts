@@ -3,8 +3,8 @@ import { ITxQueryParams } from './types/tx.types';
 import { TxService } from './tx.service';
 import { CreateTxDto } from './dto/create.tx.dto';
 import { ValidationPipe } from './pipe/tx.validation.pipe';
-import { Result } from '../api/ApiResult';
-import {ListResult} from '../api/ApiResult';
+import { Result } from '../../api/ApiResult';
+import {ListResult} from '../../api/ApiResult';
 
 
 @Controller('txs')
