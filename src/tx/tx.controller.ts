@@ -1,11 +1,10 @@
 import { Controller, Get, Param, Query, Res, Req, Post, Body, HttpCode } from '@nestjs/common';
 import { ITxQueryParams } from './types/tx.types';
 import { TxService } from './tx.service';
-import { TxDto } from './dto/tx.dto';
 import { CreateTxDto } from './dto/create.tx.dto';
 import { ValidationPipe } from './pipe/tx.validation.pipe';
 import { Result } from '../api/ApiResult';
-import {IListResponseBase} from '../types';
+import {ListResult} from '../api/ApiResult';
 
 
 @Controller('txs')
@@ -14,8 +13,8 @@ export class TxController {
   }
 
   @Get('/trans')
-  async getTxList(@Query() q: ITxQueryParams): Promise<Result<IListResponseBase<any[]>>> {
-    const data: IListResponseBase<any[]> = await this.txService.getTxList(q);
+  async queryTxList(@Query() q: ITxQueryParams): Promise<Result<ListResult<any>>> {
+    const data: ListResult<any> = await this.txService.queryTxList(q);
     return new Result<any>(data);
   }
 
