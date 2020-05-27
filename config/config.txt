@@ -1,8 +1,8 @@
-环境变量配置:
+environment configure:
 
-1. 环境:            $NODE_ENV=develop
-2. db_host:        $MONGODB_HOST
-3. db_port:        $MONGODB_PORT
-4. db_user:        $MONGODB_USER
-5. db_psd:         $MONGODB_PSD
-6. db_name:        $MONGODB_DATABASE
+1. env:            $NODE_ENV=develop
+2. db_host:        $MONGODB_HOST=192.168.150.31
+3. db_port:        $MONGODB_PORT=27017
+4. db_user:        $MONGODB_USER=iris
+5. db_psd:         $MONGODB_PSD=irispassword
+6. db_name:        $MONGODB_DATABASE=sync-iris

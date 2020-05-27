@@ -6,7 +6,7 @@ import {HttpExceptionFilter} from './exception/HttpExceptionFilter';
 
 const { MONGODB_USER, MONGODB_PSD, MONGODB_HOST, MONGODB_PORT, MONGODB_DATABASE, NODE_ENV } = process.env;
 const url: string = `mongodb://${MONGODB_USER}:${MONGODB_PSD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}`;
-
+console.log(MONGODB_USER, MONGODB_PSD, MONGODB_HOST, MONGODB_PORT, MONGODB_DATABASE, NODE_ENV)
 @Module({
     imports: [MongooseModule.forRoot(url), TxModule],
     providers: [
