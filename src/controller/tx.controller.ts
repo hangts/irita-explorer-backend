@@ -14,7 +14,7 @@ export class TxController {
 
     @Get('trans')
     async queryTxList(@Query() q: ITxQueryParams): Promise<Result<ListStruct<any>>> {
-        console.log(process.env.NODE_ENV)
+        console.log(process.env.NODE_ENV);
         const data: ListStruct<any> = await this.txService.queryTxList(q);
         return new Result<any>(data);
     }

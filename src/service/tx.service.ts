@@ -16,7 +16,6 @@ export class TxService {
         return this.getListResult(dataList, Number(pageNumber), Number(pageSize), 0);
     }
 
-
     getListResult(data: any, pageNumber: number, pageSize: number, count: number) {
         return new ListStruct(data, Number(pageNumber), Number(pageSize), count);
     }
