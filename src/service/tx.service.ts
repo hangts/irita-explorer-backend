@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { TxRepoDto } from './dto/tx.dto';
+import { TxRepoDto } from '../dto/tx.dto';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ITxQueryParams } from './types/tx.types';
-import {ListResult} from '../../api/ApiResult';
+import { ITxQueryParams } from '../types/tx.types';
+import {ListResult} from '../api/ApiResult';
 
 @Injectable()
 export class TxService {

@@ -1,4 +1,4 @@
-import {IQueryBase} from '../../../types';
+import {IQueryBase} from '.';
 
 export enum txType {
     AllType = '',
@@ -11,6 +11,7 @@ export enum txStatus {
     success = 'success',
     failed = 'failed',
 }
+
 
 
 export interface ITxQueryParams extends IQueryBase{}

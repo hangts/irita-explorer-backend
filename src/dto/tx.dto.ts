@@ -52,7 +52,7 @@ interface ISigners {
     addr_hex: string;
     addr_bech32: string;
 }
-
+//todo class 需要有单独的查询方法
 export interface TxRepoDto<T, M> extends Document {
     id: string;
     time: string;

@@ -1,8 +1,8 @@
 import {Module } from '@nestjs/common';
-import {TxController} from './tx.controller';
-import {TxService} from './tx.service';
+import {TxController} from '../controller/tx.controller';
+import {TxService} from '../service/tx.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import {TxSchema} from './tx.schema';
+import {TxSchema} from '../schema/tx.schema';
 
 @Module({
     imports:[

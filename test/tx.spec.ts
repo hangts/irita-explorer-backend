@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
-import { TxService } from './tx.service';
-import {TxController} from './tx.controller';
-import {TxModule} from './tx.module';
+import { TxService } from '../src/service/tx.service';
+import {TxController} from '../src/controller/tx.controller';
+import {TxModule} from '../src/middleware/tx.module';
 
 describe('AppController', () => {
   let txService: TxService;
