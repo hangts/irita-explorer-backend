@@ -4,7 +4,7 @@ export interface IQueryBase {
     useCount?: boolean;
 }
 
-export interface IListResponseBase<T> {
+export interface IListStructBase<T> {
     data?: T;
     pageNumber?: number;
     pageSize?: number;

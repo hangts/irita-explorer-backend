@@ -4,7 +4,7 @@ import { TxService } from '../service/tx.service';
 import { CreateTxDto } from '../dto/create.tx.dto';
 import { ValidationPipe } from '../pipe/tx.validation.pipe';
 import { Result } from '../api/ApiResult';
-import { ListResult } from '../api/ApiResult';
+import { ListStruct } from '../api/ApiResult';
 
 
 @Controller('txs')
@@ -13,17 +13,14 @@ export class TxController {
     }
 
     @Get('trans')
-    async queryTxList(@Query() q: ITxQueryParams): Promise<Result<ListResult<any>>> {
-        console.log(process.env);
-        const data: ListResult<any> = await this.txService.queryTxList(q);
+    async queryTxList(@Query() q: ITxQueryParams): Promise<Result<ListStruct<any>>> {
+        console.log(process.env.NODE_ENV)
+        const data: ListStruct<any> = await this.txService.queryTxList(q);
         return new Result<any>(data);
     }
 
     @Post('create')
-    @HttpCode(205)
     async saveTx(@Body(new ValidationPipe()) createTxDto: CreateTxDto): Promise<CreateTxDto> {
-
-        console.log(createTxDto);
         return {
             height: 100,
             hash: 'hello world',

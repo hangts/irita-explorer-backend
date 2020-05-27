@@ -8,6 +8,7 @@ import {
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { ErrorCodes } from '../api/ResultCodes';
+import {ApiError} from '../api/ApiResult';
 
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
@@ -19,13 +20,7 @@ export class ValidationPipe implements PipeTransform<any> {
         const errors = await validate(object);
         if (errors.length > 0) {
             const errMsg: string = Object.values(errors[0].constraints)[0];
-            throw new HttpException(
-                {
-                    code: ErrorCodes.InvalidRequest,
-                    message: errMsg,
-                },
-                HttpStatus.OK,
-            );
+            throw new ApiError(ErrorCodes.InvalidRequest,errMsg);
         }
         return value;
     }
