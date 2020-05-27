@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query, Res, Req, Post, Body, HttpCode } from '@nestjs/common';
-import { ITxQueryParams } from '../types/tx.types';
+import { ITxQueryParams } from '../types/tx.interface';
 import { TxService } from '../service/tx.service';
 import { CreateTxDto } from '../dto/create.tx.dto';
 import { ValidationPipe } from '../pipe/tx.validation.pipe';

@@ -33,4 +33,4 @@ export const TxSchema = new mongoose.Schema({
     msgs:[],
     "txn-revno": Number,
     "txn-queue": [],
-})
+});
