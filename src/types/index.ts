@@ -16,5 +16,3 @@ export interface IResultBase {
     data?: any;
     message?: string;
 }
-
-//TODO 所有字段固定

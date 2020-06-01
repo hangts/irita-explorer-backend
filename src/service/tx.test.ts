@@ -1,25 +1,25 @@
 import { Test } from '@nestjs/testing';
-import { TxService } from './tx.service';
-import {TxController} from '../controller/tx.controller';
-import {TxModule} from '../module/tx.module';
+import { DenomService } from './denom.service';
+import {DenomController} from '../controller/denom.controller';
+import {DenomModule} from '../module/denom.module';
 
 describe('AppController', () => {
-    let txService: TxService;
-    let txController: TxController;
+    let denomService: DenomService;
+    let denomController: DenomController;
 
     beforeEach(async () => {
         const app = await Test.createTestingModule({
-            imports:[TxModule],
-            providers: [TxService],
-            controllers:[TxController],
+            imports:[DenomModule],
+            providers: [DenomService],
+            controllers:[DenomController],
         }).compile();
 
-        txService = app.get<TxService>(TxService);
-        txController = app.get<TxController>(TxController);
+        denomService = app.get<DenomService>(DenomService);
+        denomController = app.get<DenomController>(DenomController);
 
     });
 
-    describe('test tx', () => {
+    describe('test denom', () => {
         let o = {
             data:[{
                 name:'lsc',
@@ -31,7 +31,7 @@ describe('AppController', () => {
         };
 
         it('should return the same result', () => {
-            expect(txService.getListResult([{name:'lsc',age:18}], 1, 10, 10)).toBe(o);
+            expect(denomService.getListResult([{name:'lsc',age:18}], 1, 10, 10)).toBe(o);
         });
     });
 });

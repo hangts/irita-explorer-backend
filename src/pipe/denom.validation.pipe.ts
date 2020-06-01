@@ -9,7 +9,7 @@ import { ErrorCodes } from '../api/ResultCodes';
 import {ApiError} from '../api/ApiResult';
 
 @Injectable()
-export class ValidationPipe implements PipeTransform<any> {
+export class DenomValidationPipe implements PipeTransform<any> {
     async transform(value: any, { metatype }: ArgumentMetadata) {
         if (!metatype || !this.toValidate(metatype)) {
             return value;

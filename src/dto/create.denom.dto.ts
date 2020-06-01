@@ -1,6 +1,6 @@
 import { IsString, IsInt, Length } from 'class-validator';
 
-export class CreateTxDto {
+export class CreateDenomDto {
   @IsInt()
   readonly height: number;
 
