@@ -21,7 +21,7 @@ export class DenomController {
 
     @Post('create')
     async saveDenom(@Body(new DenomValidationPipe()) createDenomDto: CreateDenomDto): Promise<Result<CreateDenomDto>> {
-        const res: CreateDenomDto = this.denomService.createDenom(createDenomDto);
+        const res: CreateDenomDto = await this.denomService.createDenom(createDenomDto);
         return  new Result<any>(res);
     }
 }
