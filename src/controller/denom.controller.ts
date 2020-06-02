@@ -14,7 +14,6 @@ export class DenomController {
 
     @Get()
     async queryDenomList(@Query() q: IDenomQueryParams): Promise<Result<ListStruct<any>>> {
-        console.log(process.env.NODE_ENV);
         const data: ListStruct<any> = await this.denomService.queryDenomList(q);
         return new Result<any>(data);
     }

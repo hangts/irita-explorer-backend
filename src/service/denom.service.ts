@@ -26,8 +26,3 @@ export class DenomService {
     }
 }
 
-interface A{}
-interface C{}
-interface B extends DenomService, A{
-
-}

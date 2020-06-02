@@ -1,51 +1,42 @@
-import { Injectable,HttpService,  } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { IBlockQueryParams } from '../types/block.interface';
 import { ListStruct } from '../api/ApiResult';
-import { IBlockEntities } from '../types/block.interface';
-import { IBlock } from '../types/block.interface';
 import { ApiError } from '../api/ApiResult';
 import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';
-import {cfg} from '../config';
-import { AxiosResponse } from 'axios'
-import { Observable } from 'rxjs'
+import { BaseListVo } from '../vo/base.vo';
+import { BlockDto } from '../dto/block.dto';
+import { IBlockEntities } from '../schema/block.schema';
 
 @Injectable()
 export class BlockService {
-    constructor(@InjectModel('Block') private blockModel: Model<IBlockEntities>, private readonly httpService: HttpService) {
+    constructor(@InjectModel('Block') private blockModel: Model<IBlockEntities>) {
     }
 
-    async queryBlockList(query: IBlockQueryParams): Promise<ListStruct<IBlock[]>> {
-        let { pageNumber, pageSize, useCount } = query;
-        if (!pageNumber) pageNumber = '1';
-        if (!pageSize) pageSize = '10';
-        try {
-            const blockList: any[] = await this.blockModel.find().skip((Number(pageNumber) - 1) * Number(pageSize)).limit(Number(pageSize)).exec();
-            let count: number;
-            if (useCount) count = await this.blockModel.find().count().exec();
-            const resList: any[] = blockList.map((b) => {
-                return {
-                    height: b.height,
-                    txn: b.txn,
-                    hash: b.hash,
-                    time: b.time,
-                };
-            });
-            return new ListStruct(resList, Number(pageNumber), Number(pageSize), count);
-        } catch (e) {
-            console.error('mongo-error:', e.message);
-            throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
+    async queryBlockList(query: BaseListVo): Promise<ListStruct<BlockDto[]>> {
+        const { pageNumber, pageSize, useCount } = query;
+        let count: number;
+        const b: IBlockEntities[] = await (this.blockModel as any).findList(query);
+        if(useCount){
+            count = await (this.blockModel as any).count();
         }
-
+        const resList: BlockDto[] = b.map((b) => {
+            return {
+                height: b.height,
+                txn: b.txn,
+                hash: b.hash,
+                time: b.time,
+            };
+        });
+        return new ListStruct(resList, pageNumber, pageSize, count);
     }
 
-    async queryBlockDetail(p): Promise<any> {
+    async queryBlockDetail(p): Promise<BlockDto | null> {
         const { height } = p;
         if (!height) throw new ApiError(ErrorCodes.failed, 'height is missed');
         try {
             const res = await this.blockModel.findOne({ height });
-            let data: object = null;
+            let data: BlockDto | null;
             if (res) {
                 data = {
                     height: res.height,
@@ -62,32 +53,23 @@ export class BlockService {
 
     }
 
+    //TODO(lvshenchao) this api has not been used, use any temporary;
     async queryLatestBlock(): Promise<any> {
         try {
             return await this.queryLatestBlockFromLcd();
         } catch (e) {
             console.error('api-error:', e.message);
-            try {
-                return await this.queryLatestBlockFromDB();
-            }catch (e) {
-                console.error('mongo-error:', e.message);
-                throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
-            }
+            return await this.queryLatestBlockFromDB();
         }
 
     }
-    
-    async queryLatestBlockFromDB():Promise<any>{
-        try{
-            return await this.blockModel.findOne({}).sort({height:-1});
-        }catch (e) {
-            throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
-        }
+
+    async queryLatestBlockFromDB(): Promise<IBlockEntities> {
+        return await (this.blockModel as any).findOneByHeightDesc();
     }
 
-    async queryLatestBlockFromLcd():Promise<any>{
-        const url: string = `${cfg.lcdAddr}/blocks/latest`;
-        return await this.httpService.get(url).toPromise().then(res => res.data);
+    async queryLatestBlockFromLcd(): Promise<any> {
+        return await (this.blockModel as any).queryLatestBlockFromLcd();
     }
 
 
