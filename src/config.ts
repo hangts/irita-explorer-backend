@@ -4,7 +4,8 @@ const {
     MONGODB_HOST,
     MONGODB_PORT,
     MONGODB_DATABASE,
-    NODE_ENV
+    NODE_ENV,
+    LCD_ADDR,
 } = process.env;
 
 export const cfg = {
@@ -16,4 +17,5 @@ export const cfg = {
         psd: MONGODB_PSD,
         db: MONGODB_DATABASE,
     },
+    lcdAddr:LCD_ADDR
 };
