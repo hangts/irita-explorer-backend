@@ -5,7 +5,6 @@ import { Logger, HttpService } from '@nestjs/common';
 import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';
 import {ApiError} from '../api/ApiResult';
 import {cfg} from '../config';
-import { BlockDto } from '../dto/block.dto';
 
 export interface IBlockEntities extends Document {
     height:number,
@@ -26,7 +25,7 @@ BlockSchema.statics = {
             const { pageNumber, pageSize} = v;
             return await this.find().sort({ height: -1 }).skip((pageNumber - 1) * pageSize).limit(pageSize).exec();
         }catch (e) {
-            new Logger().log('mongo-error:',e.message);
+            new Logger().error('mongo-error:',e.message);
             throw new ApiError(ErrorCodes.failed,e.message);
         }
     },
@@ -35,7 +34,7 @@ BlockSchema.statics = {
         try{
             return await this.blockModel.find().count().exec();
         }catch (e) {
-            new Logger().log('mongo-error:',e.message);
+            new Logger().error('mongo-error:',e.message);
             throw new ApiError(ErrorCodes.failed,e.message);
         }
     },
@@ -45,7 +44,7 @@ BlockSchema.statics = {
         try {
             return await this.findOne({ height });
         } catch (e) {
-            console.error('mongo-error:', e.message);
+            new Logger().error('mongo-error:',e.message);
             throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
         }
     },
@@ -66,7 +65,7 @@ BlockSchema.statics = {
             const url: string = `${cfg.serverCfg.lcdAddr}/blocks/latest`;
             return await new HttpService().get(url).toPromise().then(res => res.data);
         } catch (e) {
-            console.error('mongo-error:', e.message);
+            new Logger().error('api-error:',e.message);
             throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
         }
 
