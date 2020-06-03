@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { BaseListVo } from '../vo/base.vo';
+import { BaseListVo } from '../vo/base.list.vo';
 import { BlockDto } from '../dto/block.dto';
 import { IBlockEntities } from '../schema/block.schema';
 
