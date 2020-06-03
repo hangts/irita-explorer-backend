@@ -3,7 +3,14 @@ export enum ErrorCodes {
     success = 0,
     unauthorization = 401,
     InvalidRequest = 10001,//custom error code
+    InvalidParameter = 40000,
 }
+// 40001,//未认证
+// 40002,//参数转化异常
+// 40003,//记录已存在
+// 40004,//记录未找到
+// 40005,//操作被拒绝
+// 50001,
 
 
 /**
