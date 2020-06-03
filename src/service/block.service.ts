@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { ApiError } from '../api/ApiResult';
-import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';
 import { BaseListVo } from '../vo/base.vo';
 import { BlockDto } from '../dto/block.dto';
 import { IBlockEntities } from '../schema/block.schema';
@@ -32,25 +30,17 @@ export class BlockService {
     }
 
     async queryBlockDetail(p): Promise<BlockDto | null> {
-        const { height } = p;
-        if (!height) throw new ApiError(ErrorCodes.failed, 'height is missed');
-        try {
-            const res = await this.blockModel.findOne({ height });
-            let data: BlockDto | null;
-            if (res) {
-                data = {
-                    height: res.height,
-                    txn: res.txn,
-                    hash: res.hash,
-                    time: res.time,
-                };
-            }
-            return data;
-        } catch (e) {
-            console.error('mongo-error:', e.message);
-            throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
+        let data: BlockDto | null = null;
+        const res: IBlockEntities | null = await (this.blockModel as any).findOneByHeight(p);
+        if (res) {
+            data = {
+                height: res.height,
+                txn: res.txn,
+                hash: res.hash,
+                time: res.time,
+            };
         }
-
+        return data;
     }
 
     //TODO(lvshenchao) this api has not been used, use any temporary;

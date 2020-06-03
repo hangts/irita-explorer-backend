@@ -3,6 +3,7 @@ import { BlockService } from '../service/block.service';
 import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
 import {ListValidationPipe} from '../pipe/list.validation.pipe';
+import {BlockDetailValidationPipe} from '../pipe/block.detail.validation.pipe';
 import {BlockListVo} from '../vo/block.vo';
 import {BlockDto} from '../dto/block.dto';
 
@@ -23,13 +24,14 @@ export class BlockController {
     @Get('latest')
     async queryLatestBlock(): Promise<Result<BlockDto | null>> {
         const data: BlockDto | null = await this.blockService.queryLatestBlock();
-        return new Result<any>(data);
+        return new Result<BlockDto | null>(data);
     }
 
     @Get(':height')
+    @UsePipes(new BlockDetailValidationPipe())
     async queryBlockDetail(@Param() p): Promise<Result<BlockDto | null>> {
         const data: BlockDto | null = await this.blockService.queryBlockDetail(p);
-        return new Result<any>(data);
+        return new Result<BlockDto | null>(data);
     }
 
 

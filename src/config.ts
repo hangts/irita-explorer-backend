@@ -17,5 +17,8 @@ export const cfg = {
         psd: MONGODB_PSD,
         db: MONGODB_DATABASE,
     },
-    lcdAddr:LCD_ADDR
+    serverCfg:{
+        lcdAddr:LCD_ADDR
+    }
+
 };
