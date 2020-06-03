@@ -4,7 +4,7 @@ import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
 import constant from '../constant/constant';
 //txs list request dto
-export class TxsReqDto extends PagingDto{
+export class TxListReqDto extends PagingDto{
 	
 	type:string;
   status: string;
@@ -12,6 +12,7 @@ export class TxsReqDto extends PagingDto{
   endTime:string;
 
   static validate(value:any){
+  	super.validate(value);
 		if (value.status && value.status !=='1' && value.status !=='2') {
 			throw new ApiError(ErrorCodes.InvalidParameter, 'status must be 1 or 2');
 		}
@@ -24,7 +25,7 @@ export class TxsReqDto extends PagingDto{
 }
 
 // txs list response dto
-export class TxsResDto extends BaseResDto{
+export class TxListResDto extends BaseResDto{
 	time:string;
   height: string;
   tx_hash:string;
@@ -42,10 +43,10 @@ export class TxsResDto extends BaseResDto{
   signers:Array<any>;
 
   static getDisplayData(value:any){
-  	let data:TxsResDto[] = [];
+  	let data:TxListResDto[] = [];
   	data = value.map((v:any)=>{
   		let v_copy:any = JSON.parse(JSON.stringify(v));
-  		let tx:TxsResDto = {
+  		let tx:TxListResDto = {
   			time: v_copy.time,
 				height: v_copy.height,
 				tx_hash: v_copy.tx_hash,

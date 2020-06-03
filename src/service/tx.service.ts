@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { TxsReqDto, TxsResDto } from '../dto/txs.dto';
+import { TxListReqDto, TxListResDto } from '../dto/txs.dto';
 import { ListStruct } from '../api/ApiResult';
 import { ITxsQueryParams } from '../types/tx.interface';
 
@@ -10,7 +10,7 @@ export class TxService {
     constructor(@InjectModel('Tx') private txModel: any) {
     }
 
-    async queryTxList(query: TxsReqDto): Promise<ListStruct<TxsResDto[]>> {
+    async queryTxList(query: TxListReqDto): Promise<ListStruct<TxListResDto[]>> {
         let result:{count?:number, data?:any} = {};
         let queryParameters:ITxsQueryParams = {};
         if (query.type && query.type.length) { queryParameters.type = query.type}
@@ -32,7 +32,7 @@ export class TxService {
             result.count = await this.txModel.count(queryParameters);
         }
 
-        return new ListStruct(TxsResDto.getDisplayData(result.data), Number(query.pageNumber), Number(query.pageSize), result.count);
+        return new ListStruct(TxListResDto.getDisplayData(result.data), Number(query.pageNumber), Number(query.pageSize), result.count);
     }
 }
 
