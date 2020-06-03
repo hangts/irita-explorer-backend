@@ -1,21 +1,28 @@
-import { IsString, IsInt, Length , IsOptional} from 'class-validator';
+import {IsOptional} from 'class-validator';
+import constant from '../constant/constant';
 
-export class BaseDot {
+//base request dto
+export class BaseReqDto {
 	
-	static validate(value:any){
-		
-	}
-
-	static convert(value:any){
+	static validate(value:any):void{
 
 	}
 
-	static getDisplayData(value:any){
+	static convert(value:any):any{
 		return value;
 	}
 }
 
-export class PagingDot extends BaseDot{
+// base response dto
+export class BaseResDto {
+
+	static getDisplayData(value:any):any{
+		return value;
+	}
+}
+
+//base Paging request Dto
+export class PagingDto extends BaseReqDto{
 	
 	@IsOptional()
   pageNumber: string;
@@ -25,4 +32,14 @@ export class PagingDot extends BaseDot{
 
   @IsOptional()
   useCount: string;
+
+  static convert(value:any):any{
+	  	if (!value.pageNumber) {
+				value.pageNumber = constant.defaultPaging.pageNumber;
+			}
+			if (!value.pageSize) {
+				value.pageSize = constant.defaultPaging.pageSize;
+			}
+		return value;
+	}
 }

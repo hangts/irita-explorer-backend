@@ -1,10 +1,10 @@
-import { IsString, IsInt, Length , Min, Max, IsOptional, Equals} from 'class-validator';
-import {BaseDot, PagingDot} from './base.dto';
+// import { IsString, IsInt, Length , Min, Max, IsOptional, Equals} from 'class-validator';
+import {BaseReqDto, BaseResDto, PagingDto} from './base.dto';
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
 import constant from '../constant/constant';
-
-export class TxsReqDto extends PagingDot{
+//txs list request dto
+export class TxsReqDto extends PagingDto{
 	
 	type:string;
   status: string;
@@ -17,19 +17,14 @@ export class TxsReqDto extends PagingDot{
 		}
 	}
 
-	static convert(value:any){
-		if (!value.pageNumber) {
-			value.pageNumber = constant.defaultPaging.pageNumber;
-		}
-		if (!value.pageSize) {
-			value.pageSize = constant.defaultPaging.pageSize;
-		}
+	static convert(value:any):any{
+		super.convert(value);
 		return value;
 	}
 }
 
-
-export class TxsResDot extends BaseDot{
+// txs list response dto
+export class TxsResDto extends BaseResDto{
 	time:string;
   height: string;
   tx_hash:string;
@@ -45,14 +40,12 @@ export class TxsResDot extends BaseDot{
   events:Array<any>;
   msgs:Array<any>;
   signers:Array<any>;
-  txn_revno:number;
-  txn_queue:Array<any>;
 
   static getDisplayData(value:any){
-  	let data:TxsResDot[] = [];
+  	let data:TxsResDto[] = [];
   	data = value.map((v:any)=>{
   		let v_copy:any = JSON.parse(JSON.stringify(v));
-  		let tx:TxsResDot = {
+  		let tx:TxsResDto = {
   			time: v_copy.time,
 				height: v_copy.height,
 				tx_hash: v_copy.tx_hash,
@@ -68,8 +61,6 @@ export class TxsResDot extends BaseDot{
 				events: v_copy.events,
 				msgs: v_copy.msgs,
 				signers: v_copy.signers,
-				txn_revno: v_copy.txn_revno,
-				txn_queue: v_copy.txn_queue
   		};
   		return tx;
   	});
