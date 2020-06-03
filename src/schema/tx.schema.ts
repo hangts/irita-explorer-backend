@@ -7,7 +7,7 @@ export const TxSchema = new mongoose.Schema({
 TxSchema.statics.findTx = async function (query: any, pageNumber:number, pageSize:number){
 	return await this.find(query)
 					 .sort({height:-1})
-					 .skip(Number(pageNumber))
+					 .skip(Number(pageNumber * pageSize))
 					 .limit(Number(pageSize));
 }
 
