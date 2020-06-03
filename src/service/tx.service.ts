@@ -4,7 +4,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { TxsReqDto, TxsResDot } from '../dto/txs.dto';
 import { ListStruct } from '../api/ApiResult';
 import { ITxsQueryParams } from '../types/tx.interface';
-import constant from '../constant/constant';
 
 @Injectable()
 export class TxService {
