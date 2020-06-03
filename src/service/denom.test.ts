@@ -31,7 +31,7 @@ describe('AppController', () => {
         };
 
         it('should return the same result', async () => {
-            //expect(denomService.queryDenomList().toBe(o);
+            //expect(denomService.queryList().toBe(o);
         });
     });
 });

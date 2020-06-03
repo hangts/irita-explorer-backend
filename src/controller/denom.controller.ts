@@ -13,14 +13,14 @@ export class DenomController {
     }
 
     @Get()
-    async queryDenomList(@Query() q: IDenomQueryParams): Promise<Result<ListStruct<any>>> {
-        const data: ListStruct<any> = await this.denomService.queryDenomList(q);
+    async queryList(@Query() q: IDenomQueryParams): Promise<Result<ListStruct<any>>> {
+        const data: ListStruct<any> = await this.denomService.queryList(q);
         return new Result<any>(data);
     }
 
     @Post('create')
-    async saveDenom(@Body(new DenomValidationPipe()) createDenomDto: CreateDenomDto): Promise<Result<CreateDenomDto>> {
-        const res: CreateDenomDto = await this.denomService.createDenom(createDenomDto);
+    async createOne(@Body(new DenomValidationPipe()) createDenomDto: CreateDenomDto): Promise<Result<CreateDenomDto>> {
+        const res: CreateDenomDto = await this.denomService.createOne(createDenomDto);
         return  new Result<any>(res);
     }
 }

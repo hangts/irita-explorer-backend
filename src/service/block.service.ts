@@ -5,26 +5,22 @@ import { ListStruct } from '../api/ApiResult';
 import { BaseListVo } from '../vo/base.list.vo';
 import { BlockDto } from '../dto/block.dto';
 import { IBlockEntities } from '../schema/block.schema';
+import { BlockHttp } from '../http/block.http';
 
 @Injectable()
 export class BlockService {
-    constructor(@InjectModel('Block') private blockModel: Model<IBlockEntities>) {
+    constructor(@InjectModel('Block') private blockModel: Model<IBlockEntities>, private readonly blockHttp: BlockHttp) {
     }
 
     async queryBlockList(query: BaseListVo): Promise<ListStruct<BlockDto[]>> {
         const { pageNumber, pageSize, useCount } = query;
         let count: number;
-        const b: IBlockEntities[] = await (this.blockModel as any).findList(query);
+        const b: IBlockEntities[] = await (this.blockModel as any).findList(pageNumber, pageSize);
         if(useCount){
             count = await (this.blockModel as any).count();
         }
         const resList: BlockDto[] = b.map((b) => {
-            return {
-                height: b.height,
-                txn: b.txn,
-                hash: b.hash,
-                time: b.time,
-            };
+            return new BlockDto(b.height, b.hash, b.txn, b.time);
         });
         return new ListStruct(resList, pageNumber, pageSize, count);
     }
@@ -33,12 +29,7 @@ export class BlockService {
         let data: BlockDto | null = null;
         const res: IBlockEntities | null = await (this.blockModel as any).findOneByHeight(p);
         if (res) {
-            data = {
-                height: res.height,
-                txn: res.txn,
-                hash: res.hash,
-                time: res.time,
-            };
+            data = new BlockDto(res.height, res.hash, res.txn, res.time)
         }
         return data;
     }
@@ -59,7 +50,7 @@ export class BlockService {
     }
 
     async queryLatestBlockFromLcd(): Promise<any> {
-        return await (this.blockModel as any).queryLatestBlockFromLcd();
+        return await this.blockHttp.queryLatestBlockFromLcd();
     }
 
 

@@ -4,6 +4,7 @@ import {BlockService} from '../service/block.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {BlockSchema} from '../schema/block.schema';
 import {HttpModule} from '@nestjs/common';
+import {BlockHttp} from '../http/block.http';
 
 @Module({
     imports:[
@@ -14,7 +15,7 @@ import {HttpModule} from '@nestjs/common';
         }]),
         HttpModule
     ],
-    providers:[BlockService],
+    providers:[BlockService, BlockHttp],
     controllers:[BlockController],
 })
 export class BlockModule{}
