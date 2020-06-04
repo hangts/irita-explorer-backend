@@ -8,5 +8,11 @@ export interface ITxsQueryParams extends IQueryBase {
 		$gte?:Date,
 		$lte?:Date,
 	},
+}
 
+export interface ITxsQuery extends IQueryBase {
+	type?:string,
+	status?:string,
+	beginTime?:string,
+  	endTime?:string,
 }
