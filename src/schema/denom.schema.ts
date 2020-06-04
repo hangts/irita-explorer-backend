@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import {BlockListVo} from '../vo/block.vo';
 import { Document } from 'mongoose';
-import { Logger, HttpService } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';
 import {ApiError} from '../api/ApiResult';
 import {cfg} from '../config';
@@ -41,7 +41,7 @@ DenomSchema.statics = {
         }
     },
 
-    queryLatestBlockFromLcd: async function(): Promise<any>{
+    /*queryLatestBlockFromLcd: async function(): Promise<any>{
         try {
             const url: string = `${cfg.serverCfg.lcdAddr}/blocks/latest`;
             return await new HttpService().get(url).toPromise().then(res => res.data);
@@ -50,7 +50,7 @@ DenomSchema.statics = {
             throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
         }
 
-    },
+    },*/
 
 
 

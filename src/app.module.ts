@@ -6,7 +6,6 @@ import {APP_FILTER} from '@nestjs/core';
 import {HttpExceptionFilter} from './exception/HttpExceptionFilter';
 import {cfg} from './config';
 import { ScheduleModule } from '@nestjs/schedule';
-import {TasksService} from './task/task.service';
 
 console.log(cfg);
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.host}:${cfg.dbCfg.port}/${cfg.dbCfg.db}`;
@@ -21,8 +20,7 @@ const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.ho
         {
             provide: APP_FILTER,
             useClass: HttpExceptionFilter,
-        },
-        TasksService
+        }
     ],
 })
 export class AppModule {

@@ -3,9 +3,9 @@ import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';
 import { ApiError } from '../api/ApiResult';
 import { cfg } from '../config';
 
-export class BlockHttp {
+export class DenomHttp {
 
-    static async queryLatestBlockFromLcd(): Promise<any> {
+    static async queryDenomsFromLcd(): Promise<any> {
         try {
             const url: string = `${cfg.serverCfg.lcdAddr}/blocks/latest`;
             return await new HttpService().get(url).toPromise().then(res => res.data);

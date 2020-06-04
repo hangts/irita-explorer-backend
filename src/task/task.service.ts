@@ -17,7 +17,7 @@ export class TasksService {
     @Cron('01 * * * * *')
     syncDenoms() {
         this.logger.log('cron jobs of denoms async is running!');
-        this.denomService.async();
+        //this.denomService.async();
     }
 
 

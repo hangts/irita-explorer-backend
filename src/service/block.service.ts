@@ -9,7 +9,8 @@ import { BlockHttp } from '../http/block.http';
 
 @Injectable()
 export class BlockService {
-    constructor(@InjectModel('Block') private blockModel: Model<IBlockEntities>, private readonly blockHttp: BlockHttp) {
+
+    constructor(@InjectModel('Block') private blockModel: Model<IBlockEntities>) {
     }
 
     async queryBlockList(query: BaseListVo): Promise<ListStruct<BlockDto[]>> {
@@ -50,7 +51,7 @@ export class BlockService {
     }
 
     async queryLatestBlockFromLcd(): Promise<any> {
-        return await this.blockHttp.queryLatestBlockFromLcd();
+        return await BlockHttp.queryLatestBlockFromLcd();
     }
 
 
