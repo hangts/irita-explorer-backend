@@ -3,6 +3,7 @@ import {DenomController} from '../controller/denom.controller';
 import {DenomService} from '../service/denom.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {DenomSchema} from '../schema/denom.schema';
+import { DenomHttp } from '../http/denom.http';
 
 @Module({
     imports:[
@@ -10,9 +11,10 @@ import {DenomSchema} from '../schema/denom.schema';
             name: 'Denom',
             schema: DenomSchema,
             collection: 'sync_denom'
-        }])
+        }]),
     ],
-    providers:[DenomService],
+    providers:[DenomService, DenomHttp],
     controllers:[DenomController],
+    exports:[DenomService]
 })
 export class DenomModule{}

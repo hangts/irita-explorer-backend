@@ -11,7 +11,7 @@ import {DenomHttp} from '../http/denom.http';
 
 @Injectable()
 export class DenomService {
-    constructor(@InjectModel('Denom') private denomModel: Model<IDenom>) {
+    constructor(@InjectModel('Denom') private denomModel: Model<IDenom>, private readonly denomHttp: DenomHttp) {
     }
 
     async queryList(query: IDenomQueryParams): Promise<ListStruct<any[]>> {
@@ -28,19 +28,16 @@ export class DenomService {
         };
     }
 
-    createMany(data: any[]){
 
-    }
-
-    async async(): Promise<void>{
-        /*try {
-            const url: string = `${cfg.serverCfg.lcdAddr}/nft/nfts/denoms`;
-            const data: any = await new HttpService().get(url).toPromise().then(res => res.data);
+    async async(){
+        try {
+            const data: any = await this.denomHttp.queryDenomsFromLcd();
+            (this.denomModel as any).saveBulk(data)
         } catch (e) {
             new Logger().error('api-error:',e.message);
             throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
-        }*/
-        const data: any = await DenomHttp.queryDenomsFromLcd();
+        }
+
     }
 }
 

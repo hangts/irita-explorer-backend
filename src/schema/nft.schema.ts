@@ -6,24 +6,29 @@ import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';
 import { ApiError } from '../api/ApiResult';
 import { cfg } from '../config';
 
-export interface IDenomEntities extends Document {
-    name: string,
-    json_schema: string,
-    creator: string,
+export interface INftEntities extends Document {
+    denom: string,
+    nft_id: string,
+    owner: string,
+    token_uri: string,
+    token_data: string,
     create_time: number,
     update_time: number,
 }
 
-export const DenomSchema = new mongoose.Schema({
-    name: { type: String, unique: true },
-    json_schema: String,
-    creator: String,
+export const NftSchema = new mongoose.Schema({
+    denom: String,
+    nft_id: String,
+    owner: String,
+    token_uri: String,
+    token_data: String,
     create_time: Number,
     update_time: Number,
 });
+NftSchema.index({denom:1, nft_id:1}, {unique: true});
 
-DenomSchema.statics = {
-    findList: async function(pageNumber: number, pageSize: number): Promise<IDenomEntities[]> {
+NftSchema.statics = {
+    findList: async function(pageNumber: number, pageSize: number): Promise<INftEntities[]> {
         try {
             return await this.find().sort({ height: -1 }).skip((pageNumber - 1) * pageSize).limit(pageSize).exec();
         } catch (e) {
@@ -40,10 +45,19 @@ DenomSchema.statics = {
             throw new ApiError(ErrorCodes.failed, e.message);
         }
     },
-
-    saveBulk: function(denoms: any): void {
+    async findNftListByName(name: string): Promise<INftEntities>{
         try {
-            const entitiesList: IDenomEntities[] = denoms.map((d) => {
+            return await this.find({denom: name}).exec();
+        } catch (e) {
+            new Logger().error('mongo-error:', e.message);
+            throw new ApiError(ErrorCodes.failed, e.message);
+        }
+    },
+
+    saveBulk: function(nfts: any): void {
+        //console.log('------',nfts)
+        /*try {
+            const entitiesList: INftEntities[] = nfts.map((d) => {
                 return {
                     name: d.name,
                     json_schema: d.schema,
@@ -57,16 +71,8 @@ DenomSchema.statics = {
         } catch (e) {
             new Logger().error('mongo-error:', e.message);
             throw new ApiError(ErrorCodes.failed, e.message);
-        }
+        }*/
     },
-    async findAllNames(): Promise<string[]>{
-        try {
-            return await this.find({},{name:1}).exec();
-        } catch (e) {
-            new Logger().error('mongo-error:', e.message);
-            throw new ApiError(ErrorCodes.failed, e.message);
-        }
-    }
 
     /*queryLatestBlockFromLcd: async function(): Promise<any>{
         try {
