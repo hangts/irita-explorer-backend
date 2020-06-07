@@ -10,3 +10,8 @@ export interface INft extends Document {
 }
 
 export interface INftQueryParams extends IQueryBase {}
+
+export interface deleteQuery {
+    denom: string,
+    nft_id: string,
+}
