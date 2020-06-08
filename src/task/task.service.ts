@@ -23,15 +23,9 @@ export class TasksService {
         this.denomService.async();
     }
 
-    @Cron('45 * * * * *')
+    @Cron('40 * * * * *')
     syncNfts() {
         this.logger.log('cron jobs of nft async is running!');
         this.nftService.findDenomAndSyncNft();
     }
-
-
-
-
-
-
 }

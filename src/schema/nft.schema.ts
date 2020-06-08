@@ -13,6 +13,7 @@ export interface INftEntities extends Document {
     token_data: string,
     create_time: number,
     update_time: number,
+    hash: string,
 }
 
 export const NftSchema = new mongoose.Schema({
@@ -23,6 +24,7 @@ export const NftSchema = new mongoose.Schema({
     token_data: String,
     create_time: Number,
     update_time: Number,
+    hash: String,
 });
 NftSchema.index({denom:1, nft_id:1}, {unique: true});
 
@@ -99,7 +101,6 @@ NftSchema.statics = {
                 token_uri,
                 update_time:Math.floor(new Date().getTime()/1000)
             }, (e)=>{
-                console.log('-=-=-==-',e)
                 if(e) new Logger().error('mongo-error:', e.message);
             });
         } catch (e) {

@@ -1,16 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { INftQueryParams, INft } from '../types/nft.interface';
-import { ApiError, ListStruct } from '../api/ApiResult';
-import { CreateNftDto } from '../dto/create.nft.dto';
-import { cfg } from '../config';
-import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';
+import { ListStruct } from '../api/ApiResult';
 import { NftHttp } from '../http/nft.http';
-import { DenomService } from './denom.service';
 import { IDenom } from '../types/denom.interface';
 import { INftEntities } from '../schema/nft.schema';
 import { NftDetailReqDto, NftDetailResDto, NftListReqDto, NftListResDto } from '../dto/nft.dto';
+import md5 from 'blueimp-md5';
 
 @Injectable()
 export class NftService {
@@ -23,12 +19,12 @@ export class NftService {
     async queryList(query: NftListReqDto): Promise<ListStruct<NftListResDto[]>> {
         const { pageNum, pageSize, denom, owner, useCount } = query;
         const nftList: any[] = await (this.nftModel as any).findList(Number(pageNum), Number(pageSize), denom, owner);
-        const res: NftListResDto[] = nftList.map((n)=>{
+        const res: NftListResDto[] = nftList.map((n) => {
             return new NftListResDto(n.denom, n.nft_id, n.owner, n.token_uri, n.token_data, n.create_time, n.update_time);
         });
         let count: number = 0;
-        if(useCount){
-            count = await this.nftModel.find().count();
+        if (useCount) {
+            count = await (this.nftModel as any).queryCount();
         }
         return new ListStruct(res, Number(pageNum), Number(pageSize), count);
     }
@@ -36,13 +32,12 @@ export class NftService {
     async queryDetail(query: NftDetailReqDto): Promise<NftDetailResDto> {
         const { denom, nftId } = query;
         const n: any = await (this.nftModel as any).findOneByDenomAndNftId(denom, nftId);
-        if(n){
+        if (n) {
             return new NftListResDto(n.denom, n.nft_id, n.owner, n.token_uri, n.token_data, n.create_time, n.update_time);
-        }else{
+        } else {
             return null;
         }
     }
-
 
 
     async findDenomAndSyncNft() {
@@ -55,9 +50,10 @@ export class NftService {
                     let shouldInsertList: any[] = NftService.getShouldInsertList(res.nfts, nftFromDb);
                     let shouldDeleteNftList: INftEntities[] = NftService.getShouldDeleteList(res.nfts, nftFromDb);
                     let shouldUpdateNftList: any[] = NftService.getShouldUpdateList(res.nfts, nftFromDb);
-                    //console.log('should insert list:', shouldInsertList)
                     if (shouldInsertList.length > 0) {
                         let insertNftList: any[] = shouldInsertList.map((nft) => {
+                            const str: string = `${nft.value.owner}${nft.value.token_uri ? nft.value.token_uri : ''}${nft.value.token_data ? nft.value.token_data : ''}`;
+                            const hash = md5(str);
                             return {
                                 denom: n.name,
                                 nft_id: nft.value.id,
@@ -66,11 +62,10 @@ export class NftService {
                                 token_data: nft.value.token_data ? nft.value.token_data : '',
                                 create_time: Math.floor(new Date().getTime() / 1000),
                                 update_time: Math.floor(new Date().getTime() / 1000),
+                                hash,
                             };
                         });
-
                         await (this.nftModel as any).saveBulk(insertNftList);
-
                     }
                     if (shouldDeleteNftList.length > 0) {
                         shouldDeleteNftList.forEach((nft) => {
@@ -155,8 +150,10 @@ export class NftService {
                 nftFromDb.forEach((n) => {
                     nftFromLcd.forEach((nl) => {
                         if (nl.value.id === n.nft_id) {
-                            //只要有一个属性不同,就需要更新
-                            if (nl.value.owner !== n.owner || nl.value.token_data !== n.token_data || nl.value.token_uri !== n.token_uri) {
+                            //compare difference by hash;
+                            const lcdStr = `${nl.value.owner}${nl.value.token_uri ? nl.value.token_uri : ''}${nl.value.token_data ? nl.value.token_data : ''}`;
+                            const lcdHash = md5(lcdStr);
+                            if (lcdHash !== n.hash) {
                                 o.push(nl);
                             }
                         }
@@ -166,7 +163,6 @@ export class NftService {
             }
         }
     }
-
 
     async findNftListByName(name: string): Promise<INftEntities[]> {
         return await (this.nftModel as any).findNftListByName(name);
