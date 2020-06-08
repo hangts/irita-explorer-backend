@@ -1,10 +1,8 @@
-import { Controller, Get, Param, Query, Res, Req, Post, Body, HttpCode } from '@nestjs/common';
-import { IDenomQueryParams } from '../types/denom.interface';
+import { Controller, Get} from '@nestjs/common';
 import { DenomService } from '../service/denom.service';
-import { CreateDenomDto } from '../dto/create.denom.dto';
-import { DenomValidationPipe } from '../pipe/denom.validation.pipe';
 import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
+import {DenomListResDto} from '../dto/denom.dto';
 
 
 @Controller('denoms')
@@ -13,14 +11,10 @@ export class DenomController {
     }
 
     @Get()
-    async queryList(@Query() q: IDenomQueryParams): Promise<Result<ListStruct<any>>> {
-        const data: ListStruct<any> = await this.denomService.queryList(q);
-        return new Result<any>(data);
+    async queryList(): Promise<Result<ListStruct<DenomListResDto[]>>> {
+        const data: ListStruct<DenomListResDto[]> = await this.denomService.queryList();
+        return new Result<ListStruct<DenomListResDto[]>>(data);
     }
 
-    @Post('create')
-    async createOne(@Body(new DenomValidationPipe()) createDenomDto: CreateDenomDto): Promise<Result<CreateDenomDto>> {
-        const res: CreateDenomDto = await this.denomService.createOne(createDenomDto);
-        return  new Result<any>(res);
-    }
+
 }

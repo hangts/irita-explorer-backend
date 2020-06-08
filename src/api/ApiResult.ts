@@ -7,13 +7,13 @@ import {
 
 export class ListStruct<T> implements IListStructBase<T> {
     data: T;
-    pageNumber: number;
+    pageNum: number;
     pageSize: number;
     count?: number;
 
-    constructor(data: T, pageNumber: number, pageSize: number, count?: number) {
+    constructor(data: T, pageNum: number, pageSize: number, count?: number) {
         this.data = data;
-        this.pageNumber = pageNumber;
+        this.pageNum = pageNum;
         this.pageSize = pageSize;
         if (count || count === 0) this.count = count;
     }

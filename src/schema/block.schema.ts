@@ -21,8 +21,8 @@ export const BlockSchema = new mongoose.Schema({
 BlockSchema.statics = {
     findList: async function(v: BlockListVo): Promise<IBlockEntities[]>{
         try{
-            const { pageNumber, pageSize} = v;
-            return await this.find().sort({ height: -1 }).skip((pageNumber - 1) * pageSize).limit(pageSize).exec();
+            const { pageNum, pageSize} = v;
+            return await this.find().sort({ height: -1 }).skip((pageNum - 1) * pageSize).limit(pageSize).exec();
         }catch (e) {
             new Logger().error('mongo-error:',e.message);
             throw new ApiError(ErrorCodes.failed,e.message);

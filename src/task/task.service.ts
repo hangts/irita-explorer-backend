@@ -17,13 +17,13 @@ export class TasksService {
         this.logger.log('cron jobs is running!');
     }
 
-    /*@Cron('40 * * * * *')
+    @Cron('40 * * * * *')
     syncDenoms() {
         this.logger.log('cron jobs of denoms async is running!');
         this.denomService.async();
-    }*/
+    }
 
-    @Cron('25 * * * * *')
+    @Cron('45 * * * * *')
     syncNfts() {
         this.logger.log('cron jobs of nft async is running!');
         this.nftService.findDenomAndSyncNft();

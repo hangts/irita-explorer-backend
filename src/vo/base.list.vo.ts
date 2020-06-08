@@ -1,5 +1,5 @@
 export interface BaseListVo {
-    pageNumber?: number;
+    pageNum?: number;
     pageSize?: number;
     useCount?: boolean;
 }

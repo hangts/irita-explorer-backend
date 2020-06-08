@@ -23,9 +23,9 @@ export const DenomSchema = new mongoose.Schema({
 });
 
 DenomSchema.statics = {
-    findList: async function(pageNumber: number, pageSize: number): Promise<IDenomEntities[]> {
+    findList: async function(): Promise<IDenomEntities[]> {
         try {
-            return await this.find().sort({ height: -1 }).skip((pageNumber - 1) * pageSize).limit(pageSize).exec();
+            return await this.find({}).exec();
         } catch (e) {
             new Logger().error('mongo-error:', e.message);
             throw new ApiError(ErrorCodes.failed, e.message);

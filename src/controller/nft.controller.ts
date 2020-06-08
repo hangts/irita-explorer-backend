@@ -4,6 +4,7 @@ import { NftService } from '../service/nft.service';
 import { CreateNftDto } from '../dto/create.nft.dto';
 import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
+import { NftListReqDto, NftListResDto, NftDetailReqDto, NftDetailResDto } from '../dto/nft.dto';
 
 
 @Controller('nfts')
@@ -12,14 +13,18 @@ export class NftController {
     }
 
     @Get()
-    async queryList(@Query() q: INftQueryParams): Promise<Result<ListStruct<any>>> {
-        const data: ListStruct<any> = await this.nftService.queryList(q);
-        return new Result<any>(data);
+    async queryList(@Query() q: NftListReqDto): Promise<Result<ListStruct<NftListResDto[]>>> {
+        const data: ListStruct<NftListResDto[]> = await this.nftService.queryList(q);
+        return new Result<ListStruct<NftListResDto[]>>(data);
     }
 
-    @Post('create')
-    async createOne(@Body() createNftDto: CreateNftDto): Promise<Result<CreateNftDto>> {
-        const res: CreateNftDto = await this.nftService.createOne(createNftDto);
-        return  new Result<any>(res);
+    @Get('details')
+    async queryDetail(@Query() q: NftDetailReqDto): Promise<Result<NftDetailResDto>> {
+        console.log(q)
+        const data: NftDetailResDto = await this.nftService.queryDetail(q);
+        return new Result<NftDetailResDto>(data);
     }
+
+
+
 }

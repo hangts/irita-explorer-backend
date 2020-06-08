@@ -25,7 +25,7 @@ describe('AppController', () => {
                 name:'lsc',
                 age:18
             }],
-            pageNumber:1,
+            pageNum:1,
             pageSize:10,
             count:10,
         };

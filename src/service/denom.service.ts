@@ -1,31 +1,23 @@
 import { Injectable,Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { IDenomQueryParams } from '../types/denom.interface';
 import { ApiError, ListStruct } from '../api/ApiResult';
-import { IDenom } from '../types/denom.interface';
-import { CreateDenomDto } from '../dto/create.denom.dto';
-import {cfg} from '../config';
+import {IDenomEntities} from '../schema/denom.schema';
 import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';
 import {DenomHttp} from '../http/denom.http';
+import {DenomListResDto} from '../dto/denom.dto';
 
 @Injectable()
 export class DenomService {
-    constructor(@InjectModel('Denom') private denomModel: Model<IDenom>, private readonly denomHttp: DenomHttp) {
+    constructor(@InjectModel('Denom') private denomModel: Model<IDenomEntities>, private readonly denomHttp: DenomHttp) {
     }
 
-    async queryList(query: IDenomQueryParams): Promise<ListStruct<any[]>> {
-        const { pageNumber, pageSize } = query;
-        const denomList: any[] = await this.denomModel.find().skip(Number(pageNumber)).limit(Number(pageSize)).exec();
-        return new ListStruct(denomList, Number(pageNumber), Number(pageSize), 0);
-    }
-
-    async createOne(data: CreateDenomDto): Promise<CreateDenomDto>{
-        return  {
-            height: 100,
-            hash: 'hello world',
-            memo: '红豆生南国',
-        };
+    async queryList(): Promise<ListStruct<DenomListResDto[]>> {
+        const denomList: any[] = await (this.denomModel as any).findList();
+        const res: DenomListResDto[] = denomList.map((d)=>{
+            return new DenomListResDto(d.name, d.json_schema, d.creator, d.update_time, d.create_time);
+        });
+        return new ListStruct(res, 0, 0, 0);
     }
 
 

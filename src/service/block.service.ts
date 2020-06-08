@@ -14,16 +14,16 @@ export class BlockService {
     }
 
     async queryBlockList(query: BaseListVo): Promise<ListStruct<BlockDto[]>> {
-        const { pageNumber, pageSize, useCount } = query;
+        const { pageNum, pageSize, useCount } = query;
         let count: number;
-        const b: IBlockEntities[] = await (this.blockModel as any).findList(pageNumber, pageSize);
+        const b: IBlockEntities[] = await (this.blockModel as any).findList(pageNum, pageSize);
         if(useCount){
             count = await (this.blockModel as any).count();
         }
         const resList: BlockDto[] = b.map((b) => {
             return new BlockDto(b.height, b.hash, b.txn, b.time);
         });
-        return new ListStruct(resList, pageNumber, pageSize, count);
+        return new ListStruct(resList, pageNum, pageSize, count);
     }
 
     async queryBlockDetail(p): Promise<BlockDto | null> {

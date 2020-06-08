@@ -29,9 +29,24 @@ export const NftSchema = new mongoose.Schema({
 NftSchema.index({denom:1, nft_id:1}, {unique: true});
 
 NftSchema.statics = {
-    findList: async function(pageNumber: number, pageSize: number): Promise<INftEntities[]> {
+    findList: async function(pageNum: number, pageSize: number, denom?: string, owner?: string): Promise<INftEntities[]> {
         try {
-            return await this.find().sort({ height: -1 }).skip((pageNumber - 1) * pageSize).limit(pageSize).exec();
+            let q: any = {};
+            if(denom) q.denom = denom;
+            if(denom) q.owner = owner;
+            return await this.find(q).sort().skip((pageNum - 1) * pageSize).limit(pageSize).exec();
+        } catch (e) {
+            new Logger().error('mongo-error:', e.message);
+            throw new ApiError(ErrorCodes.failed, e.message);
+        }
+    },
+
+    async findOneByDenomAndNftId(denom: string, nftId: string): Promise<INftEntities>{
+        try {
+            return await this.findOne({
+                denom,
+                nft_id:nftId
+            }).exec();
         } catch (e) {
             new Logger().error('mongo-error:', e.message);
             throw new ApiError(ErrorCodes.failed, e.message);
@@ -74,6 +89,26 @@ NftSchema.statics = {
             //throw new ApiError(ErrorCodes.failed, e.message);
         }
     },
+
+    updateOneById(nft: any): void{
+        try {
+            const { nft_id, owner, token_data, token_uri } = nft;
+            this.updateOne({
+                nft_id
+            },{
+                owner,
+                token_data,
+                token_uri,
+                update_time:Math.floor(new Date().getTime()/1000)
+            }, (e)=>{
+                console.log('-=-=-==-',e)
+                if(e) new Logger().error('mongo-error:', e.message);
+            });
+        } catch (e) {
+            new Logger().error('mongo-error:', e.message);
+            //throw new ApiError(ErrorCodes.failed, e.message);
+        }
+    }
 
 
 
