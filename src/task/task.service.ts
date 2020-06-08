@@ -24,7 +24,7 @@ export class TasksService {
         this.logger.log('cron jobs is running!');
     }
 
-    @Cron('30 * * * * *')
+    @Cron('25 * * * * *')
     async syncDenoms() {
         this.logger.log('cron jobs of denoms async is running!');
         const shouldExecuteTask: boolean = await this.taskDispatchService.shouldExecuteCronJobs(taskEnum.denom);
@@ -38,16 +38,16 @@ export class TasksService {
 
     }
 
-    @Cron('20 * * * * *')
+    @Cron('01 * * * * *')
     async syncNfts() {
         this.logger.log('cron jobs of nft async is running!');
         const shouldExecuteTask: boolean = await this.taskDispatchService.shouldExecuteCronJobs(taskEnum.nft);
-        if (shouldExecuteTask) {
+       // if (shouldExecuteTask) {
             const completed = await this.nftService.findDenomAndSyncNft();
             if(completed){
                 this.taskDispatchService.updateUpdatedTimeAndIsLocked(taskEnum.nft);
             }
-        }
+        //}
 
     }
 }

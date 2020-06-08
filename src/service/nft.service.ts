@@ -50,32 +50,10 @@ export class NftService {
                     let shouldInsertList: any[] = NftService.getShouldInsertList(res.nfts, nftFromDb);
                     let shouldDeleteNftList: INftEntities[] = NftService.getShouldDeleteList(res.nfts, nftFromDb);
                     let shouldUpdateNftList: any[] = NftService.getShouldUpdateList(res.nfts, nftFromDb);
-                    if (shouldInsertList.length > 0) {
-                        let insertNftList: any[] = shouldInsertList.map((nft) => {
-                            const str: string = `${nft.value.owner}${nft.value.token_uri ? nft.value.token_uri : ''}${nft.value.token_data ? nft.value.token_data : ''}`;
-                            const hash = md5(str);
-                            return {
-                                denom: n.name,
-                                nft_id: nft.value.id,
-                                owner: nft.value.owner,
-                                token_uri: nft.value.token_uri ? nft.value.token_uri : '',
-                                token_data: nft.value.token_data ? nft.value.token_data : '',
-                                create_time: Math.floor(new Date().getTime() / 1000),
-                                update_time: Math.floor(new Date().getTime() / 1000),
-                                hash,
-                            };
-                        });
-                        await (this.nftModel as any).saveBulk(insertNftList);
-                    }
-                    if (shouldDeleteNftList.length > 0) {
-                        shouldDeleteNftList.forEach(async (nft) => {
-                            await (this.nftModel as any).deleteOneByDenomAndId({
-                                nft_id: nft.nft_id,
-                                denom: n.name,
-                            });
-                        });
+                    let saved = await this.saveNft(n, shouldInsertList);
+                    let deleted = await this.deleteNft(n, shouldDeleteNftList);
 
-                    }
+
 
                     if (shouldUpdateNftList.length > 0) {
                         shouldUpdateNftList.forEach(async (nft) => {
@@ -92,6 +70,55 @@ export class NftService {
             });
         }
 
+    }
+
+    async saveNft(n:any, shouldInsertList: any[]): Promise<boolean>{
+        if (shouldInsertList.length > 0) {
+            let insertNftList: any[] = shouldInsertList.map((nft) => {
+                const str: string = `${nft.value.owner}${nft.value.token_uri ? nft.value.token_uri : ''}${nft.value.token_data ? nft.value.token_data : ''}`;
+                const hash = md5(str);
+                return {
+                    denom: n.name,
+                    nft_id: nft.value.id,
+                    owner: nft.value.owner,
+                    token_uri: nft.value.token_uri ? nft.value.token_uri : '',
+                    token_data: nft.value.token_data ? nft.value.token_data : '',
+                    create_time: Math.floor(new Date().getTime() / 1000),
+                    update_time: Math.floor(new Date().getTime() / 1000),
+                    hash,
+                };
+            });
+            const saved: any = await (this.nftModel as any).saveBulk(insertNftList);
+            if(saved) return true;
+        }else {
+            return true;
+        }
+    }
+
+    async deleteNft(n:any, shouldDeleteNftList: any[]): Promise<boolean>{
+        if (shouldDeleteNftList.length > 0) {
+            return new Promise((resolve)=>{
+                let arr: any[] = [];
+                const promiseContainer = async (nft)=> {
+                    await (this.nftModel as any).deleteOneByDenomAndId({
+                        nft_id: nft.nft_id,
+                        denom: n.name,
+                    });
+                };
+                shouldDeleteNftList.forEach((nft) => {
+                    arr.push(promiseContainer(nft))
+                });
+                Promise.all(arr).then((res)=>{
+                    if(res) {
+                        resolve(true);
+                    }
+                }).catch((e)=>{
+                    new Logger('delete nft failed:',e.message);
+                })
+            })
+        }else{
+            return true;
+        }
     }
 
     static getShouldDeleteList(nftFromLcd: null | any[], nftFromDb: INftEntities[]): any[] {
