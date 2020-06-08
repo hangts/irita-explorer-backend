@@ -9,3 +9,8 @@ export interface ITxsQueryParams extends IQueryBase {
 		$lte?:Date,
 	}
 }
+
+export interface IListStruct {
+	data?: any[],
+    count?: number
+}

@@ -6,10 +6,10 @@ import constant from '../constant/constant';
 //txs request dto
 export class TxListReqDto extends PagingReqDto{
 	
-	type: string;
-  status: string;
-  beginTime: string;
-  endTime: string;
+	type?: string;
+  status?: string;
+  beginTime?: string;
+  endTime?: string;
 
   static validate(value:any){
   	super.validate(value);
@@ -21,23 +21,23 @@ export class TxListReqDto extends PagingReqDto{
 
 //txs/blocks request dto
 export class TxListWithHeightReqDto extends PagingReqDto{
-	height: string;
+	height?: string;
 }
 
 //txs/address request dto
 export class TxListWithAddressReqDto extends PagingReqDto{
-	address: string;
+	address?: string;
 }
 
 //txs/nfts request dto
 export class TxListWithNftReqDto extends PagingReqDto{
-	denom: string;
-	tokenId: string;
+	denom?: string;
+	tokenId?: string;
 }
 
 //txs/services request dto
 export class TxListWithServicesNameReqDto extends PagingReqDto{
-	serviceName: string;
+	serviceName?: string;
 }
 
 //txs/services/detail/{serviceName} request dto

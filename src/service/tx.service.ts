@@ -7,8 +7,8 @@ import { TxListReqDto,
          TxListWithAddressReqDto,
          TxListWithNftReqDto,
          TxListWithServicesNameReqDto,
-         TxWithHashReqDto,
-         ServicesDetailReqDto} from '../dto/txs.dto';
+         ServicesDetailReqDto,
+         TxWithHashReqDto} from '../dto/txs.dto';
 import { ListStruct } from '../api/ApiResult';
 @Injectable()
 export class TxService {

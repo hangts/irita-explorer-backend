@@ -27,13 +27,13 @@ export class BaseResDto {
 export class PagingReqDto extends BaseReqDto{
 	
 	@IsOptional()
-  pageNumber: string;
+  pageNumber?: string;
 
   @IsOptional()
-  pageSize: string;
+  pageSize?: string;
 
   @IsOptional()
-  useCount: string;
+  useCount?: string;
 
   static validate(value:any):void{
   	let patt = /^[1-9]\d*$/;

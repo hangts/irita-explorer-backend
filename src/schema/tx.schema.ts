@@ -5,6 +5,7 @@ import { ITxsQuery,
 	     ITxsWhthNftQuery,
 	 	 ITxsWhthServiceNameQuery} from '../types/schemaQuery/tx.interface';
 import { ITxsQueryParams} from '../types/tx.interface';
+import {IListStruct} from '../types';
 
 export const TxSchema = new mongoose.Schema({
     time:Date,
@@ -24,8 +25,9 @@ export const TxSchema = new mongoose.Schema({
     signers:Array
 });
 
+// txs
 TxSchema.statics.queryTxList = async function (query:ITxsQuery){
-	let result:{count?:number, data?:any} = {};
+	let result:IListStruct = {};
     let queryParameters:ITxsQueryParams = {};
     if (query.type && query.type.length) { queryParameters.type = query.type}
     if (query.status && query.status.length) { 
@@ -38,6 +40,7 @@ TxSchema.statics.queryTxList = async function (query:ITxsQuery){
             break;
         }
     }
+    if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {queryParameters.time = {};}
     if (query.beginTime && query.beginTime.length) { queryParameters.time.$gte =  new Date(Number(query.beginTime) * 1000) }
     if (query.endTime && query.endTime.length) { queryParameters.time.$lte =  new Date(Number(query.endTime) * 1000) }
     
@@ -52,8 +55,9 @@ TxSchema.statics.queryTxList = async function (query:ITxsQuery){
 	return result;
 }
 
+// txs/blocks
 TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery){
-	let result:{count?:number, data?:any} = {};
+	let result:IListStruct = {};
 	let queryParameters:{height?:number} = {};
 	if (query.height) { queryParameters.height = Number(query.height);}
 	result.data = await this.find(queryParameters)
@@ -66,9 +70,9 @@ TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery){
 	return result;
 }
 
+//  txs/addresses
 TxSchema.statics.queryTxWithAddress = async function(query:ITxsWhthAddressQuery){
-	console.log('pppppp:',query);
-	let result:{count?:number, data?:any} = {};
+	let result:IListStruct = {};
 	let queryParameters:any = {};
 	if (query.address) { 
 		queryParameters = {
@@ -89,8 +93,9 @@ TxSchema.statics.queryTxWithAddress = async function(query:ITxsWhthAddressQuery)
 	return result;
 }
 
+//  txs/nfts
 TxSchema.statics.queryTxWithNft = async function(query:ITxsWhthNftQuery){
-	let result:{count?:number, data?:any} = {};
+	let result:IListStruct = {};
 	let queryParameters:{denom?:string,tokenId?:string} = {};
 	if (query.denom && query.denom.length) {
 		queryParameters['msgs.msg.denom'] = query.denom;
@@ -108,8 +113,9 @@ TxSchema.statics.queryTxWithNft = async function(query:ITxsWhthNftQuery){
 	return result;
 }
 
+//  txs/services
 TxSchema.statics.queryTxWithServiceName = async function(query:ITxsWhthServiceNameQuery){
-	let result:{count?:number, data?:any} = {};
+	let result:{count?:number, data?:any[]} = {};
 	let queryParameters:{servicesName?:string} = {};
 	if (query.serviceName && query.serviceName.length) {
 		queryParameters['msgs.msg.service_name'] = query.serviceName;
@@ -124,10 +130,12 @@ TxSchema.statics.queryTxWithServiceName = async function(query:ITxsWhthServiceNa
 	return result;
 }
 
+//  txs/services/detail/{serviceName}
 TxSchema.statics.queryTxDetailWithServiceName = async function(serviceName:string){
 	return await this.findOne({'msgs.msg.name':serviceName,type:'define_service'});
 }
 
+//  txs/{hash}
 TxSchema.statics.queryTxWithHash = async function(hash:string){
 	return await this.findOne({tx_hash:hash});
 }
