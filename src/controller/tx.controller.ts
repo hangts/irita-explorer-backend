@@ -1,16 +1,21 @@
-import { Controller, Get, Param, Query, Res, Req, Post, Body, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Query, Res, Req, Body, HttpCode } from '@nestjs/common';
 import { TxService } from '../service/tx.service';
 import ValidationPipe from '../pipe/validation.pipe';
 import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
 import { TxListReqDto, 
-         TxResDto, 
          TxListWithHeightReqDto,
          TxListWithAddressReqDto,
          TxListWithNftReqDto,
          TxListWithServicesNameReqDto,
          ServicesDetailReqDto,
+         PostTxTypesReqDto,
+         PutTxTypesReqDto,
+         DeleteTxTypesReqDto,
          TxWithHashReqDto } from '../dto/txs.dto';
+import { TxResDto, 
+         TxTypeResDto } from '../dto/txs.dto';
+
 
 @Controller('txs')
 export class TxController {
@@ -52,6 +57,30 @@ export class TxController {
         console.log(query);
         const data: TxResDto = await this.txService.queryTxDetailWithServiceName(query);
         return new Result<TxResDto>(data);
+    }
+
+    @Get("/types")
+    async queryTxTypeList(): Promise<Result<ListStruct<TxTypeResDto>>> {
+        const data: ListStruct<TxTypeResDto[]> = await this.txService.queryTxTypeList();
+        return new Result<any>(data);
+    }
+
+    @Post("/types")
+    async insertTxTypes(@Body(new ValidationPipe()) prarms:PostTxTypesReqDto): Promise<Result<ListStruct<TxTypeResDto>>> {
+        const data: ListStruct<TxTypeResDto[]> = await this.txService.insertTxTypes(prarms);
+        return new Result<any>(data);
+    }
+
+    @Put("/types")
+    async updateTxType(@Body(new ValidationPipe()) prarms:PutTxTypesReqDto): Promise<Result<TxTypeResDto>> {
+        const data: TxTypeResDto = await this.txService.updateTxType(prarms);
+        return new Result<TxTypeResDto>(data);
+    }
+
+    @Delete("/types")
+    async deleteTxType(@Body(new ValidationPipe()) prarms:DeleteTxTypesReqDto): Promise<Result<TxTypeResDto>> {
+        const data: TxTypeResDto = await this.txService.deleteTxType(prarms);
+        return new Result<TxTypeResDto>(data);
     }
 
     @Get(":hash")

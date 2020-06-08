@@ -140,4 +140,14 @@ TxSchema.statics.queryTxWithHash = async function(hash:string){
 	return await this.findOne({tx_hash:hash});
 }
 
+//  /statistics
+TxSchema.statics.queryTxStatistics = async function(){
+	let txCount = await this.find().count();
+	let setviceCount = await this.find({type:'define_service'}).count();
+	return  {
+		txCount:txCount,
+		setviceCount:setviceCount
+	};
+}
+
 

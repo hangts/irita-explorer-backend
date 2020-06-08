@@ -1,19 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { ListStruct } from '../api/ApiResult';
 import { TxListReqDto, 
-         TxResDto, 
          TxListWithHeightReqDto,
          TxListWithAddressReqDto,
          TxListWithNftReqDto,
          TxListWithServicesNameReqDto,
          ServicesDetailReqDto,
+         PostTxTypesReqDto,
+         PutTxTypesReqDto,
+         DeleteTxTypesReqDto,
          TxWithHashReqDto} from '../dto/txs.dto';
-import { ListStruct } from '../api/ApiResult';
+import { TxResDto, 
+         TxTypeResDto } from '../dto/txs.dto';
+
 @Injectable()
 export class TxService {
-    constructor(@InjectModel('Tx') private txModel: any) {
-    }
+    constructor(@InjectModel('Tx') private txModel: any, 
+                @InjectModel('TxType') private txTypeModel: any) {}
 
     // txs
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
@@ -51,6 +56,38 @@ export class TxService {
         let txData = await this.txModel.queryTxDetailWithServiceName(query.serviceName);
         if (txData) {
             result = new TxResDto(txData);
+        }
+        return result;
+    }
+
+    //  txs/types
+    async queryTxTypeList(): Promise<ListStruct<TxTypeResDto[]>> {
+        let txTypeListData = await this.txTypeModel.queryTxTypeList();
+        return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
+    }
+
+    //  post txs/types
+    async insertTxTypes(prarms: PostTxTypesReqDto): Promise<ListStruct<TxTypeResDto[]>> {
+        let txTypeListData = await this.txTypeModel.insertTxTypes(prarms.types);
+        return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
+    }
+
+    //  put txs/types
+    async updateTxType(prarms: PutTxTypesReqDto): Promise<TxTypeResDto>  {
+        let result:TxTypeResDto|null = null;
+        let txData = await this.txTypeModel.updateTxType(prarms.type,prarms.newType);
+        if (txData) {
+            result = new TxTypeResDto(txData);
+        }
+        return result;
+    }
+
+    //  delete txs/types
+    async deleteTxType(prarms: DeleteTxTypesReqDto): Promise<TxTypeResDto>  {
+        let result:TxTypeResDto|null = null;
+        let txData = await this.txTypeModel.deleteTxType(prarms.type);
+        if (txData) {
+            result = new TxTypeResDto(txData);
         }
         return result;
     }
