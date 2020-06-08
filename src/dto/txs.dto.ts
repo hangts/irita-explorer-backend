@@ -50,20 +50,20 @@ export class ServicesDetailReqDto extends PagingReqDto{
 //txs/types request dto
 export class PostTxTypesReqDto extends BaseReqDto{
     @ArrayNotEmpty()
-    types: Array<string>;
+    typeNames: Array<string>;
 }
 
 export class PutTxTypesReqDto extends BaseReqDto{
-    @MinLength(1, {message: "type is too short"})
-    type: string;
-    
-    @MinLength(1, {message: "newType is too short"})
-    newType: string;
+    @MinLength(1, {message: "typeName is too short"})
+    typeName: string;
+
+    @MinLength(1, {message: "newTypeName is too short"})
+    newTypeName: string;
 }
 
 export class DeleteTxTypesReqDto extends BaseReqDto{
-    @MinLength(1, {message: "type is too short"})
-    type: string;
+    @MinLength(1, {message: "typeName is too short"})
+    typeName: string;
 }
 
 //txs/{hash} request dto

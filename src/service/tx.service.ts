@@ -68,14 +68,14 @@ export class TxService {
 
     //  post txs/types
     async insertTxTypes(prarms: PostTxTypesReqDto): Promise<ListStruct<TxTypeResDto[]>> {
-        let txTypeListData = await this.txTypeModel.insertTxTypes(prarms.types);
+        let txTypeListData = await this.txTypeModel.insertTxTypes(prarms.typeNames);
         return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
     }
 
     //  put txs/types
     async updateTxType(prarms: PutTxTypesReqDto): Promise<TxTypeResDto>  {
         let result:TxTypeResDto|null = null;
-        let txData = await this.txTypeModel.updateTxType(prarms.type,prarms.newType);
+        let txData = await this.txTypeModel.updateTxType(prarms.typeName,prarms.newTypeName);
         if (txData) {
             result = new TxTypeResDto(txData);
         }
@@ -85,7 +85,7 @@ export class TxService {
     //  delete txs/types
     async deleteTxType(prarms: DeleteTxTypesReqDto): Promise<TxTypeResDto>  {
         let result:TxTypeResDto|null = null;
-        let txData = await this.txTypeModel.deleteTxType(prarms.type);
+        let txData = await this.txTypeModel.deleteTxType(prarms.typeName);
         if (txData) {
             result = new TxTypeResDto(txData);
         }

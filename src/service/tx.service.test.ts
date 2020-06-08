@@ -174,11 +174,11 @@ describe('TxController', () => {
     describe('insertTxTypes', () => {
         it('should return an array ', async () => {
             let req = {
-                types:['h'],
+                typeNames:['h'],
             }
             let data = await txService.insertTxTypes(req);
             if (data && data.data.length) {
-                expect(data.data[0].typeName).toBe(req.types[0]);
+                expect(data.data[0].typeName).toBe(req.typeNames[0]);
             }else{
                 expect(data.data).toBe([]);
             }
@@ -188,13 +188,13 @@ describe('TxController', () => {
     describe('updateTxType', () => {
         it('should return an Object ', async () => {
             let req = {
-                type:'h',
-                newType:'j',
+                typeName:'h',
+                newTypeName:'j',
             };
 
             let data:any = await txService.updateTxType(req);
             if (data) {
-                expect(data.typeName).toBe(req.type);
+                expect(data.typeName).toBe(req.typeName);
             }else{
                 expect(data).toBe(null);
             }
@@ -204,12 +204,12 @@ describe('TxController', () => {
     describe('deleteTxType', () => {
         it('should return an Object ', async () => {
             let req = {
-                type:'j',
+                typeName:'j',
             };
 
             let data = await txService.deleteTxType(req);
             if (data) {
-                expect(data.typeName).toBe(req.type);
+                expect(data.typeName).toBe(req.typeName);
             }else{
                 expect(data).toBe(null);
             }
