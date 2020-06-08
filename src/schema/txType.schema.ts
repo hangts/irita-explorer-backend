@@ -1,7 +1,4 @@
 import * as mongoose from 'mongoose';
-import { ITxsQuery } from '../types/schemaQuery/tx.interface';
-import { ITxsQueryParams} from '../types/tx.interface';
-import {IListStruct} from '../types';
 
 export const TxTypeSchema = new mongoose.Schema({
     typeName:{type:String, required:true, unique:true,},
