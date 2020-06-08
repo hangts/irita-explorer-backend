@@ -9,6 +9,7 @@ import {HttpExceptionFilter} from './exception/HttpExceptionFilter';
 import {cfg} from './config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksService } from './task/task.service';
+import { TaskDispatchModule } from './module/task.dispatch.module';
 
 console.log(cfg);
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.host}:${cfg.dbCfg.port}/${cfg.dbCfg.db}`;
@@ -20,6 +21,7 @@ const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.ho
         NftModule,
         BlockModule,
         StatisticsModule,
+        TaskDispatchModule,
     ],
     providers: [
         {

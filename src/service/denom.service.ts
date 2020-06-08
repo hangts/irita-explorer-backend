@@ -21,10 +21,10 @@ export class DenomService {
     }
 
 
-    async async(){
+    async async(): Promise<any>{
         try {
             const data: any = await this.denomHttp.queryDenomsFromLcd();
-            (this.denomModel as any).saveBulk(data)
+            return await (this.denomModel as any).saveBulk(data);
         } catch (e) {
             new Logger().error('api-error:',e.message);
             throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));

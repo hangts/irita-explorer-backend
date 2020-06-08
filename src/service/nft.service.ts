@@ -40,7 +40,7 @@ export class NftService {
     }
 
 
-    async findDenomAndSyncNft() {
+    async findDenomAndSyncNft():Promise<any> {
         const data: any = await (this.denomModel as any).findAllNames();
         if (data && data.length > 0) {
             data.forEach(async (n, i) => {
@@ -68,8 +68,8 @@ export class NftService {
                         await (this.nftModel as any).saveBulk(insertNftList);
                     }
                     if (shouldDeleteNftList.length > 0) {
-                        shouldDeleteNftList.forEach((nft) => {
-                            (this.nftModel as any).deleteOneByDenomAndId({
+                        shouldDeleteNftList.forEach(async (nft) => {
+                            await (this.nftModel as any).deleteOneByDenomAndId({
                                 nft_id: nft.nft_id,
                                 denom: n.name,
                             });
@@ -78,8 +78,8 @@ export class NftService {
                     }
 
                     if (shouldUpdateNftList.length > 0) {
-                        shouldUpdateNftList.forEach((nft) => {
-                            (this.nftModel as any).updateOneById({
+                        shouldUpdateNftList.forEach(async (nft) => {
+                            await (this.nftModel as any).updateOneById({
                                 nft_id: nft.value.id,
                                 owner: nft.value.owner,
                                 token_uri: nft.value.token_uri,

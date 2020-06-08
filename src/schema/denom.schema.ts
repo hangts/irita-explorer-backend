@@ -41,7 +41,7 @@ DenomSchema.statics = {
         }
     },
 
-    saveBulk: function(denoms: any): void {
+    async saveBulk(denoms: any): Promise<any> {
         try {
             const entitiesList: IDenomEntities[] = denoms.map((d) => {
                 return {
@@ -52,11 +52,10 @@ DenomSchema.statics = {
                     update_time: Math.floor(new Date().getTime() / 1000),
                 };
             });
-            console.log(entitiesList);
-            return this.insertMany(entitiesList, { ordered: false });
+            return await this.insertMany(entitiesList, { ordered: false });
         } catch (e) {
             new Logger().error('mongo-error:', e.message);
-            throw new ApiError(ErrorCodes.failed, e.message);
+            return true;// 不管是否插入成功, 需要释放is_locked, 返回true;
         }
     },
     async findAllNames(): Promise<string[]>{
