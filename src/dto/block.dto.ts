@@ -1,5 +1,6 @@
+import { IsInt, IsString, IsNotEmpty } from 'class-validator';
 
-export class BlockDto {
+export class BlockResDto {
     height: number;
     hash: string;
     txn: number;
@@ -11,38 +12,20 @@ export class BlockDto {
         this.txn = txn;
         this.time = time;
     }
+}
 
-    setHeight(height: number) {
-        this.height = height;
+export class BlockListResDto extends BlockResDto {
+    constructor(height: number, hash: string, txn: number, time: string) {
+        super(height, hash, txn, time);
     }
+}
 
-    getHeight(): number {
-        return this.height;
-    }
+export class BlockListReqDto {
+    @IsInt()
+    pageNum?: number;
 
-    setHash(hash: string) {
-        this.hash = hash;
-    }
+    @IsInt()
+    pageSize?: number;
 
-    getHash(): string {
-        return this.hash;
-    }
-
-    setTxn(txn: number) {
-        this.txn = txn;
-    }
-
-    getTxn(): number {
-        return this.txn;
-    }
-
-    setTime(time: string) {
-        this.time = time;
-    }
-
-    getTime(): string {
-        return this.time;
-    }
-
-
+    useCount: boolean;
 }

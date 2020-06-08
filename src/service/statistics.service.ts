@@ -1,0 +1,59 @@
+import { Injectable } from '@nestjs/common';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { StatisticsResDto } from '../dto/statistics.dto';
+import { IBlockEntities } from '../schema/block.schema';
+import { INftEntities } from '../schema/nft.schema';
+
+@Injectable()
+export class StatisticsService {
+
+    constructor(
+        @InjectModel('Block') private blockModel: Model<IBlockEntities>,
+        @InjectModel('Nft') private nftModel: Model<INftEntities>,
+    ) {
+    }
+
+    async queryStatistics(): Promise<StatisticsResDto> {
+        const blockHeight = await this.queryLatestHeight();
+        const avgBlockTime = await this.queryAvgBlockTime();
+        const assetCount = await this.queryAssetCount();
+
+        return new StatisticsResDto(blockHeight, 0, avgBlockTime, 0, 0, assetCount);
+    }
+
+    async queryLatestHeight(): Promise<number | null> {
+        const res: any = await (this.blockModel as any).findOneByHeightDesc();
+        if (res) {
+            return res.height;
+        } else {
+            return null;
+        }
+    }
+
+    async queryAvgBlockTime(): Promise<number | null> {
+        const latestBlock: any = await (this.blockModel as any).findOneByHeightDesc();
+        const num100Block: any = await (this.blockModel as any).findNum100Height();
+        if (latestBlock && num100Block) {
+            const latestTime = Number(new Date(latestBlock.time).getTime());
+            const num100Time = Number(new Date(num100Block.time).getTime());
+            let avgTime: number;
+            if (latestBlock.height - num100Block.height >= 100) {
+                avgTime = (latestTime - num100Time) / 100;
+            } else {
+                //可能当前区块高度还不到100
+                avgTime = (latestTime - num100Time) / (latestBlock.height - num100Block.height);
+            }
+            return avgTime;
+        } else {
+            return null;
+        }
+    }
+
+    async queryAssetCount(): Promise<number | null>{
+        return await (this.nftModel as any).queryCount();
+    }
+
+
+}
+

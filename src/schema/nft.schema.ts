@@ -1,10 +1,8 @@
 import * as mongoose from 'mongoose';
-import { BlockListVo } from '../vo/block.vo';
 import { Document } from 'mongoose';
 import { Logger } from '@nestjs/common';
-import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';
+import { ErrorCodes } from '../api/ResultCodes';
 import { ApiError } from '../api/ApiResult';
-import { cfg } from '../config';
 import {deleteQuery} from '../types/nft.interface';
 
 export interface INftEntities extends Document {
@@ -29,7 +27,7 @@ export const NftSchema = new mongoose.Schema({
 NftSchema.index({denom:1, nft_id:1}, {unique: true});
 
 NftSchema.statics = {
-    findList: async function(pageNum: number, pageSize: number, denom?: string, owner?: string): Promise<INftEntities[]> {
+    async findList(pageNum: number, pageSize: number, denom?: string, owner?: string): Promise<INftEntities[]> {
         try {
             let q: any = {};
             if(denom) q.denom = denom;
@@ -53,9 +51,9 @@ NftSchema.statics = {
         }
     },
 
-    count: async function(): Promise<number> {
+    async queryCount(): Promise<number> {
         try {
-            return await this.blockModel.find().count().exec();
+            return await this.find().count().exec();
         } catch (e) {
             new Logger().error('mongo-error:', e.message);
             throw new ApiError(ErrorCodes.failed, e.message);
@@ -70,7 +68,7 @@ NftSchema.statics = {
         }
     },
 
-    saveBulk: function(nfts: any): void {
+    saveBulk(nfts: any): void {
         try {
             this.insertMany(nfts, { ordered: false });
         } catch (e) {
@@ -79,7 +77,7 @@ NftSchema.statics = {
         }
     },
 
-    deleteOneByDenomAndId: async function(nft: deleteQuery): Promise<void> {
+    async deleteOneByDenomAndId(nft: deleteQuery): Promise<void> {
         try {
             return await this.deleteOne(nft, (e)=>{
                 if(e) new Logger().error('mongo-error:', e.message);

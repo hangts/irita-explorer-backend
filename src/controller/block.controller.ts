@@ -5,7 +5,7 @@ import { ListStruct } from '../api/ApiResult';
 import {ListValidationPipe} from '../pipe/list.validation.pipe';
 import {BlockDetailValidationPipe} from '../pipe/block.detail.validation.pipe';
 import {BlockListVo} from '../vo/block.vo';
-import {BlockDto} from '../dto/block.dto';
+import {BlockListResDto, BlockListReqDto} from '../dto/block.dto';
 
 
 
@@ -16,22 +16,22 @@ export class BlockController {
 
     @UsePipes(new ListValidationPipe())
     @Get()
-    async queryBlockList(@Query() q: BlockListVo): Promise<Result<ListStruct<BlockDto[]>>> {
-        const data: ListStruct<BlockDto[]> = await this.blockService.queryBlockList(q);
-        return new Result<ListStruct<BlockDto[]>>(data);
+    async queryBlockList(@Query() q: BlockListReqDto): Promise<Result<ListStruct<BlockListResDto[]>>> {
+        const data: ListStruct<BlockListResDto[]> = await this.blockService.queryBlockList(q);
+        return new Result<ListStruct<BlockListResDto[]>>(data);
     }
 
     @Get('latest')
-    async queryLatestBlock(): Promise<Result<BlockDto | null>> {
-        const data: BlockDto | null = await this.blockService.queryLatestBlock();
-        return new Result<BlockDto | null>(data);
+    async queryLatestBlock(): Promise<Result<BlockListResDto | null>> {
+        const data: BlockListResDto | null = await this.blockService.queryLatestBlock();
+        return new Result<BlockListResDto | null>(data);
     }
 
     @Get(':height')
     @UsePipes(new BlockDetailValidationPipe())
-    async queryBlockDetail(@Param() p): Promise<Result<BlockDto | null>> {
-        const data: BlockDto | null = await this.blockService.queryBlockDetail(p);
-        return new Result<BlockDto | null>(data);
+    async queryBlockDetail(@Param() p): Promise<Result<BlockListResDto | null>> {
+        const data: BlockListResDto | null = await this.blockService.queryBlockDetail(p);
+        return new Result<BlockListResDto | null>(data);
     }
 
 
