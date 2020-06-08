@@ -1,7 +1,7 @@
 export interface IQueryBase {
     pageNumber?: string;
     pageSize?: string;
-    useCount?: boolean;
+    useCount?: boolean | string;
 }
 
 export interface IListStructBase<T> {
@@ -9,6 +9,11 @@ export interface IListStructBase<T> {
     pageNumber?: number;
     pageSize?: number;
     count?: number;
+}
+
+export interface IListStruct {
+    data?: any[],
+    count?: number
 }
 
 export interface IResultBase {
