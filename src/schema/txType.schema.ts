@@ -1,10 +1,10 @@
 import * as mongoose from 'mongoose';
-
+import Util from '../util/util';
 export const TxTypeSchema = new mongoose.Schema({
     typeName:{type:String, required:true, unique:true,},
     create_time:{
     	type:Number,
-    	default:parseInt(String(new Date().getTime()/1000)),
+    	default:Util.getCurrentTime(),
     },
     update_time:{
     	type:Number,
@@ -39,7 +39,7 @@ TxTypeSchema.statics.updateTxType = async function (type:string, newType:string)
 			typeName:type,
 		},{
 			typeName:newType,
-			update_time:parseInt(String(new Date().getTime()/1000))
+			update_time:Util.getCurrentTime()
 		});
 	}else{
 		return null;
