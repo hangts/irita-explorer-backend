@@ -21,7 +21,7 @@ export const DenomSchema = new mongoose.Schema({
 });
 
 DenomSchema.statics = {
-    findList: async function(): Promise<IDenomEntities[]> {
+    async findList(): Promise<IDenomEntities[]> {
         try {
             return await this.find({}).exec();
         } catch (e) {
@@ -30,7 +30,7 @@ DenomSchema.statics = {
         }
     },
 
-    count: async function(): Promise<number> {
+    async count(): Promise<number> {
         try {
             return await this.blockModel.find().count().exec();
         } catch (e) {
@@ -56,25 +56,12 @@ DenomSchema.statics = {
             return true;// 不管是否插入成功, 需要释放is_locked, 返回true;
         }
     },
-    async findAllNames(): Promise<string[]>{
+    async findAllNames(): Promise<string[]> {
         try {
-            return await this.find({},{name:1}).exec();
+            return await this.find({}, { name: 1 }).exec();
         } catch (e) {
             new Logger().error('mongo-error:', e.message);
             throw new ApiError(ErrorCodes.failed, e.message);
         }
-    }
-
-    /*queryLatestBlockFromLcd: async function(): Promise<any>{
-        try {
-            const url: string = `${cfg.serverCfg.lcdAddr}/blocks/latest`;
-            return await new HttpService().get(url).toPromise().then(res => res.data);
-        } catch (e) {
-            new Logger().error('api-error:',e.message);
-            throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
-        }
-
-    },*/
-
-
+    },
 };

@@ -1,4 +1,7 @@
 import { IsInt, IsString, IsNotEmpty } from 'class-validator';
+import { BaseReqDto, PagingReqDto } from './base.dto';
+import { ApiError } from '../api/ApiResult';
+import { ErrorCodes } from '../api/ResultCodes';
 
 export class BlockResDto {
     height: number;
@@ -20,12 +23,28 @@ export class BlockListResDto extends BlockResDto {
     }
 }
 
-export class BlockListReqDto {
-    @IsInt()
-    pageNum?: number;
+export class BlockListReqDto extends PagingReqDto{
+    static validate(value: any): void {
+        super.validate(value);
+    }
 
-    @IsInt()
-    pageSize?: number;
+    static convert(value: any): any {
+        super.convert(value);
+        return value;
+    }
+}
 
-    useCount: boolean;
+export class BlockDetailReqDto extends BaseReqDto {
+    height: number;
+
+    static validate(value:any):void{
+        if(!value || !value.height){
+            throw new ApiError(ErrorCodes.InvalidParameter, 'height is necessary')
+        }
+    }
+
+    static convert(value:any):any{
+        value.height = Number(value.height);
+        return value;
+    }
 }

@@ -18,7 +18,7 @@ export const BlockSchema = new mongoose.Schema({
 });
 
 BlockSchema.statics = {
-    findList: async function(pageNum: number, pageSize: number): Promise<IBlockEntities[]>{
+    async findBlockList(pageNum: number, pageSize: number): Promise<IBlockEntities[]>{
         try{
             return await this.find({}).sort({ height: -1 }).skip((pageNum - 1) * pageSize).limit(pageSize).exec();
         }catch (e) {
@@ -27,7 +27,7 @@ BlockSchema.statics = {
         }
     },
 
-    count: async function(): Promise<number>{
+    async count(): Promise<number>{
         try{
             return await this.find({}).count().exec();
         }catch (e) {
@@ -36,8 +36,7 @@ BlockSchema.statics = {
         }
     },
 
-    findOneByHeight: async function(p): Promise<IBlockEntities | null>{
-        const { height } = p;
+    async findOneByHeight(height: number): Promise<IBlockEntities | null>{
         try {
             return await this.findOne({ height });
         } catch (e) {
@@ -46,7 +45,7 @@ BlockSchema.statics = {
         }
     },
 
-    findOneByHeightDesc: async function(): Promise<IBlockEntities | null>{
+    async findOneByHeightDesc(): Promise<IBlockEntities | null>{
         try {
             const res: IBlockEntities[] = await this.find({}).sort({ height: -1 }).skip(0).limit(1);
             if(res && res.length > 0){

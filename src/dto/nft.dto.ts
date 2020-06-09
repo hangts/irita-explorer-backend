@@ -1,33 +1,25 @@
 import { IsInt, IsString, IsNotEmpty } from 'class-validator';
+import { PagingReqDto } from './base.dto';
 
 export class NftDto {
 
 }
 
-export class NftListReqDto {//TODO(lsc) need to implement validator methods and convert methods;
-    @IsInt()
-    pageNum?: number;
-
-    @IsInt()
-    pageSize?: number;
-
+export class NftListReqDto extends PagingReqDto {
     @IsString()
     denom: string;
 
     @IsString()
     owner: string;
-
-    useCount: boolean;
-
 }
 
 export class NftDetailReqDto {//TODO(lsc) need to implement validator methods and convert methods;
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({message:'hello'})
     denom: string;
 
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({message:'world'})
     nftId: string;
 }
 

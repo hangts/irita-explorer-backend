@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import {BlockListResDto, BlockListReqDto} from '../dto/block.dto';
+import { BlockListResDto, BlockListReqDto, BlockDetailReqDto } from '../dto/block.dto';
 import { IBlockEntities } from '../schema/block.schema';
 import { BlockHttp } from '../http/block.http';
 
@@ -15,7 +15,7 @@ export class BlockService {
     async queryBlockList(query: BlockListReqDto): Promise<ListStruct<BlockListResDto[]>> {
         const { pageNum, pageSize, useCount } = query;
         let count: number;
-        const b: IBlockEntities[] = await (this.blockModel as any).findList(pageNum, pageSize);
+        const b: IBlockEntities[] = await (this.blockModel as any).findBlockList(pageNum, pageSize);
         if(useCount){
             count = await (this.blockModel as any).count();
         }
@@ -25,9 +25,10 @@ export class BlockService {
         return new ListStruct(res, pageNum, pageSize, count);
     }
 
-    async queryBlockDetail(p): Promise<BlockListResDto | null> {
+    async queryBlockDetail(p: BlockDetailReqDto): Promise<BlockListResDto | null> {
         let data: BlockListResDto | null = null;
-        const res: IBlockEntities | null = await (this.blockModel as any).findOneByHeight(p);
+        const {height} = p;
+        const res: IBlockEntities | null = await (this.blockModel as any).findOneByHeight(height);
         if (res) {
             data = new BlockListResDto(res.height, res.hash, res.txn, res.time)
         }

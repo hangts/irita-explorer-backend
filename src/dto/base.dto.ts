@@ -1,57 +1,68 @@
-import {IsOptional} from 'class-validator';
-import {ApiError} from '../api/ApiResult';
-import {ErrorCodes} from '../api/ResultCodes';
+import { IsOptional } from 'class-validator';
+import { ApiError } from '../api/ApiResult';
+import { ErrorCodes } from '../api/ResultCodes';
 import constant from '../constant/constant';
 
 //base request dto
 export class BaseReqDto {
-	
-	static validate(value:any):void{
 
-	}
+    static validate(value: any): void {
 
-	static convert(value:any):any{
-		return value;
-	}
+    }
+
+    static convert(value: any): any {
+        return value;
+    }
 }
 
 // base response dto
 export class BaseResDto {
 
-	static bundleData(value:any):any{
-		return value;
-	}
+    static bundleData(value: any): any {
+        return value;
+    }
 }
 
 //base Paging request Dto
-export class PagingReqDto extends BaseReqDto{
-	
-	@IsOptional()
-  pageNum?: string;
+export class PagingReqDto extends BaseReqDto {
 
-  @IsOptional()
-  pageSize?: string;
+    @IsOptional()
+    pageNum?: number;
 
-  @IsOptional()
-  useCount?: string;
+    @IsOptional()
+    pageSize?: number;
 
-  static validate(value:any):void{
-  	let patt = /^[1-9]\d*$/;
-  	if (value.pageNum && (!patt.test(value.pageNum) || value.pageNum < 1)) {
-  		throw new ApiError(ErrorCodes.InvalidParameter, 'The pageNum must be a positive integer greater than 0');
-  	}
-  	if (value.pageSize && (!patt.test(value.pageSize) || value.pageNum < 1)) {
-  		throw new ApiError(ErrorCodes.InvalidParameter, 'The pageSize must be a positive integer greater than 0');
-  	}
-	}
+    @IsOptional()
+    useCount?: boolean;
 
-  static convert(value:any):any{
-	  	if (!value.pageNum) {
-				value.pageNum = constant.defaultPaging.pageNum;
-			}
-			if (!value.pageSize) {
-				value.pageSize = constant.defaultPaging.pageSize;
-			}
-		return value;
-	}
+    static validate(value: any): void {
+        let patt = /^[1-9]\d*$/;
+        if (value.pageNum && (!patt.test(value.pageNum) || value.pageNum < 1)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The pageNum must be a positive integer greater than 0');
+        }
+        if (value.pageSize && (!patt.test(value.pageSize) || value.pageNum < 1)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The pageSize must be a positive integer greater than 0');
+        }
+    }
+
+    static convert(value: any): any {
+        if (!value.pageNum) {
+            value.pageNum = constant.defaultPaging.pageNum;
+        }
+        if (!value.pageSize) {
+            value.pageSize = constant.defaultPaging.pageSize;
+        }
+        if(!value.useCount){
+            value.useCount = false;
+        }else {
+            if(value.useCount === 'true'){
+                value.useCount = true;
+            }else {
+                value.useCount = false;
+            }
+        }
+        value.pageNum = Number(value.pageNum);
+        value.pageSize = Number(value.pageSize);
+        return value;
+    }
 }

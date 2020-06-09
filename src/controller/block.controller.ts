@@ -1,10 +1,9 @@
-import { Controller, Get, Param, Query, Res, Req, Post, Body, HttpCode,UsePipes } from '@nestjs/common';
+import { Controller, Get, Param, Query, UsePipes } from '@nestjs/common';
 import { BlockService } from '../service/block.service';
 import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
-import {ListValidationPipe} from '../pipe/list.validation.pipe';
-import {BlockDetailValidationPipe} from '../pipe/block.detail.validation.pipe';
-import {BlockListResDto, BlockListReqDto} from '../dto/block.dto';
+import {BlockListResDto, BlockListReqDto, BlockDetailReqDto} from '../dto/block.dto';
+import ValidationPipe from '../pipe/validation.pipe';
 
 
 
@@ -13,7 +12,7 @@ export class BlockController {
     constructor(private readonly blockService: BlockService) {
     }
 
-    @UsePipes(new ListValidationPipe())
+    @UsePipes(new ValidationPipe())
     @Get()
     async queryBlockList(@Query() q: BlockListReqDto): Promise<Result<ListStruct<BlockListResDto[]>>> {
         const data: ListStruct<BlockListResDto[]> = await this.blockService.queryBlockList(q);
@@ -27,8 +26,8 @@ export class BlockController {
     }
 
     @Get(':height')
-    @UsePipes(new BlockDetailValidationPipe())
-    async queryBlockDetail(@Param() p): Promise<Result<BlockListResDto | null>> {
+    @UsePipes(new ValidationPipe())
+    async queryBlockDetail(@Param() p: BlockDetailReqDto): Promise<Result<BlockListResDto | null>> {
         const data: BlockListResDto | null = await this.blockService.queryBlockDetail(p);
         return new Result<BlockListResDto | null>(data);
     }

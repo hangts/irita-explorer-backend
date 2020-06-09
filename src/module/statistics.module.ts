@@ -4,6 +4,7 @@ import {StatisticsService} from '../service/statistics.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {BlockSchema} from '../schema/block.schema';
 import { NftSchema } from '../schema/nft.schema';
+import { TxSchema } from '../schema/tx.schema';
 
 @Module({
     imports:[
@@ -11,8 +12,11 @@ import { NftSchema } from '../schema/nft.schema';
             name: 'Block',
             schema: BlockSchema,
             collection: 'sync_block'
-        }]),
-        MongooseModule.forFeature([{
+        },{
+            name: 'Tx',
+            schema: TxSchema,
+            collection: 'sync_tx'
+        },{
             name: 'Nft',
             schema: NftSchema,
             collection: 'sync_nfts'

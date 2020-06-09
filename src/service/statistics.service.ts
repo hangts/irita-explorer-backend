@@ -11,6 +11,7 @@ export class StatisticsService {
     constructor(
         @InjectModel('Block') private blockModel: Model<IBlockEntities>,
         @InjectModel('Nft') private nftModel: Model<INftEntities>,
+        @InjectModel('Tx') private txModel: any,
     ) {
     }
 
@@ -18,8 +19,10 @@ export class StatisticsService {
         const blockHeight = await this.queryLatestHeight();
         const avgBlockTime = await this.queryAvgBlockTime();
         const assetCount = await this.queryAssetCount();
+        const validatorCount = await this.queryValidatorCount();
+        const {txCount, serviceCount} = await this.queryTxCount();
 
-        return new StatisticsResDto(blockHeight, 0, avgBlockTime, 0, 0, assetCount);
+        return new StatisticsResDto(blockHeight, txCount, avgBlockTime, serviceCount, validatorCount, assetCount);
     }
 
     async queryLatestHeight(): Promise<number | null> {
@@ -44,7 +47,7 @@ export class StatisticsService {
                 //可能当前区块高度还不到100
                 avgTime = (latestTime - num100Time) / (latestBlock.height - num100Block.height);
             }
-            return avgTime;
+            return Math.floor(avgTime);
         } else {
             return null;
         }
@@ -52,6 +55,18 @@ export class StatisticsService {
 
     async queryAssetCount(): Promise<number | null>{
         return await (this.nftModel as any).queryCount();
+    }
+
+    async queryValidatorCount(): Promise<number | null>{
+
+        //TODO(lsc) validator count;
+        return await (this.nftModel as any).queryCount();
+    }
+
+
+
+    async queryTxCount():Promise<any>{
+        return await (this.txModel as any).queryTxStatistics();
     }
 
 

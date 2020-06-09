@@ -1,8 +1,8 @@
-import { Controller, Get} from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { DenomService } from '../service/denom.service';
 import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
-import {DenomListResDto} from '../dto/denom.dto';
+import { DenomListResDto } from '../dto/denom.dto';
 
 
 @Controller('denoms')
