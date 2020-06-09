@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import { BlockListVo } from '../vo/block.vo';
 import { Document } from 'mongoose';
 import { Logger } from '@nestjs/common';
 import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';

@@ -2,7 +2,7 @@
 const constant:any = {};
 
 constant.defaultPaging= {
-    pageNumber:1,
+    pageNum:1,
     pageSize:10
 };
 

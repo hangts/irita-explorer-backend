@@ -1,6 +1,6 @@
 import os from 'os';
 
-export function getIPAdress() {
+export function getIpAddress() {
     const interfaces = os.networkInterfaces();
     for (const devName in interfaces) {
         const iface = interfaces[devName];

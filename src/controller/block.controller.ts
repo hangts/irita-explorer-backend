@@ -4,7 +4,6 @@ import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
 import {ListValidationPipe} from '../pipe/list.validation.pipe';
 import {BlockDetailValidationPipe} from '../pipe/block.detail.validation.pipe';
-import {BlockListVo} from '../vo/block.vo';
 import {BlockListResDto, BlockListReqDto} from '../dto/block.dto';
 
 

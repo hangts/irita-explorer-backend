@@ -3,15 +3,15 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
 import { NftHttp } from '../http/nft.http';
-import { IDenom } from '../types/denom.interface';
 import { INftEntities } from '../schema/nft.schema';
+import {IDenomEntities} from '../schema/denom.schema';
 import { NftDetailReqDto, NftDetailResDto, NftListReqDto, NftListResDto } from '../dto/nft.dto';
 import md5 from 'blueimp-md5';
 
 @Injectable()
 export class NftService {
     constructor(@InjectModel('Nft') private nftModel: Model<INftEntities>,
-                @InjectModel('Denom') private denomModel: Model<IDenom>,
+                @InjectModel('Denom') private denomModel: Model<IDenomEntities>,
                 private readonly nftHttp: NftHttp,
     ) {
     }
@@ -40,7 +40,7 @@ export class NftService {
     }
 
 
-    async findDenomAndSyncNft():Promise<any> {
+    async findDenomAndSyncNft():Promise<boolean> {
         const data: any = await (this.denomModel as any).findAllNames();
         if (data && data.length > 0) {
             return new Promise((resolve)=>{
