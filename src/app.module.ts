@@ -7,7 +7,7 @@ import {HttpExceptionFilter} from './exception/HttpExceptionFilter';
 import {cfg} from './config';
 console.log(cfg);
 
-const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.host}:${cfg.dbCfg.port}/${cfg.dbCfg.db}`;
+const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 @Module({
     imports: [
     	MongooseModule.forRoot(url), 
