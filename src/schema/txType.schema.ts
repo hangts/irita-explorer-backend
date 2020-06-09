@@ -8,7 +8,7 @@ export const TxTypeSchema = new mongoose.Schema({
     },
     update_time:{
     	type:Number,
-    	default:parseInt(String(new Date().getTime()/1000)),
+    	default:Util.getCurrentTime(),
     }
 });
 
