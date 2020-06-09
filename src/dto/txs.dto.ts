@@ -1,4 +1,5 @@
 import { IsString, IsInt, Length , Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {BaseReqDto, BaseResDto, PagingReqDto} from './base.dto';
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
@@ -7,10 +8,16 @@ import constant from '../constant/constant';
 /************************   request dto   ***************************/
 //txs request dto
 export class TxListReqDto extends PagingReqDto{
-	
+	@ApiPropertyOptional()
 	type?: string;
+
+    @ApiPropertyOptional({description:'1:success  2:fail'})
     status?: string;
+
+    @ApiPropertyOptional()
     beginTime?: string;
+
+    @ApiPropertyOptional()
     endTime?: string;
 
     static validate(value:any){
@@ -23,51 +30,65 @@ export class TxListReqDto extends PagingReqDto{
 
 //txs/blocks request dto
 export class TxListWithHeightReqDto extends PagingReqDto{
-	height?: string;
+	@ApiPropertyOptional()
+    height?: string;
 }
 
 //txs/address request dto
 export class TxListWithAddressReqDto extends PagingReqDto{
-	address?: string;
+	@ApiPropertyOptional()
+    address?: string;
 }
 
 //txs/nfts request dto
 export class TxListWithNftReqDto extends PagingReqDto{
-	denom?: string;
+	@ApiPropertyOptional()
+    denom?: string;
+
+    @ApiPropertyOptional()
 	tokenId?: string;
 }
 
 //txs/services request dto
 export class TxListWithServicesNameReqDto extends PagingReqDto{
-	serviceName?: string;
+	@ApiPropertyOptional()
+    serviceName?: string;
 }
 
 //txs/services/detail/{serviceName} request dto
 export class ServicesDetailReqDto extends PagingReqDto{
-	serviceName: string;
+	@ApiProperty()
+    serviceName: string;
 }
 
-//txs/types request dto
+//Post txs/types request dto
 export class PostTxTypesReqDto extends BaseReqDto{
+    @ApiProperty()
     @ArrayNotEmpty()
     typeNames: Array<string>;
 }
 
+//put txs/types request dto
 export class PutTxTypesReqDto extends BaseReqDto{
+    @ApiProperty()
     @MinLength(1, {message: "typeName is too short"})
     typeName: string;
 
+    @ApiProperty()
     @MinLength(1, {message: "newTypeName is too short"})
     newTypeName: string;
 }
 
+//Delete txs/types request dto
 export class DeleteTxTypesReqDto extends BaseReqDto{
+    @ApiProperty()
     @MinLength(1, {message: "typeName is too short"})
     typeName: string;
 }
 
 //txs/{hash} request dto
 export class TxWithHashReqDto extends BaseReqDto{
+    @ApiProperty()
 	hash: string;
 }
 
