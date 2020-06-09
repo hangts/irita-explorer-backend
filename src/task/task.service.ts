@@ -48,6 +48,15 @@ export class TasksService {
                 this.taskDispatchService.updateUpdatedTimeAndIsLocked(taskEnum.nft);
             }
         }
-
     }
+
+    @Cron('18 * * * * *')
+    async taskDispatchFaultTolerance() {
+        this.logger.log('cron jobs of fault tolerance is running');
+        this.taskDispatchService.taskDispatchFaultTolerance();
+    }
+
+
+
+
 }

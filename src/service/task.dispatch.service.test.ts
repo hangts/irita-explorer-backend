@@ -37,5 +37,14 @@ describe('taskDispatch module', () => {
             expect(data).toBeDefined();
         });
     });
+
+    describe('taskDispatchFaultTolerance', () => {
+        it('should return block average time', async () => {
+            const data: boolean = await taskDispatchService.taskDispatchFaultTolerance();
+            expect(data).toBe(true);
+        });
+    });
+
+
 });
 

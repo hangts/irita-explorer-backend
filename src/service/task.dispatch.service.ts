@@ -63,6 +63,35 @@ export class TaskDispatchService {
         return await (this.taskDispatchModel as any).updateUpdatedTimeAndIsLocked(name);
     }
 
+    async taskDispatchFaultTolerance(): Promise<boolean> {
+        const taskList: ITaskDispatchEntities[] = await (this.taskDispatchModel as any).findAllTask();
+        if (taskList && taskList.length > 0) {
+            return new Promise(async (resolve) => {
+                let arr: any[] = [];
+
+                const promiseContainer = async (t) => {
+                    if ((getTimestamp() - t.updated_time) > (t.interval * 2) / 1000) {
+                        await this.releaseLockByName(t.name);
+                    }
+                };
+                taskList.forEach((t) => {
+                    arr.push(promiseContainer(t));
+                });
+                Promise.all(arr).then((res: any) => {
+                    if (res) {
+                        resolve(true);
+                    }
+                });
+            })
+        }else{
+            return false;
+        }
+    }
+
+    private async releaseLockByName(name: string): Promise<ITaskDispatchEntities> {
+        return await (this.taskDispatchModel as any).releaseLockByName(name);
+    }
+
 
 }
 

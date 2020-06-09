@@ -62,6 +62,24 @@ TaskDispatchSchema.statics = {
         }catch (e) {
             new Logger().error('mongo-error:',e.message);
         }
+    },
+
+    async releaseLockByName(name: string): Promise<ITaskDispatchEntities>{
+        try{
+            return await this.updateOne({name},{
+                is_locked:false,
+            }).exec();
+        }catch (e) {
+            new Logger().error('mongo-error:',e.message);
+        }
+    },
+
+    async findAllTask(): Promise<ITaskDispatchEntities[]>{
+        try{
+            return await this.find({}).exec();
+        }catch (e) {
+            new Logger().error('mongo-error:',e.message);
+        }
     }
 
 
