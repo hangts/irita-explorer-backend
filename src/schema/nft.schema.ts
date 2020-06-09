@@ -92,13 +92,14 @@ NftSchema.statics = {
 
     updateOneById(nft: any): void{
         try {
-            const { nft_id, owner, token_data, token_uri } = nft;
+            const { nft_id, owner, token_data, token_uri, hash } = nft;
             this.updateOne({
                 nft_id
             },{
                 owner,
                 token_data,
                 token_uri,
+                hash,
                 update_time:Math.floor(new Date().getTime()/1000)
             }, (e)=>{
                 if(e) new Logger().error('mongo-error:', e.message);

@@ -54,7 +54,7 @@ DenomSchema.statics = {
             });
             return await this.insertMany(entitiesList, { ordered: false });
         } catch (e) {
-            new Logger().error('mongo-error:', e.message);
+            new Logger().error('mongo-error: save denom failed:', e.message);
             return true;// 不管是否插入成功, 需要释放is_locked, 返回true;
         }
     },

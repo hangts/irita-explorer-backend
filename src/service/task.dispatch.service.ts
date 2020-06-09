@@ -17,7 +17,6 @@ export class TaskDispatchService {
                 return false;
             } else {
                 const updated = await this.updateIsLockedBeginUpdateTimeAndDeviceIp(name);
-                console.log('----',updated)
                 if (updated) {
                     return true;
                 } else {

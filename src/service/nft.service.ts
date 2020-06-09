@@ -43,31 +43,35 @@ export class NftService {
     async findDenomAndSyncNft():Promise<any> {
         const data: any = await (this.denomModel as any).findAllNames();
         if (data && data.length > 0) {
-            data.forEach(async (n, i) => {
-                const res: any = await this.nftHttp.queryNftsFromLcd(n.name);
-                const nftFromDb: INftEntities[] = await (this.nftModel as any).findNftListByName(n.name);
-                if (res) {
-                    let shouldInsertList: any[] = NftService.getShouldInsertList(res.nfts, nftFromDb);
-                    let shouldDeleteNftList: INftEntities[] = NftService.getShouldDeleteList(res.nfts, nftFromDb);
-                    let shouldUpdateNftList: any[] = NftService.getShouldUpdateList(res.nfts, nftFromDb);
-                    let saved = await this.saveNft(n, shouldInsertList);
-                    let deleted = await this.deleteNft(n, shouldDeleteNftList);
-
-
-
-                    if (shouldUpdateNftList.length > 0) {
-                        shouldUpdateNftList.forEach(async (nft) => {
-                            await (this.nftModel as any).updateOneById({
-                                nft_id: nft.value.id,
-                                owner: nft.value.owner,
-                                token_uri: nft.value.token_uri,
-                                token_data: nft.value.token_data,
-                            });
-                        });
+            return new Promise((resolve)=>{
+                let arr: any[] = [];
+                const promiseContainer = async (n) => {
+                    const res: any = await this.nftHttp.queryNftsFromLcd(n.name);
+                    const nftFromDb: INftEntities[] = await (this.nftModel as any).findNftListByName(n.name);
+                    if (res) {
+                        let shouldInsertList: any[] = NftService.getShouldInsertList(res.nfts, nftFromDb);
+                        let shouldDeleteNftList: INftEntities[] = NftService.getShouldDeleteList(res.nfts, nftFromDb);
+                        let shouldUpdateNftList: any[] = NftService.getShouldUpdateList(res.nfts, nftFromDb);
+                        await this.saveNft(n, shouldInsertList);
+                        await this.deleteNft(n, shouldDeleteNftList);
+                        await this.updateNft(n, shouldUpdateNftList);
                     }
-
-                }
-            });
+                };
+                data.forEach((n) => {
+                    arr.push(promiseContainer(n))
+                });
+                Promise.all(arr).then((res)=>{
+                    if(res) {
+                        console.log('all of step asynchronous have completed now');
+                        resolve(true);
+                        //all of step asynchronous have completed now;
+                    }
+                }).catch((e)=>{
+                    new Logger('sync nft failed:',e.message);
+                })
+            })
+        }else {
+            return true;
         }
 
     }
@@ -89,6 +93,7 @@ export class NftService {
                 };
             });
             const saved: any = await (this.nftModel as any).saveBulk(insertNftList);
+            console.log('insert nft has completed!')
             if(saved) return true;
         }else {
             return true;
@@ -110,10 +115,41 @@ export class NftService {
                 });
                 Promise.all(arr).then((res)=>{
                     if(res) {
+                        console.log('delete nft has completed!')
                         resolve(true);
                     }
                 }).catch((e)=>{
                     new Logger('delete nft failed:',e.message);
+                })
+            })
+        }else{
+            return true;
+        }
+    }
+
+    async updateNft(n:any, shouldUpdateNftList: any[]): Promise<boolean>{
+        if (shouldUpdateNftList.length > 0) {
+            return new Promise((resolve)=>{
+                let arr: any[] = [];
+                const promiseContainer = async (nft)=> {
+                    await (this.nftModel as any).updateOneById({
+                        nft_id: nft.value.id,
+                        owner: nft.value.owner,
+                        token_uri: nft.value.token_uri,
+                        token_data: nft.value.token_data,
+                        hash:nft.hash,
+                    });
+                };
+                shouldUpdateNftList.forEach((nft) => {
+                    arr.push(promiseContainer(nft))
+                });
+                Promise.all(arr).then((res)=>{
+                    if(res) {
+                        console.log('update nft has completed!')
+                        resolve(true);
+                    }
+                }).catch((e)=>{
+                    new Logger('updated nft failed:',e.message);
                 })
             })
         }else{
@@ -180,6 +216,7 @@ export class NftService {
                             //compare difference by hash;
                             const lcdStr = `${nl.value.owner}${nl.value.token_uri ? nl.value.token_uri : ''}${nl.value.token_data ? nl.value.token_data : ''}`;
                             const lcdHash = md5(lcdStr);
+                            nl.hash = lcdHash;
                             if (lcdHash !== n.hash) {
                                 o.push(nl);
                             }

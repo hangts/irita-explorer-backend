@@ -27,7 +27,7 @@ export class DenomService {
             return await (this.denomModel as any).saveBulk(data);
         } catch (e) {
             new Logger().error('api-error:',e.message);
-            throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
+            return true;// release lock;
         }
 
     }

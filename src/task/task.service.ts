@@ -19,35 +19,35 @@ export class TasksService {
     ) {
     }
 
-    @Cron('30 * * * * *')
-    handleCron() {
-        this.logger.log('cron jobs is running!');
-    }
-
-    @Cron('25 * * * * *')
+    @Cron('10 * * * * *')
     async syncDenoms() {
         this.logger.log('cron jobs of denoms async is running!');
         const shouldExecuteTask: boolean = await this.taskDispatchService.shouldExecuteCronJobs(taskEnum.denom);
-        console.log(`the ip ${getIPAdress()} should update ? `, shouldExecuteTask);
+        this.logger.log(`the ip ${getIPAdress()} should update denom: ${shouldExecuteTask}`);
         if (shouldExecuteTask) {
+            const beginTime: number = new Date().getTime();
             const completed = await this.denomService.async();
-            if(completed){
+            this.logger.log(`denom sync successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
+            if (completed) {
                 this.taskDispatchService.updateUpdatedTimeAndIsLocked(taskEnum.denom);
             }
         }
 
     }
 
-    @Cron('01 * * * * *')
+    @Cron('20 * * * * *')
     async syncNfts() {
         this.logger.log('cron jobs of nft async is running!');
         const shouldExecuteTask: boolean = await this.taskDispatchService.shouldExecuteCronJobs(taskEnum.nft);
-       // if (shouldExecuteTask) {
+        this.logger.log(`the ip ${getIPAdress()} should update nft: ${shouldExecuteTask}`);
+        if (shouldExecuteTask) {
+            const beginTime: number = new Date().getTime();
             const completed = await this.nftService.findDenomAndSyncNft();
-            if(completed){
+            this.logger.log(`nft sync successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
+            if (completed) {
                 this.taskDispatchService.updateUpdatedTimeAndIsLocked(taskEnum.nft);
             }
-        //}
+        }
 
     }
 }
