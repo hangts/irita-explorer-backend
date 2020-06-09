@@ -1,0 +1,41 @@
+import { Test } from '@nestjs/testing';
+import { AppModule } from '../app.module';
+import { TaskDispatchService } from './task.dispatch.service';
+import { taskEnum } from '../enum';
+import { ITaskDispatchEntities } from '../schema/task.dispatch.schema';
+
+
+describe('taskDispatch module', () => {
+    let taskDispatchService: TaskDispatchService;
+
+    beforeEach(async () => {
+        const module = await Test.createTestingModule({
+            imports: [
+                AppModule,
+            ],
+        }).compile();
+        taskDispatchService = module.get<TaskDispatchService>(TaskDispatchService);
+    });
+
+    describe('shouldExecuteCronJobs', () => {
+        it('should return true', async () => {
+            const data: boolean = await taskDispatchService.shouldExecuteCronJobs(taskEnum.denom);
+            expect(data).toBe(true);
+        });
+    });
+
+    describe('registerTask', () => {
+        it('should return latest block height', async () => {
+            const data: ITaskDispatchEntities = await taskDispatchService.registerTask(taskEnum.denom);
+            expect(data).toBeDefined();
+        });
+    });
+
+    describe('updateUpdatedTimeAndIsLocked', () => {
+        it('should return block average time', async () => {
+            const data: any = await taskDispatchService.updateUpdatedTimeAndIsLocked(taskEnum.denom);
+            expect(data).toBeDefined();
+        });
+    });
+});
+

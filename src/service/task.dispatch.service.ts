@@ -55,11 +55,11 @@ export class TaskDispatchService {
         return await (this.taskDispatchModel as any).createOne(task);
     }
 
-    async updateIsLockedBeginUpdateTimeAndDeviceIp(name: string): Promise<ITaskDispatchEntities> {
+    private async updateIsLockedBeginUpdateTimeAndDeviceIp(name: string): Promise<ITaskDispatchEntities> {
         return await (this.taskDispatchModel as any).updateIsLockedBeginUpdateTimeAndDeviceIp(name);
     }
 
-    async updateUpdatedTimeAndIsLocked(name: string) {
+    async updateUpdatedTimeAndIsLocked(name: string): Promise<any> {
         return await (this.taskDispatchModel as any).updateUpdatedTimeAndIsLocked(name);
     }
 

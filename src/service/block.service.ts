@@ -35,7 +35,7 @@ export class BlockService {
         return data;
     }
 
-    //TODO(lvshenchao) this api has not been used, use any temporary;
+    //TODO(lsc) this api has not been used, use any temporary;
     async queryLatestBlock(): Promise<any> {
         try {
             return await this.queryLatestBlockFromLcd();
@@ -46,11 +46,11 @@ export class BlockService {
 
     }
 
-    async queryLatestBlockFromDB(): Promise<IBlockEntities> {
+    private async queryLatestBlockFromDB(): Promise<IBlockEntities> {
         return await (this.blockModel as any).findOneByHeightDesc();
     }
 
-    async queryLatestBlockFromLcd(): Promise<any> {
+    private async queryLatestBlockFromLcd(): Promise<any> {
         return await BlockHttp.queryLatestBlockFromLcd();
     }
 

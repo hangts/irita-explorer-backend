@@ -6,18 +6,18 @@ export class NftDto {
 }
 
 export class NftListReqDto extends PagingReqDto {
-    denom: string;
+    denom?: string;
 
-    nftId: string;
+    nftId?: string;
 }
 
 export class NftDetailReqDto {
     @IsString()
-    @IsNotEmpty({message:'denom is necessary'})
+    @IsNotEmpty({ message: 'denom is necessary' })
     denom: string;
 
     @IsString()
-    @IsNotEmpty({message:'nft is necessary'})
+    @IsNotEmpty({ message: 'nft is necessary' })
     nftId: string;
 }
 

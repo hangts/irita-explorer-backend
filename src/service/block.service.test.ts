@@ -1,18 +1,18 @@
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../app.module';
 import { BlockService } from './block.service';
-import { BlockListReqDto, BlockListResDto } from '../dto/block.dto';
+import { BlockDetailReqDto, BlockListReqDto, BlockListResDto } from '../dto/block.dto';
 import { ListStruct } from '../api/ApiResult';
 
 
-describe('block.service', () => {
+describe('service module', () => {
     let blockService: BlockService;
-    this.timeout(10000);
+
     beforeEach(async () => {
         const module = await Test.createTestingModule({
-            imports: [
-                AppModule,
-            ],
+            imports:[
+                AppModule
+            ]
         }).compile();
         blockService = module.get<BlockService>(BlockService);
     });
@@ -29,5 +29,24 @@ describe('block.service', () => {
             expect(data).toBeDefined();
         });
     });
+
+    describe('queryBlockDetail', () => {
+        it('should return block detail', async () => {
+            let req: BlockDetailReqDto = {
+                height: 10000,
+            };
+
+            const data: BlockListResDto | null = await blockService.queryBlockDetail(req);
+            expect(data).toBeDefined();
+        });
+    });
+
+    describe('queryLatestBlock', () => {
+        it('should return a block detail', async () => {
+            const data: any = await blockService.queryLatestBlock();
+            expect(data).toBeDefined();
+        });
+    });
+
 });
 

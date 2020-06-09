@@ -81,7 +81,7 @@ export class NftService {
 
     }
 
-    async saveNft(n: any, shouldInsertList: any[]): Promise<boolean> {
+    private async saveNft(n: any, shouldInsertList: any[]): Promise<boolean> {
         if (shouldInsertList.length > 0) {
             let insertNftList: any[] = shouldInsertList.map((nft) => {
                 const str: string = `${nft.value.owner}${nft.value.token_uri ? nft.value.token_uri : ''}${nft.value.token_data ? nft.value.token_data : ''}`;
@@ -105,7 +105,7 @@ export class NftService {
         }
     }
 
-    async deleteNft(n: any, shouldDeleteNftList: any[]): Promise<boolean> {
+    private async deleteNft(n: any, shouldDeleteNftList: any[]): Promise<boolean> {
         if (shouldDeleteNftList.length > 0) {
             return new Promise((resolve) => {
                 let arr: any[] = [];
@@ -132,7 +132,7 @@ export class NftService {
         }
     }
 
-    async updateNft(n: any, shouldUpdateNftList: any[]): Promise<boolean> {
+    private async updateNft(n: any, shouldUpdateNftList: any[]): Promise<boolean> {
         if (shouldUpdateNftList.length > 0) {
             return new Promise((resolve) => {
                 let arr: any[] = [];
@@ -162,7 +162,7 @@ export class NftService {
         }
     }
 
-    static getShouldDeleteList(nftFromLcd: null | any[], nftFromDb: INftEntities[]): any[] {
+    private static getShouldDeleteList(nftFromLcd: null | any[], nftFromDb: INftEntities[]): any[] {
         if (nftFromDb.length === 0) {
             //如果db中已经没有nft, 则不需要执行delete操作
             return [];
@@ -181,7 +181,7 @@ export class NftService {
         }
     }
 
-    static getShouldInsertList(nftFromLcd: null | any[], nftFromDb: INftEntities[]): any[] {
+    private static getShouldInsertList(nftFromLcd: null | any[], nftFromDb: INftEntities[]): any[] {
         if (nftFromDb.length === 0) {
             return nftFromLcd ? nftFromLcd : [];
         } else {
@@ -199,7 +199,7 @@ export class NftService {
         }
     }
 
-    static getShouldUpdateList(nftFromLcd: null | any[], nftFromDb: INftEntities[]): any[] {
+    private static getShouldUpdateList(nftFromLcd: null | any[], nftFromDb: INftEntities[]): any[] {
         if (nftFromDb.length === 0) {
             return nftFromLcd ? nftFromLcd : [];
         } else {
