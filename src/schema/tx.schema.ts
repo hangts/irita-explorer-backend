@@ -6,7 +6,7 @@ import { ITxsQuery,
 	 	 ITxsWhthServiceNameQuery} from '../types/schemaQuery/tx.interface';
 import { ITxsQueryParams} from '../types/tx.interface';
 import {IListStruct} from '../types';
-
+import constant from '../constant/constant';
 export const TxSchema = new mongoose.Schema({
     time:Date,
     height:Number,
@@ -46,7 +46,7 @@ TxSchema.statics.queryTxList = async function (query:ITxsQuery){
     
     result.data = await this.find(queryParameters)
 					 		.sort({height:-1})
-					 		.skip((Number(query.pageNumber) - 1) * Number(query.pageSize))
+					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
     
     if (query.useCount && query.useCount=='true') {
@@ -62,7 +62,7 @@ TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery){
 	if (query.height) { queryParameters.height = Number(query.height);}
 	result.data = await this.find(queryParameters)
 					 		.sort({height:-1})
-					 		.skip((Number(query.pageNumber) - 1) * Number(query.pageSize))
+					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
 	if (query.useCount && query.useCount=='true') {
         result.count = await this.find(queryParameters).count();
@@ -85,7 +85,7 @@ TxSchema.statics.queryTxWithAddress = async function(query:ITxsWhthAddressQuery)
 	}
 	result.data = await this.find(queryParameters)
 					 		.sort({height:-1})
-					 		.skip((Number(query.pageNumber) - 1) * Number(query.pageSize))
+					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
 	if (query.useCount && query.useCount=='true') {
         result.count = await this.find(queryParameters).count();
@@ -105,7 +105,7 @@ TxSchema.statics.queryTxWithNft = async function(query:ITxsWhthNftQuery){
 	}	
 	result.data = await this.find(queryParameters)
 					 		.sort({height:-1})
-					 		.skip((Number(query.pageNumber) - 1) * Number(query.pageSize))
+					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
 	if (query.useCount && query.useCount=='true') {
         result.count = await this.find(queryParameters).count();
@@ -122,7 +122,7 @@ TxSchema.statics.queryTxWithServiceName = async function(query:ITxsWhthServiceNa
 	}
 	result.data = await this.find(queryParameters)
 					 		.sort({height:-1})
-					 		.skip((Number(query.pageNumber) - 1) * Number(query.pageSize))
+					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
 	if (query.useCount && query.useCount=='true') {
         result.count = await this.find(queryParameters).count();
@@ -138,6 +138,16 @@ TxSchema.statics.queryTxDetailWithServiceName = async function(serviceName:strin
 //  txs/{hash}
 TxSchema.statics.queryTxWithHash = async function(hash:string){
 	return await this.findOne({tx_hash:hash});
+}
+
+//  /statistics
+TxSchema.statics.queryTxStatistics = async function(){
+	let txCount = await this.find().count();
+	let setviceCount = await this.find({type:constant.txType.define_service}).count();
+	return  {
+		txCount:txCount,
+		setviceCount:setviceCount
+	};
 }
 
 

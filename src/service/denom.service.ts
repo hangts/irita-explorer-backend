@@ -12,9 +12,9 @@ export class DenomService {
     }
 
     async queryDenomList(query: IDenomQueryParams): Promise<ListStruct<any[]>> {
-        const { pageNumber, pageSize } = query;
-        const denomList: any[] = await this.denomModel.find().skip(Number(pageNumber)).limit(Number(pageSize)).exec();
-        return new ListStruct(denomList, Number(pageNumber), Number(pageSize), 0);
+        const { pageNum, pageSize } = query;
+        const denomList: any[] = await this.denomModel.find().skip(Number(pageNum)).limit(Number(pageSize)).exec();
+        return new ListStruct(denomList, Number(pageNum), Number(pageSize), 0);
     }
 
     async createDenom(data: CreateDenomDto): Promise<CreateDenomDto>{
