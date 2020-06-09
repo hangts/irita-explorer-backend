@@ -12,3 +12,9 @@ export function getIpAddress() {
         }
     }
 }
+
+export class Utils {
+    static getCurrentTime(){
+        return parseInt(String(new Date().getTime()/1000));
+    }
+}

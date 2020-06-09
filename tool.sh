@@ -6,7 +6,7 @@ function use_dev(){
   export MONGODB_PORT=37017&&
   export MONGODB_USER=csrb&&
   export MONGODB_PSD=csrbpassword&&
-  export MONGODB_DATABASE=sync&&
+  export MONGODB_DATABASE=sync2&&
   env
 }
 
@@ -16,7 +16,7 @@ function use_qa(){
   export MONGODB_PORT=37017&&
   export MONGODB_USER=csrb&&
   export MONGODB_PSD=csrbpassword&&
-  export MONGODB_DATABASE=sync&&
+  export MONGODB_DATABASE=sync2&&
   env
 }
 
@@ -26,7 +26,7 @@ function use_prod(){
   export MONGODB_PORT=37017&&
   export MONGODB_USER=csrb&&
   export MONGODB_PSD=csrbpassword&&
-  export MONGODB_DATABASE=sync&&
+  export MONGODB_DATABASE=sync2&&
   env
 }
 
