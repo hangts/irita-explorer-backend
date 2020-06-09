@@ -2,31 +2,28 @@
 
 function use_dev(){
   export NODE_ENV=development&&
-  export MONGODB_HOST=192.168.150.33&&
-  export MONGODB_PORT=37017&&
-  export MONGODB_USER=csrb&&
-  export MONGODB_PSD=csrbpassword&&
-  export MONGODB_DATABASE=sync2&&
+  export DB_ADDR=192.168.150.33:37017&&
+  export DB_USER=csrb&&
+  export DB_PASSWD=csrbpassword&&
+  export DB_DATABASE=sync2&&
   env
 }
 
 function use_qa(){
-  export NODE_ENV=qa&&
-  export MONGODB_HOST=192.168.150.33&&
-  export MONGODB_PORT=37017&&
-  export MONGODB_USER=csrb&&
-  export MONGODB_PSD=csrbpassword&&
-  export MONGODB_DATABASE=sync2&&
+  export NODE_ENV=development&&
+  export DB_ADDR=192.168.150.33:37017&&
+  export DB_USER=csrb&&
+  export DB_PASSWD=csrbpassword&&
+  export DB_DATABASE=sync2&&
   env
 }
 
 function use_prod(){
-  export NODE_ENV=product&&
-  export MONGODB_HOST=192.168.150.33&&
-  export MONGODB_PORT=37017&&
-  export MONGODB_USER=csrb&&
-  export MONGODB_PSD=csrbpassword&&
-  export MONGODB_DATABASE=sync2&&
+  export NODE_ENV=development&&
+  export DB_ADDR=192.168.150.33:37017&&
+  export DB_USER=csrb&&
+  export DB_PASSWD=csrbpassword&&
+  export DB_DATABASE=sync2&&
   env
 }
 
