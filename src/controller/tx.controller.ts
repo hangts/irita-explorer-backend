@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Param, Query, Res, Req, Body, HttpCode } from '@nestjs/common';
+import { ApiTags} from '@nestjs/swagger';
 import { TxService } from '../service/tx.service';
 import ValidationPipe from '../pipe/validation.pipe';
 import { Result } from '../api/ApiResult';
@@ -16,7 +17,7 @@ import { TxListReqDto,
 import { TxResDto, 
          TxTypeResDto } from '../dto/txs.dto';
 
-
+@ApiTags('Txs')
 @Controller('txs')
 export class TxController {
     constructor(private readonly txService: TxService) {
