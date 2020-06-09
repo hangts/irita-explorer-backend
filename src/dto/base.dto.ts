@@ -27,7 +27,7 @@ export class BaseResDto {
 export class PagingReqDto extends BaseReqDto{
 	
 	@IsOptional()
-  pageNumber?: string;
+  pageNum?: string;
 
   @IsOptional()
   pageSize?: string;
@@ -37,17 +37,17 @@ export class PagingReqDto extends BaseReqDto{
 
   static validate(value:any):void{
   	let patt = /^[1-9]\d*$/;
-  	if (value.pageNumber && (!patt.test(value.pageNumber) || value.pageNumber < 1)) {
-  		throw new ApiError(ErrorCodes.InvalidParameter, 'The pageNumber must be a positive integer greater than 0');
+  	if (value.pageNum && (!patt.test(value.pageNum) || value.pageNum < 1)) {
+  		throw new ApiError(ErrorCodes.InvalidParameter, 'The pageNum must be a positive integer greater than 0');
   	}
-  	if (value.pageSize && (!patt.test(value.pageSize) || value.pageNumber < 1)) {
+  	if (value.pageSize && (!patt.test(value.pageSize) || value.pageNum < 1)) {
   		throw new ApiError(ErrorCodes.InvalidParameter, 'The pageSize must be a positive integer greater than 0');
   	}
 	}
 
   static convert(value:any):any{
-	  	if (!value.pageNumber) {
-				value.pageNumber = constant.defaultPaging.pageNumber;
+	  	if (!value.pageNum) {
+				value.pageNum = constant.defaultPaging.pageNum;
 			}
 			if (!value.pageSize) {
 				value.pageSize = constant.defaultPaging.pageSize;
