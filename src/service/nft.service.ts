@@ -4,15 +4,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
 import { NftHttp } from '../http/nft.http';
 import { INftEntities } from '../schema/nft.schema';
-import {IDenomEntities} from '../schema/denom.schema';
+import { IDenomEntities } from '../schema/denom.schema';
 import { NftDetailReqDto, NftDetailResDto, NftListReqDto, NftListResDto } from '../dto/nft.dto';
 import md5 from 'blueimp-md5';
 
 @Injectable()
 export class NftService {
     constructor(@InjectModel('Nft') private nftModel: Model<INftEntities>,
-                @InjectModel('Denom') private denomModel: Model<IDenomEntities>,
-                private readonly nftHttp: NftHttp,
+        @InjectModel('Denom') private denomModel: Model<IDenomEntities>,
+        private readonly nftHttp: NftHttp,
     ) {
     }
 
@@ -40,10 +40,10 @@ export class NftService {
     }
 
 
-    async findDenomAndSyncNft():Promise<boolean> {
+    async findDenomAndSyncNft(): Promise<boolean> {
         const data: any = await (this.denomModel as any).findAllNames();
         if (data && data.length > 0) {
-            return new Promise((resolve)=>{
+            return new Promise((resolve) => {
                 let arr: any[] = [];
                 const promiseContainer = async (n) => {
                     const res: any = await this.nftHttp.queryNftsFromLcd(n.name);
@@ -60,23 +60,23 @@ export class NftService {
                 data.forEach((n) => {
                     arr.push(promiseContainer(n))
                 });
-                Promise.all(arr).then((res)=>{
-                    if(res) {
+                Promise.all(arr).then((res) => {
+                    if (res) {
                         console.log('all of step asynchronous have completed now');
                         resolve(true);
                         //all of step asynchronous have completed now;
                     }
-                }).catch((e)=>{
-                    new Logger('sync nft failed:',e.message);
+                }).catch((e) => {
+                    new Logger('sync nft failed:', e.message);
                 })
             })
-        }else {
+        } else {
             return true;
         }
 
     }
 
-    async saveNft(n:any, shouldInsertList: any[]): Promise<boolean>{
+    async saveNft(n: any, shouldInsertList: any[]): Promise<boolean> {
         if (shouldInsertList.length > 0) {
             let insertNftList: any[] = shouldInsertList.map((nft) => {
                 const str: string = `${nft.value.owner}${nft.value.token_uri ? nft.value.token_uri : ''}${nft.value.token_data ? nft.value.token_data : ''}`;
@@ -94,17 +94,17 @@ export class NftService {
             });
             const saved: any = await (this.nftModel as any).saveBulk(insertNftList);
             console.log('insert nft has completed!')
-            if(saved) return true;
-        }else {
+            if (saved) return true;
+        } else {
             return true;
         }
     }
 
-    async deleteNft(n:any, shouldDeleteNftList: any[]): Promise<boolean>{
+    async deleteNft(n: any, shouldDeleteNftList: any[]): Promise<boolean> {
         if (shouldDeleteNftList.length > 0) {
-            return new Promise((resolve)=>{
+            return new Promise((resolve) => {
                 let arr: any[] = [];
-                const promiseContainer = async (nft)=> {
+                const promiseContainer = async (nft) => {
                     await (this.nftModel as any).deleteOneByDenomAndId({
                         nft_id: nft.nft_id,
                         denom: n.name,
@@ -113,46 +113,46 @@ export class NftService {
                 shouldDeleteNftList.forEach((nft) => {
                     arr.push(promiseContainer(nft))
                 });
-                Promise.all(arr).then((res)=>{
-                    if(res) {
+                Promise.all(arr).then((res) => {
+                    if (res) {
                         console.log('delete nft has completed!')
                         resolve(true);
                     }
-                }).catch((e)=>{
-                    new Logger('delete nft failed:',e.message);
+                }).catch((e) => {
+                    new Logger('delete nft failed:', e.message);
                 })
             })
-        }else{
+        } else {
             return true;
         }
     }
 
-    async updateNft(n:any, shouldUpdateNftList: any[]): Promise<boolean>{
+    async updateNft(n: any, shouldUpdateNftList: any[]): Promise<boolean> {
         if (shouldUpdateNftList.length > 0) {
-            return new Promise((resolve)=>{
+            return new Promise((resolve) => {
                 let arr: any[] = [];
-                const promiseContainer = async (nft)=> {
+                const promiseContainer = async (nft) => {
                     await (this.nftModel as any).updateOneById({
                         nft_id: nft.value.id,
                         owner: nft.value.owner,
                         token_uri: nft.value.token_uri,
                         token_data: nft.value.token_data,
-                        hash:nft.hash,
+                        hash: nft.hash,
                     });
                 };
                 shouldUpdateNftList.forEach((nft) => {
                     arr.push(promiseContainer(nft))
                 });
-                Promise.all(arr).then((res)=>{
-                    if(res) {
+                Promise.all(arr).then((res) => {
+                    if (res) {
                         console.log('update nft has completed!')
                         resolve(true);
                     }
-                }).catch((e)=>{
-                    new Logger('updated nft failed:',e.message);
+                }).catch((e) => {
+                    new Logger('updated nft failed:', e.message);
                 })
             })
-        }else{
+        } else {
             return true;
         }
     }
