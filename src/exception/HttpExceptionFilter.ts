@@ -9,10 +9,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const response = ctx.getResponse();
         const request = ctx.getRequest();
         console.error(`there is an error from ${request.url}`, exception);
-        let code: number = ErrorCodes.failed, message: string = ResultCodesMaps.get(ErrorCodes.failed);
-        if(exception.response && exception.response.code && exception.response.message){
+        let code: number = exception.code, message: string = ResultCodesMaps.get(exception.code) || exception.errmsg;
+        if(exception.response && exception.response.code){
             code = exception.response.code;
-            message = exception.response.message;
+            message = exception.response.message || (ResultCodesMaps.get(code) || '');
         }
         response
             .status(200)

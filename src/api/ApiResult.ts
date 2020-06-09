@@ -30,7 +30,7 @@ export class Result<T> implements IResultBase {
 }
 
 export class ApiError extends HttpException{
-    constructor(code: number, message: string){
+    constructor(code: number, message?: string){
         super({
             code,
             message,
