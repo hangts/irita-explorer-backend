@@ -4,6 +4,7 @@ import { Logger } from '@nestjs/common';
 import { ErrorCodes } from '../api/ResultCodes';
 import { ApiError } from '../api/ApiResult';
 import {deleteQuery} from '../types/nft.interface';
+import { getTimestamp } from '../util/util';
 
 export interface INftEntities extends Document {
     denom: string,
@@ -100,7 +101,7 @@ NftSchema.statics = {
                 token_data,
                 token_uri,
                 hash,
-                update_time:Math.floor(new Date().getTime()/1000)
+                update_time:getTimestamp()
             }, (e)=>{
                 if(e) new Logger().error('mongo-error:', e.message);
             });

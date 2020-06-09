@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 import { Logger } from '@nestjs/common';
 import { ErrorCodes } from '../api/ResultCodes';
 import { ApiError } from '../api/ApiResult';
+import { getTimestamp } from '../util/util';
 
 export interface IDenomEntities extends Document {
     name: string,
@@ -46,8 +47,8 @@ DenomSchema.statics = {
                     name: d.name,
                     json_schema: d.schema,
                     creator: d.creator,
-                    create_time: Math.floor(new Date().getTime() / 1000),
-                    update_time: Math.floor(new Date().getTime() / 1000),
+                    create_time: getTimestamp(),
+                    update_time: getTimestamp(),
                 };
             });
             return await this.insertMany(entitiesList, { ordered: false });

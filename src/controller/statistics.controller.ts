@@ -12,7 +12,6 @@ export class StatisticsController {
     @Get()
     async queryBlockList(): Promise<Result<StatisticsResDto>> {
         const data: StatisticsResDto = await this.statisticsService.queryStatistics();
-        console.log(data)
         return new Result<StatisticsResDto>(data);
     }
 

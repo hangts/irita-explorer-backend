@@ -63,8 +63,6 @@ export class StatisticsService {
         return await (this.nftModel as any).queryCount();
     }
 
-
-
     async queryTxCount():Promise<any>{
         return await (this.txModel as any).queryTxStatistics();
     }

@@ -6,20 +6,18 @@ export class NftDto {
 }
 
 export class NftListReqDto extends PagingReqDto {
-    @IsString()
     denom: string;
 
-    @IsString()
     owner: string;
 }
 
-export class NftDetailReqDto {//TODO(lsc) need to implement validator methods and convert methods;
+export class NftDetailReqDto {
     @IsString()
-    @IsNotEmpty({message:'hello'})
+    @IsNotEmpty({message:'denom is necessary'})
     denom: string;
 
     @IsString()
-    @IsNotEmpty({message:'world'})
+    @IsNotEmpty({message:'nft is necessary'})
     nftId: string;
 }
 

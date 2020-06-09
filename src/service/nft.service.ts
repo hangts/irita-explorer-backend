@@ -7,6 +7,7 @@ import { INftEntities } from '../schema/nft.schema';
 import { IDenomEntities } from '../schema/denom.schema';
 import { NftDetailReqDto, NftDetailResDto, NftListReqDto, NftListResDto } from '../dto/nft.dto';
 import md5 from 'blueimp-md5';
+import { getTimestamp } from '../util/util';
 
 @Injectable()
 export class NftService {
@@ -18,7 +19,7 @@ export class NftService {
 
     async queryList(query: NftListReqDto): Promise<ListStruct<NftListResDto[]>> {
         const { pageNum, pageSize, denom, owner, useCount } = query;
-        const nftList: any[] = await (this.nftModel as any).findList(Number(pageNum), Number(pageSize), denom, owner);
+        const nftList: any[] = await (this.nftModel as any).findList(pageNum, pageSize, denom, owner);
         const res: NftListResDto[] = nftList.map((n) => {
             return new NftListResDto(n.denom, n.nft_id, n.owner, n.token_uri, n.token_data, n.create_time, n.update_time);
         });
@@ -26,10 +27,10 @@ export class NftService {
         if (useCount) {
             count = await (this.nftModel as any).queryCount();
         }
-        return new ListStruct(res, Number(pageNum), Number(pageSize), count);
+        return new ListStruct(res, pageNum, pageSize, count);
     }
 
-    async queryDetail(query: NftDetailReqDto): Promise<NftDetailResDto> {
+    async queryDetail(query: NftDetailReqDto): Promise<NftDetailResDto | null> {
         const { denom, nftId } = query;
         const n: any = await (this.nftModel as any).findOneByDenomAndNftId(denom, nftId);
         if (n) {
@@ -39,10 +40,14 @@ export class NftService {
         }
     }
 
+    async findNftListByName(name: string): Promise<INftEntities[]> {
+        return await (this.nftModel as any).findNftListByName(name);
+    }
+
 
     async findDenomAndSyncNft(): Promise<boolean> {
-        const data: any = await (this.denomModel as any).findAllNames();
-        if (data && data.length > 0) {
+        const nameList: any = await (this.denomModel as any).findAllNames();
+        if (nameList && nameList.length > 0) {
             return new Promise((resolve) => {
                 let arr: any[] = [];
                 const promiseContainer = async (n) => {
@@ -57,8 +62,8 @@ export class NftService {
                         await this.updateNft(n, shouldUpdateNftList);
                     }
                 };
-                data.forEach((n) => {
-                    arr.push(promiseContainer(n))
+                nameList.forEach((name) => {
+                    arr.push(promiseContainer(name))
                 });
                 Promise.all(arr).then((res) => {
                     if (res) {
@@ -87,13 +92,13 @@ export class NftService {
                     owner: nft.value.owner,
                     token_uri: nft.value.token_uri ? nft.value.token_uri : '',
                     token_data: nft.value.token_data ? nft.value.token_data : '',
-                    create_time: Math.floor(new Date().getTime() / 1000),
-                    update_time: Math.floor(new Date().getTime() / 1000),
+                    create_time: getTimestamp(),
+                    update_time: getTimestamp(),
                     hash,
                 };
             });
             const saved: any = await (this.nftModel as any).saveBulk(insertNftList);
-            console.log('insert nft has completed!')
+            console.log('insert nft has completed!');
             if (saved) return true;
         } else {
             return true;
@@ -228,8 +233,6 @@ export class NftService {
         }
     }
 
-    async findNftListByName(name: string): Promise<INftEntities[]> {
-        return await (this.nftModel as any).findNftListByName(name);
-    }
+
 }
 

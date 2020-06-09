@@ -20,9 +20,9 @@ export class NftController {
 
     @Get('details')
     @UsePipes(new ValidationPipe())
-    async queryDetail(@Query() q: NftDetailReqDto): Promise<Result<NftDetailResDto>> {
+    async queryDetail(@Query() q: NftDetailReqDto): Promise<Result<NftDetailResDto | null>> {
         const data: NftDetailResDto = await this.nftService.queryDetail(q);
-        return new Result<NftDetailResDto>(data);
+        return new Result<NftDetailResDto | null>(data);
     }
 
 

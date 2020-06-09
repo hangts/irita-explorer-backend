@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ITaskDispatchEntities } from '../schema/task.dispatch.schema';
-import { getIpAddress } from '../util/util';
+import { getIpAddress, getTimestamp } from '../util/util';
 
 @Injectable()
 export class TaskDispatchService {
@@ -48,7 +48,7 @@ export class TaskDispatchService {
             is_locked: false,
             interval: 60000,// TODO(lsc) interval for different type of task need to be configured;
             device_ip: getIpAddress(),
-            create_time: Math.floor(new Date().getTime() / 1000),
+            create_time: getTimestamp(),
             begin_update_time: 0,
             updated_time: 0,
         };
