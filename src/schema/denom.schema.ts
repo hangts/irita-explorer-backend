@@ -1,9 +1,8 @@
 import * as mongoose from 'mongoose';
 import { Document } from 'mongoose';
 import { Logger } from '@nestjs/common';
-import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';
+import { ErrorCodes } from '../api/ResultCodes';
 import { ApiError } from '../api/ApiResult';
-import { cfg } from '../config';
 
 export interface IDenomEntities extends Document {
     name: string,

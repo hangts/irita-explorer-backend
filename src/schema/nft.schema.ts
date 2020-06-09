@@ -110,18 +110,4 @@ NftSchema.statics = {
         }
     }
 
-
-
-    /*queryLatestBlockFromLcd: async function(): Promise<any>{
-        try {
-            const url: string = `${cfg.serverCfg.lcdAddr}/blocks/latest`;
-            return await new HttpService().get(url).toPromise().then(res => res.data);
-        } catch (e) {
-            new Logger().error('api-error:',e.message);
-            throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
-        }
-
-    },*/
-
-
 };
