@@ -28,15 +28,15 @@ export class PagingReqDto extends BaseReqDto {
 
     @ApiPropertyOptional()
     @IsOptional()
-    pageNum?: string;
+    pageNum?: number;
 
     @ApiPropertyOptional()
     @IsOptional()
-    pageSize?: string;
+    pageSize?: number;
 
     @ApiPropertyOptional({description:'true/false'})
     @IsOptional()
-    useCount?: string;
+    useCount?: boolean;
 
     static validate(value: any): void {
         let patt = /^[1-9]\d*$/;

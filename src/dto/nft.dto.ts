@@ -8,7 +8,7 @@ export class NftDto {
 export class NftListReqDto extends PagingReqDto {
     denom: string;
 
-    owner: string;
+    nftId: string;
 }
 
 export class NftDetailReqDto {

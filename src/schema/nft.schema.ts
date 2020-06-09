@@ -30,11 +30,11 @@ export const NftSchema = new mongoose.Schema({
 NftSchema.index({denom:1, nft_id:1}, {unique: true});
 
 NftSchema.statics = {
-    async findList(pageNum: number, pageSize: number, denom?: string, owner?: string): Promise<INftEntities[]> {
+    async findList(pageNum: number, pageSize: number, denom?: string, nftId?: string): Promise<INftEntities[]> {
         try {
             let q: any = {};
             if(denom) q.denom = denom;
-            if(denom) q.owner = owner;
+            if(nftId) q.nft_id = nftId;
             return await this.find(q).sort().skip((pageNum - 1) * pageSize).limit(pageSize).exec();
         } catch (e) {
             new Logger().error('mongo-error:', e.message);
