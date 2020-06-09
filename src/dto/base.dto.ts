@@ -1,8 +1,8 @@
-import { IsOptional } from 'class-validator';
-import { ApiError } from '../api/ApiResult';
-import { ErrorCodes } from '../api/ResultCodes';
+import {IsOptional} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {ApiError} from '../api/ApiResult';
+import {ErrorCodes} from '../api/ResultCodes';
 import constant from '../constant/constant';
-
 //base request dto
 export class BaseReqDto {
 
@@ -26,14 +26,17 @@ export class BaseResDto {
 //base Paging request Dto
 export class PagingReqDto extends BaseReqDto {
 
+    @ApiPropertyOptional()
     @IsOptional()
-    pageNum?: number;
+    pageNum?: string;
 
+    @ApiPropertyOptional()
     @IsOptional()
-    pageSize?: number;
+    pageSize?: string;
 
+    @ApiPropertyOptional({description:'true/false'})
     @IsOptional()
-    useCount?: boolean;
+    useCount?: string;
 
     static validate(value: any): void {
         let patt = /^[1-9]\d*$/;

@@ -1,21 +1,19 @@
 const {
-    MONGODB_USER,
-    MONGODB_PSD,
-    MONGODB_HOST,
-    MONGODB_PORT,
-    MONGODB_DATABASE,
-    NODE_ENV,
     LCD_ADDR,
+    DB_USER,
+    DB_PASSWD,
+    DB_ADDR,
+    DB_DATABASE,
+    NODE_ENV
 } = process.env;
 
 export const cfg = {
     env: NODE_ENV,
     dbCfg: {
-        host: MONGODB_HOST,
-        port: MONGODB_PORT,
-        user: MONGODB_USER,
-        psd: MONGODB_PSD,
-        db: MONGODB_DATABASE,
+        user: DB_USER,
+        psd: DB_PASSWD,
+        dbAddr: DB_ADDR,
+        dbName: DB_DATABASE,
     },
     serverCfg:{
         lcdAddr:LCD_ADDR
