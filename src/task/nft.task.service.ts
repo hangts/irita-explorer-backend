@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { NftHttp } from '../http/lcd/nft.http';
-import { INftEntities } from '../schema/nft.schema';
-import { IDenomEntities } from '../schema/denom.schema';
+import { INftEntities } from '../types/nft.interface';
+import { IDenomEntities } from '../types/denom.interface';
 import md5 from 'blueimp-md5';
 import { getTimestamp } from '../util/util';
 

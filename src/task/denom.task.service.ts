@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { IDenomEntities } from '../schema/denom.schema';
 import { DenomHttp } from '../http/lcd/denom.http';
+import { IDenomEntities } from '../types/denom.interface';
 
 @Injectable()
 export class DenomTaskService {
