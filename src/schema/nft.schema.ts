@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 import { Logger } from '@nestjs/common';
 import { ErrorCodes } from '../api/ResultCodes';
 import { ApiError } from '../api/ApiResult';
-import {deleteQuery} from '../types/nft.interface';
+import { deleteQuery } from '../types/nft.interface';
 import { getTimestamp } from '../util/util';
 
 export interface INftEntities extends Document {
@@ -27,88 +27,53 @@ export const NftSchema = new mongoose.Schema({
     update_time: Number,
     hash: String,
 });
-NftSchema.index({denom:1, nft_id:1}, {unique: true});
+NftSchema.index({ denom: 1, nft_id: 1 }, { unique: true });
 
 NftSchema.statics = {
     async findList(pageNum: number, pageSize: number, denom?: string, nftId?: string): Promise<INftEntities[]> {
-        try {
-            let q: any = {};
-            if(denom) q.denom = denom;
-            if(nftId) q.nft_id = nftId;
-            return await this.find(q).sort().skip((pageNum - 1) * pageSize).limit(pageSize).exec();
-        } catch (e) {
-            new Logger().error('mongo-error:', e.message);
-            throw new ApiError(ErrorCodes.failed, e.message);
-        }
+        let q: any = {};
+        if (denom) q.denom = denom;
+        if (nftId) q.nft_id = nftId;
+        return await this.find(q).sort().skip((pageNum - 1) * pageSize).limit(pageSize).exec();
     },
 
-    async findOneByDenomAndNftId(denom: string, nftId: string): Promise<INftEntities>{
-        try {
-            return await this.findOne({
-                denom,
-                nft_id:nftId
-            }).exec();
-        } catch (e) {
-            new Logger().error('mongo-error:', e.message);
-            throw new ApiError(ErrorCodes.failed, e.message);
-        }
+    async findOneByDenomAndNftId(denom: string, nftId: string): Promise<INftEntities> {
+        return await this.findOne({
+            denom,
+            nft_id: nftId,
+        }).exec();
     },
 
     async queryCount(): Promise<number> {
-        try {
-            return await this.find().count().exec();
-        } catch (e) {
-            new Logger().error('mongo-error:', e.message);
-            throw new ApiError(ErrorCodes.failed, e.message);
-        }
+        return await this.find().count().exec();
     },
-    async findNftListByName(name: string): Promise<INftEntities>{
-        try {
-            return await this.find({denom: name}).exec();
-        } catch (e) {
-            new Logger().error('mongo-error:', e.message);
-            throw new ApiError(ErrorCodes.failed, e.message);
-        }
+    async findNftListByName(name: string): Promise<INftEntities> {
+        return await this.find({ denom: name }).exec();
     },
 
     saveBulk(nfts: any): void {
-        try {
-            this.insertMany(nfts, { ordered: false });
-        } catch (e) {
-            new Logger().error('mongo-error:', e.message);
-            //throw new ApiError(ErrorCodes.failed, e.message);
-        }
+        this.insertMany(nfts, { ordered: false });
     },
 
     async deleteOneByDenomAndId(nft: deleteQuery): Promise<void> {
-        try {
-            return await this.deleteOne(nft, (e)=>{
-                if(e) new Logger().error('mongo-error:', e.message);
-            });
-        } catch (e) {
-            new Logger().error('mongo-error:', e.message);
-            //throw new ApiError(ErrorCodes.failed, e.message);
-        }
+        return await this.deleteOne(nft, (e) => {
+            if (e) new Logger().error('mongo-error:', e.message);
+        });
     },
 
-    updateOneById(nft: any): void{
-        try {
-            const { nft_id, owner, token_data, token_uri, hash } = nft;
-            this.updateOne({
-                nft_id
-            },{
-                owner,
-                token_data,
-                token_uri,
-                hash,
-                update_time:getTimestamp()
-            }, (e)=>{
-                if(e) new Logger().error('mongo-error:', e.message);
-            });
-        } catch (e) {
-            new Logger().error('mongo-error:', e.message);
-            //throw new ApiError(ErrorCodes.failed, e.message);
-        }
-    }
+    updateOneById(nft: any): void {
+        const { nft_id, owner, token_data, token_uri, hash } = nft;
+        this.updateOne({
+            nft_id,
+        }, {
+            owner,
+            token_data,
+            token_uri,
+            hash,
+            update_time: getTimestamp(),
+        }, (e) => {
+            if (e) new Logger().error('mongo-error:', e.message);
+        });
+    },
 
 };

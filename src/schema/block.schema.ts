@@ -19,58 +19,32 @@ export const BlockSchema = new mongoose.Schema({
 
 BlockSchema.statics = {
     async findBlockList(pageNum: number, pageSize: number): Promise<IBlockEntities[]>{
-        try{
-            return await this.find({}).sort({ height: -1 }).skip((pageNum - 1) * pageSize).limit(pageSize).exec();
-        }catch (e) {
-            new Logger().error('mongo-error:',e.message);
-            throw new ApiError(ErrorCodes.failed,e.message);
-        }
+        return await this.find({}).sort({ height: -1 }).skip((pageNum - 1) * pageSize).limit(pageSize).exec();
     },
 
     async count(): Promise<number>{
-        try{
-            return await this.find({}).count().exec();
-        }catch (e) {
-            new Logger().error('mongo-error:',e.message);
-            throw new ApiError(ErrorCodes.failed,e.message);
-        }
+        return await this.find({}).count().exec();
     },
 
     async findOneByHeight(height: number): Promise<IBlockEntities | null>{
-        try {
-            return await this.findOne({ height });
-        } catch (e) {
-            new Logger().error('mongo-error:',e.message);
-            throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
-        }
+        return await this.findOne({ height });
     },
 
     async findOneByHeightDesc(): Promise<IBlockEntities | null>{
-        try {
-            const res: IBlockEntities[] = await this.find({}).sort({ height: -1 }).skip(0).limit(1);
-            if(res && res.length > 0){
-                return res[0];
-            }else {
-                return null;
-            }
-        } catch (e) {
-            new Logger().log('mongo-error:',e.message);
-            throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
+        const res: IBlockEntities[] = await this.find({}).sort({ height: -1 }).limit(1);
+        if(res && res.length > 0){
+            return res[0];
+        }else {
+            return null;
         }
     },
 
     async findNum100Height():Promise<IBlockEntities | null>{
-        try {
-            const res: IBlockEntities[] = await this.find({}).sort({ height: -1 }).skip(0).limit(100);
-            if(res && res.length > 0){
-                return res[res.length - 1]
-            }else {
-                return null
-            }
-
-        } catch (e) {
-            new Logger().log('mongo-error:',e.message);
-            throw new ApiError(ErrorCodes.failed, ResultCodesMaps.get(ErrorCodes.failed));
+        const res: IBlockEntities[] = await this.find({}).sort({ height: -1 }).limit(100);
+        if(res && res.length > 0){
+            return res[res.length - 1]
+        }else {
+            return null
         }
     }
 

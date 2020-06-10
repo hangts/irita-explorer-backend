@@ -4,9 +4,9 @@ import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
 import {BlockListResDto, BlockListReqDto, BlockDetailReqDto} from '../dto/block.dto';
 import ValidationPipe from '../pipe/validation.pipe';
+import { ApiTags} from '@nestjs/swagger';
 
-
-
+@ApiTags('Blocks')
 @Controller('blocks')
 export class BlockController {
     constructor(private readonly blockService: BlockService) {

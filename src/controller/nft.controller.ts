@@ -4,8 +4,9 @@ import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
 import { NftListReqDto, NftListResDto, NftDetailReqDto, NftDetailResDto } from '../dto/nft.dto';
 import ValidationPipe from '../pipe/validation.pipe';
+import { ApiTags} from '@nestjs/swagger';
 
-
+@ApiTags('Nfts')
 @Controller('nfts')
 export class NftController {
     constructor(private readonly nftService: NftService) {

@@ -3,8 +3,9 @@ import { DenomService } from '../service/denom.service';
 import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
 import { DenomListResDto } from '../dto/denom.dto';
+import { ApiTags} from '@nestjs/swagger';
 
-
+@ApiTags('Denoms')
 @Controller('denoms')
 export class DenomController {
     constructor(private readonly denomService: DenomService) {

@@ -23,46 +23,26 @@ export const DenomSchema = new mongoose.Schema({
 
 DenomSchema.statics = {
     async findList(): Promise<IDenomEntities[]> {
-        try {
-            return await this.find({}).exec();
-        } catch (e) {
-            new Logger().error('mongo-error:', e.message);
-            throw new ApiError(ErrorCodes.failed, e.message);
-        }
+        return await this.find({}).exec();
     },
 
     async count(): Promise<number> {
-        try {
-            return await this.blockModel.find().count().exec();
-        } catch (e) {
-            new Logger().error('mongo-error:', e.message);
-            throw new ApiError(ErrorCodes.failed, e.message);
-        }
+        return await this.blockModel.find().count().exec();
     },
 
     async saveBulk(denoms: any): Promise<any> {
-        try {
-            const entitiesList: IDenomEntities[] = denoms.map((d) => {
-                return {
-                    name: d.name,
-                    json_schema: d.schema,
-                    creator: d.creator,
-                    create_time: getTimestamp(),
-                    update_time: getTimestamp(),
-                };
-            });
-            return await this.insertMany(entitiesList, { ordered: false });
-        } catch (e) {
-            new Logger().error('mongo-error: save denom failed:', e.message);
-            return true;// 不管是否插入成功, 需要释放is_locked, 返回true;
-        }
+        const entitiesList: IDenomEntities[] = denoms.map((d) => {
+            return {
+                name: d.name,
+                json_schema: d.schema,
+                creator: d.creator,
+                create_time: getTimestamp(),
+                update_time: getTimestamp(),
+            };
+        });
+        return await this.insertMany(entitiesList, { ordered: false });
     },
     async findAllNames(): Promise<string[]> {
-        try {
-            return await this.find({}, { name: 1 }).exec();
-        } catch (e) {
-            new Logger().error('mongo-error:', e.message);
-            throw new ApiError(ErrorCodes.failed, e.message);
-        }
+        return await this.find({}, { name: 1 }).exec();
     },
 };
