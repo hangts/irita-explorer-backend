@@ -1,17 +1,6 @@
 import * as mongoose from 'mongoose';
-import { Document } from 'mongoose';
-import { Logger } from '@nestjs/common';
-import { ErrorCodes } from '../api/ResultCodes';
-import { ApiError } from '../api/ApiResult';
 import { getTimestamp } from '../util/util';
-
-export interface IDenomEntities extends Document {
-    name: string,
-    json_schema: string,
-    creator: string,
-    create_time: number,
-    update_time: number,
-}
+import { IDenomEntities} from '../types/denom.interface';
 
 export const DenomSchema = new mongoose.Schema({
     name: { type: String, unique: true },

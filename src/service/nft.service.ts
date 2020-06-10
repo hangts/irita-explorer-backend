@@ -1,9 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { INftEntities } from '../schema/nft.schema';
-import { IDenomEntities } from '../schema/denom.schema';
+import { INftEntities} from '../types/nft.interface';
+import { IDenomEntities} from '../types/denom.interface';
 import { NftDetailReqDto, NftDetailResDto, NftListReqDto, NftListResDto } from '../dto/nft.dto';
 
 @Injectable()

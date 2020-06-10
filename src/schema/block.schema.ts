@@ -1,15 +1,6 @@
 import * as mongoose from 'mongoose';
-import { Document } from 'mongoose';
-import { Logger } from '@nestjs/common';
-import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';
-import {ApiError} from '../api/ApiResult';
+import { IBlockEntities } from '../types/block.interface';
 
-export interface IBlockEntities extends Document {
-    height:number,
-    hash:string,
-    txn:number,
-    time:string,
-}
 export const BlockSchema = new mongoose.Schema({
     height:Number,
     hash:String,

@@ -1,21 +1,9 @@
 import * as mongoose from 'mongoose';
-import { Document } from 'mongoose';
+
 import { Logger } from '@nestjs/common';
-import { ErrorCodes } from '../api/ResultCodes';
-import { ApiError } from '../api/ApiResult';
 import { deleteQuery } from '../types/nft.interface';
 import { getTimestamp } from '../util/util';
-
-export interface INftEntities extends Document {
-    denom: string,
-    nft_id: string,
-    owner: string,
-    token_uri: string,
-    token_data: string,
-    create_time: number,
-    update_time: number,
-    hash: string,
-}
+import { INftEntities} from '../types/nft.interface';
 
 export const NftSchema = new mongoose.Schema({
     denom: String,

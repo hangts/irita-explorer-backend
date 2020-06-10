@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { IDenomEntities } from '../schema/denom.schema';
+import { IDenomEntities} from '../types/denom.interface';
 import { DenomListResDto } from '../dto/denom.dto';
 
 @Injectable()

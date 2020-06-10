@@ -1,18 +1,6 @@
 import * as mongoose from 'mongoose';
-import { Document } from 'mongoose';
-import { Logger } from '@nestjs/common';
 import { getIpAddress, getTimestamp } from '../util/util';
-
-export interface ITaskDispatchEntities extends Document {
-    name: string,
-    is_locked: boolean,
-    interval: number,
-    device_ip: string,
-    create_time: number,
-    begin_update_time: number,
-    updated_time: number,
-
-}
+import { ITaskDispatchEntities} from '../types/task.dispatch.interface';
 
 export const TaskDispatchSchema = new mongoose.Schema({
     name: String,
