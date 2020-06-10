@@ -28,7 +28,6 @@ const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.db
         TaskDispatchModule,
         DenomTaskModule,
         NftTaskModule,
-    	MongooseModule.forRoot(url),
     	DenomModule,
     	TxModule
     ],

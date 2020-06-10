@@ -45,7 +45,12 @@ export class StatisticsService {
                 avgTime = (latestTime - num100Time) / 100;
             } else {
                 //可能当前区块高度还不到100
-                avgTime = (latestTime - num100Time) / (latestBlock.height - num100Block.height);
+                const diff: number = latestBlock.height - num100Block.height;
+                if(diff){
+                    avgTime = (latestTime - num100Time) / diff;
+                }else{
+                    return null;
+                }
             }
             return Math.floor(avgTime);
         } else {
