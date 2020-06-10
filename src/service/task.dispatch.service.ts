@@ -82,6 +82,9 @@ export class TaskDispatchService {
                     if (res) {
                         resolve(true);
                     }
+                }).catch((e) => {
+                    resolve(true);
+                    new Logger('sync nft failed:', e.message);
                 });
             })
         }else{

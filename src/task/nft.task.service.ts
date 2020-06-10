@@ -21,20 +21,20 @@ export class NftTaskService {
         if (nameList && nameList.length > 0) {
             return new Promise((resolve) => {
                 let arr: any[] = [];
-                const promiseContainer = async (n) => {
-                    const res: any = await this.nftHttp.queryNftsFromLcd(n.name);
-                    const nftFromDb: INftEntities[] = await (this.nftModel as any).findNftListByName(n.name);
+                const promiseContainer = async (nameOjb) => {
+                    const res: any = await this.nftHttp.queryNftsFromLcd(nameOjb.name);
+                    const nftFromDb: INftEntities[] = await (this.nftModel as any).findNftListByName(nameOjb.name);
                     if (res) {
-                        let shouldInsertList: any[] = NftTaskService.getShouldInsertList(res.nfts, nftFromDb);
-                        let shouldDeleteNftList: INftEntities[] = NftTaskService.getShouldDeleteList(res.nfts, nftFromDb);
-                        let shouldUpdateNftList: any[] = NftTaskService.getShouldUpdateList(res.nfts, nftFromDb);
-                        await this.saveNft(n, shouldInsertList);
-                        await this.deleteNft(n, shouldDeleteNftList);
-                        await this.updateNft(n, shouldUpdateNftList);
+                        let shouldInsertList: any[] = NftTaskService.getShouldInsertList(res.nfts ? res.nfts : [], nftFromDb);
+                        let shouldDeleteNftList: INftEntities[] = NftTaskService.getShouldDeleteList(res.nfts ? res.nfts : [], nftFromDb);
+                        let shouldUpdateNftList: any[] = NftTaskService.getShouldUpdateList(res.nfts ? res.nfts : [], nftFromDb);
+                        await this.saveNft(nameOjb, shouldInsertList);
+                        await this.deleteNft(nameOjb, shouldDeleteNftList);
+                        await this.updateNft(nameOjb, shouldUpdateNftList);
                     }
                 };
-                nameList.forEach((name) => {
-                    arr.push(promiseContainer(name))
+                nameList.forEach((nameOjb) => {
+                    arr.push(promiseContainer(nameOjb))
                 });
                 Promise.all(arr).then((res) => {
                     if (res) {
@@ -43,6 +43,7 @@ export class NftTaskService {
                         //all of step asynchronous have completed now;
                     }
                 }).catch((e) => {
+                    resolve(true);
                     new Logger('sync nft failed:', e.message);
                 })
             })
@@ -93,8 +94,6 @@ export class NftTaskService {
                     if (res) {
                         resolve(true);
                     }
-                }).catch((e) => {
-                    new Logger('delete nft failed:', e.message);
                 })
             })
         } else {
@@ -122,8 +121,6 @@ export class NftTaskService {
                     if (res) {
                         resolve(true);
                     }
-                }).catch((e) => {
-                    new Logger('updated nft failed:', e.message);
                 })
             })
         } else {
@@ -131,44 +128,44 @@ export class NftTaskService {
         }
     }
 
-    private static getShouldDeleteList(nftFromLcd: null | any[], nftFromDb: INftEntities[]): any[] {
+    private static getShouldDeleteList(nftFromLcd: any[], nftFromDb: INftEntities[]): any[] {
         if (nftFromDb.length === 0) {
             //如果db中已经没有nft, 则不需要执行delete操作
             return [];
         } else {
-            if (!nftFromLcd) {//如果从Lcd返回的Nft已经没有了, 则需要删除db中查出的所有的
+            if (nftFromLcd.length === 0) {//如果从Lcd返回的Nft已经没有了, 则需要删除db中查出的所有的
                 return nftFromDb;
             } else {
-                let o: INftEntities[] = [];
-                nftFromDb.forEach((n) => {
-                    if (nftFromLcd.every((nf) => n.nft_id !== nf.value.id)) {
-                        o.push(n);
+                let nftList: INftEntities[] = [];
+                nftFromDb.forEach((nfd) => {
+                    if (nftFromLcd.every((nfl) => nfd.nft_id !== nfl.value.id)) {
+                        nftList.push(nfd);
                     }
                 });
-                return o;
+                return nftList;
             }
         }
     }
 
-    private static getShouldInsertList(nftFromLcd: null | any[], nftFromDb: INftEntities[]): any[] {
+    private static getShouldInsertList(nftFromLcd: any[], nftFromDb: INftEntities[]): any[] {
         if (nftFromDb.length === 0) {
             return nftFromLcd ? nftFromLcd : [];
         } else {
-            if (!nftFromLcd) {
+            if (nftFromLcd.length === 0) {
                 return [];
             } else {
-                let o: any[] = [];
-                nftFromLcd.forEach((n) => {
-                    if (nftFromDb.every((nf) => nf.nft_id !== n.value.id)) {
-                        o.push(n);
+                let nftList: any[] = [];
+                nftFromLcd.forEach((nfd) => {
+                    if (nftFromDb.every((nfl) => nfl.nft_id !== nfd.value.id)) {
+                        nftList.push(nfd);
                     }
                 });
-                return o;
+                return nftList;
             }
         }
     }
 
-    private static getShouldUpdateList(nftFromLcd: null | any[], nftFromDb: INftEntities[]): any[] {
+    private static getShouldUpdateList(nftFromLcd: any[], nftFromDb: INftEntities[]): any[] {
         if (nftFromDb.length === 0) {
             return nftFromLcd ? nftFromLcd : [];
         } else {
@@ -180,24 +177,24 @@ export class NftTaskService {
                     "token_data": "{\"visible\":true,\"report\":{\"header\":[\"只数\",\"金额\"],\"data\":[[\"\",\"6303.3186841154\"]],\"date\":{\"start\":\"2020-02-01\",\"end\":\"2020-02-29\",\"type\":\"M\"}}}"
                 }
             };*/
-            if (!nftFromLcd) {
+            if (nftFromLcd.length === 0) {
                 return [];
             } else {
-                let o: any[] = [];
-                nftFromDb.forEach((n) => {
-                    nftFromLcd.forEach((nl) => {
-                        if (nl.value.id === n.nft_id) {
+                let nftList: any[] = [];
+                nftFromDb.forEach((nfd) => {
+                    nftFromLcd.forEach((nfl) => {
+                        if (nfl.value.id === nfd.nft_id) {
                             //compare difference by hash;
-                            const lcdStr = `${nl.value.owner}${nl.value.token_uri ? nl.value.token_uri : ''}${nl.value.token_data ? nl.value.token_data : ''}`;
+                            const lcdStr = `${nfl.value.owner}${nfl.value.token_uri ? nfl.value.token_uri : ''}${nfl.value.token_data ? nfl.value.token_data : ''}`;
                             const lcdHash = md5(lcdStr);
-                            nl.hash = lcdHash;
-                            if (lcdHash !== n.hash) {
-                                o.push(nl);
+                            nfl.hash = lcdHash;
+                            if (lcdHash !== nfd.hash) {
+                                nftList.push(nfl);
                             }
                         }
                     });
                 });
-                return o;
+                return nftList;
             }
         }
     }

@@ -40,16 +40,16 @@ export class TasksService {
         this.taskDispatchService.taskDispatchFaultTolerance();
     }
 
-    async handleDoTask(taskName: TaskEnum, cb:TaskCallback) {
-        const doTask: boolean = await this.taskDispatchService.needDoTask(taskName);
-        this.logger.log(`the ip ${getIpAddress()} should do task ${taskName}? ${doTask}`);
-        if (doTask) {
+    async handleDoTask(taskName: TaskEnum, doTask:TaskCallback) {
+        const needDoTask: boolean = await this.taskDispatchService.needDoTask(taskName);
+        this.logger.log(`the ip ${getIpAddress()} should do task ${taskName}? ${needDoTask}`);
+        if (needDoTask) {
             const beginTime: number = new Date().getTime();
-            const completed: boolean = await cb();
+            await doTask();
+            //weather task is completed successfully, lock need to be released;
+            this.taskDispatchService.unlock(taskName);
             this.logger.log(`${taskName} successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
-            if (completed) {
-                this.taskDispatchService.unlock(taskName);
-            }
+
         }
     }
 
