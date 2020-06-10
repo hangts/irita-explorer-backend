@@ -1,7 +1,7 @@
-import { IsInt, IsString, IsNotEmpty } from 'class-validator';
 import { BaseReqDto, PagingReqDto } from './base.dto';
 import { ApiError } from '../api/ApiResult';
 import { ErrorCodes } from '../api/ResultCodes';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class BlockResDto {
     height: number;
@@ -35,6 +35,7 @@ export class BlockListReqDto extends PagingReqDto{
 }
 
 export class BlockDetailReqDto extends BaseReqDto {
+    @ApiProperty()
     height: number;
 
     static validate(value:any):void{

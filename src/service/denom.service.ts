@@ -15,7 +15,7 @@ export class DenomService {
     async queryList(): Promise<ListStruct<DenomListResDto[]>> {
         const denomList: any[] = await (this.denomModel as any).findList();
         const res: DenomListResDto[] = denomList.map((d) => {
-            return new DenomListResDto(d.name, d.json_schema, d.creator, d.update_time, d.create_time);
+            return new DenomListResDto(d.name, d.json_schema, d.creator);
         });
         return new ListStruct(res, 0, 0, 0);
     }

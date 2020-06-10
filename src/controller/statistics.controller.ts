@@ -10,7 +10,7 @@ export class StatisticsController {
     }
 
     @Get()
-    async queryBlockList(): Promise<Result<StatisticsResDto>> {
+    async queryStatistics(): Promise<Result<StatisticsResDto>> {
         const data: StatisticsResDto = await this.statisticsService.queryStatistics();
         return new Result<StatisticsResDto>(data);
     }

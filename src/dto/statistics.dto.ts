@@ -1,9 +1,3 @@
-import { IsString, IsInt,  } from 'class-validator';
-
-export class DenomDto {
-
-}
-
 export class StatisticsResDto {
     private blockHeight: number;
     private txCount: number;
