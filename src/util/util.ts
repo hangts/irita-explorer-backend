@@ -16,9 +16,3 @@ export function getIpAddress() {
 export function getTimestamp(): number{
     return Math.floor(new Date().getTime() / 1000);
 }
-
-export class Utils {
-    static getCurrentTime(){
-        return parseInt(String(new Date().getTime()/1000));
-    }
-}

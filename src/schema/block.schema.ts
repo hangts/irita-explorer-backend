@@ -9,11 +9,11 @@ export const BlockSchema = new mongoose.Schema({
 });
 
 BlockSchema.statics = {
-    async findBlockList(pageNum: number, pageSize: number): Promise<IBlockEntities[]>{
+    async findList(pageNum: number, pageSize: number): Promise<IBlockEntities[]>{
         return await this.find({}).sort({ height: -1 }).skip((pageNum - 1) * pageSize).limit(pageSize).exec();
     },
 
-    async count(): Promise<number>{
+    async findCount(): Promise<number>{
         return await this.find({}).count().exec();
     },
 

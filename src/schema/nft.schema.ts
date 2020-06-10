@@ -32,7 +32,7 @@ NftSchema.statics = {
         }).exec();
     },
 
-    async queryCount(): Promise<number> {
+    async findCount(): Promise<number> {
         return await this.find().count().exec();
     },
     async findNftListByName(name: string): Promise<INftEntities> {

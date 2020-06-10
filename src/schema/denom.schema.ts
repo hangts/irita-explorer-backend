@@ -15,9 +15,9 @@ DenomSchema.statics = {
         return await this.find({}).exec();
     },
 
-    async count(): Promise<number> {
+    /*async count(): Promise<number> {
         return await this.blockModel.find().count().exec();
-    },
+    },*/
 
     async saveBulk(denoms: any): Promise<IDenomEntities[]> {
         const entitiesList: IDenomEntities[] = denoms.map((d) => {

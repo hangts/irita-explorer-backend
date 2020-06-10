@@ -21,7 +21,7 @@ export class NftService {
         });
         let count: number = 0;
         if (useCount) {
-            count = await (this.nftModel as any).queryCount();
+            count = await (this.nftModel as any).findCount();
         }
         return new ListStruct(res, pageNum, pageSize, count);
     }

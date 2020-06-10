@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { StatisticsResDto } from '../dto/statistics.dto';
-import { IBlockEntities } from '../schema/block.schema';
-import { INftEntities } from '../schema/nft.schema';
+import { IBlockEntities } from '../types/block.interface';
+import { INftEntities } from '../types/nft.interface';
 
 @Injectable()
 export class StatisticsService {
@@ -54,13 +54,13 @@ export class StatisticsService {
     }
 
     async queryAssetCount(): Promise<number | null>{
-        return await (this.nftModel as any).queryCount();
+        return await (this.nftModel as any).findCount();
     }
 
     async queryValidatorCount(): Promise<number | null>{
 
         //TODO(lsc) validator count;
-        return await (this.nftModel as any).queryCount();
+        return await (this.nftModel as any).findCount();
     }
 
     async queryTxCount():Promise<any>{

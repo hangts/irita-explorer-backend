@@ -15,9 +15,9 @@ export class BlockService {
     async queryBlockList(query: BlockListReqDto): Promise<ListStruct<BlockListResDto[]>> {
         const { pageNum, pageSize, useCount } = query;
         let count: number;
-        const b: IBlockEntities[] = await (this.blockModel as any).findBlockList(pageNum, pageSize);
+        const b: IBlockEntities[] = await (this.blockModel as any).findList(pageNum, pageSize);
         if (useCount) {
-            count = await (this.blockModel as any).count();
+            count = await (this.blockModel as any).findCount();
         }
         const res: BlockListResDto[] = b.map((b) => {
             return new BlockListResDto(b.height, b.hash, b.txn, b.time);

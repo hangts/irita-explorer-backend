@@ -3,7 +3,7 @@ import { getIpAddress, getTimestamp } from '../util/util';
 import { ITaskDispatchEntities} from '../types/task.dispatch.interface';
 
 export const TaskDispatchSchema = new mongoose.Schema({
-    name: String,
+    name: {type:String, unique:true},
     is_locked: Boolean,
     interval: Number,
     device_ip: String,
