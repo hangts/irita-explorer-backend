@@ -1,3 +1,3 @@
 export interface TaskCallback {
-    (): Promise<boolean>;
+    (): Promise<void>;
 }

@@ -10,13 +10,12 @@ export class DenomTaskService {
         this.doTask = this.doTask.bind(this);
     }
 
-    async doTask(): Promise<any> {
+    async doTask(): Promise<void> {
         try {
             const data: any = await this.denomHttp.queryDenomsFromLcd();
-            return await (this.denomModel as any).saveBulk(data);
+            await (this.denomModel as any).saveBulk(data);
         } catch (e) {
             new Logger().error('api-error:', e.message);
-            return true;// release lock;
         }
 
     }
