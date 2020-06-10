@@ -41,7 +41,7 @@ export class TasksService {
 
     async handleDoTask(taskName: taskEnum, doTaskCb) {
         const doTask: boolean = await this.taskDispatchService.needDoTask(taskName);
-        this.logger.log(`the ip ${getIpAddress()} should update ${taskName}: ${doTask}`);
+        this.logger.log(`the ip ${getIpAddress()} should do task ${taskName}? ${doTask}`);
         if (doTask) {
             const beginTime: number = new Date().getTime();
             const completed: boolean = await doTaskCb();
