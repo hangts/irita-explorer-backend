@@ -6,6 +6,7 @@ import { INftEntities } from '../types/nft.interface';
 import { IDenomEntities } from '../types/denom.interface';
 import md5 from 'blueimp-md5';
 import { getTimestamp } from '../util/util';
+import { ILcdNftStruct } from '../types/task.interface';
 
 @Injectable()
 export class NftTaskService {
@@ -26,12 +27,25 @@ export class NftTaskService {
                         const res: any = await this.nftHttp.queryNftsFromLcd(nameOjb.name);
                         const nftFromDb: INftEntities[] = await (this.nftModel as any).findNftListByName(nameOjb.name);
                         if (res) {
-                            let shouldInsertList: any[] = NftTaskService.getShouldInsertList(res.nfts ? res.nfts : [], nftFromDb);
-                            let shouldDeleteNftList: INftEntities[] = NftTaskService.getShouldDeleteList(res.nfts ? res.nfts : [], nftFromDb);
-                            let shouldUpdateNftList: any[] = NftTaskService.getShouldUpdateList(res.nfts ? res.nfts : [], nftFromDb);
-                            await this.saveNft(nameOjb, shouldInsertList);
-                            await this.deleteNft(nameOjb, shouldDeleteNftList);
-                            await this.updateNft(nameOjb, shouldUpdateNftList);
+                            let lcdNftMap: Map<string, ILcdNftStruct> | null = null,
+                                dbNftMap: Map<string, INftEntities> | null = null;
+                            if (res.nfts && Array.isArray(res.nfts) && res.nfts.length > 0) {
+                                res.nfts.forEach(nft => {
+                                    lcdNftMap.set(nft.value.id, nft.value);
+                                });
+                            }
+                            if (nftFromDb.length > 0) {
+                                nftFromDb.forEach((nft: INftEntities) => {
+                                    dbNftMap.set(nft.nft_id, nft);
+                                });
+                            }
+
+                            let shouldInsertMap: Map<string, ILcdNftStruct> = NftTaskService.getShouldInsertList(lcdNftMap, dbNftMap);
+                            let shouldDeleteNftMap: Map<string, INftEntities> = NftTaskService.getShouldDeleteList(lcdNftMap, dbNftMap);
+                            let shouldUpdateNftMap: Map<string, ILcdNftStruct> = NftTaskService.getShouldUpdateList(lcdNftMap, dbNftMap);
+                            await this.saveNft(nameOjb.name, shouldInsertMap);
+                            await this.deleteNft(nameOjb.name, shouldDeleteNftMap);
+                            await this.updateNft(nameOjb.name, shouldUpdateNftMap);
                             subRes();
                         } else {
                             subRes();
@@ -60,17 +74,17 @@ export class NftTaskService {
 
     }
 
-    private async saveNft(n: any, shouldInsertList: any[]): Promise<boolean> {
-        if (shouldInsertList.length > 0) {
-            let insertNftList: any[] = shouldInsertList.map((nft) => {
-                const str: string = `${nft.value.owner}${nft.value.token_uri ? nft.value.token_uri : ''}${nft.value.token_data ? nft.value.token_data : ''}`;
-                const hash = md5(str);
+    private async saveNft(name: any, shouldInsertMap: Map<string, ILcdNftStruct>): Promise<boolean> {
+        if (shouldInsertMap.size > 0) {
+            let insertNftList: any[] = Array.from(shouldInsertMap.values()).map((nft) => {
+                const { owner, token_uri, token_data, id } = nft;
+                const str: string = `${owner}${token_uri ? token_uri : ''}${token_data ? token_data : ''}`, hash = md5(str);
                 return {
-                    denom: n.name,
-                    nft_id: nft.value.id,
-                    owner: nft.value.owner,
-                    token_uri: nft.value.token_uri ? nft.value.token_uri : '',
-                    token_data: nft.value.token_data ? nft.value.token_data : '',
+                    denom: name,
+                    nft_id: id,
+                    owner: owner,
+                    token_uri: token_uri ? token_uri : '',
+                    token_data: token_data ? token_data : '',
                     create_time: getTimestamp(),
                     update_time: getTimestamp(),
                     hash,
@@ -84,21 +98,21 @@ export class NftTaskService {
         }
     }
 
-    private async deleteNft(n: any, shouldDeleteNftList: any[]): Promise<boolean> {
-        if (shouldDeleteNftList.length > 0) {
+    private async deleteNft(name: any, shouldDeleteNftMap: Map<string, INftEntities>): Promise<boolean> {
+        if (shouldDeleteNftMap.size > 0) {
             return new Promise((resolve) => {
                 let arr: any[] = [];
                 const promiseContainer = (nft) => {
                     return new Promise(async (subRes) => {
                         await (this.nftModel as any).deleteOneByDenomAndId({
                             nft_id: nft.nft_id,
-                            denom: n.name,
+                            denom: name,
                         });
                         subRes();
                     });
 
                 };
-                shouldDeleteNftList.forEach((nft) => {
+                Array.from(shouldDeleteNftMap.values()).forEach((nft) => {
                     arr.push(promiseContainer(nft));
                 });
                 Promise.all(arr).then((res) => {
@@ -112,23 +126,25 @@ export class NftTaskService {
         }
     }
 
-    private async updateNft(n: any, shouldUpdateNftList: any[]): Promise<boolean> {
-        if (shouldUpdateNftList.length > 0) {
+    private async updateNft(name: any, shouldUpdateNftMap: Map<string, ILcdNftStruct>): Promise<boolean> {
+        if (shouldUpdateNftMap.size > 0) {
             return new Promise((resolve) => {
                 let arr: any[] = [];
                 const promiseContainer = (nft) => {
                     return new Promise(async (subRes) => {
+                        const {id, owner, token_uri, token_data, hash} = nft;
                         await (this.nftModel as any).updateOneById({
-                            nft_id: nft.value.id,
-                            owner: nft.value.owner,
-                            token_uri: nft.value.token_uri,
-                            token_data: nft.value.token_data,
-                            hash: nft.hash,
+                            nft_id: id,
+                            owner: owner,
+                            token_uri: token_uri,
+                            token_data: token_data,
+                            hash: hash,
+                            denom: name,
                         });
                         subRes();
                     });
                 };
-                shouldUpdateNftList.forEach((nft) => {
+                Array.from(shouldUpdateNftMap.values()).forEach((nft) => {
                     arr.push(promiseContainer(nft));
                 });
                 Promise.all(arr).then((res) => {
@@ -142,46 +158,46 @@ export class NftTaskService {
         }
     }
 
-    private static getShouldDeleteList(nftFromLcd: any[], nftFromDb: INftEntities[]): any[] {
-        if (nftFromDb.length === 0) {
+    private static getShouldDeleteList(nftFromLcd: Map<string, any> | null, nftFromDb: Map<string, INftEntities> | null): Map<string, INftEntities> {
+        if (!nftFromDb) {
             //如果db中已经没有nft, 则不需要执行delete操作
-            return [];
+            return new Map<string, INftEntities>();
         } else {
-            if (nftFromLcd.length === 0) {//如果从Lcd返回的Nft已经没有了, 则需要删除db中查出的所有的
+            if (!nftFromLcd) {//如果从Lcd返回的Nft已经没有了, 则需要删除db中查出的所有的
                 return nftFromDb;
             } else {
-                let nftList: INftEntities[] = [];
-                nftFromDb.forEach((nfd) => {
-                    if (nftFromLcd.every((nfl) => nfd.nft_id !== nfl.value.id)) {
-                        nftList.push(nfd);
+                const deleteNftMap = new Map<string, INftEntities>();
+                for (let key of nftFromDb.keys()) {
+                    if (!nftFromLcd.has(key)) {
+                        deleteNftMap.set(key, nftFromDb.get(key));
                     }
-                });
-                return nftList;
+                }
+                return deleteNftMap;
             }
         }
     }
 
-    private static getShouldInsertList(nftFromLcd: any[], nftFromDb: INftEntities[]): any[] {
-        if (nftFromDb.length === 0) {
-            return nftFromLcd ? nftFromLcd : [];
+    private static getShouldInsertList(nftFromLcd: Map<string, ILcdNftStruct> | null, nftFromDb: Map<string, INftEntities> | null): Map<string, ILcdNftStruct> {
+        if (!nftFromDb) {
+            return nftFromLcd;
         } else {
-            if (nftFromLcd.length === 0) {
-                return [];
+            if (!nftFromLcd) {
+                return new Map<string, ILcdNftStruct>();
             } else {
-                let nftList: any[] = [];
-                nftFromLcd.forEach((nfd) => {
-                    if (nftFromDb.every((nfl) => nfl.nft_id !== nfd.value.id)) {
-                        nftList.push(nfd);
+                const insertNftMap = new Map<string, ILcdNftStruct>();
+                for (let key of nftFromLcd.keys()) {
+                    if (!nftFromDb.has(key)) {
+                        insertNftMap.set(key, nftFromLcd.get(key));
                     }
-                });
-                return nftList;
+                }
+                return insertNftMap;
             }
         }
     }
 
-    private static getShouldUpdateList(nftFromLcd: any[], nftFromDb: INftEntities[]): any[] {
-        if (nftFromDb.length === 0) {
-            return nftFromLcd ? nftFromLcd : [];
+    private static getShouldUpdateList(nftFromLcd: Map<string, ILcdNftStruct> | null, nftFromDb: Map<string, INftEntities> | null): Map<string, ILcdNftStruct> {
+        if (!nftFromDb) {
+            return new Map<string, ILcdNftStruct>();
         } else {
             /*let lcd = {
                 "type": "irismod/nft/BaseNFT",
@@ -191,24 +207,23 @@ export class NftTaskService {
                     "token_data": "{\"visible\":true,\"report\":{\"header\":[\"只数\",\"金额\"],\"data\":[[\"\",\"6303.3186841154\"]],\"date\":{\"start\":\"2020-02-01\",\"end\":\"2020-02-29\",\"type\":\"M\"}}}"
                 }
             };*/
-            if (nftFromLcd.length === 0) {
-                return [];
+            if (!nftFromLcd) {
+                return new Map<string, ILcdNftStruct>();
             } else {
-                let nftList: any[] = [];
-                nftFromDb.forEach((nfd) => {
-                    nftFromLcd.forEach((nfl) => {
-                        if (nfl.value.id === nfd.nft_id) {
-                            //compare difference by hash;
-                            const lcdStr = `${nfl.value.owner}${nfl.value.token_uri ? nfl.value.token_uri : ''}${nfl.value.token_data ? nfl.value.token_data : ''}`;
-                            const lcdHash = md5(lcdStr);
-                            nfl.hash = lcdHash;
-                            if (lcdHash !== nfd.hash) {
-                                nftList.push(nfl);
-                            }
+                const updateNftMap = new Map<string, ILcdNftStruct>();
+                for (let key of nftFromLcd.keys()) {
+                    if (nftFromDb.has(key)) {
+                        const { owner, token_data, token_uri } = nftFromLcd.get(key),
+                            lcdStr = `${owner}${token_uri ? token_uri : ''}${token_data ? token_data : ''}`,
+                            lcdHash = md5(lcdStr);
+                        if (nftFromDb.get(key).hash !== lcdHash) {
+                            let tempLcdNft: ILcdNftStruct = nftFromLcd.get(key);
+                            tempLcdNft.hash = lcdHash;
+                            updateNftMap.set(key, tempLcdNft);
                         }
-                    });
-                });
-                return nftList;
+                    }
+                }
+                return updateNftMap;
             }
         }
     }
