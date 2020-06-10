@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
 import { BlockListResDto, BlockListReqDto, BlockDetailReqDto } from '../dto/block.dto';
 import { IBlockEntities } from '../schema/block.schema';
-import { BlockHttp } from '../http/block.http';
+import { BlockHttp } from '../http/lcd/block.http';
 
 @Injectable()
 export class BlockService {

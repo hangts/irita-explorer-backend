@@ -3,7 +3,7 @@ import {NftController} from '../controller/nft.controller';
 import {NftService} from '../service/nft.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {NftSchema} from '../schema/nft.schema';
-import { NftHttp } from '../http/nft.http';
+import { NftHttp } from '../http/lcd/nft.http';
 import { DenomSchema } from '../schema/denom.schema';
 
 @Module({

@@ -11,6 +11,7 @@ import {cfg} from './config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksService } from './task/task.service';
 import { TaskDispatchModule } from './module/task.dispatch.module';
+import { DenomTaskModule } from './module/denom.task.module';
 
 console.log(cfg);
 
@@ -24,6 +25,7 @@ const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.db
         BlockModule,
         StatisticsModule,
         TaskDispatchModule,
+        DenomTaskModule,
     	MongooseModule.forRoot(url),
     	DenomModule,
     	TxModule

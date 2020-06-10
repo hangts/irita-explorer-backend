@@ -1,5 +1,5 @@
 import { Logger, HttpService, Injectable } from '@nestjs/common';
-import { cfg } from '../config';
+import { cfg } from '../../config';
 
 @Injectable()
 export class DenomHttp {

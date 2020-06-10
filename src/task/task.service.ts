@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { DenomService } from '../service/denom.service';
+import {DenomTaskService} from './denom.task.service';
 import { NftService } from '../service/nft.service';
 import { TaskDispatchService } from '../service/task.dispatch.service';
 import { taskEnum } from '../constant';
@@ -14,7 +14,7 @@ export class TasksService {
 
 
     constructor(
-        private readonly denomService: DenomService,
+        private readonly denomTaskService: DenomTaskService,
         private readonly nftService: NftService,
         private readonly taskDispatchService: TaskDispatchService,
     ) {
@@ -23,7 +23,7 @@ export class TasksService {
     @Cron(cfg.taskCfg.executeTime.denom)
     //@Cron('50 * * * * *')
     async syncDenoms() {
-        this.handleDoTask(taskEnum.denom, this.denomService.doTask);
+        this.handleDoTask(taskEnum.denom, this.denomTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.nft)

@@ -1,7 +1,7 @@
 import { Logger, HttpService } from '@nestjs/common';
-import { ErrorCodes, ResultCodesMaps } from '../api/ResultCodes';
-import { ApiError } from '../api/ApiResult';
-import { cfg } from '../config';
+import { ErrorCodes, ResultCodesMaps } from '../../api/ResultCodes';
+import { ApiError } from '../../api/ApiResult';
+import { cfg } from '../../config';
 
 export class BlockHttp {
 

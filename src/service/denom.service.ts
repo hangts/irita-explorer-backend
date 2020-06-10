@@ -1,15 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
 import { IDenomEntities } from '../schema/denom.schema';
-import { DenomHttp } from '../http/denom.http';
 import { DenomListResDto } from '../dto/denom.dto';
 
 @Injectable()
 export class DenomService {
-    constructor(@InjectModel('Denom') private denomModel: Model<IDenomEntities>, private readonly denomHttp: DenomHttp) {
-        this.doTask = this.doTask.bind(this);
+    constructor(@InjectModel('Denom') private denomModel: Model<IDenomEntities>) {
     }
 
     async queryList(): Promise<ListStruct<DenomListResDto[]>> {
@@ -18,18 +16,6 @@ export class DenomService {
             return new DenomListResDto(d.name, d.json_schema, d.creator);
         });
         return new ListStruct(res, 0, 0, 0);
-    }
-
-
-    async doTask(): Promise<any> {
-        try {
-            const data: any = await this.denomHttp.queryDenomsFromLcd();
-            return await (this.denomModel as any).saveBulk(data);
-        } catch (e) {
-            new Logger().error('api-error:', e.message);
-            return true;// release lock;
-        }
-
     }
 }
 

@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { NftHttp } from '../http/nft.http';
+import { NftHttp } from '../http/lcd/nft.http';
 import { INftEntities } from '../schema/nft.schema';
 import { IDenomEntities } from '../schema/denom.schema';
 import { NftDetailReqDto, NftDetailResDto, NftListReqDto, NftListResDto } from '../dto/nft.dto';
