@@ -17,7 +17,7 @@ export class NftTaskService {
     }
 
     async doTask(): Promise<boolean> {
-        const nameList: any = await (this.denomModel as any).findAllNames();
+        const nameList: any[] = await (this.denomModel as any).findAllNames();
         if (nameList && nameList.length > 0) {
             return new Promise((resolve) => {
                 let arr: any[] = [];

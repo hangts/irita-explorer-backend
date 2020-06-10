@@ -28,9 +28,9 @@ export class NftService {
 
     async queryDetail(query: NftDetailReqDto): Promise<NftDetailResDto | null> {
         const { denom, nftId } = query;
-        const n: any = await (this.nftModel as any).findOneByDenomAndNftId(denom, nftId);
-        if (n) {
-            return new NftListResDto(n.denom, n.nft_id, n.owner, n.token_uri, n.token_data);
+        const nft: any = await (this.nftModel as any).findOneByDenomAndNftId(denom, nftId);
+        if (nft) {
+            return new NftListResDto(nft.denom, nft.nft_id, nft.owner, nft.token_uri, nft.token_data);
         } else {
             return null;
         }
