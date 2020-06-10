@@ -21,17 +21,23 @@ export class NftTaskService {
         if (nameList && nameList.length > 0) {
             return new Promise((resolve) => {
                 let arr: any[] = [];
-                const promiseContainer = async (nameOjb) => {
-                    const res: any = await this.nftHttp.queryNftsFromLcd(nameOjb.name);
-                    const nftFromDb: INftEntities[] = await (this.nftModel as any).findNftListByName(nameOjb.name);
-                    if (res) {
-                        let shouldInsertList: any[] = NftTaskService.getShouldInsertList(res.nfts ? res.nfts : [], nftFromDb);
-                        let shouldDeleteNftList: INftEntities[] = NftTaskService.getShouldDeleteList(res.nfts ? res.nfts : [], nftFromDb);
-                        let shouldUpdateNftList: any[] = NftTaskService.getShouldUpdateList(res.nfts ? res.nfts : [], nftFromDb);
-                        await this.saveNft(nameOjb, shouldInsertList);
-                        await this.deleteNft(nameOjb, shouldDeleteNftList);
-                        await this.updateNft(nameOjb, shouldUpdateNftList);
-                    }
+                const promiseContainer = (nameOjb) => {
+                    return new Promise(async (subRes)=>{
+                        const res: any = await this.nftHttp.queryNftsFromLcd(nameOjb.name);
+                        const nftFromDb: INftEntities[] = await (this.nftModel as any).findNftListByName(nameOjb.name);
+                        if (res) {
+                            let shouldInsertList: any[] = NftTaskService.getShouldInsertList(res.nfts ? res.nfts : [], nftFromDb);
+                            let shouldDeleteNftList: INftEntities[] = NftTaskService.getShouldDeleteList(res.nfts ? res.nfts : [], nftFromDb);
+                            let shouldUpdateNftList: any[] = NftTaskService.getShouldUpdateList(res.nfts ? res.nfts : [], nftFromDb);
+                            await this.saveNft(nameOjb, shouldInsertList);
+                            await this.deleteNft(nameOjb, shouldDeleteNftList);
+                            await this.updateNft(nameOjb, shouldUpdateNftList);
+                            subRes();
+                        }else{
+                            subRes();
+                        }
+                    })
+
                 };
                 nameList.forEach((nameOjb) => {
                     arr.push(promiseContainer(nameOjb))
@@ -81,11 +87,15 @@ export class NftTaskService {
         if (shouldDeleteNftList.length > 0) {
             return new Promise((resolve) => {
                 let arr: any[] = [];
-                const promiseContainer = async (nft) => {
-                    await (this.nftModel as any).deleteOneByDenomAndId({
-                        nft_id: nft.nft_id,
-                        denom: n.name,
-                    });
+                const promiseContainer = (nft) => {
+                    return new Promise(async (subRes)=>{
+                        await (this.nftModel as any).deleteOneByDenomAndId({
+                            nft_id: nft.nft_id,
+                            denom: n.name,
+                        });
+                        subRes();
+                    })
+
                 };
                 shouldDeleteNftList.forEach((nft) => {
                     arr.push(promiseContainer(nft))
@@ -105,14 +115,17 @@ export class NftTaskService {
         if (shouldUpdateNftList.length > 0) {
             return new Promise((resolve) => {
                 let arr: any[] = [];
-                const promiseContainer = async (nft) => {
-                    await (this.nftModel as any).updateOneById({
-                        nft_id: nft.value.id,
-                        owner: nft.value.owner,
-                        token_uri: nft.value.token_uri,
-                        token_data: nft.value.token_data,
-                        hash: nft.hash,
-                    });
+                const promiseContainer = (nft) => {
+                    return new Promise(async (subRes)=>{
+                        await (this.nftModel as any).updateOneById({
+                            nft_id: nft.value.id,
+                            owner: nft.value.owner,
+                            token_uri: nft.value.token_uri,
+                            token_data: nft.value.token_data,
+                            hash: nft.hash,
+                        });
+                        subRes();
+                    })
                 };
                 shouldUpdateNftList.forEach((nft) => {
                     arr.push(promiseContainer(nft))

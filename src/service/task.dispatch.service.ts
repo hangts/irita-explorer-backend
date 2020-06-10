@@ -70,13 +70,19 @@ export class TaskDispatchService {
             return new Promise(async (resolve) => {
                 let arr: any[] = [];
 
-                const promiseContainer = async (t) => {
-                    if ((getTimestamp() - t.updated_time) > (t.interval * 2) / 1000) {
-                        await this.releaseLockByName(t.name);
-                    }
+                const promiseContainer = (task) => {
+                    return new Promise(async (subRes)=>{
+                        if ((getTimestamp() - task.updated_time) > (task.interval * 2) / 1000) {
+                            await this.releaseLockByName(task.name);
+                            subRes();
+                        }else{
+                            subRes();
+                        }
+                    })
+
                 };
-                taskList.forEach((t) => {
-                    arr.push(promiseContainer(t));
+                taskList.forEach((task) => {
+                    arr.push(promiseContainer(task));
                 });
                 Promise.all(arr).then((res: any) => {
                     if (res) {

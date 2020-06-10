@@ -2,15 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { INftEntities} from '../types/nft.interface';
-import { IDenomEntities} from '../types/denom.interface';
+import { INftEntities } from '../types/nft.interface';
+import { IDenomEntities } from '../types/denom.interface';
 import { NftDetailReqDto, NftDetailResDto, NftListReqDto, NftListResDto } from '../dto/nft.dto';
 
 @Injectable()
 export class NftService {
-    constructor(@InjectModel('Nft') private nftModel: Model<INftEntities>,
-        @InjectModel('Denom') private denomModel: Model<IDenomEntities>,
-    ) {
+    constructor(@InjectModel('Nft') private nftModel: Model<INftEntities>) {
     }
 
     async queryList(query: NftListReqDto): Promise<ListStruct<NftListResDto[]>> {
