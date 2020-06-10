@@ -52,9 +52,9 @@ describe('nft module', () => {
     });
 
 
-    describe('findDenomAndSyncNft', () => {
+    describe('doTask', () => {
         it('should return true', async () => {
-            const data: boolean = await nftService.findDenomAndSyncNft();
+            const data: boolean = await nftService.doTask();
             expect(data).toBe(true);
         });
     });

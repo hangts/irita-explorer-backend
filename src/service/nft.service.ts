@@ -15,6 +15,7 @@ export class NftService {
         @InjectModel('Denom') private denomModel: Model<IDenomEntities>,
         private readonly nftHttp: NftHttp,
     ) {
+        this.doTask = this.doTask.bind(this);
     }
 
     async queryList(query: NftListReqDto): Promise<ListStruct<NftListResDto[]>> {
@@ -45,7 +46,7 @@ export class NftService {
     }
 
 
-    async findDenomAndSyncNft(): Promise<boolean> {
+    async doTask(): Promise<boolean> {
         const nameList: any = await (this.denomModel as any).findAllNames();
         if (nameList && nameList.length > 0) {
             return new Promise((resolve) => {

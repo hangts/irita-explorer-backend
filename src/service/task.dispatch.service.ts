@@ -10,13 +10,13 @@ export class TaskDispatchService {
     constructor(@InjectModel('TaskDispatch') private taskDispatchModel: Model<ITaskDispatchEntities>) {
     }
 
-    async shouldExecuteCronJobs(name: string): Promise<boolean> {
+    async needDoTask(name: string): Promise<boolean> {
         const task: any = await (this.taskDispatchModel as any).findOneByName(name);
         if (task) {
             if (task.is_locked) {
                 return false;
             } else {
-                const updated = await this.updateIsLockedBeginUpdateTimeAndDeviceIp(name);
+                const updated = await this.lock(name);
                 if (updated) {
                     return true;
                 } else {
@@ -28,7 +28,7 @@ export class TaskDispatchService {
             const registered = await this.registerTask(name);
             console.log('register successfully?', registered);
             if (registered) {
-                const updated = await this.updateIsLockedBeginUpdateTimeAndDeviceIp(name);
+                const updated = await this.lock(name);
                 if (updated && updated.is_locked) {
                     return true;
                 } else {
@@ -55,12 +55,12 @@ export class TaskDispatchService {
         return await (this.taskDispatchModel as any).createOne(task);
     }
 
-    private async updateIsLockedBeginUpdateTimeAndDeviceIp(name: string): Promise<ITaskDispatchEntities> {
-        return await (this.taskDispatchModel as any).updateIsLockedBeginUpdateTimeAndDeviceIp(name);
+    private async lock(name: string): Promise<ITaskDispatchEntities> {
+        return await (this.taskDispatchModel as any).lock(name);
     }
 
-    async updateUpdatedTimeAndIsLocked(name: string): Promise<any> {
-        return await (this.taskDispatchModel as any).updateUpdatedTimeAndIsLocked(name);
+    async unlock(name: string): Promise<any> {
+        return await (this.taskDispatchModel as any).unlock(name);
     }
 
     async taskDispatchFaultTolerance(): Promise<boolean> {

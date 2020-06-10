@@ -9,6 +9,7 @@ import { DenomListResDto } from '../dto/denom.dto';
 @Injectable()
 export class DenomService {
     constructor(@InjectModel('Denom') private denomModel: Model<IDenomEntities>, private readonly denomHttp: DenomHttp) {
+        this.doTask = this.doTask.bind(this);
     }
 
     async queryList(): Promise<ListStruct<DenomListResDto[]>> {
@@ -20,7 +21,7 @@ export class DenomService {
     }
 
 
-    async async(): Promise<any> {
+    async doTask(): Promise<any> {
         try {
             const data: any = await this.denomHttp.queryDenomsFromLcd();
             return await (this.denomModel as any).saveBulk(data);

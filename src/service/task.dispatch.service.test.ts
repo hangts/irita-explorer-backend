@@ -17,9 +17,9 @@ describe('taskDispatch module', () => {
         taskDispatchService = module.get<TaskDispatchService>(TaskDispatchService);
     });
 
-    describe('shouldExecuteCronJobs', () => {
+    describe('needDoTask', () => {
         it('should return true', async () => {
-            const data: boolean = await taskDispatchService.shouldExecuteCronJobs(taskEnum.denom);
+            const data: boolean = await taskDispatchService.needDoTask(taskEnum.denom);
             expect(data).toBe(true);
         });
     });
@@ -31,9 +31,9 @@ describe('taskDispatch module', () => {
         });
     });
 
-    describe('updateUpdatedTimeAndIsLocked', () => {
+    describe('unlock', () => {
         it('should return block average time', async () => {
-            const data: any = await taskDispatchService.updateUpdatedTimeAndIsLocked(taskEnum.denom);
+            const data: any = await taskDispatchService.unlock(taskEnum.denom);
             expect(data).toBeDefined();
         });
     });

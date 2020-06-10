@@ -26,7 +26,7 @@ describe('denom module', () => {
 
     describe('async', () => {
         it('should return true', async () => {
-            const data: boolean = await denomService.async();
+            const data: boolean = await denomService.doTask();
             expect(data).toBe(true);
         });
     });

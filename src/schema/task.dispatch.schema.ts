@@ -40,7 +40,7 @@ TaskDispatchSchema.statics = {
         }
     },
 
-    async updateIsLockedBeginUpdateTimeAndDeviceIp(name: string): Promise<ITaskDispatchEntities>{
+    async lock(name: string): Promise<ITaskDispatchEntities>{
         try{
             return await this.updateOne({name, is_locked:false},{
                 // condition: is_locked: false, those server whose query's is_locked is true should not to be updated;
@@ -53,7 +53,7 @@ TaskDispatchSchema.statics = {
         }
     },
 
-    async updateUpdatedTimeAndIsLocked(name: string): Promise<ITaskDispatchEntities>{
+    async unlock(name: string): Promise<ITaskDispatchEntities>{
         try{
             return await this.updateOne({name},{
                 is_locked:false,

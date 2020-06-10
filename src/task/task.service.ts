@@ -19,35 +19,14 @@ export class TasksService {
     ) {
     }
 
-    @Cron('10 * * * * *')
+    @Cron('50 * * * * *')
     async syncDenoms() {
-        this.logger.log('cron jobs of denoms async is running!');
-        const shouldExecuteTask: boolean = await this.taskDispatchService.shouldExecuteCronJobs(taskEnum.denom);
-        this.logger.log(`the ip ${getIpAddress()} should update denom: ${shouldExecuteTask}`);
-        if (shouldExecuteTask) {
-            const beginTime: number = new Date().getTime();
-            const completed: boolean = await this.denomService.async();
-            this.logger.log(`denom sync successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
-            if (completed) {
-                this.taskDispatchService.updateUpdatedTimeAndIsLocked(taskEnum.denom);
-            }
-        }
-
+        this.handleDoTask(taskEnum.denom, this.denomService.doTask);
     }
 
-    @Cron('20 * * * * *')
+    @Cron('58 * * * * *')
     async syncNfts() {
-        this.logger.log('cron jobs of nft async is running!');
-        const shouldExecuteTask: boolean = await this.taskDispatchService.shouldExecuteCronJobs(taskEnum.nft);
-        this.logger.log(`the ip ${getIpAddress()} should update nft: ${shouldExecuteTask}`);
-        if (shouldExecuteTask) {
-            const beginTime: number = new Date().getTime();
-            const completed: boolean = await this.nftService.findDenomAndSyncNft();
-            this.logger.log(`nft sync successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
-            if (completed) {
-                this.taskDispatchService.updateUpdatedTimeAndIsLocked(taskEnum.nft);
-            }
-        }
+        this.handleDoTask(taskEnum.nft, this.nftService.doTask);
     }
 
     @Cron('18 * * * * *')
@@ -56,7 +35,18 @@ export class TasksService {
         this.taskDispatchService.taskDispatchFaultTolerance();
     }
 
-
+    async handleDoTask(taskName: string, doTaskCb) {
+        const doTask: boolean = await this.taskDispatchService.needDoTask(taskName);
+        this.logger.log(`the ip ${getIpAddress()} should update ${taskName}: ${doTask}`);
+        if (doTask) {
+            const beginTime: number = new Date().getTime();
+            const completed: boolean = await doTaskCb();
+            this.logger.log(`${taskName} successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
+            if (completed) {
+                this.taskDispatchService.unlock(taskName);
+            }
+        }
+    }
 
 
 }
