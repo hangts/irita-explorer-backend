@@ -19,7 +19,7 @@ import { TxSchema } from '../schema/tx.schema';
         },{
             name: 'Nft',
             schema: NftSchema,
-            collection: 'sync_nfts'
+            collection: 'sync_nft'
         }]),
     ],
     providers:[StatisticsService],

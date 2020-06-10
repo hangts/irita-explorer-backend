@@ -12,7 +12,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TasksService } from './task/task.service';
 import { TaskDispatchModule } from './module/task.dispatch.module';
 
-//console.log(cfg);
+console.log(cfg);
 
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 @Module({

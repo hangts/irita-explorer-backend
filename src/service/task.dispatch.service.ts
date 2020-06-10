@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ITaskDispatchEntities } from '../schema/task.dispatch.schema';
 import { getIpAddress, getTimestamp } from '../util/util';
+import { taskEnum, TaskInterval } from '../constant';
 
 @Injectable()
 export class TaskDispatchService {
@@ -10,7 +11,7 @@ export class TaskDispatchService {
     constructor(@InjectModel('TaskDispatch') private taskDispatchModel: Model<ITaskDispatchEntities>) {
     }
 
-    async needDoTask(name: string): Promise<boolean> {
+    async needDoTask(name: taskEnum): Promise<boolean> {
         const task: any = await (this.taskDispatchModel as any).findOneByName(name);
         if (task) {
             if (task.is_locked) {
@@ -42,11 +43,11 @@ export class TaskDispatchService {
         }
     }
 
-    async registerTask(name: string): Promise<ITaskDispatchEntities> {
+    async registerTask(name: taskEnum): Promise<ITaskDispatchEntities> {
         const task: any = {
             name,
             is_locked: false,
-            interval: 60000,// TODO(lsc) interval for different type of task need to be configured;
+            interval: TaskInterval.get(name),
             device_ip: getIpAddress(),
             create_time: getTimestamp(),
             begin_update_time: 0,

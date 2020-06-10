@@ -121,7 +121,6 @@ export class NftService {
                 });
                 Promise.all(arr).then((res) => {
                     if (res) {
-                        console.log('delete nft has completed!')
                         resolve(true);
                     }
                 }).catch((e) => {
@@ -151,7 +150,6 @@ export class NftService {
                 });
                 Promise.all(arr).then((res) => {
                     if (res) {
-                        console.log('update nft has completed!')
                         resolve(true);
                     }
                 }).catch((e) => {
