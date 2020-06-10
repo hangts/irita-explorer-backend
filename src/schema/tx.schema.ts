@@ -6,7 +6,7 @@ import { ITxsQuery,
 	 	 ITxsWhthServiceNameQuery} from '../types/schemaQuery/tx.interface';
 import { ITxsQueryParams} from '../types/tx.interface';
 import {IListStruct} from '../types';
-import constant from '../constant/constant';
+import { TxType } from '../constant';
 export const TxSchema = new mongoose.Schema({
     time:Date,
     height:Number,
@@ -143,7 +143,7 @@ TxSchema.statics.queryTxWithHash = async function(hash:string){
 //  /statistics
 TxSchema.statics.queryTxStatistics = async function(){
 	let txCount = await this.find().count();
-	let serviceCount = await this.find({type:constant.txType.define_service}).count();
+	let serviceCount = await this.find({type:TxType.define_service}).count();
 	return  {
 		txCount,
 		serviceCount

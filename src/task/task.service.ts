@@ -3,9 +3,10 @@ import { Cron } from '@nestjs/schedule';
 import {DenomTaskService} from './denom.task.service';
 import { NftTaskService } from './nft.task.service';
 import { TaskDispatchService } from '../service/task.dispatch.service';
-import { taskEnum } from '../constant';
+import { TaskEnum } from '../constant';
 import { getIpAddress } from '../util/util';
 import {cfg} from '../config';
+import { TaskCallback } from '../types/task.interface';
 
 
 @Injectable()
@@ -23,13 +24,13 @@ export class TasksService {
     @Cron(cfg.taskCfg.executeTime.denom)
     //@Cron('50 * * * * *')
     async syncDenoms() {
-        this.handleDoTask(taskEnum.denom, this.denomTaskService.doTask);
+        this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.nft)
     //@Cron('12 * * * * *')
     async syncNfts() {
-        this.handleDoTask(taskEnum.nft, this.nftTaskService.doTask);
+        this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.faultTolerance)
@@ -39,12 +40,12 @@ export class TasksService {
         this.taskDispatchService.taskDispatchFaultTolerance();
     }
 
-    async handleDoTask(taskName: taskEnum, doTaskCb) {
+    async handleDoTask(taskName: TaskEnum, cb:TaskCallback) {
         const doTask: boolean = await this.taskDispatchService.needDoTask(taskName);
         this.logger.log(`the ip ${getIpAddress()} should do task ${taskName}? ${doTask}`);
         if (doTask) {
             const beginTime: number = new Date().getTime();
-            const completed: boolean = await doTaskCb();
+            const completed: boolean = await cb();
             this.logger.log(`${taskName} successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
             if (completed) {
                 this.taskDispatchService.unlock(taskName);

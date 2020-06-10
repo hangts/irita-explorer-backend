@@ -2,7 +2,7 @@ import {IsOptional} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
-import constant from '../constant/constant';
+import { DefaultPaging } from '../constant';
 //base request dto
 export class BaseReqDto {
 
@@ -50,10 +50,10 @@ export class PagingReqDto extends BaseReqDto {
 
     static convert(value: any): any {
         if (!value.pageNum) {
-            value.pageNum = constant.defaultPaging.pageNum;
+            value.pageNum = DefaultPaging.pageNum;
         }
         if (!value.pageSize) {
-            value.pageSize = constant.defaultPaging.pageSize;
+            value.pageSize = DefaultPaging.pageSize;
         }
         if(!value.useCount){
             value.useCount = false;
