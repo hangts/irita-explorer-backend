@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import {DenomTaskService} from './denom.task.service';
-import { NftService } from '../service/nft.service';
+import { NftTaskService } from './nft.task.service';
 import { TaskDispatchService } from '../service/task.dispatch.service';
 import { taskEnum } from '../constant';
 import { getIpAddress } from '../util/util';
@@ -15,7 +15,7 @@ export class TasksService {
 
     constructor(
         private readonly denomTaskService: DenomTaskService,
-        private readonly nftService: NftService,
+        private readonly nftTaskService: NftTaskService,
         private readonly taskDispatchService: TaskDispatchService,
     ) {
     }
@@ -26,10 +26,10 @@ export class TasksService {
         this.handleDoTask(taskEnum.denom, this.denomTaskService.doTask);
     }
 
-    @Cron(cfg.taskCfg.executeTime.nft)
-    //@Cron('58 * * * * *')
+    //@Cron(cfg.taskCfg.executeTime.nft)
+    @Cron('12 * * * * *')
     async syncNfts() {
-        this.handleDoTask(taskEnum.nft, this.nftService.doTask);
+        this.handleDoTask(taskEnum.nft, this.nftTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.faultTolerance)

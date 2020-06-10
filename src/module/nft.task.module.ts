@@ -1,8 +1,8 @@
 import {Module } from '@nestjs/common';
-import {NftController} from '../controller/nft.controller';
-import {NftService} from '../service/nft.service';
+import {NftTaskService} from '../task/nft.task.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {NftSchema} from '../schema/nft.schema';
+import { NftHttp } from '../http/lcd/nft.http';
 import { DenomSchema } from '../schema/denom.schema';
 
 @Module({
@@ -18,8 +18,7 @@ import { DenomSchema } from '../schema/denom.schema';
             collection: 'sync_denom'
         }]),
     ],
-    providers:[NftService],
-    controllers:[NftController],
-    exports:[NftService]
+    providers:[NftTaskService, NftHttp],
+    exports:[NftTaskService]
 })
-export class NftModule{}
+export class NftTaskModule{}

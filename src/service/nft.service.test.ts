@@ -51,13 +51,5 @@ describe('nft module', () => {
         });
     });
 
-
-    describe('doTask', () => {
-        it('should return true', async () => {
-            const data: boolean = await nftService.doTask();
-            expect(data).toBe(true);
-        });
-    });
-
 });
 
