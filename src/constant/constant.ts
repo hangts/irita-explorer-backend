@@ -1,12 +1,12 @@
 
 const constant:any = {};
 
-constant.defaultPaging= {
+constant.defaultPaging = {
     pageNum:1,
     pageSize:10
 };
 
-constant.txType= {
+constant.txType = {
     create_record:'create_record',
     mint_token:'mint_token',
     burn_nft:'burn_nft',
@@ -23,5 +23,7 @@ constant.txType= {
     issue_token:'issue_token',
     edit_token:'edit_token'
 };
+
+constant.syncTxServiceNameSize = 100;
 
 export default constant;

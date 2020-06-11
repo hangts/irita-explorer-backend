@@ -8,7 +8,7 @@ import { ITxsQueryParams} from '../types/tx.interface';
 import {IListStruct} from '../types';
 import constant from '../constant/constant';
 export const TxSchema = new mongoose.Schema({
-    time:Date,
+    time:Number,
     height:Number,
     tx_hash:String,
     memo:String,
@@ -41,8 +41,8 @@ TxSchema.statics.queryTxList = async function (query:ITxsQuery){
         }
     }
     if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {queryParameters.time = {};}
-    if (query.beginTime && query.beginTime.length) { queryParameters.time.$gte =  new Date(Number(query.beginTime) * 1000) }
-    if (query.endTime && query.endTime.length) { queryParameters.time.$lte =  new Date(Number(query.endTime) * 1000) }
+    if (query.beginTime && query.beginTime.length) { queryParameters.time.$gte =  Number(query.beginTime) }
+    if (query.endTime && query.endTime.length) { queryParameters.time.$lte =  Number(query.endTime) }
     
     result.data = await this.find(queryParameters)
 					 		.sort({height:-1})
@@ -116,9 +116,14 @@ TxSchema.statics.queryTxWithNft = async function(query:ITxsWhthNftQuery){
 //  txs/services
 TxSchema.statics.queryTxWithServiceName = async function(query:ITxsWhthServiceNameQuery){
 	let result:{count?:number, data?:any[]} = {};
-	let queryParameters:{servicesName?:string} = {};
+	let queryParameters = {};
 	if (query.serviceName && query.serviceName.length) {
-		queryParameters['msgs.msg.service_name'] = query.serviceName;
+		queryParameters = {
+			$or:[
+				{'msgs.msg.service_name':query.serviceName},
+				{'msgs.msg.ex.service_name':query.serviceName}
+			]
+		};
 	}
 	result.data = await this.find(queryParameters)
 					 		.sort({height:-1})
@@ -150,4 +155,32 @@ TxSchema.statics.queryTxStatistics = async function(){
 	};
 }
 
+//获取指定条数的serviceName==null&&type == respond_service 的 tx
+TxSchema.statics.findRespondServiceTx = async function(pageSize?:number){
+	pageSize = pageSize || constant.syncTxServiceNameSize;
+	return await this.find({
+							type:constant.txType.respond_service,
+							'msgs.msg.ex.service_name':null
+						},{tx_hash:1,'msgs.msg.request_id':1})
+					 .sort({height:-1})
+					 .limit(Number(pageSize));
+}
 
+//根据Request_Context_Id list && type == call_service 获取指定tx list
+TxSchema.statics.findCallServiceTxWithReqContextIds = async function(reqContextIds:string[]){
+	if (!reqContextIds || !reqContextIds.length) {return []};
+	let query = {
+		type:constant.txType.call_service,
+		'events.attributes.value':{$in:reqContextIds}
+	};
+	return await this.find(query,{'events.attributes':1,"msgs.msg.service_name":1});
+}
+
+//根据Request_Context_Id list && type == call_service 获取指定tx list
+TxSchema.statics.updateServiceNameToResServiceTxWithTxHash = async function(txHash:string, serviceName:string){
+	if (!txHash || !txHash.length) {return null};
+	let query = {
+		tx_hash:txHash,
+	};
+	return await this.findOneAndUpdate(query,{$set: {'msgs.0.msg.ex.service_name': serviceName}});
+}

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
+import Util from '../util/util';
 import { TxListReqDto, 
          TxListWithHeightReqDto,
          TxListWithAddressReqDto,
@@ -18,7 +19,8 @@ import { TxResDto,
 @Injectable()
 export class TxService {
     constructor(@InjectModel('Tx') private txModel: any, 
-                @InjectModel('TxType') private txTypeModel: any) {}
+                @InjectModel('TxType') private txTypeModel: any) {
+    }
 
     // txs
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {

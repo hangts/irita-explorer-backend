@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import {TxController} from '../controller/tx.controller';
-import {TxService} from '../service/tx.service';
+import {TxService} from './tx.service';
 import {TxSchema} from '../schema/tx.schema';
 import { AppModule } from './../app.module';
 import { TxListReqDto, 
@@ -138,7 +138,8 @@ describe('TxController', () => {
             let data = await txService.queryTxWithServiceName(req);
             if (data && data.data.length) {
                 data.data.forEach((item)=>{
-                    expect(item.msgs[0].msg.service_name).toBe(req.serviceName);
+                    let service_name = item.msgs[0].msg.service_name || item.msgs[0].msg.ex.service_name;
+                    expect(service_name).toBe(req.serviceName);
                 });
             }else{
                 expect(data.data).toBe([]);
