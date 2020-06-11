@@ -44,9 +44,9 @@ describe('nft module', () => {
     });
 
 
-    describe('findNftListByName', () => {
+    describe('findListByName', () => {
         it('should return nft name list', async () => {
-            const data: INftStruct[] = await nftService.findNftListByName('sunshine');
+            const data: INftStruct[] = await nftService.findListByName('sunshine');
             expect(data).toBeDefined();
         });
     });

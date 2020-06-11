@@ -25,7 +25,7 @@ export class NftTaskService {
                 const promiseContainer = (nameOjb) => {
                     return new Promise(async (subRes) => {
                         const res: any = await this.nftHttp.queryNftsFromLcdByDenom(nameOjb.name);
-                        const nftFromDb: INft[] = await (this.nftModel as any).findNftListByName(nameOjb.name);
+                        const nftFromDb: INft[] = await (this.nftModel as any).findListByName(nameOjb.name);
                         if (res) {
                             let lcdNftMap: Map<string, ILcdNftStruct> | null = new Map<string, ILcdNftStruct>(),
                                 dbNftMap: Map<string, INft> | null = new Map<string, INft>();

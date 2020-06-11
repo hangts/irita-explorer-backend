@@ -43,7 +43,7 @@ TaskDispatchSchema.statics = {
         }).exec();
     },
 
-    async findAllTask(): Promise<ITaskDispatchStruct[]> {
+    async findAll(): Promise<ITaskDispatchStruct[]> {
         return await this.find({}).exec();
     },
 

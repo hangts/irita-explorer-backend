@@ -33,7 +33,7 @@ NftSchema.statics = {
     async findCount(): Promise<number> {
         return await this.find().count().exec();
     },
-    async findNftListByName(name: string): Promise<INftStruct> {
+    async findListByName(name: string): Promise<INftStruct> {
         return await this.find({ denom: name }).exec();
     },
 
