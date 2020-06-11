@@ -35,10 +35,10 @@ export const cfg = {
             faultTolerance:Number(FAULT_TOLERANCE_INTERVAL || 60),
         },
         executeTime:{
-            denom:DENOM_EXECUTE_TIME || '50 * * * * *',
-            nft:NFT_EXECUTE_TIME || '22 * * * * *',
+            denom:DENOM_EXECUTE_TIME || '1 * * * * *',
+            nft:NFT_EXECUTE_TIME || '21 * * * * *',
             txServiceName:TX_SERVICE_NAME_EXECUTE_TIME || '30 * * * * *',
-            faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME || '18 * * * * *',
+            faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME || '41 * * * * *',
         },
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 100,
     }
