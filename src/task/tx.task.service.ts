@@ -10,7 +10,6 @@ export class TxTaskService {
     }
 
     async syncRespondServiceTxServiceName(){
-        let requestContextIds:string[] = [];
         let respondServiceTxMap:object = {};
         
         let respondServiceTxData = await this.txModel.findRespondServiceTx();
@@ -23,11 +22,10 @@ export class TxTaskService {
                 item.msgs[0].msg.request_id.length) {
                 reqContextId = getReqContextIdWithReqId(item.msgs[0].msg.request_id);
             }
-            requestContextIds.push(reqContextId);
             respondServiceTxMap[reqContextId] = {tx_hash:item.tx_hash,reqContextId:reqContextId};
         });
 
-        let callServiceTxs = await this.txModel.findCallServiceTxWithReqContextIds(requestContextIds);
+        let callServiceTxs = await this.txModel.findCallServiceTxWithReqContextIds(Object.keys(respondServiceTxMap));
 
         callServiceTxs.forEach((item:{msgs:[], events:[]})=>{
             let serviceName = getServiceNameFromMsgs(item.msgs);
