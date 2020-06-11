@@ -5,7 +5,7 @@ export const BlockSchema = new mongoose.Schema({
     height: Number,
     hash: String,
     txn: Number,
-    time: Date,
+    time: Number,
 });
 
 BlockSchema.statics = {
