@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { ITxTypeStruct } from '../types/schemaTypes/txType.interface';
 import { getTimestamp } from '../util/util';
 export const TxTypeSchema = new mongoose.Schema({
     typeName:{type:String, required:true, unique:true,},
@@ -13,12 +14,12 @@ export const TxTypeSchema = new mongoose.Schema({
 });
 
 // txs/types
-TxTypeSchema.statics.queryTxTypeList = async function (){
+TxTypeSchema.statics.queryTxTypeList = async function ():Promise<ITxTypeStruct[]>{
 	return await this.find({},{typeName:1})
 }
 
 // post txs/types
-TxTypeSchema.statics.insertTxTypes = async function (types:string[]){
+TxTypeSchema.statics.insertTxTypes = async function (types:string[]):Promise<ITxTypeStruct[]>{
 	if (types && types.length) {
 		let data = types.map((t)=>{
 			let item = {
@@ -33,7 +34,7 @@ TxTypeSchema.statics.insertTxTypes = async function (types:string[]){
 }
 
 // put txs/types
-TxTypeSchema.statics.updateTxType = async function (type:string, newType:string){
+TxTypeSchema.statics.updateTxType = async function (type:string, newType:string):Promise<ITxTypeStruct>{
 	if (type && type.length && newType && newType.length) {
 		return await this.findOneAndUpdate({
 			typeName:type,
@@ -47,6 +48,6 @@ TxTypeSchema.statics.updateTxType = async function (type:string, newType:string)
 }
 
 // delete txs/types
-TxTypeSchema.statics.deleteTxType = async function (type:string){
+TxTypeSchema.statics.deleteTxType = async function (type:string):Promise<ITxTypeStruct>{
 	return await this.findOneAndRemove({typeName:type});
 }

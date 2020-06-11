@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { getReqContextIdWithReqId, 
          getReqContextIdFromEvents,
-         getServiceNameFromMsgs } from '../util/util';
+         getServiceNameFromMsgs } from '../helper/tx.helper';
 
 @Injectable()
 export class TxTaskService {

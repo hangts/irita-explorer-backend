@@ -4,6 +4,7 @@ import { ITxsQuery,
 		 ITxsWhthAddressQuery,
 	     ITxsWhthNftQuery,
 	 	 ITxsWhthServiceNameQuery} from '../types/schemaTypes/tx.interface';
+import { ITxStruct, ITxStructMsgs, ITxStructHash } from '../types/schemaTypes/tx.interface';
 import { ITxsQueryParams} from '../types/tx.interface';
 import {IListStruct} from '../types';
 import { TxType } from '../constant';
@@ -27,7 +28,7 @@ export const TxSchema = new mongoose.Schema({
 });
 
 // txs
-TxSchema.statics.queryTxList = async function (query:ITxsQuery){
+TxSchema.statics.queryTxList = async function (query:ITxsQuery):Promise<IListStruct>{
 	let result:IListStruct = {};
     let queryParameters:ITxsQueryParams = {};
     if (query.type && query.type.length) { queryParameters.type = query.type}
@@ -57,7 +58,7 @@ TxSchema.statics.queryTxList = async function (query:ITxsQuery){
 }
 
 // txs/blocks
-TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery){
+TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery):Promise<IListStruct>{
 	let result:IListStruct = {};
 	let queryParameters:{height?:number} = {};
 	if (query.height) { queryParameters.height = Number(query.height);}
@@ -72,7 +73,7 @@ TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery){
 }
 
 //  txs/addresses
-TxSchema.statics.queryTxWithAddress = async function(query:ITxsWhthAddressQuery){
+TxSchema.statics.queryTxWithAddress = async function(query:ITxsWhthAddressQuery):Promise<IListStruct>{
 	let result:IListStruct = {};
 	let queryParameters:any = {};
 	if (query.address) { 
@@ -95,7 +96,7 @@ TxSchema.statics.queryTxWithAddress = async function(query:ITxsWhthAddressQuery)
 }
 
 //  txs/nfts
-TxSchema.statics.queryTxWithNft = async function(query:ITxsWhthNftQuery){
+TxSchema.statics.queryTxWithNft = async function(query:ITxsWhthNftQuery):Promise<IListStruct>{
 	let result:IListStruct = {};
 	let queryParameters:{denom?:string,tokenId?:string} = {};
 	if (query.denom && query.denom.length) {
@@ -115,8 +116,8 @@ TxSchema.statics.queryTxWithNft = async function(query:ITxsWhthNftQuery){
 }
 
 //  txs/services
-TxSchema.statics.queryTxWithServiceName = async function(query:ITxsWhthServiceNameQuery){
-	let result:{count?:number, data?:any[]} = {};
+TxSchema.statics.queryTxWithServiceName = async function(query:ITxsWhthServiceNameQuery):Promise<IListStruct>{
+	let result:IListStruct = {};
 	let queryParameters = {};
 	if (query.serviceName && query.serviceName.length) {
 		queryParameters = {
@@ -137,17 +138,17 @@ TxSchema.statics.queryTxWithServiceName = async function(query:ITxsWhthServiceNa
 }
 
 //  txs/services/detail/{serviceName}
-TxSchema.statics.queryTxDetailWithServiceName = async function(serviceName:string){
+TxSchema.statics.queryTxDetailWithServiceName = async function(serviceName:string):Promise<ITxStruct>{
 	return await this.findOne({'msgs.msg.name':serviceName,type:'define_service'});
 }
 
 //  txs/{hash}
-TxSchema.statics.queryTxWithHash = async function(hash:string){
+TxSchema.statics.queryTxWithHash = async function(hash:string):Promise<ITxStruct>{
 	return await this.findOne({tx_hash:hash});
 }
 
 //  /statistics
-TxSchema.statics.queryTxStatistics = async function(){
+TxSchema.statics.queryTxStatistics = async function():Promise<{txCount:number,serviceCount:number}>{
 	let txCount = await this.find().count();
 	let serviceCount = await this.find({type:TxType.define_service}).count();
 	return  {
@@ -157,7 +158,7 @@ TxSchema.statics.queryTxStatistics = async function(){
 }
 
 //获取指定条数的serviceName==null&&type == respond_service 的 tx
-TxSchema.statics.findRespondServiceTx = async function(pageSize?:number){
+TxSchema.statics.findRespondServiceTx = async function(pageSize?:number):Promise<ITxStructHash[]>{
 	pageSize = pageSize || cfg.taskCfg.syncTxServiceNameSize;
 	return await this.find({
 							type:TxType.respond_service,
@@ -168,7 +169,7 @@ TxSchema.statics.findRespondServiceTx = async function(pageSize?:number){
 }
 
 //根据Request_Context_Id list && type == call_service 获取指定tx list
-TxSchema.statics.findCallServiceTxWithReqContextIds = async function(reqContextIds:string[]){
+TxSchema.statics.findCallServiceTxWithReqContextIds = async function(reqContextIds:string[]):Promise<ITxStructMsgs[]>{
 	if (!reqContextIds || !reqContextIds.length) {return []};
 	let query = {
 		type:TxType.call_service,
@@ -178,7 +179,7 @@ TxSchema.statics.findCallServiceTxWithReqContextIds = async function(reqContextI
 }
 
 //根据Request_Context_Id list && type == call_service 获取指定tx list
-TxSchema.statics.updateServiceNameToResServiceTxWithTxHash = async function(txHash:string, serviceName:string){
+TxSchema.statics.updateServiceNameToResServiceTxWithTxHash = async function(txHash:string, serviceName:string):Promise<ITxStruct>{
 	if (!txHash || !txHash.length) {return null};
 	let query = {
 		tx_hash:txHash,
