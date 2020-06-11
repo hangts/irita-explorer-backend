@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { getIpAddress, getTimestamp } from '../util/util';
-import { ITaskDispatchStruct } from '../types/task.dispatch.interface';
+import { ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
 
 export const TaskDispatchSchema = new mongoose.Schema({
     name: { type: String, unique: true },

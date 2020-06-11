@@ -3,7 +3,7 @@ import { ITxsQuery,
 		 ITxsWhthHeightQuery,
 		 ITxsWhthAddressQuery,
 	     ITxsWhthNftQuery,
-	 	 ITxsWhthServiceNameQuery} from '../types/schemaQuery/tx.interface';
+	 	 ITxsWhthServiceNameQuery} from '../types/schemaTypes/tx.interface';
 import { ITxsQueryParams} from '../types/tx.interface';
 import {IListStruct} from '../types';
 import { TxType } from '../constant';

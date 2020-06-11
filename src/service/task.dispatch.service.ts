@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ITaskDispatch, ITaskDispatchStruct } from '../types/task.dispatch.interface';
+import { ITaskDispatch, ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
 import { getIpAddress, getTimestamp } from '../util/util';
 import { TaskEnum, TaskInterval } from '../constant';
 
