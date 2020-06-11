@@ -3,7 +3,7 @@ import { AppModule } from '../app.module';
 import { ListStruct } from '../api/ApiResult';
 import { NftService } from './nft.service';
 import { NftDetailReqDto, NftDetailResDto, NftListReqDto, NftListResDto } from '../dto/nft.dto';
-import { INftEntities } from '../types/nft.interface';
+import { INftStruct } from '../types/nft.interface';
 
 
 describe('nft module', () => {
@@ -46,7 +46,7 @@ describe('nft module', () => {
 
     describe('findNftListByName', () => {
         it('should return nft name list', async () => {
-            const data: INftEntities[] = await nftService.findNftListByName('sunshine');
+            const data: INftStruct[] = await nftService.findNftListByName('sunshine');
             expect(data).toBeDefined();
         });
     });

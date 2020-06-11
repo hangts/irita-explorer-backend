@@ -1,9 +1,7 @@
 import * as mongoose from 'mongoose';
-
 import { Logger } from '@nestjs/common';
-import { deleteQuery } from '../types/nft.interface';
+import { deleteQuery, INftStruct } from '../types/nft.interface';
 import { getTimestamp } from '../util/util';
-import { INftEntities} from '../types/nft.interface';
 
 export const NftSchema = new mongoose.Schema({
     denom: String,
@@ -18,14 +16,14 @@ export const NftSchema = new mongoose.Schema({
 NftSchema.index({ denom: 1, nft_id: 1 }, { unique: true });
 
 NftSchema.statics = {
-    async findList(pageNum: number, pageSize: number, denom?: string, nftId?: string): Promise<INftEntities[]> {
+    async findList(pageNum: number, pageSize: number, denom?: string, nftId?: string): Promise<INftStruct[]> {
         let q: any = {};
         if (denom) q.denom = denom;
         if (nftId) q.nft_id = nftId;
-        return await this.find(q).sort().skip((pageNum - 1) * pageSize).limit(pageSize).exec();
+        return await this.find(q).skip((pageNum - 1) * pageSize).limit(pageSize).exec();
     },
 
-    async findOneByDenomAndNftId(denom: string, nftId: string): Promise<INftEntities> {
+    async findOneByDenomAndNftId(denom: string, nftId: string): Promise<INftStruct> {
         return await this.findOne({
             denom,
             nft_id: nftId,
@@ -35,11 +33,11 @@ NftSchema.statics = {
     async findCount(): Promise<number> {
         return await this.find().count().exec();
     },
-    async findNftListByName(name: string): Promise<INftEntities> {
+    async findNftListByName(name: string): Promise<INftStruct> {
         return await this.find({ denom: name }).exec();
     },
 
-    saveBulk(nfts: any): void {
+    saveBulk(nfts: INftStruct[]): void {
         this.insertMany(nfts, { ordered: false });
     },
 
@@ -49,7 +47,7 @@ NftSchema.statics = {
         });
     },
 
-    updateOneById(nft: any): void {
+    updateOneById(nft: INftStruct): void {
         const { nft_id, owner, token_data, token_uri, hash } = nft;
         this.updateOne({
             nft_id,

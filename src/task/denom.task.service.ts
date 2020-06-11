@@ -2,11 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { DenomHttp } from '../http/lcd/denom.http';
-import { IDenomEntities } from '../types/denom.interface';
+import { IDenom } from '../types/denom.interface';
 
 @Injectable()
 export class DenomTaskService {
-    constructor(@InjectModel('Denom') private denomModel: Model<IDenomEntities>, private readonly denomHttp: DenomHttp) {
+    constructor(@InjectModel('Denom') private denomModel: Model<IDenom>, private readonly denomHttp: DenomHttp) {
         this.doTask = this.doTask.bind(this);
     }
 

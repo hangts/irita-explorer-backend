@@ -28,7 +28,7 @@ export class TasksService {
     }
 
     @Cron(cfg.taskCfg.executeTime.nft)
-    //@Cron('12 * * * * *')
+    //@Cron('22 * * * * *')
     async syncNfts() {
         this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
     }

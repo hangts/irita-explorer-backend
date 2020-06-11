@@ -5,7 +5,6 @@ import { ListStruct } from '../api/ApiResult';
 import {BlockListResDto, BlockListReqDto, BlockDetailReqDto} from '../dto/block.dto';
 import ValidationPipe from '../pipe/validation.pipe';
 import { ApiTags} from '@nestjs/swagger';
-import 'reflect-metadata';
 
 @ApiTags('Blocks')
 @Controller('blocks')
@@ -17,8 +16,6 @@ export class BlockController {
     @Get()
     async queryBlockList(@Query() q: BlockListReqDto): Promise<Result<ListStruct<BlockListResDto[]>>> {
         const data: ListStruct<BlockListResDto[]> = await this.blockService.queryBlockList(q);
-        let a = Reflect.getMetadata('host',BlockController);
-        console.log(a)
         return new Result<ListStruct<BlockListResDto[]>>(data);
     }
 

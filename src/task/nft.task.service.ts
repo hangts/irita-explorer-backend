@@ -2,16 +2,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { NftHttp } from '../http/lcd/nft.http';
-import { INftEntities } from '../types/nft.interface';
-import { IDenomEntities } from '../types/denom.interface';
+import { INft, INftStruct } from '../types/nft.interface';
+import { IDenom } from '../types/denom.interface';
 import md5 from 'blueimp-md5';
 import { getTimestamp } from '../util/util';
 import { ILcdNftStruct } from '../types/task.interface';
 
 @Injectable()
 export class NftTaskService {
-    constructor(@InjectModel('Nft') private nftModel: Model<INftEntities>,
-                @InjectModel('Denom') private denomModel: Model<IDenomEntities>,
+    constructor(@InjectModel('Nft') private nftModel: Model<INft>,
+                @InjectModel('Denom') private denomModel: Model<IDenom>,
                 private readonly nftHttp: NftHttp,
     ) {
         this.doTask = this.doTask.bind(this);
@@ -24,29 +24,29 @@ export class NftTaskService {
                 let arr: any[] = [];
                 const promiseContainer = (nameOjb) => {
                     return new Promise(async (subRes) => {
-                        const res: any = await this.nftHttp.queryNftsFromLcd(nameOjb.name);
-                        const nftFromDb: INftEntities[] = await (this.nftModel as any).findNftListByName(nameOjb.name);
+                        const res: any = await this.nftHttp.queryNftsFromLcdByDenom(nameOjb.name);
+                        const nftFromDb: INft[] = await (this.nftModel as any).findNftListByName(nameOjb.name);
                         if (res) {
                             let lcdNftMap: Map<string, ILcdNftStruct> | null = new Map<string, ILcdNftStruct>(),
-                                dbNftMap: Map<string, INftEntities> | null = new Map<string, INftEntities>();
+                                dbNftMap: Map<string, INft> | null = new Map<string, INft>();
                             if (res.nfts && Array.isArray(res.nfts) && res.nfts.length > 0) {
                                 res.nfts.forEach(nft => {
                                     lcdNftMap.set(nft.value.id, nft.value);
                                 });
-                            }else{
-                                lcdNftMap = null
+                            } else {
+                                lcdNftMap = null;
                             }
 
                             if (nftFromDb.length > 0) {
-                                nftFromDb.forEach((nft: INftEntities) => {
+                                nftFromDb.forEach((nft: INft) => {
                                     dbNftMap.set(nft.nft_id, nft);
                                 });
-                            }else{
-                                dbNftMap = null
+                            } else {
+                                dbNftMap = null;
                             }
 
                             let shouldInsertMap: Map<string, ILcdNftStruct> = NftTaskService.getShouldInsertList(lcdNftMap, dbNftMap);
-                            let shouldDeleteNftMap: Map<string, INftEntities> = NftTaskService.getShouldDeleteList(lcdNftMap, dbNftMap);
+                            let shouldDeleteNftMap: Map<string, INft> = NftTaskService.getShouldDeleteList(lcdNftMap, dbNftMap);
                             let shouldUpdateNftMap: Map<string, ILcdNftStruct> = NftTaskService.getShouldUpdateList(lcdNftMap, dbNftMap);
                             await this.saveNft(nameOjb.name, shouldInsertMap);
                             await this.deleteNft(nameOjb.name, shouldDeleteNftMap);
@@ -79,11 +79,12 @@ export class NftTaskService {
 
     }
 
-    private async saveNft(name: any, shouldInsertMap: Map<string, ILcdNftStruct>): Promise<boolean> {
+    private async saveNft(name: string, shouldInsertMap: Map<string, ILcdNftStruct>): Promise<boolean> {
         if (shouldInsertMap && shouldInsertMap.size > 0) {
-            let insertNftList: any[] = Array.from(shouldInsertMap.values()).map((nft) => {
+            let insertNftList: INftStruct[] = Array.from(shouldInsertMap.values()).map((nft) => {
                 const { owner, token_uri, token_data, id } = nft;
-                const str: string = `${owner}${token_uri ? token_uri : ''}${token_data ? token_data : ''}`, hash = md5(str);
+                const str: string = `${owner}${token_uri ? token_uri : ''}${token_data ? token_data : ''}`,
+                    hash = md5(str);
                 return {
                     denom: name,
                     nft_id: id,
@@ -95,15 +96,15 @@ export class NftTaskService {
                     hash,
                 };
             });
-            const saved: any = await (this.nftModel as any).saveBulk(insertNftList);
+            await (this.nftModel as any).saveBulk(insertNftList);
             console.log('insert nft has completed!');
-            if (saved) return true;
+            return true;
         } else {
             return true;
         }
     }
 
-    private async deleteNft(name: any, shouldDeleteNftMap: Map<string, INftEntities>): Promise<boolean> {
+    private async deleteNft(name: string, shouldDeleteNftMap: Map<string, INft>): Promise<boolean> {
         if (shouldDeleteNftMap && shouldDeleteNftMap.size > 0) {
             return new Promise((resolve) => {
                 let arr: any[] = [];
@@ -131,21 +132,22 @@ export class NftTaskService {
         }
     }
 
-    private async updateNft(name: any, shouldUpdateNftMap: Map<string, ILcdNftStruct>): Promise<boolean> {
+    private async updateNft(name: string, shouldUpdateNftMap: Map<string, ILcdNftStruct>): Promise<boolean> {
         if (shouldUpdateNftMap && shouldUpdateNftMap.size > 0) {
             return new Promise((resolve) => {
                 let arr: any[] = [];
                 const promiseContainer = (nft) => {
                     return new Promise(async (subRes) => {
-                        const {id, owner, token_uri, token_data, hash} = nft;
-                        await (this.nftModel as any).updateOneById({
+                        const { id, owner, token_uri, token_data, hash } = nft;
+                        const nftEntity: INftStruct = {
                             nft_id: id,
                             owner: owner,
                             token_uri: token_uri,
                             token_data: token_data,
                             hash: hash,
                             denom: name,
-                        });
+                        };
+                        await (this.nftModel as any).updateOneById(nftEntity);
                         subRes();
                     });
                 };
@@ -163,15 +165,15 @@ export class NftTaskService {
         }
     }
 
-    private static getShouldDeleteList(nftFromLcd: Map<string, any> | null, nftFromDb: Map<string, INftEntities> | null): Map<string, INftEntities> {
+    private static getShouldDeleteList(nftFromLcd: Map<string, any> | null, nftFromDb: Map<string, INft> | null): Map<string, INft> {
         if (!nftFromDb) {
             //如果db中已经没有nft, 则不需要执行delete操作
-            return new Map<string, INftEntities>();
+            return new Map<string, INft>();
         } else {
             if (!nftFromLcd) {//如果从Lcd返回的Nft已经没有了, 则需要删除db中查出的所有的
                 return nftFromDb;
             } else {
-                const deleteNftMap = new Map<string, INftEntities>();
+                const deleteNftMap = new Map<string, INft>();
                 for (let key of nftFromDb.keys()) {
                     if (!nftFromLcd.has(key)) {
                         deleteNftMap.set(key, nftFromDb.get(key));
@@ -182,7 +184,7 @@ export class NftTaskService {
         }
     }
 
-    private static getShouldInsertList(nftFromLcd: Map<string, ILcdNftStruct> | null, nftFromDb: Map<string, INftEntities> | null): Map<string, ILcdNftStruct> {
+    private static getShouldInsertList(nftFromLcd: Map<string, ILcdNftStruct> | null, nftFromDb: Map<string, INft> | null): Map<string, ILcdNftStruct> {
         if (!nftFromDb) {
             return nftFromLcd;
         } else {
@@ -200,7 +202,7 @@ export class NftTaskService {
         }
     }
 
-    private static getShouldUpdateList(nftFromLcd: Map<string, ILcdNftStruct> | null, nftFromDb: Map<string, INftEntities> | null): Map<string, ILcdNftStruct> {
+    private static getShouldUpdateList(nftFromLcd: Map<string, ILcdNftStruct> | null, nftFromDb: Map<string, INft> | null): Map<string, ILcdNftStruct> {
         if (!nftFromDb) {
             return new Map<string, ILcdNftStruct>();
         } else {

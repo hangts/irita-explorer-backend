@@ -2,16 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { IDenomEntities} from '../types/denom.interface';
+import { IDenom, IDenomStruct } from '../types/denom.interface';
 import { DenomListResDto } from '../dto/denom.dto';
 
 @Injectable()
 export class DenomService {
-    constructor(@InjectModel('Denom') private denomModel: Model<IDenomEntities>) {
+    constructor(@InjectModel('Denom') private denomModel: Model<IDenom>) {
     }
 
     async queryList(): Promise<ListStruct<DenomListResDto[]>> {
-        const denomList: any[] = await (this.denomModel as any).findList();
+        const denomList: IDenomStruct[] = await (this.denomModel as any).findList();
         const res: DenomListResDto[] = denomList.map((d) => {
             return new DenomListResDto(d.name, d.json_schema, d.creator);
         });

@@ -6,9 +6,9 @@ export class NftHttp {
     constructor(){
 
     }
-    async queryNftsFromLcd(name: string): Promise<any> {
+    async queryNftsFromLcdByDenom(denom: string): Promise<any> {
         try {
-            const url: string = `${cfg.serverCfg.lcdAddr}/nft/nfts/collections/${name}`;
+            const url: string = `${cfg.serverCfg.lcdAddr}/nft/nfts/collections/${denom}`;
             const data: any = await new HttpService().get(url).toPromise().then(res => res.data);
             if(data && data.result){
                 return data.result;

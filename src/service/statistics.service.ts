@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { StatisticsResDto } from '../dto/statistics.dto';
-import { IBlockEntities } from '../types/block.interface';
-import { INftEntities } from '../types/nft.interface';
+import { IBlock, IBlockStruct } from '../types/block.interface';
+import { INft } from '../types/nft.interface';
 
 @Injectable()
 export class StatisticsService {
 
     constructor(
-        @InjectModel('Block') private blockModel: Model<IBlockEntities>,
-        @InjectModel('Nft') private nftModel: Model<INftEntities>,
+        @InjectModel('Block') private blockModel: Model<IBlock>,
+        @InjectModel('Nft') private nftModel: Model<INft>,
         @InjectModel('Tx') private txModel: any,
     ) {
     }
@@ -26,7 +26,7 @@ export class StatisticsService {
     }
 
     async queryLatestHeight(): Promise<number | null> {
-        const res: any = await (this.blockModel as any).findOneByHeightDesc();
+        const res: IBlockStruct | null = await (this.blockModel as any).findOneByHeightDesc();
         if (res) {
             return res.height;
         } else {
@@ -35,8 +35,8 @@ export class StatisticsService {
     }
 
     async queryAvgBlockTime(): Promise<number | null> {
-        const latestBlock: any = await (this.blockModel as any).findOneByHeightDesc();
-        const num100Block: any = await (this.blockModel as any).findNum100Height();
+        const latestBlock: IBlockStruct | null = await (this.blockModel as any).findOneByHeightDesc();
+        const num100Block: IBlockStruct | null = await (this.blockModel as any).findNum100Height();
         if (latestBlock && num100Block) {
             const latestTime = Number(new Date(latestBlock.time).getTime());
             const num100Time = Number(new Date(num100Block.time).getTime());

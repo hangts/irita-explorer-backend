@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from '../app.module';
 import { TaskDispatchService } from './task.dispatch.service';
 import { TaskEnum } from '../constant';
-import { ITaskDispatchEntities } from '../types/task.dispatch.interface';
+import { ITaskDispatchStruct } from '../types/task.dispatch.interface';
 
 describe('taskDispatch module', () => {
     let taskDispatchService: TaskDispatchService;
@@ -25,7 +25,7 @@ describe('taskDispatch module', () => {
 
     describe('registerTask', () => {
         it('should return latest block height', async () => {
-            const data: ITaskDispatchEntities = await taskDispatchService.registerTask(TaskEnum.denom);
+            const data: ITaskDispatchStruct = await taskDispatchService.registerTask(TaskEnum.denom);
             expect(data).toBeDefined();
         });
     });
