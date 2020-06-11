@@ -17,9 +17,27 @@ $ npm install
 # development
 $ npm run start
 
-# watch mode
-$ npm run start:dev
-
 # production mode
 $ npm run start:prod
 ```
+## Env Variables
+
+### Db config
+- DB_ADDR: `required` `string` db addr（example: `127.0.0.1:27017, 127.0.0.2:27017, ...`）
+- DB_USER: `required` `string` db user（example: `user`）
+- DB_PASSWD: `required` `string` db password（example: `DB_PASSWD`）
+- DB_DATABASE：`required` `string` database name（example：`DB_DATABASE`）
+
+### Server config
+
+- LCD_ADDR: `required` `string`  lcd address（example: `http://192.168.150.32:2317`）
+
+### Task config
+
+- DENOM_INTERVAL: `required` `number`  the interval for denom pull（example: `60000`）
+- NFT_INTERVAL: `required` `number`  the interval for nft pull（example: `60000`）
+- FAULT_TOLERANCE_INTERVAL: `required` `number`  the interval for fault tolerance worker（example: `60000`）
+- DENOM_EXECUTE_TIME: `required` `string`  execute time for denom pull（example: "01 * * * * *"）
+- NFT_EXECUTE_TIME: `required` `string`  execute time for nft pull（example: "21 * * * * *"）
+- FAULT_TOLERANCE_EXECUTE_TIME: `required` `string`  execute time for fault tolerance（example: "41 * * * * *"）
+
