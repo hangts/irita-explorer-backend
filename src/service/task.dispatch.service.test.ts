@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from '../app.module';
 import { TaskDispatchService } from './task.dispatch.service';
 import { TaskEnum } from '../constant';
-import { ITaskDispatchStruct } from '../types/task.dispatch.interface';
+import { ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
 
 describe('taskDispatch module', () => {
     let taskDispatchService: TaskDispatchService;

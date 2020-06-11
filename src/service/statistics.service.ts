@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { StatisticsResDto } from '../dto/statistics.dto';
-import { IBlock, IBlockStruct } from '../types/block.interface';
-import { INft } from '../types/nft.interface';
+import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
+import { INft } from '../types/schemaTypes/nft.interface';
 
 @Injectable()
 export class StatisticsService {

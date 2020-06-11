@@ -3,7 +3,7 @@ import { AppModule } from '../app.module';
 import { ListStruct } from '../api/ApiResult';
 import { NftService } from './nft.service';
 import { NftDetailReqDto, NftDetailResDto, NftListReqDto, NftListResDto } from '../dto/nft.dto';
-import { INftStruct } from '../types/nft.interface';
+import { INftStruct } from '../types/schemaTypes/nft.interface';
 
 
 describe('nft module', () => {

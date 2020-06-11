@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { IBlockStruct } from '../types/block.interface';
+import { IBlockStruct } from '../types/schemaTypes/block.interface';
 
 export const BlockSchema = new mongoose.Schema({
     height: Number,
