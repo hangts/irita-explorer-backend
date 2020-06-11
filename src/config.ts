@@ -1,9 +1,19 @@
 const {
+    LCD_ADDR,
     DB_USER,
     DB_PASSWD,
     DB_ADDR,
     DB_DATABASE,
-    NODE_ENV
+    NODE_ENV,
+    DENOM_INTERVAL,
+    NFT_INTERVAL,
+    TX_SERVICE_NAME_EXECUTE_INTERVAL,
+    FAULT_TOLERANCE_INTERVAL,
+    DENOM_EXECUTE_TIME,
+    NFT_EXECUTE_TIME,
+    TX_SERVICE_NAME_EXECUTE_TIME,
+    SYNC_TX_SERVICE_NAME_SIZE,
+    FAULT_TOLERANCE_EXECUTE_TIME,
 } = process.env;
 
 export const cfg = {
@@ -14,4 +24,22 @@ export const cfg = {
         dbAddr: DB_ADDR,
         dbName: DB_DATABASE,
     },
+    serverCfg:{
+        lcdAddr:LCD_ADDR
+    },
+    taskCfg:{
+        interval:{
+            denom:Number(DENOM_INTERVAL || 60),
+            nft:Number(NFT_INTERVAL || 60),
+            txServiceName:Number(TX_SERVICE_NAME_EXECUTE_INTERVAL || 60),
+            faultTolerance:Number(FAULT_TOLERANCE_INTERVAL || 60),
+        },
+        executeTime:{
+            denom:DENOM_EXECUTE_TIME || '50 * * * * *',
+            nft:NFT_EXECUTE_TIME || '22 * * * * *',
+            txServiceName:TX_SERVICE_NAME_EXECUTE_TIME || '30 * * * * *',
+            faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME || '18 * * * * *',
+        },
+        syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 100,
+    }
 };

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import Util from '../util/util';
 import { TxListReqDto, 
          TxListWithHeightReqDto,
          TxListWithAddressReqDto,

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import Util from '../util/util';
+import { getReqContextIdWithReqId, 
+         getReqContextIdFromEvents,
+         getServiceNameFromMsgs } from '../util/util';
 
 @Injectable()
 export class TxTaskService {
@@ -19,7 +21,7 @@ export class TxTaskService {
                 item.msgs[0].msg && 
                 item.msgs[0].msg.request_id &&
                 item.msgs[0].msg.request_id.length) {
-                reqContextId = Util.getReqContextIdWithReqId(item.msgs[0].msg.request_id);
+                reqContextId = getReqContextIdWithReqId(item.msgs[0].msg.request_id);
             }
             requestContextIds.push(reqContextId);
             respondServiceTxMap[reqContextId] = {tx_hash:item.tx_hash,reqContextId:reqContextId};
@@ -28,8 +30,8 @@ export class TxTaskService {
         let callServiceTxs = await this.txModel.findCallServiceTxWithReqContextIds(requestContextIds);
 
         callServiceTxs.forEach((item:{msgs:[], events:[]})=>{
-            let serviceName = Util.getServiceNameFromMsgs(item.msgs);
-            let reqContextId= Util.getReqContextIdFromEvents(item.events);
+            let serviceName = getServiceNameFromMsgs(item.msgs);
+            let reqContextId = getReqContextIdFromEvents(item.events);
             let resTx:{tx_hash:string,requestContextId:string,serviceName:string} = respondServiceTxMap[reqContextId];
             resTx.serviceName = serviceName;
         });

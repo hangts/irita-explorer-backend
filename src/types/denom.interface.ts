@@ -1,13 +1,12 @@
-import { IQueryBase } from '.';
 import { Document } from 'mongoose';
 
-
-
-export interface IDenom extends Document {
-    name:string;
-    json_schema:string;
-    creator:string;
+export interface IDenomStruct {
+    name?: string,
+    json_schema?: string,
+    creator?: string,
+    create_time?: number,
+    update_time?: number,
 }
-
-export interface IDenomQueryParams extends IQueryBase {
+export interface IDenom extends IDenomStruct, Document {
+    
 }

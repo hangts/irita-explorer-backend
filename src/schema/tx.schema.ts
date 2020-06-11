@@ -6,7 +6,8 @@ import { ITxsQuery,
 	 	 ITxsWhthServiceNameQuery} from '../types/schemaQuery/tx.interface';
 import { ITxsQueryParams} from '../types/tx.interface';
 import {IListStruct} from '../types';
-import constant from '../constant/constant';
+import { TxType } from '../constant';
+import { cfg } from '../config';
 export const TxSchema = new mongoose.Schema({
     time:Number,
     height:Number,
@@ -148,18 +149,18 @@ TxSchema.statics.queryTxWithHash = async function(hash:string){
 //  /statistics
 TxSchema.statics.queryTxStatistics = async function(){
 	let txCount = await this.find().count();
-	let setviceCount = await this.find({type:constant.txType.define_service}).count();
+	let serviceCount = await this.find({type:TxType.define_service}).count();
 	return  {
-		txCount:txCount,
-		setviceCount:setviceCount
+		txCount,
+		serviceCount
 	};
 }
 
 //获取指定条数的serviceName==null&&type == respond_service 的 tx
 TxSchema.statics.findRespondServiceTx = async function(pageSize?:number){
-	pageSize = pageSize || constant.syncTxServiceNameSize;
+	pageSize = pageSize || cfg.taskCfg.syncTxServiceNameSize;
 	return await this.find({
-							type:constant.txType.respond_service,
+							type:TxType.respond_service,
 							'msgs.msg.ex.service_name':null
 						},{tx_hash:1,'msgs.msg.request_id':1})
 					 .sort({height:-1})
@@ -170,7 +171,7 @@ TxSchema.statics.findRespondServiceTx = async function(pageSize?:number){
 TxSchema.statics.findCallServiceTxWithReqContextIds = async function(reqContextIds:string[]){
 	if (!reqContextIds || !reqContextIds.length) {return []};
 	let query = {
-		type:constant.txType.call_service,
+		type:TxType.call_service,
 		'events.attributes.value':{$in:reqContextIds}
 	};
 	return await this.find(query,{'events.attributes':1,"msgs.msg.service_name":1});

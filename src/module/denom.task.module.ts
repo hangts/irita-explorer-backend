@@ -1,8 +1,8 @@
 import {Module } from '@nestjs/common';
-import {DenomController} from '../controller/denom.controller';
-import {DenomService} from '../service/denom.service';
+import {DenomTaskService} from '../task/denom.task.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {DenomSchema} from '../schema/denom.schema';
+import { DenomHttp } from '../http/lcd/denom.http';
 
 @Module({
     imports:[
@@ -12,7 +12,7 @@ import {DenomSchema} from '../schema/denom.schema';
             collection: 'sync_denom'
         }]),
     ],
-    providers:[DenomService],
-    controllers:[DenomController],
+    providers:[DenomTaskService, DenomHttp],
+    exports:[DenomTaskService]
 })
-export class DenomModule{}
+export class DenomTaskModule{}

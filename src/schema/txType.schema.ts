@@ -1,14 +1,14 @@
 import * as mongoose from 'mongoose';
-import Util from '../util/util';
+import { getTimestamp } from '../util/util';
 export const TxTypeSchema = new mongoose.Schema({
     typeName:{type:String, required:true, unique:true,},
     create_time:{
     	type:Number,
-    	default:Util.getCurrentTime(),
+    	default:getTimestamp(),
     },
     update_time:{
     	type:Number,
-    	default:Util.getCurrentTime(),
+    	default:getTimestamp(),
     }
 });
 
@@ -39,7 +39,7 @@ TxTypeSchema.statics.updateTxType = async function (type:string, newType:string)
 			typeName:type,
 		},{
 			typeName:newType,
-			update_time:Util.getCurrentTime()
+			update_time:getTimestamp(),
 		});
 	}else{
 		return null;
