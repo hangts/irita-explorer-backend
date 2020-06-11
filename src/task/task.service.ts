@@ -6,7 +6,7 @@ import { TaskDispatchService } from '../service/task.dispatch.service';
 import { TaskEnum } from '../constant';
 import { getIpAddress } from '../util/util';
 import {cfg} from '../config';
-import { TaskCallback } from '../types/schemaTypes/task.interface';
+import { TaskCallback } from '../types/task.interface';
 
 
 @Injectable()

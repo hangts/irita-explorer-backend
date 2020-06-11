@@ -6,7 +6,7 @@ import { INft, INftStruct } from '../types/schemaTypes/nft.interface';
 import { IDenom, IDenomStruct } from '../types/schemaTypes/denom.interface';
 import md5 from 'blueimp-md5';
 import { getTimestamp } from '../util/util';
-import { ILcdNftStruct } from '../types/schemaTypes/task.interface';
+import { ILcdNftStruct } from '../types/task.interface';
 
 @Injectable()
 export class NftTaskService {
