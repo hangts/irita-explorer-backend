@@ -15,7 +15,7 @@ export class ListStruct<T> implements IListStructBase<T> {
         this.data = data;
         this.pageNum = pageNum;
         this.pageSize = pageSize;
-        if (count) this.count = count;
+        if (count || count === 0) this.count = count;
     }
 }
 

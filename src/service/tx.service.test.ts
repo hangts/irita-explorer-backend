@@ -33,9 +33,9 @@ describe('TxController', () => {
     describe('queryTxList', () => {
         it('should return an array of txs', async () => {
             let req:TxListReqDto = {};
-            req.pageNum = '1';
-            req.pageSize = '2';
-            req.useCount = 'true';
+            req.pageNum = 1;
+            req.pageSize = 2;
+            req.useCount = true;
             if (parseInt(String((Math.random()*10)%2))) {
                 req.type = [
                 'create_record',
@@ -72,9 +72,9 @@ describe('TxController', () => {
     describe('queryTxWithHeight', () => {
         it('should return an array of height', async () => {
             let req:TxListWithHeightReqDto = {};
-            req.pageNum = '1';
-            req.pageSize = '10';
-            req.useCount = 'true';
+            req.pageNum = 1;
+            req.pageSize = 10;
+            req.useCount = true;
             req.height = '20223';
             let data = await txService.queryTxWithHeight(req);
             if (data && data.data.length) {
@@ -90,9 +90,9 @@ describe('TxController', () => {
     describe('queryTxWithAddress', () => {
         it('should return an array of address', async () => {
             let req:TxListWithAddressReqDto = {};
-            req.pageNum = '1';
-            req.pageSize = '10';
-            req.useCount = 'true';
+            req.pageNum = 1;
+            req.pageSize = 10;
+            req.useCount = true;
             req.address = 'csrb199v0qu28ynmjr2q3a0nqgcp9pyy5almmj4laec';
             let data = await txService.queryTxWithAddress(req);
             if (data && data.data.length) {
@@ -109,9 +109,9 @@ describe('TxController', () => {
     describe('queryTxWithNft', () => {
         it('should return an array of Nft', async () => {
             let req:TxListWithNftReqDto = {};
-            req.pageNum = '1';
-            req.pageSize = '10';
-            req.useCount = 'true';
+            req.pageNum = 1;
+            req.pageSize = 10;
+            req.useCount = true;
             req.denom = 'bonddf';
             req.tokenId = 'id1';
 
@@ -130,9 +130,9 @@ describe('TxController', () => {
     describe('queryTxWithServiceName', () => {
         it('should return an array of ServiceName', async () => {
             let req:TxListWithServicesNameReqDto = {};
-            req.pageNum = '1';
-            req.pageSize = '10';
-            req.useCount = 'true';
+            req.pageNum = 1;
+            req.pageSize = 10;
+            req.useCount = true;
             req.serviceName = 'DataAuthorization';
 
             let data = await txService.queryTxWithServiceName(req);

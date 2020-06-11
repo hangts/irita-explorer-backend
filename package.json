@@ -9,7 +9,7 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
+    "start": "nest start --watch",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -26,15 +26,16 @@
     "@nestjs/core": "^7.0.0",
     "@nestjs/mongoose": "^7.0.1",
     "@nestjs/platform-express": "^7.0.0",
+    "@nestjs/schedule": "^0.4.0",
     "@nestjs/swagger": "^4.5.7",
+    "blueimp-md5": "^2.16.0",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.2",
     "mongoose": "^5.9.15",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
-    "swagger-ui-express": "^4.1.4",
-    "typeorm": "^0.2.25"
+    "swagger-ui-express": "^4.1.4"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.0.0",

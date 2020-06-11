@@ -1,13 +1,33 @@
 import * as mongoose from 'mongoose';
+import { getTimestamp } from '../util/util';
+import { IDenomStruct } from '../types/denom.interface';
 
 export const DenomSchema = new mongoose.Schema({
-    name: String,
-    json_schema:String,
-    creator:String,
+    name: { type: String, unique: true },
+    json_schema: String,
+    creator: String,
+    create_time: Number,
+    update_time: Number,
 });
-//Model layer, custom owner methods;
-DenomSchema.statics = {
-    findDenomListByName: async function (denom: string){
 
-    }
+DenomSchema.statics = {
+    async findList(): Promise<IDenomStruct[]> {
+        return await this.find({}).exec();
+    },
+
+    async saveBulk(denoms: any[]): Promise<any[]> {
+        const entitiesList: any[] = denoms.map((d) => {
+            return {
+                name: d.name,
+                json_schema: d.schema,
+                creator: d.creator,
+                create_time: getTimestamp(),
+                update_time: getTimestamp(),
+            };
+        });
+        return await this.insertMany(entitiesList, { ordered: false });
+    },
+    async findAllNames(): Promise<IDenomStruct[]> {
+        return await this.find({}, { name: 1 }).exec();
+    },
 };

@@ -3,7 +3,6 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {BaseReqDto, BaseResDto, PagingReqDto} from './base.dto';
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
-import constant from '../constant/constant';
 
 /************************   request dto   ***************************/
 //txs request dto
