@@ -3,8 +3,10 @@ import { PagingReqDto } from './base.dto';
 import { ApiProperty , ApiPropertyOptional} from '@nestjs/swagger';
 
 export class NftListReqDto extends PagingReqDto {
+    @ApiPropertyOptional()
     denom?: string;
 
+    @ApiPropertyOptional()
     nftId?: string;
 }
 
