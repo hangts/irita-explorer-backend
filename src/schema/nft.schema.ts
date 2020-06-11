@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { Logger } from '@nestjs/common';
-import { deleteQuery, INftStruct } from '../types/nft.interface';
+import { deleteQuery, INftStruct } from '../types/schemaTypes/nft.interface';
 import { getTimestamp } from '../util/util';
 
 export const NftSchema = new mongoose.Schema({

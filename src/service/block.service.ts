@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
 import { BlockListResDto, BlockListReqDto, BlockDetailReqDto } from '../dto/block.dto';
-import { IBlock, IBlockStruct } from '../types/block.interface';
+import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { BlockHttp } from '../http/lcd/block.http';
 
 @Injectable()

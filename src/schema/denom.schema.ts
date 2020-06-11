@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { getTimestamp } from '../util/util';
-import { IDenomStruct } from '../types/denom.interface';
+import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 
 export const DenomSchema = new mongoose.Schema({
     name: { type: String, unique: true },
@@ -15,8 +15,8 @@ DenomSchema.statics = {
         return await this.find({}).exec();
     },
 
-    async saveBulk(denoms: any[]): Promise<any[]> {
-        const entitiesList: any[] = denoms.map((d) => {
+    async saveBulk(denoms: any[]): Promise<IDenomStruct[]> {
+        const entitiesList: IDenomStruct[] = denoms.map((d) => {
             return {
                 name: d.name,
                 json_schema: d.schema,
