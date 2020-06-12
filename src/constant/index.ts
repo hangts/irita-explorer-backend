@@ -3,19 +3,23 @@ import { cfg } from '../config';
 export enum TaskEnum {
     denom = 'sync_denom',
     nft = 'sync_nft',
+    txServiceName = "sync_tx_service_name",
     faultTolerane = 'faule_tolerance'
 }
 
 export const TaskInterval = new Map<TaskEnum, any>([
     [TaskEnum.denom, cfg.taskCfg.interval.denom],
     [TaskEnum.nft, cfg.taskCfg.interval.nft],
+    [TaskEnum.txServiceName, cfg.taskCfg.interval.txServiceName],
     [TaskEnum.faultTolerane, cfg.taskCfg.interval.faultTolerance],
+
 ]);
 
 export const DefaultPaging = {
     pageNum: 1,
     pageSize: 10,
 };
+
 
 export enum TxType {
     create_record = 'create_record',

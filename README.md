@@ -34,10 +34,12 @@ $ npm run start:prod
 
 ### Task config
 
-- DENOM_INTERVAL: `required` `number`  the interval for denom pull（example: `60000`）
-- NFT_INTERVAL: `required` `number`  the interval for nft pull（example: `60000`）
-- FAULT_TOLERANCE_INTERVAL: `required` `number`  the interval for fault tolerance worker（example: `60000`）
-- DENOM_EXECUTE_TIME: `required` `string`  execute time for denom pull（example: "01 * * * * *"）
-- NFT_EXECUTE_TIME: `required` `string`  execute time for nft pull（example: "21 * * * * *"）
-- FAULT_TOLERANCE_EXECUTE_TIME: `required` `string`  execute time for fault tolerance（example: "41 * * * * *"）
-
+- DENOM_INTERVAL: `Optional` `number`  the interval for denom pull（example: `60`）
+- NFT_INTERVAL: `Optional` `number`  the interval for nft pull（example: `60`）
+- TX_SERVICE_NAME_EXECUTE_INTERVAL: `Optional` `number`  the interval for nft pull（example: `60`）
+- FAULT_TOLERANCE_INTERVAL: `Optional` `number`  the interval for fault tolerance worker（example: `60`）
+- DENOM_EXECUTE_TIME: `Optional`  execute time for denom pull（example: "01 * * * * *"）
+- NFT_EXECUTE_TIME: `Optional`  execute time for nft pull（example: "21 * * * * *"）
+- TX_SERVICE_NAME_EXECUTE_TIME: `Optional`  execute time for nft pull（example: "30 * * * * *"）
+- FAULT_TOLERANCE_EXECUTE_TIME: `Optional` `string`  execute time for fault tolerance（example: "41 * * * * *"）
+- SYNC_TX_SERVICE_NAME_SIZE: `Optional` `number`  execute time for fault tolerance（example: "100"）

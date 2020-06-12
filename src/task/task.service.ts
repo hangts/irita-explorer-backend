@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
+import { TxTaskService } from './tx.task.service';
 import {DenomTaskService} from './denom.task.service';
 import { NftTaskService } from './nft.task.service';
 import { TaskDispatchService } from '../service/task.dispatch.service';
@@ -13,11 +14,11 @@ import { TaskCallback } from '../types/task.interface';
 export class TasksService {
     private readonly logger = new Logger('from task service');
 
-
     constructor(
         private readonly denomTaskService: DenomTaskService,
         private readonly nftTaskService: NftTaskService,
         private readonly taskDispatchService: TaskDispatchService,
+        private readonly txTaskService: TxTaskService,
     ) {
     }
 
@@ -31,6 +32,12 @@ export class TasksService {
     //@Cron('22 * * * * *')
     async syncNfts() {
         this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
+    }
+
+    @Cron(cfg.taskCfg.executeTime.txServiceName)
+    async syncTxServiceName() {
+        this.logger.log('cron jobs of service name async is running!');
+        this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.syncRespondServiceTxServiceName.bind(this.txTaskService));
     }
 
     @Cron(cfg.taskCfg.executeTime.faultTolerance)
@@ -55,3 +62,4 @@ export class TasksService {
 
 
 }
+

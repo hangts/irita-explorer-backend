@@ -23,3 +23,31 @@ export interface ITxsWhthNftQuery extends IQueryBase {
 export interface ITxsWhthServiceNameQuery extends IQueryBase {
 	serviceName?:string,
 }
+
+export interface ITxStruct {
+    time:number,
+    height:number,
+    tx_hash:string,
+    memo:string,
+    status:number,
+    log:string,
+    complex_msg:boolean,
+    type:string,
+    from:string,
+    to:string,
+    coins:object[],
+    signer:string,
+    events:object[],
+    msgs:object[],
+    signers:string[]
+}
+
+export interface ITxStructMsgs {
+    events:object[],
+    msgs:object[],
+}
+
+export interface ITxStructHash {
+    tx_hash:object[],
+    msgs:object[],
+}
