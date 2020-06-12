@@ -11,6 +11,7 @@ export const TaskDispatchSchema = new mongoose.Schema({
     create_time: Number,
     begin_update_time: Number,
     updated_time: Number,
+    heartbeat_update_time: Number,
 });
 
 TaskDispatchSchema.statics = {
