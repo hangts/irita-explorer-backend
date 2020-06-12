@@ -53,7 +53,7 @@ export class TasksService {
         const needDoTask: boolean = await this.taskDispatchService.needDoTask(taskName);
         this.logger.log(`the ip ${getIpAddress()} should do task ${taskName}? ${needDoTask}`);
         if (needDoTask) {
-            //因为一般情况下定时任务执行时间要小于心跳率, 为防止hearbeat_update_time一直不被更新, 所以在上锁以后先更新一次
+            //因为一般情况下定时任务执行时间要小于心跳率, 为防止hearbeat_update_time一直不被更新, 
             await this.updateHeartbeatUpdateTime(taskName);
             const beginTime: number = new Date().getTime();
             this.timer = setInterval(()=>{

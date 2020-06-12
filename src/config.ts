@@ -8,7 +8,6 @@ const {
     DENOM_INTERVAL,
     NFT_INTERVAL,
     TX_SERVICE_NAME_EXECUTE_INTERVAL,
-    FAULT_TOLERANCE_INTERVAL,
     DENOM_EXECUTE_TIME,
     NFT_EXECUTE_TIME,
     TX_SERVICE_NAME_EXECUTE_TIME,
@@ -33,7 +32,6 @@ export const cfg = {
             denom:Number(DENOM_INTERVAL || 60),
             nft:Number(NFT_INTERVAL || 60),
             txServiceName:Number(TX_SERVICE_NAME_EXECUTE_INTERVAL || 60),
-            faultTolerance:Number(FAULT_TOLERANCE_INTERVAL || 60),
             heartbeatRate:Number(HEARTBEAT_RATE || 10),
         },
         executeTime:{

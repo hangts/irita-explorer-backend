@@ -11,7 +11,6 @@ export const TaskInterval = new Map<TaskEnum, any>([
     [TaskEnum.denom, cfg.taskCfg.interval.denom],
     [TaskEnum.nft, cfg.taskCfg.interval.nft],
     [TaskEnum.txServiceName, cfg.taskCfg.interval.txServiceName],
-    [TaskEnum.faultTolerane, cfg.taskCfg.interval.faultTolerance],
 
 ]);
 
