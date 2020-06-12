@@ -54,7 +54,8 @@ export class TasksService {
         this.logger.log(`the ip ${getIpAddress()} should do task ${taskName}? ${needDoTask}`);
         if (needDoTask) {
             try {
-                //因为一般情况下定时任务执行时间要小于心跳率, 为防止hearbeat_update_time一直不被更新,
+                //因为一般情况下定时任务执行时间要小于心跳率, 为防止heartbeat_update_time一直不被更新,
+                //所以在任务开始之前先更新一下heartbeat_update_time;
                 await this.updateHeartbeatUpdateTime(taskName);
                 const beginTime: number = new Date().getTime();
                 this.timer = setInterval(()=>{
