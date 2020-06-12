@@ -18,7 +18,8 @@ import { TxResDto,
 @Injectable()
 export class TxService {
     constructor(@InjectModel('Tx') private txModel: any, 
-                @InjectModel('TxType') private txTypeModel: any) {}
+                @InjectModel('TxType') private txTypeModel: any) {
+    }
 
     // txs
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {

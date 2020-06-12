@@ -7,10 +7,13 @@ const {
     NODE_ENV,
     DENOM_INTERVAL,
     NFT_INTERVAL,
+    TX_SERVICE_NAME_EXECUTE_INTERVAL,
     FAULT_TOLERANCE_INTERVAL,
     DENOM_EXECUTE_TIME,
     NFT_EXECUTE_TIME,
+    TX_SERVICE_NAME_EXECUTE_TIME,
     FAULT_TOLERANCE_EXECUTE_TIME,
+    SYNC_TX_SERVICE_NAME_SIZE,
 } = process.env;
 
 export const cfg = {
@@ -26,15 +29,17 @@ export const cfg = {
     },
     taskCfg:{
         interval:{
-            denom:Number(DENOM_INTERVAL),
-            nft:Number(NFT_INTERVAL),
-            faultTolerance:Number(FAULT_TOLERANCE_INTERVAL),
+            denom:Number(DENOM_INTERVAL || 60),
+            nft:Number(NFT_INTERVAL || 60),
+            txServiceName:Number(TX_SERVICE_NAME_EXECUTE_INTERVAL || 60),
+            faultTolerance:Number(FAULT_TOLERANCE_INTERVAL || 60),
         },
         executeTime:{
-            denom:DENOM_EXECUTE_TIME,
-            nft:NFT_EXECUTE_TIME,
-            faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME,
-        }
+            denom:DENOM_EXECUTE_TIME || '1 * * * * *',
+            nft:NFT_EXECUTE_TIME || '21 * * * * *',
+            txServiceName:TX_SERVICE_NAME_EXECUTE_TIME || '30 * * * * *',
+            faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME || '41 * * * * *',
+        },
+        syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 100,
     }
-
 };

@@ -5,8 +5,8 @@ export interface ITxsQueryParams extends IQueryBase {
 	type?:string,
 	status?:number,
 	time?:{
-		$gte?:Date,
-		$lte?:Date,
+		$gte?:number,
+		$lte?:number,
 	}
 }
 
