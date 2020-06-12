@@ -75,7 +75,7 @@ export class TaskDispatchService {
 
                 const promiseContainer = (task) => {
                     return new Promise(async (subRes) => {
-                        //对比当前时间跟上次心跳更新时间的差额 与 心率, 当大于两个心率周期的时候, 任务上一个执行task的实例发生故障
+                        //对比当前时间跟上次心跳更新时间的差值与 心率, 当大于两个心率周期的时候, 认为上一个执行task的实例发生故障
                         if ((getTimestamp() - task.heartbeat_update_time) >= cfg.taskCfg.interval.heartbeatRate * 2) {
                             await this.releaseLockByName(task.name);
                             subRes();
