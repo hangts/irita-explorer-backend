@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { TxTaskService } from './tx.task.service';
-import {DenomTaskService} from './denom.task.service';
+import { DenomTaskService } from './denom.task.service';
 import { NftTaskService } from './nft.task.service';
 import { TaskDispatchService } from '../service/task.dispatch.service';
 import { TaskEnum } from '../constant';
 import { getIpAddress } from '../util/util';
-import {cfg} from '../config';
+import { cfg } from '../config';
 import { TaskCallback } from '../types/task.interface';
 
 
@@ -14,14 +14,15 @@ import { TaskCallback } from '../types/task.interface';
 export class TasksService {
     private readonly logger = new Logger('from task service');
 
-    private timer = null;
-
     constructor(
         private readonly denomTaskService: DenomTaskService,
         private readonly nftTaskService: NftTaskService,
         private readonly taskDispatchService: TaskDispatchService,
         private readonly txTaskService: TxTaskService,
     ) {
+        this[`${TaskEnum.denom}_timer`] = null;
+        this[`${TaskEnum.nft}_timer`] = null;
+        this[`${TaskEnum.txServiceName}_timer`] = null;
     }
 
     @Cron(cfg.taskCfg.executeTime.denom)
@@ -49,7 +50,7 @@ export class TasksService {
         this.taskDispatchService.taskDispatchFaultTolerance();
     }
 
-    async handleDoTask(taskName: TaskEnum, doTask:TaskCallback) {
+    async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
         const needDoTask: boolean = await this.taskDispatchService.needDoTask(taskName);
         this.logger.log(`the ip ${getIpAddress()} should do task ${taskName}? ${needDoTask}`);
         if (needDoTask) {
@@ -58,28 +59,27 @@ export class TasksService {
                 //所以在任务开始之前先更新一下heartbeat_update_time;
                 await this.updateHeartbeatUpdateTime(taskName);
                 const beginTime: number = new Date().getTime();
-                this.timer = setInterval(()=>{
+                this[`${taskName}_timer`] = setInterval(() => {
                     this.updateHeartbeatUpdateTime(taskName);
-                },cfg.taskCfg.interval.heartbeatRate);
+                }, cfg.taskCfg.interval.heartbeatRate);
                 await doTask();
                 //weather task is completed successfully, lock need to be released;
                 await this.taskDispatchService.unlock(taskName);
-                if(this.timer){
-                    clearInterval(this.timer);
+                if (this[`${taskName}_timer`]) {
+                    clearInterval(this[`${taskName}_timer`]);
                 }
                 this.logger.log(`${taskName} successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
-            }catch (e) {
-                if(this.timer){
-                    clearInterval(this.timer);
+            } catch (e) {
+                if (this[`${taskName}_timer`]) {
+                    clearInterval(this[`${taskName}_timer`]);
                 }
             }
-
 
 
         }
     }
 
-    async updateHeartbeatUpdateTime(name: TaskEnum): Promise<void>{
+    async updateHeartbeatUpdateTime(name: TaskEnum): Promise<void> {
         await this.taskDispatchService.updateHeartbeatUpdateTime(name);
     }
 
