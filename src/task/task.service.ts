@@ -14,6 +14,8 @@ import { TaskCallback } from '../types/task.interface';
 export class TasksService {
     private readonly logger = new Logger('from task service');
 
+    private timer = null;
+
     constructor(
         private readonly denomTaskService: DenomTaskService,
         private readonly nftTaskService: NftTaskService,
@@ -51,13 +53,22 @@ export class TasksService {
         const needDoTask: boolean = await this.taskDispatchService.needDoTask(taskName);
         this.logger.log(`the ip ${getIpAddress()} should do task ${taskName}? ${needDoTask}`);
         if (needDoTask) {
+            //因为一般情况下定时任务执行时间要小于心跳率, 为防止hearbeat_update_time一直不被更新, 所以在上锁以后先更新一次
+            await this.updateHeartbeatUpdateTime(taskName);
             const beginTime: number = new Date().getTime();
+            this.timer = setInterval(()=>{
+                this.updateHeartbeatUpdateTime(taskName);
+            },cfg.taskCfg.interval.heartbeatRate);
             await doTask();
             //weather task is completed successfully, lock need to be released;
             this.taskDispatchService.unlock(taskName);
             this.logger.log(`${taskName} successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
 
         }
+    }
+
+    async updateHeartbeatUpdateTime(name: TaskEnum): Promise<void>{
+        await this.taskDispatchService.updateHeartbeatUpdateTime(name);
     }
 
 

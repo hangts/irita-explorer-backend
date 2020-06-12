@@ -8,6 +8,7 @@ export interface ITaskDispatchStruct {
     create_time?: number,
     begin_update_time?: number,
     updated_time?: number,
+    heartbeat_update_time?: number,
 }
 
 export interface ITaskDispatch extends ITaskDispatchStruct, Document {

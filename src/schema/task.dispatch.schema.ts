@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import { getIpAddress, getTimestamp } from '../util/util';
 import { ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
+import { TaskEnum } from 'src/constant';
 
 export const TaskDispatchSchema = new mongoose.Schema({
     name: { type: String, unique: true },
@@ -13,7 +14,7 @@ export const TaskDispatchSchema = new mongoose.Schema({
 });
 
 TaskDispatchSchema.statics = {
-    async findOneByName(name: string): Promise<ITaskDispatchStruct | null> {
+    async findOneByName(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
         return await this.findOne({ name }).exec();
     },
 
@@ -21,7 +22,7 @@ TaskDispatchSchema.statics = {
         return new this(t).save();
     },
 
-    async lock(name: string): Promise<ITaskDispatchStruct | null> {
+    async lock(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
         return await this.updateOne({ name, is_locked: false }, {
             // condition: is_locked: false, those server whose query's is_locked is true should not to be updated;
             is_locked: true,
@@ -30,14 +31,14 @@ TaskDispatchSchema.statics = {
         }).exec();
     },
 
-    async unlock(name: string): Promise<ITaskDispatchStruct | null> {
+    async unlock(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
         return await this.updateOne({ name }, {
             is_locked: false,
             updated_time: getTimestamp(),
         }).exec();
     },
 
-    async releaseLockByName(name: string): Promise<ITaskDispatchStruct | null> {
+    async releaseLockByName(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
         return await this.updateOne({ name }, {
             is_locked: false,
         }).exec();
@@ -45,6 +46,12 @@ TaskDispatchSchema.statics = {
 
     async findAll(): Promise<ITaskDispatchStruct[]> {
         return await this.find({}).exec();
+    },
+
+    async updateHeartbeatUpdateTime(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
+        return await this.updateOne({ name, is_locked: true }, {
+            hearbeat_update_time: getTimestamp(),
+        }).exec();
     },
 
 

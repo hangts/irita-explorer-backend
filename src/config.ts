@@ -14,6 +14,7 @@ const {
     TX_SERVICE_NAME_EXECUTE_TIME,
     FAULT_TOLERANCE_EXECUTE_TIME,
     SYNC_TX_SERVICE_NAME_SIZE,
+    HEARTBEAT_RATE,
 } = process.env;
 
 export const cfg = {
@@ -33,6 +34,7 @@ export const cfg = {
             nft:Number(NFT_INTERVAL || 60),
             txServiceName:Number(TX_SERVICE_NAME_EXECUTE_INTERVAL || 60),
             faultTolerance:Number(FAULT_TOLERANCE_INTERVAL || 60),
+            heartbeatRate:Number(HEARTBEAT_RATE || 10),
         },
         executeTime:{
             denom:DENOM_EXECUTE_TIME || '1 * * * * *',
