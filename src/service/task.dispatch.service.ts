@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ITaskDispatch, ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
 import { getIpAddress, getTimestamp } from '../util/util';
-import { TaskEnum, TaskInterval } from '../constant';
+import { TaskEnum } from '../constant';
 import { cfg } from 'src/config';
 
 @Injectable()
@@ -49,11 +49,10 @@ export class TaskDispatchService {
         const task: ITaskDispatchStruct = {
             name,
             is_locked: false,
-            interval: TaskInterval.get(name),
             device_ip: getIpAddress(),
             create_time: getTimestamp(),
-            begin_update_time: 0,
-            updated_time: 0,
+            task_begin_time: 0,
+            task_end_time: 0,
             heartbeat_update_time: getTimestamp(),
         };
         return await (this.taskDispatchModel as any).createOne(task);

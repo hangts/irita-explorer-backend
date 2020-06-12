@@ -34,9 +34,6 @@ $ npm run start:prod
 
 ### Task config
 
-- DENOM_INTERVAL: `Optional` `number`  the interval for denom pull（example: `60`）
-- NFT_INTERVAL: `Optional` `number`  the interval for nft pull（example: `60`）
-- TX_SERVICE_NAME_EXECUTE_INTERVAL: `Optional` `number`  the interval for nft pull（example: `60`）
 - HEARTBEAT_RATE: `Optional` `number`  hearbeat rate for monitor（example: `10`）
 - DENOM_EXECUTE_TIME: `Optional`  execute time for denom pull（example: "01 * * * * *"）
 - NFT_EXECUTE_TIME: `Optional`  execute time for nft pull（example: "21 * * * * *"）

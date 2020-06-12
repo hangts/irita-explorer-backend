@@ -6,11 +6,10 @@ import { TaskEnum } from 'src/constant';
 export const TaskDispatchSchema = new mongoose.Schema({
     name: { type: String, unique: true },
     is_locked: Boolean,
-    interval: Number,
     device_ip: String,
     create_time: Number,
-    begin_update_time: Number,
-    updated_time: Number,
+    task_begin_time: Number,
+    task_end_time: Number,
     heartbeat_update_time: Number,
 });
 
@@ -27,7 +26,7 @@ TaskDispatchSchema.statics = {
         return await this.updateOne({ name, is_locked: false }, {
             // condition: is_locked: false, those server whose query's is_locked is true should not to be updated;
             is_locked: true,
-            begin_update_time: getTimestamp(),
+            task_begin_time: getTimestamp(),
             device_ip: getIpAddress(),
         }).exec();
     },
@@ -35,7 +34,7 @@ TaskDispatchSchema.statics = {
     async unlock(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
         return await this.updateOne({ name }, {
             is_locked: false,
-            updated_time: getTimestamp(),
+            task_end_time: getTimestamp(),
         }).exec();
     },
 

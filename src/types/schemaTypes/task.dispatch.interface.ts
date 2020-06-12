@@ -3,11 +3,10 @@ import { Document } from 'mongoose';
 export interface ITaskDispatchStruct {
     name?: string,
     is_locked?: boolean,
-    interval?: number,
     device_ip?: string,
     create_time?: number,
-    begin_update_time?: number,
-    updated_time?: number,
+    task_begin_time?: number,
+    task_end_time?: number,
     heartbeat_update_time?: number,
 }
 
