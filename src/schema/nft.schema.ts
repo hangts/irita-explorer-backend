@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { Logger } from '@nestjs/common';
-import { deleteQuery, INftStruct } from '../types/schemaTypes/nft.interface';
+import { deleteQuery, INftDetailStruct, INftListStruct, INftStruct } from '../types/schemaTypes/nft.interface';
 import { getTimestamp } from '../util/util';
 
 export const NftSchema = new mongoose.Schema({
@@ -16,18 +16,53 @@ export const NftSchema = new mongoose.Schema({
 NftSchema.index({ denom: 1, nft_id: 1 }, { unique: true });
 
 NftSchema.statics = {
-    async findList(pageNum: number, pageSize: number, denom?: string, nftId?: string): Promise<INftStruct[]> {
+    async findList(pageNum: number, pageSize: number, denom?: string, nftId?: string): Promise<INftListStruct[]> {
         let q: any = {};
         if (denom) q.denom = denom;
         if (nftId) q.nft_id = nftId;
-        return await this.find(q).skip((pageNum - 1) * pageSize).limit(pageSize).exec();
+        //return await this.find(q).skip((pageNum - 1) * pageSize).limit(pageSize).exec();
+        const condition = [
+            {
+                $lookup: {
+                    from: 'sync_denom',
+                    localField: 'denom',
+                    foreignField: 'name',
+                    as: 'denomDetail',
+                },
+            }
+        ];
+        if(q.denom || q.nft_id){
+            let cond: any = {
+                '$match':{},
+            };
+            if(q.denom) cond['$match'].denom = q.denom;
+            if(q.nftId) cond['$match'].nft_id = q.nftId;
+            condition.push(cond);
+        }
+        return await this.aggregate(condition);
     },
 
-    async findOneByDenomAndNftId(denom: string, nftId: string): Promise<INftStruct> {
-        return await this.findOne({
-            denom,
-            nft_id: nftId,
-        }).exec();
+    async findOneByDenomAndNftId(denom: string, nftId: string): Promise<INftDetailStruct | null> {
+        const res: INftDetailStruct[] = await this.aggregate([
+            {
+                $lookup: {
+                    from: 'sync_denom',
+                    localField: 'denom',
+                    foreignField: 'name',
+                    as: 'denomDetail',
+                },
+            }, {
+                $match: {
+                    denom,
+                    nft_id: nftId,
+                },
+            },
+        ]);
+        if (res.length > 0) {
+            return res[0];
+        } else {
+            return null;
+        }
     },
 
     async findCount(): Promise<number> {

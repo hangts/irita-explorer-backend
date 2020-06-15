@@ -39,7 +39,10 @@ TaskDispatchSchema.statics = {
     },
 
     async releaseLockByName(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
-        return await this.updateOne({ name }, {
+        return await this.updateOne({
+            name,
+            is_locked:true
+        }, {
             is_locked: false,
         }).exec();
     },

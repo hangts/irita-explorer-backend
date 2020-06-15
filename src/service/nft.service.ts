@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { INft, INftStruct } from '../types/schemaTypes/nft.interface';
+import { INft, INftDetailStruct, INftListStruct, INftStruct } from '../types/schemaTypes/nft.interface';
 import { NftDetailReqDto, NftDetailResDto, NftListReqDto, NftListResDto } from '../dto/nft.dto';
 
 @Injectable()
@@ -12,9 +12,10 @@ export class NftService {
 
     async queryList(query: NftListReqDto): Promise<ListStruct<NftListResDto[]>> {
         const { pageNum, pageSize, denom, nftId, useCount } = query;
-        const nftList: INftStruct[] = await (this.nftModel as any).findList(pageNum, pageSize, denom, nftId);
-        const res: NftListResDto[] = nftList.map((n) => {
-            return new NftListResDto(n.denom, n.nft_id, n.owner, n.token_uri, n.token_data);
+        const nftList: INftListStruct[] = await (this.nftModel as any).findList(pageNum, pageSize, denom, nftId);
+        const res: NftListResDto[] = nftList.map((nft) => {
+            let denomDetail = (nft.denomDetail as any).length > 0 ? nft.denomDetail[0] : null;
+            return new NftListResDto(nft.denom, nft.nft_id, nft.owner, nft.token_uri, nft.token_data, denomDetail);
         });
         let count: number = 0;
         if (useCount) {
@@ -25,9 +26,10 @@ export class NftService {
 
     async queryDetail(query: NftDetailReqDto): Promise<NftDetailResDto | null> {
         const { denom, nftId } = query;
-        const nft: INftStruct = await (this.nftModel as any).findOneByDenomAndNftId(denom, nftId);
+        const nft: INftDetailStruct = await (this.nftModel as any).findOneByDenomAndNftId(denom, nftId);
         if (nft) {
-            return new NftListResDto(nft.denom, nft.nft_id, nft.owner, nft.token_uri, nft.token_data);
+            let denomDetail = (nft.denomDetail as any).length > 0 ? nft.denomDetail[0] : null;
+            return new NftDetailResDto(nft.denom, nft.nft_id, nft.owner, nft.token_uri, nft.token_data, denomDetail);
         } else {
             return null;
         }

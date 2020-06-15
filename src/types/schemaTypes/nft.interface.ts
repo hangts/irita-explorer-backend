@@ -1,4 +1,5 @@
 import { Document } from 'mongoose';
+import { IDenomStruct } from './denom.interface';
 export interface deleteQuery {
     denom: string,
     nft_id: string,
@@ -14,6 +15,16 @@ export interface INftStruct {
     update_time?: number,
     hash?: string,
 }
+
+export interface INftDetailStruct extends INftStruct{
+    denomDetail: IDenomStruct,
+}
+
+export interface INftListStruct extends INftStruct{
+    denomDetail: IDenomStruct,
+}
+
+
 
 export interface INft extends INftStruct,Document {
 

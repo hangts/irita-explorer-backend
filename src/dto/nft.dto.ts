@@ -1,6 +1,7 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 import { PagingReqDto } from './base.dto';
-import { ApiProperty , ApiPropertyOptional} from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 
 export class NftListReqDto extends PagingReqDto {
     @ApiPropertyOptional()
@@ -29,27 +30,31 @@ export class NftResDto {
     owner: string;
     tokenUri: string;
     tokenData: string;
+    denomDetail: IDenomStruct;
 
-    constructor(denom: string, id: string, owner: string, tokenUri: string, tokenData: string) {
+    constructor(denom: string, id: string, owner: string, tokenUri: string, tokenData: string, denomDetail: IDenomStruct) {
         this.denom = denom;
         this.id = id;
         this.owner = owner;
         this.tokenUri = tokenUri;
         this.tokenData = tokenData;
+        this.denomDetail = denomDetail;
     }
 
 }
 
 export class NftListResDto extends NftResDto {
-    constructor(denom: string, id: string, owner: string, tokenUri: string, tokenData: string) {
-        super(denom, id, owner, tokenUri, tokenData);
+    constructor(denom: string, id: string, owner: string, tokenUri: string, tokenData: string, denomDetail: IDenomStruct) {
+        super(denom, id, owner, tokenUri, tokenData, denomDetail);
     }
 
 }
 
 export class NftDetailResDto extends NftResDto {
-    constructor(denom: string, id: string, owner: string, tokenUri: string, tokenData: string) {
-        super(denom, id, owner, tokenUri, tokenData);
+
+    constructor(denom: string, id: string, owner: string, tokenUri: string, tokenData: string, denomDetail: IDenomStruct) {
+        super(denom, id, owner, tokenUri, tokenData, denomDetail);
+
     }
 }
 
