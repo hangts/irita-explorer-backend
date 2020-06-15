@@ -24,6 +24,7 @@ export class TasksService {
         this[`${TaskEnum.denom}_timer`] = null;
         this[`${TaskEnum.nft}_timer`] = null;
         this[`${TaskEnum.txServiceName}_timer`] = null;
+        this[`${TaskEnum.validators}_timer`] = null;
     }
 
     @Cron(cfg.taskCfg.executeTime.denom)
@@ -81,7 +82,6 @@ export class TasksService {
     }
     @Cron(cfg.taskCfg.executeTime.validators)
     async syncValidators() {
-        this.logger.log('cron jobs of fault tolerance is running');
         this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
     }
 

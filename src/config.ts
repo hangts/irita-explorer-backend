@@ -39,3 +39,4 @@ export const cfg = {
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 100,
     }
 };
+

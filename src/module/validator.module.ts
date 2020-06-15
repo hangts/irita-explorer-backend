@@ -1,23 +1,23 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ValidatorsService } from "../service/validator.service";
-import { ValidatorsModel } from '../schema/validators.schema';
+import { ValidatorService } from "../service/validator.service";
+import { ValidatorSchema } from '../schema/validators.schema';
 import { ValidatorsController }  from "../controller/validators.controller"
 
 @Module({
     imports:[
         MongooseModule.forFeature([
             {
-                name:'validators',
-                schema:ValidatorsModel,
+                name:'Validators',
+                schema:ValidatorSchema,
                 collection:'ex_sync_validator'
             }
         ])
     ],
-    providers: [ ValidatorsService ],
+    providers: [ ValidatorService ],
     controllers: [ ValidatorsController ]
 })
 
-export class ValidatorsModule { }
+export class ValidatorModule { }
 
 

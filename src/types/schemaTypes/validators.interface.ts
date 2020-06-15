@@ -1,13 +1,9 @@
-import { Document } from 'mongoose';
-export interface validatorsStruct {
-  name?:String,
-  pubkey?:String,
-  power?:String,
-  operator?:String,
-  jailed?:Boolean,
-  hash?: String;
+export interface IValidatorsStruct {
+  name?:string,
+  pubkey?:string,
+  power?:string,
+  operator?:string,
+  jailed?:boolean | string,
+  hash?: string;
 }
 
-export interface validators extends validatorsStruct, Document{
-
-}

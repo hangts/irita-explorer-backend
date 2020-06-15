@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ValidatorsModel } from '../schema/validators.schema';
+import { ValidatorSchema } from '../schema/validators.schema';
 import { ValidatorsTaskService } from "../task/validators.task.service"
 import { ValidatorsHttp } from '../http/lcd/validators.http';
 
@@ -9,7 +9,7 @@ import { ValidatorsHttp } from '../http/lcd/validators.http';
     MongooseModule.forFeature([
       {
         name:'SyncValidators',
-        schema:ValidatorsModel,
+        schema:ValidatorSchema,
         collection:'ex_sync_validator'
       }
     ])
@@ -17,4 +17,4 @@ import { ValidatorsHttp } from '../http/lcd/validators.http';
   providers:[ ValidatorsTaskService, ValidatorsHttp],
   exports: [ ValidatorsTaskService ]
 })
-export class ValidatorsTaskModule {}
+export class ValidatorTaskModule {}

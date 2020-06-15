@@ -5,15 +5,8 @@ export enum TaskEnum {
     nft = 'sync_nft',
     txServiceName = "sync_tx_service_name",
     validators = 'sync_validators',
-    faultTolerane = 'faule_tolerance'
 }
 
-export const TaskInterval = new Map<TaskEnum, any>([
-    [TaskEnum.denom, cfg.taskCfg.interval.denom],
-    [TaskEnum.nft, cfg.taskCfg.interval.nft],
-    [TaskEnum.validators, cfg.taskCfg.interval.validators],
-    [TaskEnum.faultTolerane, cfg.taskCfg.interval.faultTolerance],
-]);
 
 export const DefaultPaging = {
     pageNum: 1,
