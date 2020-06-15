@@ -20,6 +20,10 @@ import { TxSchema } from '../schema/tx.schema';
             name: 'Nft',
             schema: NftSchema,
             collection: 'sync_nft'
+        },{
+            name: 'Validators',
+            schema: NftSchema,
+            collection: 'ex_sync_validator'
         }]),
     ],
     providers:[StatisticsService],

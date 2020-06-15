@@ -13,7 +13,7 @@ const {
     HEARTBEAT_RATE,
 } = process.env;
 
-export const cfg = {
+/*export const cfg = {
     env: NODE_ENV,
     dbCfg: {
         user: DB_USER,
@@ -35,5 +35,34 @@ export const cfg = {
             faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME || '41 * * * * *',
         },
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 100,
+    }
+};*/
+export const cfg = {
+    env: 'development',
+    dbCfg: {
+        user: 'csrb',
+        psd: 'csrbpassword',
+        dbAddr: '192.168.150.33:37017',
+        dbName: 'sync2',
+    },
+    serverCfg:{
+        lcdAddr:'http://10.2.10.130:2317'
+    },
+    taskCfg:{
+        syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 100,
+        interval:{
+            denom:1000,
+            nft:1000,
+            validators: 1000,
+            faultTolerance:1000,
+            heartbeatRate:Number(HEARTBEAT_RATE || 10),
+        },
+        executeTime:{
+            denom:"1 * * * * *",
+            nft:"1 * * * * *",
+            txServiceName:'30 * * * * *',
+            validators:"1 * * * * *",
+            faultTolerance:"1 * * * * *",
+        }
     }
 };
