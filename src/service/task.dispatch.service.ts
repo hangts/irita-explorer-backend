@@ -67,7 +67,7 @@ export class TaskDispatchService {
     }
 
     async taskDispatchFaultTolerance(): Promise<boolean> {
-        const taskList: ITaskDispatchStruct[] = await (this.taskDispatchModel as any).findAll();
+        const taskList: ITaskDispatchStruct[] = await (this.taskDispatchModel as any).findAllLocked();
         if (taskList && taskList.length > 0) {
             return new Promise(async (resolve) => {
                 let arr: any[] = [];

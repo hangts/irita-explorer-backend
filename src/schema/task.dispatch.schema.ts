@@ -47,7 +47,7 @@ TaskDispatchSchema.statics = {
         }).exec();
     },
 
-    async findAll(): Promise<ITaskDispatchStruct[]> {
+    async findAllLocked(): Promise<ITaskDispatchStruct[]> {
         return await this.find({is_locked:true}).exec();
     },
 
