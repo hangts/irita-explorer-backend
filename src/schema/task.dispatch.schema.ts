@@ -48,7 +48,7 @@ TaskDispatchSchema.statics = {
     },
 
     async findAll(): Promise<ITaskDispatchStruct[]> {
-        return await this.find({}).exec();
+        return await this.find({is_locked:true}).exec();
     },
 
     async updateHeartbeatUpdateTime(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
