@@ -55,7 +55,7 @@ export class TxListWithServicesNameReqDto extends PagingReqDto{
 }
 
 //txs/services/detail/{serviceName} request dto
-export class ServicesDetailReqDto extends PagingReqDto{
+export class ServicesDetailReqDto extends BaseReqDto{
 	@ApiProperty()
     serviceName: string;
 }
