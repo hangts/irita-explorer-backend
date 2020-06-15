@@ -11,8 +11,8 @@ export class NftService {
     }
 
     async queryList(query: NftListReqDto): Promise<ListStruct<NftListResDto[]>> {
-        const { pageNum, pageSize, denom, nftId, useCount } = query;
-        const nftList: INftListStruct[] = await (this.nftModel as any).findList(pageNum, pageSize, denom, nftId);
+        const { pageNum, pageSize, denom, nftId, useCount, owner } = query;
+        const nftList: INftListStruct[] = await (this.nftModel as any).findList(pageNum, pageSize, denom, nftId, owner);
         const res: NftListResDto[] = nftList.map((nft) => {
             let denomDetail = (nft.denomDetail as any).length > 0 ? nft.denomDetail[0] : null;
             return new NftListResDto(nft.denom, nft.nft_id, nft.owner, nft.token_uri, nft.token_data, denomDetail);
