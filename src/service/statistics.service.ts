@@ -16,19 +16,19 @@ export class StatisticsService {
     }
 
     async queryStatistics(): Promise<StatisticsResDto> {
-        const blockHeight = await this.queryLatestHeight();
+        const block = await this.queryLatestHeightAndTime();
         const avgBlockTime = await this.queryAvgBlockTime();
         const assetCount = await this.queryAssetCount();
         const validatorCount = await this.queryValidatorCount();
         const {txCount, serviceCount} = await this.queryTxCount();
 
-        return new StatisticsResDto(blockHeight, txCount, avgBlockTime, serviceCount, validatorCount, assetCount);
+        return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount);
     }
 
-    async queryLatestHeight(): Promise<number | null> {
+    async queryLatestHeightAndTime(): Promise<{height:number,latestBlockTime:number} | null> {
         const res: IBlockStruct | null = await (this.blockModel as any).findOneByHeightDesc();
         if (res) {
-            return res.height;
+            return {height:res.height, latestBlockTime:Number(res.time)};
         } else {
             return null;
         }
