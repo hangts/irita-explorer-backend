@@ -3,12 +3,14 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ITaskDispatch, ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
 import { getIpAddress, getTimestamp } from '../util/util';
-import { TaskEnum, TaskInterval } from '../constant';
+import { TaskEnum } from '../constant';
+import { cfg } from 'src/config';
 
 @Injectable()
 export class TaskDispatchService {
 
     constructor(@InjectModel('TaskDispatch') private taskDispatchModel: Model<ITaskDispatch>) {
+        this.updateHeartbeatUpdateTime = this.updateHeartbeatUpdateTime.bind(this);
     }
 
     async needDoTask(name: TaskEnum): Promise<boolean> {
@@ -47,32 +49,33 @@ export class TaskDispatchService {
         const task: ITaskDispatchStruct = {
             name,
             is_locked: false,
-            interval: TaskInterval.get(name),
             device_ip: getIpAddress(),
             create_time: getTimestamp(),
-            begin_update_time: 0,
-            updated_time: 0,
+            task_begin_time: 0,
+            task_end_time: 0,
+            heartbeat_update_time: getTimestamp(),
         };
         return await (this.taskDispatchModel as any).createOne(task);
     }
 
-    private async lock(name: string): Promise<ITaskDispatchStruct | null> {
+    private async lock(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
         return await (this.taskDispatchModel as any).lock(name);
     }
 
-    async unlock(name: string): Promise<ITaskDispatchStruct | null> {
+    async unlock(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
         return await (this.taskDispatchModel as any).unlock(name);
     }
 
     async taskDispatchFaultTolerance(): Promise<boolean> {
-        const taskList: ITaskDispatchStruct[] = await (this.taskDispatchModel as any).findAll();
+        const taskList: ITaskDispatchStruct[] = await (this.taskDispatchModel as any).findAllLocked();
         if (taskList && taskList.length > 0) {
             return new Promise(async (resolve) => {
                 let arr: any[] = [];
 
                 const promiseContainer = (task) => {
                     return new Promise(async (subRes) => {
-                        if ((getTimestamp() - task.updated_time) > (task.interval * 2) / 1000) {
+                        //对比当前时间跟上次心跳更新时间的差值与 心率, 当大于两个心率周期的时候, 认为上一个执行task的实例发生故障
+                        if ((getTimestamp() - task.heartbeat_update_time) >= cfg.taskCfg.interval.heartbeatRate * 2) {
                             await this.releaseLockByName(task.name);
                             subRes();
                         } else {
@@ -98,8 +101,12 @@ export class TaskDispatchService {
         }
     }
 
-    private async releaseLockByName(name: string): Promise<ITaskDispatchStruct | null> {
+    private async releaseLockByName(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
         return await (this.taskDispatchModel as any).releaseLockByName(name);
+    }
+
+    public async updateHeartbeatUpdateTime(name: TaskEnum): Promise<void> {
+        await (this.taskDispatchModel as any).updateHeartbeatUpdateTime(name);
     }
 
 
