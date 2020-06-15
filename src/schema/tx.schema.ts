@@ -50,8 +50,7 @@ TxSchema.statics.queryTxList = async function (query:ITxsQuery):Promise<IListStr
 					 		.sort({height:-1})
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
-    
-    if (query.useCount && query.useCount=='true') {
+    if (query.useCount && query.useCount == true) {
         result.count = await this.find(queryParameters).count();
     }
 	return result;
@@ -66,7 +65,7 @@ TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery):P
 					 		.sort({height:-1})
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
-	if (query.useCount && query.useCount=='true') {
+	if (query.useCount && query.useCount == true) {
         result.count = await this.find(queryParameters).count();
     }
 	return result;
@@ -89,7 +88,7 @@ TxSchema.statics.queryTxWithAddress = async function(query:ITxsWhthAddressQuery)
 					 		.sort({height:-1})
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
-	if (query.useCount && query.useCount=='true') {
+	if (query.useCount && query.useCount == true) {
         result.count = await this.find(queryParameters).count();
     }
 	return result;
@@ -109,7 +108,7 @@ TxSchema.statics.queryTxWithNft = async function(query:ITxsWhthNftQuery):Promise
 					 		.sort({height:-1})
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
-	if (query.useCount && query.useCount=='true') {
+	if (query.useCount && query.useCount == true) {
         result.count = await this.find(queryParameters).count();
     }
 	return result;
@@ -131,7 +130,7 @@ TxSchema.statics.queryTxWithServiceName = async function(query:ITxsWhthServiceNa
 					 		.sort({height:-1})
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
-	if (query.useCount && query.useCount=='true') {
+	if (query.useCount && query.useCount == true) {
         result.count = await this.find(queryParameters).count();
     }
 	return result;

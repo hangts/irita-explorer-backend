@@ -24,7 +24,7 @@ describe('statistics module', () => {
 
     describe('queryLatestHeight', () => {
         it('should return latest block height', async () => {
-            const data: number | null = await statisticsService.queryLatestHeight();
+            const data: {height:number,latestBlockTime:number} | null = await statisticsService.queryLatestHeightAndTime();
             expect(data).toBeDefined();
         });
     });
