@@ -43,7 +43,9 @@ NftSchema.statics = {
             if (owner) cond['$match'].owner = owner;
             condition.push(cond);
         }
-        return await this.aggregate(condition);
+        return await this.aggregate(condition)
+            .skip((Number(pageNum) - 1) * Number(pageSize))
+            .limit(Number(pageSize));
     },
 
     async findOneByDenomAndNftId(denom: string, nftId: string): Promise<INftDetailStruct | null> {
@@ -60,14 +62,14 @@ NftSchema.statics = {
                     denom,
                     nft_id: nftId,
                 },
-            },{
+            }, {
                 $project: {
                     'denomDetail._id': 0,
                     'denomDetail.update_time': 0,
                     'denomDetail.create_time': 0,
                     'denomDetail.__v': 0,
                 },
-            }
+            },
         ]);
         if (res.length > 0) {
             return res[0];
