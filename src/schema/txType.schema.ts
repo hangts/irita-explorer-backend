@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import { ITxTypeStruct } from '../types/schemaTypes/txType.interface';
 import { getTimestamp } from '../util/util';
 export const TxTypeSchema = new mongoose.Schema({
-    type_name:{type:String, required:true, unique:true},
+    type_name:{type:String, required:true, unique: true},
     create_time:{
     	type:Number,
     	default:getTimestamp(),
