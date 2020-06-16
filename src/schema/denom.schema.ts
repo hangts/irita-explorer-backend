@@ -8,7 +8,7 @@ export const DenomSchema = new mongoose.Schema({
     creator: String,
     create_time: Number,
     update_time: Number,
-});
+},{versionKey: false});
 
 DenomSchema.statics = {
     async findList(): Promise<IDenomStruct[]> {

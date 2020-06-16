@@ -12,7 +12,7 @@ export const NftSchema = new mongoose.Schema({
     create_time: Number,
     update_time: Number,
     hash: String,
-});
+},{versionKey: false});
 NftSchema.index({ denom: 1, nft_id: 1 }, { unique: true });
 
 NftSchema.statics = {
@@ -30,7 +30,6 @@ NftSchema.statics = {
                     'denomDetail._id': 0,
                     'denomDetail.update_time': 0,
                     'denomDetail.create_time': 0,
-                    'denomDetail.__v': 0,
                 },
             },
         ];
@@ -67,7 +66,6 @@ NftSchema.statics = {
                     'denomDetail._id': 0,
                     'denomDetail.update_time': 0,
                     'denomDetail.create_time': 0,
-                    'denomDetail.__v': 0,
                 },
             },
         ]);

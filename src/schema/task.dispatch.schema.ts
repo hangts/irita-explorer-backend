@@ -11,7 +11,7 @@ export const TaskDispatchSchema = new mongoose.Schema({
     task_begin_time: Number,
     task_end_time: Number,
     heartbeat_update_time: Number,
-});
+},{versionKey: false});
 
 TaskDispatchSchema.statics = {
     async findOneByName(name: TaskEnum): Promise<ITaskDispatchStruct | null> {

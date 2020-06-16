@@ -11,7 +11,7 @@ export const TxTypeSchema = new mongoose.Schema({
     	type:Number,
     	default:getTimestamp(),
     }
-});
+},{versionKey: false});
 
 // txs/types
 TxTypeSchema.statics.queryTxTypeList = async function ():Promise<ITxTypeStruct[]>{
