@@ -25,7 +25,7 @@ export const TxSchema = new mongoose.Schema({
     events:Array,
     msgs:Array,
     signers:Array
-});
+},{versionKey: false});
 
 // txs
 TxSchema.statics.queryTxList = async function (query:ITxsQuery):Promise<IListStruct>{

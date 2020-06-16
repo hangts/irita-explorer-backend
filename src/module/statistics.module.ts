@@ -20,7 +20,7 @@ import { ValidatorSchema } from '../schema/validators.schema';
         },{
             name: 'Nft',
             schema: NftSchema,
-            collection: 'sync_nft'
+            collection: 'ex_sync_nft'
         },{
             name: 'Validators',
             schema: ValidatorSchema,

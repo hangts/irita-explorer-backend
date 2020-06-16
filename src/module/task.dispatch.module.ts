@@ -8,7 +8,7 @@ import { TaskDispatchService } from '../service/task.dispatch.service';
         MongooseModule.forFeature([{
             name: 'TaskDispatch',
             schema: TaskDispatchSchema,
-            collection: 'task_dispatch'
+            collection: 'ex_task_dispatch'
         }])
     ],
     providers:[TaskDispatchService],

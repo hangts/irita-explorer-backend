@@ -9,7 +9,7 @@ import {DenomSchema} from '../schema/denom.schema';
         MongooseModule.forFeature([{
             name: 'Denom',
             schema: DenomSchema,
-            collection: 'sync_denom'
+            collection: 'ex_sync_denom'
         }]),
     ],
     providers:[DenomService],

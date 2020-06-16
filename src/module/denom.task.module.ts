@@ -9,7 +9,7 @@ import { DenomHttp } from '../http/lcd/denom.http';
         MongooseModule.forFeature([{
             name: 'Denom',
             schema: DenomSchema,
-            collection: 'sync_denom'
+            collection: 'ex_sync_denom'
         }]),
     ],
     providers:[DenomTaskService, DenomHttp],
