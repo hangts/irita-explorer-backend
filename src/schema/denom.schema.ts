@@ -8,11 +8,16 @@ export const DenomSchema = new mongoose.Schema({
     creator: String,
     create_time: Number,
     update_time: Number,
-});
+},{versionKey: false});
 
 DenomSchema.statics = {
     async findList(): Promise<IDenomStruct[]> {
-        return await this.find({}).exec();
+        return await this.find().select({
+            _id:0,
+            create_time:0,
+            update_time:0,
+            __:0,
+        }).exec();
     },
 
     async saveBulk(denoms: any[]): Promise<IDenomStruct[]> {

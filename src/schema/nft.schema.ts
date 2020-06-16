@@ -12,41 +12,46 @@ export const NftSchema = new mongoose.Schema({
     create_time: Number,
     update_time: Number,
     hash: String,
-});
+},{versionKey: false});
 NftSchema.index({ denom: 1, nft_id: 1 }, { unique: true });
 
 NftSchema.statics = {
-    async findList(pageNum: number, pageSize: number, denom?: string, nftId?: string): Promise<INftListStruct[]> {
-        let q: any = {};
-        if (denom) q.denom = denom;
-        if (nftId) q.nft_id = nftId;
-        //return await this.find(q).skip((pageNum - 1) * pageSize).limit(pageSize).exec();
+    async findList(pageNum: number, pageSize: number, denom?: string, nftId?: string, owner?: string): Promise<INftListStruct[]> {
         const condition = [
             {
                 $lookup: {
-                    from: 'sync_denom',
+                    from: 'ex_sync_denom',
                     localField: 'denom',
                     foreignField: 'name',
                     as: 'denomDetail',
                 },
-            }
+            }, {
+                $project: {
+                    'denomDetail._id': 0,
+                    'denomDetail.update_time': 0,
+                    'denomDetail.create_time': 0,
+                },
+            },
         ];
-        if(q.denom || q.nft_id){
+        if (denom || nftId || owner) {
             let cond: any = {
-                '$match':{},
+                '$match': {},
             };
-            if(q.denom) cond['$match'].denom = q.denom;
-            if(q.nftId) cond['$match'].nft_id = q.nftId;
+            if (denom) cond['$match'].denom = denom;
+            if (nftId) cond['$match'].nft_id = nftId;
+            if (owner) cond['$match'].owner = owner;
             condition.push(cond);
         }
-        return await this.aggregate(condition);
+        return await this.aggregate(condition)
+            .skip((Number(pageNum) - 1) * Number(pageSize))
+            .limit(Number(pageSize));
     },
 
     async findOneByDenomAndNftId(denom: string, nftId: string): Promise<INftDetailStruct | null> {
         const res: INftDetailStruct[] = await this.aggregate([
             {
                 $lookup: {
-                    from: 'sync_denom',
+                    from: 'ex_sync_denom',
                     localField: 'denom',
                     foreignField: 'name',
                     as: 'denomDetail',
@@ -55,6 +60,12 @@ NftSchema.statics = {
                 $match: {
                     denom,
                     nft_id: nftId,
+                },
+            }, {
+                $project: {
+                    'denomDetail._id': 0,
+                    'denomDetail.update_time': 0,
+                    'denomDetail.create_time': 0,
                 },
             },
         ]);
