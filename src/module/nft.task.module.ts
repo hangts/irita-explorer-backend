@@ -10,11 +10,11 @@ import { DenomSchema } from '../schema/denom.schema';
         MongooseModule.forFeature([{
             name: 'Nft',
             schema: NftSchema,
-            collection: 'sync_nft'
+            collection: 'ex_sync_nft'
         },{
             name: 'Denom',
             schema: DenomSchema,
-            collection: 'sync_denom'
+            collection: 'ex_sync_denom'
         }])
     ],
     providers:[NftTaskService, NftHttp],

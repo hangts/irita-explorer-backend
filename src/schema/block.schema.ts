@@ -6,7 +6,7 @@ export const BlockSchema = new mongoose.Schema({
     hash: String,
     txn: Number,
     time: Number,
-});
+},{versionKey: false});
 
 BlockSchema.statics = {
     async findList(pageNum: number, pageSize: number): Promise<IBlockStruct[]> {

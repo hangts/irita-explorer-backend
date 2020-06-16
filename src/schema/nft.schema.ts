@@ -12,7 +12,7 @@ export const NftSchema = new mongoose.Schema({
     create_time: Number,
     update_time: Number,
     hash: String,
-});
+},{versionKey: false});
 NftSchema.index({ denom: 1, nft_id: 1 }, { unique: true });
 
 NftSchema.statics = {
@@ -20,7 +20,7 @@ NftSchema.statics = {
         const condition = [
             {
                 $lookup: {
-                    from: 'sync_denom',
+                    from: 'ex_sync_denom',
                     localField: 'denom',
                     foreignField: 'name',
                     as: 'denomDetail',
@@ -30,7 +30,6 @@ NftSchema.statics = {
                     'denomDetail._id': 0,
                     'denomDetail.update_time': 0,
                     'denomDetail.create_time': 0,
-                    'denomDetail.__v': 0,
                 },
             },
         ];
@@ -43,14 +42,16 @@ NftSchema.statics = {
             if (owner) cond['$match'].owner = owner;
             condition.push(cond);
         }
-        return await this.aggregate(condition);
+        return await this.aggregate(condition)
+            .skip((Number(pageNum) - 1) * Number(pageSize))
+            .limit(Number(pageSize));
     },
 
     async findOneByDenomAndNftId(denom: string, nftId: string): Promise<INftDetailStruct | null> {
         const res: INftDetailStruct[] = await this.aggregate([
             {
                 $lookup: {
-                    from: 'sync_denom',
+                    from: 'ex_sync_denom',
                     localField: 'denom',
                     foreignField: 'name',
                     as: 'denomDetail',
@@ -60,14 +61,13 @@ NftSchema.statics = {
                     denom,
                     nft_id: nftId,
                 },
-            },{
+            }, {
                 $project: {
                     'denomDetail._id': 0,
                     'denomDetail.update_time': 0,
                     'denomDetail.create_time': 0,
-                    'denomDetail.__v': 0,
                 },
-            }
+            },
         ]);
         if (res.length > 0) {
             return res[0];

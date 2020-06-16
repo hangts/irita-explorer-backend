@@ -1,8 +1,8 @@
 import { cfg } from '../config';
 
 export enum TaskEnum {
-    denom = 'sync_denom',
-    nft = 'sync_nft',
+    denom = 'ex_sync_denom',
+    nft = 'ex_sync_nft',
     txServiceName = "sync_tx_service_name",
 }
 
