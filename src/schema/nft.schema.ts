@@ -20,7 +20,7 @@ NftSchema.statics = {
         const condition = [
             {
                 $lookup: {
-                    from: 'sync_denom',
+                    from: 'ex_sync_denom',
                     localField: 'denom',
                     foreignField: 'name',
                     as: 'denomDetail',
@@ -51,7 +51,7 @@ NftSchema.statics = {
         const res: INftDetailStruct[] = await this.aggregate([
             {
                 $lookup: {
-                    from: 'sync_denom',
+                    from: 'ex_sync_denom',
                     localField: 'denom',
                     foreignField: 'name',
                     as: 'denomDetail',

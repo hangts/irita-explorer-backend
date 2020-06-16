@@ -11,7 +11,7 @@ import { TxSchema } from '../schema/tx.schema';
         MongooseModule.forFeature([{
             name: 'Block',
             schema: BlockSchema,
-            collection: 'sync_block'
+            collection: 'ex_sync_block'
         },{
             name: 'Tx',
             schema: TxSchema,
@@ -19,7 +19,7 @@ import { TxSchema } from '../schema/tx.schema';
         },{
             name: 'Nft',
             schema: NftSchema,
-            collection: 'sync_nft'
+            collection: 'ex_sync_nft'
         }]),
     ],
     providers:[StatisticsService],
