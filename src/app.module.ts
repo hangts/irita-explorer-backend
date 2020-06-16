@@ -15,9 +15,9 @@ import { cfg } from './config';
 import { TaskDispatchModule } from './module/task.dispatch.module';
 import { DenomTaskModule } from './module/denom.task.module';
 import { NftTaskModule } from './module/nft.task.module';
-
+import { ValidatorTaskModule } from "./module/validator.task.module"
+import { ValidatorModule } from "./module/validator.module"
 console.log(cfg);
-
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 @Module({
     imports: [
@@ -30,7 +30,9 @@ const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.db
         TaskDispatchModule,
         DenomTaskModule,
         NftTaskModule,
-    	TxModule,
+        ValidatorTaskModule,
+        ValidatorModule,
+    	  TxModule,
         TxTaskModule
     ],
     providers: [
