@@ -11,7 +11,7 @@ import { TxSchema } from '../schema/tx.schema';
         MongooseModule.forFeature([{
             name: 'Block',
             schema: BlockSchema,
-            collection: 'ex_sync_block'
+            collection: 'sync_block'
         },{
             name: 'Tx',
             schema: TxSchema,

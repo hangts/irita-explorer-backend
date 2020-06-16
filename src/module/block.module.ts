@@ -10,7 +10,7 @@ import {HttpModule} from '@nestjs/common';
         MongooseModule.forFeature([{
             name: 'Block',
             schema: BlockSchema,
-            collection: 'ex_sync_block'
+            collection: 'sync_block'
         }]),
         HttpModule
     ],
