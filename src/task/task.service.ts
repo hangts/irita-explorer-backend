@@ -8,7 +8,7 @@ import { TaskEnum } from '../constant';
 import { getIpAddress } from '../util/util';
 import { cfg } from '../config';
 import { TaskCallback } from '../types/task.interface';
-
+import { ValidatorsTaskService } from './validators.task.service';
 
 @Injectable()
 export class TasksService {
@@ -19,10 +19,12 @@ export class TasksService {
         private readonly nftTaskService: NftTaskService,
         private readonly taskDispatchService: TaskDispatchService,
         private readonly txTaskService: TxTaskService,
+        private readonly validatorsTaskService: ValidatorsTaskService
     ) {
         this[`${TaskEnum.denom}_timer`] = null;
         this[`${TaskEnum.nft}_timer`] = null;
         this[`${TaskEnum.txServiceName}_timer`] = null;
+        this[`${TaskEnum.validators}_timer`] = null;
     }
 
     @Cron(cfg.taskCfg.executeTime.denom)
@@ -78,11 +80,14 @@ export class TasksService {
 
         }
     }
+    @Cron(cfg.taskCfg.executeTime.validators)
+    async syncValidators() {
+        this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
+    }
 
     async updateHeartbeatUpdateTime(name: TaskEnum): Promise<void> {
         await this.taskDispatchService.updateHeartbeatUpdateTime(name);
     }
-
-
 }
+
 
