@@ -15,9 +15,10 @@ import { cfg } from './config';
 import { TaskDispatchModule } from './module/task.dispatch.module';
 import { DenomTaskModule } from './module/denom.task.module';
 import { NftTaskModule } from './module/nft.task.module';
+import { ValidatorTaskModule } from './module/validator.task.module';
+import { ValidatorModule } from './module/validator.module';
 
 console.log(cfg);
-
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 const params = {
     imports: [
@@ -30,26 +31,28 @@ const params = {
         TaskDispatchModule,
         DenomTaskModule,
         NftTaskModule,
+        ValidatorTaskModule,
+        ValidatorModule,
         TxModule,
-        TxTaskModule
+        TxTaskModule,
     ],
     providers: [],
 };
 
-if(cfg.env === 'development'){
+if (cfg.env === 'development') {
     params.providers = [
         {
             provide: APP_FILTER,
             useClass: HttpExceptionFilter,
         },
     ];
-}else{
+} else {
     params.providers = [
         {
             provide: APP_FILTER,
             useClass: HttpExceptionFilter,
         },
-        TasksService
+        TasksService,
     ];
 }
 

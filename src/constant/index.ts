@@ -4,7 +4,9 @@ export enum TaskEnum {
     denom = 'ex_sync_denom',
     nft = 'ex_sync_nft',
     txServiceName = "sync_tx_service_name",
+    validators = 'sync_validators',
 }
+
 
 export const DefaultPaging = {
     pageNum: 1,

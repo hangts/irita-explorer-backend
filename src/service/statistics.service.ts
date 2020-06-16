@@ -12,6 +12,7 @@ export class StatisticsService {
         @InjectModel('Block') private blockModel: Model<IBlock>,
         @InjectModel('Nft') private nftModel: Model<INft>,
         @InjectModel('Tx') private txModel: any,
+        @InjectModel('Validators') private validatorModel: any
     ) {
     }
 
@@ -65,7 +66,7 @@ export class StatisticsService {
     async queryValidatorCount(): Promise<number | null>{
 
         //TODO(lsc) validator count;
-        return await (this.nftModel as any).findCount();
+        return await (this.validatorModel as any).findCount();
     }
 
     async queryTxCount():Promise<any>{
