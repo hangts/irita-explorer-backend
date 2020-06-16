@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ITaskDispatch, ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
 import { getIpAddress, getTimestamp } from '../util/util';
 import { TaskEnum } from '../constant';
-import { cfg } from 'src/config';
+import { cfg } from '../config';
 
 @Injectable()
 export class TaskDispatchService {
