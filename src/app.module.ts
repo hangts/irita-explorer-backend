@@ -19,7 +19,7 @@ import { NftTaskModule } from './module/nft.task.module';
 console.log(cfg);
 
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
-@Module({
+const params = {
     imports: [
         MongooseModule.forRoot(url),
         ScheduleModule.forRoot(),
@@ -30,16 +30,30 @@ const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.db
         TaskDispatchModule,
         DenomTaskModule,
         NftTaskModule,
-    	TxModule,
+        TxModule,
         TxTaskModule
     ],
-    providers: [
+    providers: [],
+};
+
+if(cfg.env === 'development'){
+    params.providers = [
+        {
+            provide: APP_FILTER,
+            useClass: HttpExceptionFilter,
+        },
+    ];
+}else{
+    params.providers = [
         {
             provide: APP_FILTER,
             useClass: HttpExceptionFilter,
         },
         TasksService
-    ],
-})
+    ];
+}
+
+
+@Module(params)
 export class AppModule {
 }

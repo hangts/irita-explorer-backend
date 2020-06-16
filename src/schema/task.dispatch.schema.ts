@@ -2,6 +2,7 @@ import * as mongoose from 'mongoose';
 import { getIpAddress, getTimestamp } from '../util/util';
 import { ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
 import { TaskEnum } from 'src/constant';
+import {Logger} from '@nestjs/common';
 
 export const TaskDispatchSchema = new mongoose.Schema({
     name: { type: String, unique: true },
@@ -23,6 +24,7 @@ TaskDispatchSchema.statics = {
     },
 
     async lock(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
+        new Logger('From task.dispatch.schema').log(`${name} task begin time: ${new Date().getTime()}`);
         return await this.updateOne({ name, is_locked: false }, {
             // condition: is_locked: false, those server whose query's is_locked is true should not to be updated;
             is_locked: true,
@@ -32,6 +34,7 @@ TaskDispatchSchema.statics = {
     },
 
     async unlock(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
+        new Logger('From task.dispatch.schema').log(`${name} task end time: ${new Date().getTime()}`);
         return await this.updateOne({ name }, {
             is_locked: false,
             task_end_time: getTimestamp(),

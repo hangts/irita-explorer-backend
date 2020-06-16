@@ -19,61 +19,68 @@ export class NftTaskService {
 
     doTask(): Promise<void> {
         return new Promise(async (resolve) => {
-            const denomList: IDenomStruct[] = await (this.denomModel as any).findAllNames();
-            if (denomList && denomList.length > 0) {
-                let arr: any[] = [];
-                const promiseContainer = (denom) => {
-                    return new Promise(async (subRes) => {
-                        const res: any = await this.nftHttp.queryNftsFromLcdByDenom(denom.name);
-                        const nftFromDb: INftStruct[] = await (this.nftModel as any).findListByName(denom.name);
-                        if (res) {
-                            let lcdNftMap: Map<string, ILcdNftStruct> | null = new Map<string, ILcdNftStruct>(),
-                                dbNftMap: Map<string, INftStruct> | null = new Map<string, INftStruct>();
-                            if (res.nfts && Array.isArray(res.nfts) && res.nfts.length > 0) {
-                                res.nfts.forEach(nft => {
-                                    lcdNftMap.set(nft.value.id, nft.value);
-                                });
-                            } else {
-                                lcdNftMap = null;
-                            }
+            try{
+                const denomList: IDenomStruct[] = await (this.denomModel as any).findAllNames();
+                if (denomList && denomList.length > 0) {
+                    let arr: any[] = [];
+                    const promiseContainer = (denom) => {
+                        return new Promise(async (subRes) => {
+                            const res: any = await this.nftHttp.queryNftsFromLcdByDenom(denom.name);
+                            const nftFromDb: INftStruct[] = await (this.nftModel as any).findListByName(denom.name);
+                            if (res) {
+                                let lcdNftMap: Map<string, ILcdNftStruct> | null = new Map<string, ILcdNftStruct>(),
+                                    dbNftMap: Map<string, INftStruct> | null = new Map<string, INftStruct>();
+                                if (res.nfts && Array.isArray(res.nfts) && res.nfts.length > 0) {
+                                    res.nfts.forEach(nft => {
+                                        lcdNftMap.set(nft.value.id, nft.value);
+                                    });
+                                } else {
+                                    lcdNftMap = null;
+                                }
 
-                            if (nftFromDb.length > 0) {
-                                nftFromDb.forEach((nft: INftStruct) => {
-                                    dbNftMap.set(nft.nft_id, nft);
-                                });
-                            } else {
-                                dbNftMap = null;
-                            }
+                                if (nftFromDb.length > 0) {
+                                    nftFromDb.forEach((nft: INftStruct) => {
+                                        dbNftMap.set(nft.nft_id, nft);
+                                    });
+                                } else {
+                                    dbNftMap = null;
+                                }
 
-                            let shouldInsertMap: Map<string, ILcdNftStruct> = NftTaskService.getShouldInsertList(lcdNftMap, dbNftMap);
-                            let shouldDeleteNftMap: Map<string, INftStruct> = NftTaskService.getShouldDeleteList(lcdNftMap, dbNftMap);
-                            let shouldUpdateNftMap: Map<string, ILcdNftStruct> = NftTaskService.getShouldUpdateList(lcdNftMap, dbNftMap);
-                            await this.saveNft(denom.name, shouldInsertMap);
-                            await this.deleteNft(denom.name, shouldDeleteNftMap);
-                            await this.updateNft(denom.name, shouldUpdateNftMap);
-                            subRes();
-                        } else {
-                            subRes();
-                        }
+                                let shouldInsertMap: Map<string, ILcdNftStruct> = NftTaskService.getShouldInsertList(lcdNftMap, dbNftMap);
+                                let shouldDeleteNftMap: Map<string, INftStruct> = NftTaskService.getShouldDeleteList(lcdNftMap, dbNftMap);
+                                let shouldUpdateNftMap: Map<string, ILcdNftStruct> = NftTaskService.getShouldUpdateList(lcdNftMap, dbNftMap);
+                                await this.saveNft(denom.name, shouldInsertMap);
+                                await this.deleteNft(denom.name, shouldDeleteNftMap);
+                                await this.updateNft(denom.name, shouldUpdateNftMap);
+                                subRes();
+                            } else {
+                                subRes();
+                            }
+                        });
+
+                    };
+                    denomList.forEach((denom: IDenomStruct) => {
+                        arr.push(promiseContainer(denom));
                     });
-
-                };
-                denomList.forEach((denom: IDenomStruct) => {
-                    arr.push(promiseContainer(denom));
-                });
-                Promise.all(arr).then((res) => {
-                    if (res) {
-                        console.log('all of step asynchronous have completed now');
+                    Promise.all(arr).then((res) => {
+                        if (res) {
+                            console.log('all of step asynchronous have completed now');
+                            resolve();
+                            //all of step asynchronous have completed now;
+                        }
+                    }).catch((e) => {
                         resolve();
-                        //all of step asynchronous have completed now;
-                    }
-                }).catch((e) => {
+                        new Logger('sync nft failed:', e.message);
+                    });
+                } else {
                     resolve();
-                    new Logger('sync nft failed:', e.message);
-                });
-            } else {
-                resolve();
+                }
+            }catch (e) {
+                new Logger('From nft.task.service').error(e);
+                resolve()
+                // method should return while error happen, while lock need to be release
             }
+
         });
 
 

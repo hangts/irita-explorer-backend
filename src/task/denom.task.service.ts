@@ -11,13 +11,17 @@ export class DenomTaskService {
     }
 
     async doTask(): Promise<void> {
-        try {
-            const data: any = await this.denomHttp.queryDenomsFromLcd();
-            await (this.denomModel as any).saveBulk(data);
-        } catch (e) {
-            new Logger().error('api-error:', e.message);
-        }
-
+        return new Promise(async (res)=>{
+            try{
+                const data: any = await this.denomHttp.queryDenomsFromLcd();
+                await (this.denomModel as any).saveBulk(data);
+                res();
+            }catch (e) {
+                new Logger('From denom.task.service').error(e);
+                res()
+                // method should return while error happen, while lock need to be release
+            }
+        });
     }
 }
 
