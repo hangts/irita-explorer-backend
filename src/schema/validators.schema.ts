@@ -26,8 +26,7 @@ ValidatorSchema.statics.findValidators = async function (query:IValidatorsQueryP
     return  result
 }
 ValidatorSchema.statics.findCount = async function () {
-    let defaultJailed= {jailed:true};
-    return await this.count(defaultJailed)
+    return await this.count();
 }
 
 ValidatorSchema.statics.findAllValidators = async function(){
@@ -40,7 +39,7 @@ ValidatorSchema.statics.saveValidator = async  function (insertValidatorList:[])
 }
 
 ValidatorSchema.statics.updateValidator = async  function (name:string,needUpdateValidator:[]) {
-    this.updateOne({operator:name},needUpdateValidator)
+    return await this.updateOne({operator:name},needUpdateValidator)
 }
 ValidatorSchema.statics.deleteValidator = async  function (needDeleteValidator:[]) {
     needDeleteValidator.forEach( item => {
