@@ -15,58 +15,63 @@ export class ValidatorsTaskService {
  }
     doTask(): Promise<void> {
         return new Promise( async (resolve) =>{
-          let isTruePageNum = 1,isFalsePageNum = 1,limitSize = 100, allValidators = [],allValidatorsFromLcd;
-          //验证人第一次默认请求状态为 jailed = true / false 默认请求第一页
-          let validatorsFromLcdISTrue: any = await this.validatorsHttp.queryValidatorsFromLcd(true,isTruePageNum,limitSize);
-          if(validatorsFromLcdISTrue.result.length > 0) {
-            validatorsFromLcdISTrue.result.forEach( (item:any) => {
-              item.jailed = true
-            })
-          }
-          let validatorsFromLcdISFalse: any = await this.validatorsHttp.queryValidatorsFromLcd(false,isFalsePageNum,limitSize);
-          if(validatorsFromLcdISFalse.result.length > 0) {
-            validatorsFromLcdISFalse.result.forEach( (item:any) => {
-              item.jailed = false
-            })
-          }
-          //第一次请求的结果合并
-          allValidators = validatorsFromLcdISTrue.result.concat(validatorsFromLcdISFalse.result)
-          //判断是否有第二页数据 如果有使用while循环请求
-          while (validatorsFromLcdISTrue.result.length === limitSize){
-            isTruePageNum++
-            validatorsFromLcdISTrue = await this.validatorsHttp.queryValidatorsFromLcd(true,isTruePageNum,limitSize);
-            //将第二页及以后的数据合并
-            allValidators.concat(validatorsFromLcdISTrue.result)
-          }
-          while (validatorsFromLcdISFalse.result.length === limitSize){
-            isFalsePageNum++
-            validatorsFromLcdISFalse = await this.validatorsHttp.queryValidatorsFromLcd(false,isFalsePageNum,limitSize);
-            allValidators.concat(validatorsFromLcdISFalse.result)
-          }
+            try{
+                let isTruePageNum = 1,isFalsePageNum = 1,limitSize = 100, allValidators = [],allValidatorsFromLcd;
+                //验证人第一次默认请求状态为 jailed = true / false 默认请求第一页
+                let validatorsFromLcdISTrue: any = await this.validatorsHttp.queryValidatorsFromLcd(true,isTruePageNum,limitSize);
+                if(validatorsFromLcdISTrue.result.length > 0) {
+                    validatorsFromLcdISTrue.result.forEach( (item:any) => {
+                        item.jailed = true
+                    })
+                }
+                let validatorsFromLcdISFalse: any = await this.validatorsHttp.queryValidatorsFromLcd(false,isFalsePageNum,limitSize);
+                if(validatorsFromLcdISFalse.result.length > 0) {
+                    validatorsFromLcdISFalse.result.forEach( (item:any) => {
+                        item.jailed = false
+                    })
+                }
+                //第一次请求的结果合并
+                allValidators = validatorsFromLcdISTrue.result.concat(validatorsFromLcdISFalse.result)
+                //判断是否有第二页数据 如果有使用while循环请求
+                while (validatorsFromLcdISTrue.result.length === limitSize){
+                    isTruePageNum++
+                    validatorsFromLcdISTrue = await this.validatorsHttp.queryValidatorsFromLcd(true,isTruePageNum,limitSize);
+                    //将第二页及以后的数据合并
+                    allValidators.concat(validatorsFromLcdISTrue.result)
+                }
+                while (validatorsFromLcdISFalse.result.length === limitSize){
+                    isFalsePageNum++
+                    validatorsFromLcdISFalse = await this.validatorsHttp.queryValidatorsFromLcd(false,isFalsePageNum,limitSize);
+                    allValidators.concat(validatorsFromLcdISFalse.result)
+                }
 
-          allValidatorsFromLcd = allValidators
+                allValidatorsFromLcd = allValidators
 
-          const validatorsFromDb : [] = await (this.ValidatorsModel as any).findAllValidators()
-          let lcdValidatorMap: Map<string, IValidatorsStruct> | null = new Map<string, IValidatorsStruct>();
-          let dbValidatorsMap: Map<string,IValidatorsStruct> | null = new Map<string, IValidatorsStruct>();
+                const validatorsFromDb : [] = await (this.ValidatorsModel as any).findAllValidators()
+                let lcdValidatorMap: Map<string, IValidatorsStruct> | null = new Map<string, IValidatorsStruct>();
+                let dbValidatorsMap: Map<string,IValidatorsStruct> | null = new Map<string, IValidatorsStruct>();
 
-          if(allValidatorsFromLcd && Array.isArray(allValidatorsFromLcd) && allValidatorsFromLcd.length > 0){
-            allValidatorsFromLcd.forEach( (item:any) => {
-                  lcdValidatorMap.set(item.operator,item)
-              })
-          }
-           if(validatorsFromDb && Array.isArray(validatorsFromDb) && validatorsFromDb.length > 0){
-               validatorsFromDb.forEach( (item:any) => {
-                  dbValidatorsMap.set(item.operator,item)
-               })
-           }
-           let insertValidators = ValidatorsTaskService.getShouldInsertList(lcdValidatorMap,dbValidatorsMap)
-           let upDateValidators = ValidatorsTaskService.getShouldUpdateList(lcdValidatorMap,dbValidatorsMap)
-           let deleteValidators = ValidatorsTaskService.getShouldDeleteList(lcdValidatorMap,dbValidatorsMap)
-           await this.saveValidators(insertValidators)
-           await this.updateValidator(upDateValidators)
-           await this.deleteValidator(deleteValidators)
-           resolve()
+                if(allValidatorsFromLcd && Array.isArray(allValidatorsFromLcd) && allValidatorsFromLcd.length > 0){
+                    allValidatorsFromLcd.forEach( (item:any) => {
+                        lcdValidatorMap.set(item.operator,item)
+                    })
+                }
+                if(validatorsFromDb && Array.isArray(validatorsFromDb) && validatorsFromDb.length > 0){
+                    validatorsFromDb.forEach( (item:any) => {
+                        dbValidatorsMap.set(item.operator,item)
+                    })
+                }
+                let insertValidators = ValidatorsTaskService.getShouldInsertList(lcdValidatorMap,dbValidatorsMap)
+                let upDateValidators = ValidatorsTaskService.getShouldUpdateList(lcdValidatorMap,dbValidatorsMap)
+                let deleteValidators = ValidatorsTaskService.getShouldDeleteList(lcdValidatorMap,dbValidatorsMap)
+                await this.saveValidators(insertValidators)
+                await this.updateValidator(upDateValidators)
+                await this.deleteValidator(deleteValidators)
+                resolve()
+            }catch (e) {
+                resolve()
+            }
+
        })
     }
     static getShouldInsertList (lcdValidatorMap: Map<string, IValidatorsStruct> | null ,validatorsFromDb: Map<string,IValidatorsStruct> | null): Map<string, IValidatorsStruct>  {
