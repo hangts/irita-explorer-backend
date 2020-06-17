@@ -178,10 +178,10 @@ TxSchema.statics.findCallServiceTxWithReqContextIds = async function(reqContextI
 }
 
 //根据Request_Context_Id list && type == call_service 获取指定tx list
-TxSchema.statics.updateServiceNameToResServiceTxWithTxHash = async function(txHash:string, serviceName:string):Promise<ITxStruct>{
+TxSchema.statics.updateServiceNameToResServiceTxWithTxHash = async function(txHash:string, serviceName:string, requestContextId:string):Promise<ITxStruct>{
 	if (!txHash || !txHash.length) {return null};
 	let query = {
 		tx_hash:txHash,
 	};
-	return await this.findOneAndUpdate(query,{$set: {'msgs.0.msg.ex.service_name': serviceName}});
+	return await this.findOneAndUpdate(query,{$set: {'msgs.0.msg.ex.service_name': serviceName, 'msgs.0.msg.ex.request_context_id': requestContextId}});
 }

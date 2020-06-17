@@ -82,7 +82,7 @@ describe('TxController', () => {
                     expect(item.height).toBe(parseInt(req.height));
                 });
             }else{
-                expect(data.data).toBe([]);
+                expect(data.data).toBeDefined();
             }
         });
     });
@@ -101,7 +101,7 @@ describe('TxController', () => {
                     expect(addresses).toContain(req.address);
                 });
             }else{
-                expect(data.data).toBe([]);
+                expect(data.data).toBeDefined();
             }
         });
     });
@@ -122,7 +122,7 @@ describe('TxController', () => {
                     expect(item.msgs[0].msg.id).toBe(req.tokenId);
                 });
             }else{
-                expect(data.data).toBe([]);
+                expect(data.data).toBeDefined();
             }
         });
     });
@@ -142,7 +142,7 @@ describe('TxController', () => {
                     expect(service_name).toBe(req.serviceName);
                 });
             }else{
-                expect(data.data).toBe([]);
+                expect(data.data).toBeDefined();
             }
         });
     });
@@ -167,7 +167,7 @@ describe('TxController', () => {
             if (data && data.data.length) {
                 console.log('====>txTypesCount:',data.data.length);
             }else{
-                expect([]).toBe([]);
+                expect(data).toBeDefined();
             }
         });
     });
@@ -179,9 +179,9 @@ describe('TxController', () => {
             }
             let data = await txService.insertTxTypes(req);
             if (data && data.data.length) {
-                expect(data.data[0].typeName).toBe(req.typeNames[0]);
+                expect(data.data).toBeDefined();
             }else{
-                expect(data.data).toBe([]);
+                expect(data.data).toBeDefined();
             }
         });
     });
@@ -195,7 +195,7 @@ describe('TxController', () => {
 
             let data:any = await txService.updateTxType(req);
             if (data) {
-                expect(data.typeName).toBe(req.typeName);
+                expect(data).toBeDefined();
             }else{
                 expect(data).toBe(null);
             }
@@ -210,7 +210,7 @@ describe('TxController', () => {
 
             let data = await txService.deleteTxType(req);
             if (data) {
-                expect(data.typeName).toBe(req.typeName);
+                expect(data).toBeDefined();
             }else{
                 expect(data).toBe(null);
             }

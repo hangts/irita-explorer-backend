@@ -12,8 +12,8 @@ export const ValidatorSchema = new mongoose.Schema({
 })
 ValidatorSchema.index({operator: 1},{unique: true})
 
-ValidatorSchema.statics.findValidators = async function (query:IValidatorsQueryParams) {
-    let result: { count?: number; data?: Array<any> } = { }
+ValidatorSchema.statics.findValidators = async function (query:IValidatorsQueryParams):Promise<{count?: number, data?:IValidatorsStruct[]}> {
+    let result: { count?: number,data?: Array<IValidatorsStruct> } = { }
     let queryParams = {
         jailed: undefined,
     };
@@ -25,24 +25,23 @@ ValidatorSchema.statics.findValidators = async function (query:IValidatorsQueryP
       .limit(Number(query.pageSize)).select({'_id':0,'__v':0,'hash':0})
     return  result
 }
-ValidatorSchema.statics.findCount = async function () {
-    let defaultJailed= {jailed:true};
-    return await this.count(defaultJailed)
+ValidatorSchema.statics.findCount = async function ():Promise<number> {
+    return await this.count();
 }
 
-ValidatorSchema.statics.findAllValidators = async function(){
+ValidatorSchema.statics.findAllValidators = async function ():Promise<IValidatorsStruct[]>{
     let validatorsList = await this.find({}).select({'_id':0,'__v':0})
     return validatorsList
 }
 
-ValidatorSchema.statics.saveValidator = async  function (insertValidatorList:[]) {
+ValidatorSchema.statics.saveValidator = async  function (insertValidatorList:IValidatorsStruct[]):Promise<IValidatorsStruct[]> {
    return await this.insertMany(insertValidatorList,{ordered: false})
 }
 
-ValidatorSchema.statics.updateValidator = async  function (name:string,needUpdateValidator:[]) {
-    this.updateOne({operator:name},needUpdateValidator)
+ValidatorSchema.statics.updateValidator = async function (name:string,needUpdateValidator:IValidatorsStruct):Promise<IValidatorsStruct> {
+    return await this.updateOne({operator:name},needUpdateValidator)
 }
-ValidatorSchema.statics.deleteValidator = async  function (needDeleteValidator:[]) {
+ValidatorSchema.statics.deleteValidator = async function (needDeleteValidator:[]) {
     needDeleteValidator.forEach( item => {
         this.deleteOne(item)
     })

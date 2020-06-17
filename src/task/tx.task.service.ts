@@ -22,7 +22,7 @@ export class TxTaskService {
                 item.msgs[0].msg.request_id.length) {
                 reqContextId = getReqContextIdWithReqId(item.msgs[0].msg.request_id);
             }
-            respondServiceTxMap[reqContextId] = {tx_hash:item.tx_hash,reqContextId:reqContextId};
+            respondServiceTxMap[reqContextId] = {tx_hash:item.tx_hash, reqContextId:reqContextId};
         });
 
         let callServiceTxs = await this.txModel.findCallServiceTxWithReqContextIds(Object.keys(respondServiceTxMap));
@@ -30,13 +30,13 @@ export class TxTaskService {
         callServiceTxs.forEach((item:{msgs:[], events:[]})=>{
             let serviceName = getServiceNameFromMsgs(item.msgs);
             let reqContextId = getReqContextIdFromEvents(item.events);
-            let resTx:{tx_hash:string,requestContextId:string,serviceName:string} = respondServiceTxMap[reqContextId];
+            let resTx:{tx_hash:string, reqContextId:string, serviceName:string} = respondServiceTxMap[reqContextId];
             resTx.serviceName = serviceName;
         });
-        Object.values(respondServiceTxMap).forEach((item:{tx_hash:string,requestContextId:string,serviceName:string})=>{
+        Object.values(respondServiceTxMap).forEach((item:{tx_hash:string, reqContextId:string, serviceName:string})=>{
             if (item.tx_hash && item.serviceName) {
                 console.log('tx sync serviceName:',item)
-                this.txModel.updateServiceNameToResServiceTxWithTxHash(item.tx_hash,item.serviceName);
+                this.txModel.updateServiceNameToResServiceTxWithTxHash( item.tx_hash, item.serviceName, item.reqContextId );
             }
         });
     }
