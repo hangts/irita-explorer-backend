@@ -72,6 +72,7 @@ export class TasksService {
                 }
                 this.logger.log(`${taskName} successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
             } catch (e) {
+                await this.taskDispatchService.unlock(taskName);
                 if (this[`${taskName}_timer`]) {
                     clearInterval(this[`${taskName}_timer`]);
                 }

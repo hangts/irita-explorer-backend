@@ -11,13 +11,8 @@ export class DenomTaskService {
     }
 
     async doTask(): Promise<void> {
-        try {
-            const data: any = await this.denomHttp.queryDenomsFromLcd();
-            await (this.denomModel as any).saveBulk(data);
-        } catch (e) {
-            new Logger().error('api-error:', e.message);
-        }
-
+        const data: any = await this.denomHttp.queryDenomsFromLcd();
+        await (this.denomModel as any).saveBulk(data);
     }
 }
 
