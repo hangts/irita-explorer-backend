@@ -145,7 +145,7 @@ export class TxTypeResDto extends BaseResDto{
 
     constructor(typeData){
         super();
-        this.typeName = typeData.typeName;
+        this.typeName = typeData.type_name;
     }
 
     static bundleData(value:any):TxTypeResDto[]{
