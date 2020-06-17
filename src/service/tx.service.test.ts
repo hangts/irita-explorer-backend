@@ -38,21 +38,21 @@ describe('TxController', () => {
             req.useCount = true;
             if (parseInt(String((Math.random()*10)%2))) {
                 req.type = [
-                'create_record',
-                'mint_token',
-                'burn_nft',
-                'send',
-                'respond_service',
-                'transfer_nft',
-                'edit_nft',
-                'define_service',
-                'bind_service',
-                'call_service',
-                'issue_denom',
-                'mint_nft',
-                'transfer_token_owner',
-                'issue_token',
-                'edit_token'][parseInt(String(Math.random()*100))%15];
+                "create_record",
+                "mint_token",
+                "burn_nft",
+                "send",
+                "respond_service",
+                "transfer_nft",
+                "edit_nft",
+                "define_service",
+                "bind_service",
+                "call_service",
+                "issue_denom",
+                "mint_nft",
+                "transfer_token_owner",
+                "issue_token",
+                "edit_token"][parseInt(String(Math.random()*100))%15];
             }
             if (parseInt(String((Math.random()*10)%2))) {
                 req.status = ['1','2'][parseInt(String(Math.random()*100))%2];
