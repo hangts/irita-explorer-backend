@@ -11,17 +11,8 @@ export class DenomTaskService {
     }
 
     async doTask(): Promise<void> {
-        return new Promise(async (res)=>{
-            try{
-                const data: any = await this.denomHttp.queryDenomsFromLcd();
-                await (this.denomModel as any).saveBulk(data);
-                res();
-            }catch (e) {
-                new Logger('From denom.task.service').error(e);
-                res()
-                // method should return while error happen, while lock need to be release
-            }
-        });
+        const data: any = await this.denomHttp.queryDenomsFromLcd();
+        await (this.denomModel as any).saveBulk(data);
     }
 }
 
