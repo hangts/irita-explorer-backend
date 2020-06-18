@@ -8,9 +8,10 @@ export const ValidatorSchema = new mongoose.Schema({
     power: String,
     jailed: Boolean,
     operator: String,
+    details:String,
     hash:String
 })
-ValidatorSchema.index({operator: 1},{unique: true})
+ValidatorSchema.index({name: 1},{unique: true})
 
 ValidatorSchema.statics.findValidators = async function (query:IValidatorsQueryParams):Promise<{count?: number, data?:IValidatorsStruct[]}> {
     let result: { count?: number,data?: Array<IValidatorsStruct> } = { }
@@ -39,7 +40,7 @@ ValidatorSchema.statics.saveValidator = async  function (insertValidatorList:IVa
 }
 
 ValidatorSchema.statics.updateValidator = async function (name:string,needUpdateValidator:IValidatorsStruct):Promise<IValidatorsStruct> {
-    return await this.updateOne({operator:name},needUpdateValidator)
+    return await this.updateOne({name:name},needUpdateValidator)
 }
 ValidatorSchema.statics.deleteValidator = async function (needDeleteValidator:[]) {
     needDeleteValidator.forEach( item => {

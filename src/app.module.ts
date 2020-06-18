@@ -32,7 +32,7 @@ const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.db
         NftTaskModule,
         ValidatorTaskModule,
         ValidatorModule,
-    	  TxModule,
+    	TxModule,
         TxTaskModule
     ],
     providers: [
