@@ -15,6 +15,11 @@ export interface INftStruct {
     update_time?: number,
     hash?: string,
 }
+export interface INftCountQueryParams {
+    denom?: string;
+    nftId?: string;
+    owner?: string;
+}
 
 export interface INftDetailStruct extends INftStruct{
     denomDetail: IDenomStruct,

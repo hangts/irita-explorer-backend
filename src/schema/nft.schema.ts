@@ -1,6 +1,12 @@
 import * as mongoose from 'mongoose';
 import { Logger } from '@nestjs/common';
-import { deleteQuery, INftDetailStruct, INftListStruct, INftStruct } from '../types/schemaTypes/nft.interface';
+import {
+    deleteQuery,
+    INftCountQueryParams,
+    INftDetailStruct,
+    INftListStruct,
+    INftStruct,
+} from '../types/schemaTypes/nft.interface';
 import { getTimestamp } from '../util/util';
 
 export const NftSchema = new mongoose.Schema({
@@ -76,8 +82,18 @@ NftSchema.statics = {
         }
     },
 
-    async findCount(): Promise<number> {
-        return await this.find().count().exec();
+    async findCount(denom: string, nftId: string, owner: string): Promise<number> {
+        let query: INftCountQueryParams = {};
+        if (denom){
+            query.denom = denom;
+        }
+        if (nftId){
+            query.nftId = nftId;
+        }
+        if (owner){
+            query.owner = owner;
+        }
+        return await this.find(query).count().exec();
     },
     async findListByName(name: string): Promise<INftStruct> {
         return await this.find({ denom: name }).exec();
