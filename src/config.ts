@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 const {
     LCD_ADDR,
     DB_USER,
@@ -13,7 +15,6 @@ const {
     HEARTBEAT_RATE,
     VALIDATORS_EXECTUTE_TIME
 } = process.env;
-
 export const cfg = {
     env: NODE_ENV,
     dbCfg: {

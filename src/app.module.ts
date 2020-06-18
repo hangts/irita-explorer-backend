@@ -15,11 +15,12 @@ import { cfg } from './config';
 import { TaskDispatchModule } from './module/task.dispatch.module';
 import { DenomTaskModule } from './module/denom.task.module';
 import { NftTaskModule } from './module/nft.task.module';
-import { ValidatorTaskModule } from "./module/validator.task.module"
-import { ValidatorModule } from "./module/validator.module"
+import { ValidatorTaskModule } from './module/validator.task.module';
+import { ValidatorModule } from './module/validator.module';
+
 console.log(cfg);
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
-@Module({
+const params = {
     imports: [
         MongooseModule.forRoot(url),
         ScheduleModule.forRoot(),
@@ -32,16 +33,30 @@ const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.db
         NftTaskModule,
         ValidatorTaskModule,
         ValidatorModule,
-    	TxModule,
-        TxTaskModule
+        TxModule,
+        TxTaskModule,
     ],
-    providers: [
+    providers: [],
+};
+
+if (cfg.env === 'development') {
+    params.providers = [
         {
             provide: APP_FILTER,
             useClass: HttpExceptionFilter,
         },
-        TasksService
-    ],
-})
+    ];
+} else {
+    params.providers = [
+        {
+            provide: APP_FILTER,
+            useClass: HttpExceptionFilter,
+        },
+        TasksService,
+    ];
+}
+
+
+@Module(params)
 export class AppModule {
 }
