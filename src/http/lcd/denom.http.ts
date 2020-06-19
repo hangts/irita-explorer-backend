@@ -17,7 +17,7 @@ export class DenomHttp {
             }
 
         } catch (e) {
-            new Logger().error(`api-error from url:`, e.message);
+            new Logger().error(`api-error from ${url}:`, e.message);
             // cron jobs error should not throw errors;
         }
 
