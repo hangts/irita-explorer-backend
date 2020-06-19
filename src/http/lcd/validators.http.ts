@@ -8,7 +8,7 @@ export class ValidatorsHttp {
         const validatorsLcdUrl:string = `${cfg.serverCfg.lcdAddr}/validator/validators?jailed=${validatorStatus || ''}&page=${pageNum}&limit=${pageSize}`
         try {
             const validatorsData:any = await new HttpService().get(validatorsLcdUrl).toPromise().then(result => result.data)
-            
+            console.log('validatorsData======:',validatorsData);
             if(validatorsData && validatorsData.result){
                 return validatorsData.result;
             }else{
