@@ -27,11 +27,12 @@ export const TxSchema = new mongoose.Schema({
     signers:Array
 },{versionKey: false});
 
+//	csrb 浏览器交易记录过滤正则表达式
 function filterExTxTypeRegExp():object{
 	return new RegExp(`${TxType.mint_token}|${TxType.transfer_token_owner}|${TxType.issue_token}|${TxType.edit_token}`);
 }
 
-// txs
+// 	txs
 TxSchema.statics.queryTxList = async function (query:ITxsQuery):Promise<IListStruct>{
 	let result:IListStruct = {};
     let queryParameters:ITxsQueryParams = {};
@@ -64,7 +65,7 @@ TxSchema.statics.queryTxList = async function (query:ITxsQuery):Promise<IListStr
 	return result;
 }
 
-// txs/blocks
+// 	txs/blocks
 TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery):Promise<IListStruct>{
 	let result:IListStruct = {};
 	let queryParameters:{height?:number,$nor:object[]} = {$nor:[{type:filterExTxTypeRegExp()}]};
@@ -166,7 +167,7 @@ TxSchema.statics.queryTxStatistics = async function():Promise<{txCount:number,se
 	};
 }
 
-//获取指定条数的serviceName==null&&type == respond_service 的 tx
+//	获取指定条数的serviceName==null&&type == respond_service 的 tx
 TxSchema.statics.findRespondServiceTx = async function(pageSize?:number):Promise<ITxStructHash[]>{
 	pageSize = pageSize || cfg.taskCfg.syncTxServiceNameSize;
 	return await this.find({
@@ -177,7 +178,7 @@ TxSchema.statics.findRespondServiceTx = async function(pageSize?:number):Promise
 					 .limit(Number(pageSize));
 }
 
-//根据Request_Context_Id list && type == call_service 获取指定tx list
+//	根据Request_Context_Id list && type == call_service 获取指定tx list
 TxSchema.statics.findCallServiceTxWithReqContextIds = async function(reqContextIds:string[]):Promise<ITxStructMsgs[]>{
 	if (!reqContextIds || !reqContextIds.length) {return []};
 	let query = {
@@ -187,7 +188,7 @@ TxSchema.statics.findCallServiceTxWithReqContextIds = async function(reqContextI
 	return await this.find(query,{'events.attributes':1,"msgs.msg.service_name":1});
 }
 
-//根据Request_Context_Id list && type == call_service 获取指定tx list
+//	根据Request_Context_Id list && type == call_service 获取指定tx list
 TxSchema.statics.updateServiceNameToResServiceTxWithTxHash = async function(txHash:string, serviceName:string, requestContextId:string):Promise<ITxStruct>{
 	if (!txHash || !txHash.length) {return null};
 	let query = {
