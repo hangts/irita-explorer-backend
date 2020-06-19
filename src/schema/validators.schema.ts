@@ -26,8 +26,8 @@ ValidatorSchema.statics.findValidators = async function (query:IValidatorsQueryP
       .limit(Number(query.pageSize)).select({'_id':0,'__v':0,'hash':0})
     return  result
 }
-ValidatorSchema.statics.findCount = async function ():Promise<number> {
-    return await this.count();
+ValidatorSchema.statics.findCount = async function (isJailed: boolean):Promise<number> {
+    return await this.count({jailed:isJailed});
 }
 
 ValidatorSchema.statics.findAllValidators = async function ():Promise<IValidatorsStruct[]>{

@@ -19,7 +19,7 @@ export class NftService {
         });
         let count: number = 0;
         if (useCount) {
-            count = await (this.nftModel as any).findCount();
+            count = await (this.nftModel as any).findCount(denom, nftId, owner);
         }
         return new ListStruct(res, pageNum, pageSize, count);
     }
