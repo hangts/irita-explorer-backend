@@ -45,6 +45,11 @@ export class TasksService {
         this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.syncRespondServiceTxServiceName.bind(this.txTaskService));
     }
 
+    @Cron(cfg.taskCfg.executeTime.validators)
+    async syncValidators() {
+        this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
+    }
+
     @Cron(cfg.taskCfg.executeTime.faultTolerance)
     //@Cron('18 * * * * *')
     async taskDispatchFaultTolerance() {
@@ -77,13 +82,7 @@ export class TasksService {
                     clearInterval(this[`${taskName}_timer`]);
                 }
             }
-
-
         }
-    }
-    @Cron(cfg.taskCfg.executeTime.validators)
-    async syncValidators() {
-        this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
     }
 
     async updateHeartbeatUpdateTime(name: TaskEnum): Promise<void> {
