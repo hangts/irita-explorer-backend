@@ -31,8 +31,7 @@ ValidatorSchema.statics.findCount = async function ():Promise<number> {
 }
 
 ValidatorSchema.statics.findAllValidators = async function ():Promise<IValidatorsStruct[]>{
-    let validatorsList = await this.find({}).select({'_id':0,'__v':0})
-    return validatorsList
+    return await this.find({}).select({'_id':0,'__v':0})
 }
 
 ValidatorSchema.statics.saveValidator = async  function (insertValidatorList:IValidatorsStruct[]):Promise<IValidatorsStruct[]> {
@@ -42,8 +41,6 @@ ValidatorSchema.statics.saveValidator = async  function (insertValidatorList:IVa
 ValidatorSchema.statics.updateValidator = async function (name:string,needUpdateValidator:IValidatorsStruct):Promise<IValidatorsStruct> {
     return await this.updateOne({name:name},needUpdateValidator)
 }
-ValidatorSchema.statics.deleteValidator = async function (needDeleteValidator:[]) {
-    needDeleteValidator.forEach( item => {
-        this.deleteOne(item)
-    })
+ValidatorSchema.statics.deleteValidator = async function (validatorName:string) {
+    return await this.deleteOne({name:validatorName});
 }

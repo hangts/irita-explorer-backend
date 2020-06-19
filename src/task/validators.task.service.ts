@@ -32,7 +32,6 @@ export class ValidatorsTaskService {
         allValidatorsFromLcd.forEach( (item:any) => {
             item.jailed = Boolean(item.jailed);
         })
-
         const validatorsFromDb : [] = await (this.ValidatorsModel as any).findAllValidators();
         let lcdValidatorMap: Map<string, IValidatorsStruct> | null = new Map<string, IValidatorsStruct>();
         let dbValidatorsMap: Map<string,IValidatorsStruct> | null = new Map<string, IValidatorsStruct>();
@@ -83,8 +82,8 @@ export class ValidatorsTaskService {
                 return new Map<string, IValidatorsStruct>()
             }else{
                 for(let key of lcdValidatorMap.keys()){
-                    const { power, jailed, operator  } =  lcdValidatorMap.get(key),
-                        lcdValidatorMapMd5Str = `${operator}${power}${jailed}`,
+                    const { power, jailed, operator, details} =  lcdValidatorMap.get(key),
+                        lcdValidatorMapMd5Str = `${operator}${power}${jailed}${details||''}`,
                         lcdValidatorHash = md5(lcdValidatorMapMd5Str),
                         dbValidatorHash = validatorsFromDb.get(key);
                     if(dbValidatorHash && dbValidatorHash.hash !== lcdValidatorHash){
@@ -118,11 +117,11 @@ export class ValidatorsTaskService {
 
     private async saveValidators(shouldInsertMap: Map<string, IValidatorsStruct>) :Promise<any>{
         let insertValidatorList = Array.from(shouldInsertMap.values()).map((validator) => {
-            const { power, jailed, name ,pubkey, details} = validator;
-            const str: string = `${name}${power}${jailed}`,
+            const {operator, power, jailed, name ,pubkey, details} = validator;
+            const str: string = `${operator}${power}${jailed}${details||''}`,
             hash = md5(str);
             return {
-                operator:validator.operator,
+                operator:operator,
                 name: name,
                 pubkey: pubkey,
                 power: power,
@@ -147,12 +146,9 @@ export class ValidatorsTaskService {
 
     private async deleteValidator(shouldDeleteValidatorMap: Map<string,IValidatorsStruct>): Promise<any>{
         if(shouldDeleteValidatorMap && shouldDeleteValidatorMap.size > 0){
-            let needDeleteValidatorList = Array.from(shouldDeleteValidatorMap.values()).map((validator) => {
-                return {
-                    operator:validator.operator
-                }
+            Array.from(shouldDeleteValidatorMap.keys()).forEach(async (key) => {
+                await (this.ValidatorsModel as any).deleteValidator(key);
             })
-            await (this.ValidatorsModel as any).deleteValidator(needDeleteValidatorList);
         }
     }
 }
