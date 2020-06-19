@@ -37,7 +37,7 @@ export class BlockService {
 
     async queryLatestBlock(): Promise<IBlockStruct> {
         try {
-            const blockStruct: IBlockStruct = await this.queryLatestBlockFromLcd();;
+            const blockStruct: IBlockStruct = await this.queryLatestBlockFromLcd();
             if(blockStruct){
                 return blockStruct;
             }else {
