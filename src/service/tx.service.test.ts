@@ -179,7 +179,7 @@ describe('TxController', () => {
             }
             let data = await txService.insertTxTypes(req);
             if (data && data.data.length) {
-                expect(data.data).toBeDefined();
+                expect(data.data[0].typeName).toBe(req.typeNames[0]);
             }else{
                 expect(data.data).toBeDefined();
             }
@@ -195,7 +195,7 @@ describe('TxController', () => {
 
             let data:any = await txService.updateTxType(req);
             if (data) {
-                expect(data).toBeDefined();
+                expect(data.typeName).toBe(req.typeName);
             }else{
                 expect(data).toBe(null);
             }
@@ -210,7 +210,7 @@ describe('TxController', () => {
 
             let data = await txService.deleteTxType(req);
             if (data) {
-                expect(data).toBeDefined();
+                expect(data.typeName).toBe(req.typeName);
             }else{
                 expect(data).toBe(null);
             }
