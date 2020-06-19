@@ -4,10 +4,10 @@ import { ErrorCodes } from '../api/ResultCodes';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class BlockResDto {
-    height: number;
-    hash: string;
-    txn: number;
-    time: string;
+    height?: number;
+    hash?: string;
+    txn?: number;
+    time?: string;
 
     constructor(height: number, hash: string, txn: number, time: string) {
         this.height = height;

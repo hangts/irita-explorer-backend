@@ -20,7 +20,7 @@ export class StatisticsService {
         const block = await this.queryLatestHeightAndTime();
         const avgBlockTime = await this.queryAvgBlockTime();
         const assetCount = await this.queryAssetCount();
-        const validatorCount = await this.queryValidatorCount();
+        const validatorCount = await this.queryConsensusValidatorCount();
         const {txCount, serviceCount} = await this.queryTxCount();
 
         return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount);
@@ -63,10 +63,8 @@ export class StatisticsService {
         return await (this.nftModel as any).findCount();
     }
 
-    async queryValidatorCount(): Promise<number | null>{
-
-        //TODO(lsc) validator count;
-        return await (this.validatorModel as any).findCount();
+    async queryConsensusValidatorCount(): Promise<number | null>{
+        return await (this.validatorModel as any).findCount(false);
     }
 
     async queryTxCount():Promise<any>{

@@ -44,9 +44,9 @@ describe('statistics module', () => {
     });
 
 
-    describe('queryValidatorCount', () => {
+    describe('queryConsensusValidatorCount', () => {
         it('should return validator count', async () => {
-            const data: number | null = await statisticsService.queryValidatorCount();
+            const data: number | null = await statisticsService.queryConsensusValidatorCount();
             expect(data).toBeDefined();
         });
     });

@@ -6,11 +6,19 @@ export const BlockSchema = new mongoose.Schema({
     hash: String,
     txn: Number,
     time: Number,
-},{versionKey: false});
+}, { versionKey: false });
 
 BlockSchema.statics = {
     async findList(pageNum: number, pageSize: number): Promise<IBlockStruct[]> {
-        return await this.find({}).sort({ height: -1 }).skip((pageNum - 1) * pageSize).limit(pageSize).exec();
+        return await this.find({})
+            .select({
+                _id: 0,
+                'txn-revno': 0,
+                'txn-queue': 0,
+            })
+            .sort({ height: -1 })
+            .skip((pageNum - 1) * pageSize)
+            .limit(pageSize).exec();
     },
 
     async findCount(): Promise<number> {
@@ -18,11 +26,22 @@ BlockSchema.statics = {
     },
 
     async findOneByHeight(height: number): Promise<IBlockStruct | null> {
-        return await this.findOne({ height });
+        return await this.findOne({ height }).select({
+            _id: 0,
+            'txn-revno': 0,
+            'txn-queue': 0,
+        });
     },
 
     async findOneByHeightDesc(): Promise<IBlockStruct | null> {
-        const res: IBlockStruct[] = await this.find({}).sort({ height: -1 }).limit(1);
+        const res: IBlockStruct[] = await this.find({})
+            .sort({ height: -1 })
+            .select({
+                _id: 0,
+                'txn-revno': 0,
+                'txn-queue': 0,
+            })
+            .limit(1);
         if (res && res.length > 0) {
             return res[0];
         } else {
@@ -31,7 +50,14 @@ BlockSchema.statics = {
     },
 
     async findNum100Height(): Promise<IBlockStruct | null> {
-        const res: IBlockStruct[] = await this.find({}).sort({ height: -1 }).limit(100);
+        const res: IBlockStruct[] = await this.find({})
+            .select({
+                _id: 0,
+                'txn-revno': 0,
+                'txn-queue': 0,
+            })
+            .sort({ height: -1 })
+            .limit(100);
         if (res && res.length > 0) {
             return res[res.length - 1];
         } else {
