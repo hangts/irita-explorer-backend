@@ -32,14 +32,14 @@ describe('taskDispatch module', () => {
     });
 
     describe('unlock', () => {
-        it('should return block average time', async () => {
+        it('should unlock', async () => {
             const data: any = await taskDispatchService.unlock(TaskEnum.denom);
             expect(data).toBeDefined();
         });
     });
 
     describe('taskDispatchFaultTolerance', () => {
-        it('should return block average time', async () => {
+        it('should check over time', async () => {
             await taskDispatchService.taskDispatchFaultTolerance();
         });
     });
