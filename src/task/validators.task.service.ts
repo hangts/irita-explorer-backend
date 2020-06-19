@@ -133,7 +133,7 @@ export class ValidatorsTaskService {
                 hash,
             };
         });
-        let ss = await (this.ValidatorsModel as any).saveValidator(insertValidatorList);
+        await (this.ValidatorsModel as any).saveValidator(insertValidatorList);
     }
 
     private async updateValidator(shouldUpdateValidatorMap:Map<string, IValidatorsStruct>):Promise<any>{
