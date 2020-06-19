@@ -7,8 +7,8 @@ export class DenomHttp {
 
     }
     async queryDenomsFromLcd(): Promise<any> {
+        const url: string = `${cfg.serverCfg.lcdAddr}/nft/nfts/denoms`;
         try {
-            const url: string = `${cfg.serverCfg.lcdAddr}/nft/nfts/denoms`;
             const data: any = await new HttpService().get(url).toPromise().then(res => res.data);
             if(data && data.result){
                 return data.result;
@@ -17,7 +17,7 @@ export class DenomHttp {
             }
 
         } catch (e) {
-            new Logger().error('api-error:', e.message);
+            new Logger().error(`api-error from url:`, e.message);
             // cron jobs error should not throw errors;
         }
 
