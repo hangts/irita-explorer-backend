@@ -13,6 +13,5 @@ export class BlockHttp {
             new Logger().error(`api-error from ${url}:`, e.message);
             throw new ApiError(ErrorCodes.failed, e.message);
         }
-
     }
 }
