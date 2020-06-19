@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import { Logger } from '@nestjs/common';
 import {
-    deleteQuery,
+    IDeleteQuery,
     INftCountQueryParams,
     INftDetailStruct,
     INftListStruct,
@@ -103,7 +103,7 @@ NftSchema.statics = {
         this.insertMany(nfts, { ordered: false });
     },
 
-    async deleteOneByDenomAndId(nft: deleteQuery): Promise<void> {
+    async deleteOneByDenomAndId(nft: IDeleteQuery): Promise<void> {
         return await this.deleteOne(nft, (e) => {
             if (e) new Logger().error('mongo-error:', e.message);
         });

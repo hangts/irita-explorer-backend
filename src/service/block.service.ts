@@ -37,7 +37,7 @@ export class BlockService {
 
     async queryLatestBlock(): Promise<IBlockStruct> {
         try {
-            const blockStruct: IBlockStruct = await this.queryLatestBlockFromLcd();
+            const blockStruct: IBlockStruct | null = await this.queryLatestBlockFromLcd();
             if(blockStruct){
                 return blockStruct;
             }else {
@@ -54,16 +54,19 @@ export class BlockService {
         return await (this.blockModel as any).findOneByHeightDesc();
     }
 
-    private async queryLatestBlockFromLcd(): Promise<IBlockStruct> {
+    private async queryLatestBlockFromLcd(): Promise<IBlockStruct | null> {
         const res = await BlockHttp.queryLatestBlockFromLcd();
-        const blockStruct: IBlockStruct = {};
         if(res && res.block_id && res.block && res.block.header && res.block.data){
+            const blockStruct: IBlockStruct = {};
             blockStruct.height = res.block.header.height;
             blockStruct.time = res.block.header.time;
             blockStruct.txn = res.block.data.txs ? res.block.data.txs.length : 0;
             blockStruct.hash = res.block_id.hash;
+            return blockStruct;
+        }else {
+            return null;
         }
-        return blockStruct;
+
     }
 
 
