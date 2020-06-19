@@ -35,10 +35,14 @@ export class BlockService {
         return data;
     }
 
-    //TODO(lsc) this api has not been used, use any temporary;
-    async queryLatestBlock(): Promise<any> {
+    async queryLatestBlock(): Promise<IBlockStruct> {
         try {
-            return await this.queryLatestBlockFromLcd();
+            const blockStruct: IBlockStruct = await this.queryLatestBlockFromLcd();;
+            if(blockStruct){
+                return blockStruct;
+            }else {
+                return await this.queryLatestBlockFromDB();
+            }
         } catch (e) {
             console.error('api-error:', e.message);
             return await this.queryLatestBlockFromDB();
@@ -50,8 +54,16 @@ export class BlockService {
         return await (this.blockModel as any).findOneByHeightDesc();
     }
 
-    private async queryLatestBlockFromLcd(): Promise<any> {
-        return await BlockHttp.queryLatestBlockFromLcd();
+    private async queryLatestBlockFromLcd(): Promise<IBlockStruct> {
+        const res = await BlockHttp.queryLatestBlockFromLcd();
+        const blockStruct: IBlockStruct = {};
+        if(res && res.block_id && res.block && res.block.header && res.block.data){
+            blockStruct.height = res.block.header.height;
+            blockStruct.time = res.block.header.time;
+            blockStruct.txn = res.block.data.txs ? res.block.data.txs.length : 0;
+            blockStruct.hash = res.block_id.hash;
+        }
+        return blockStruct;
     }
 
 
