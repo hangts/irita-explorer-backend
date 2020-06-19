@@ -66,38 +66,15 @@ export class TaskDispatchService {
         return await (this.taskDispatchModel as any).unlock(name);
     }
 
-    async taskDispatchFaultTolerance(): Promise<boolean> {
+    async taskDispatchFaultTolerance(): Promise<void> {
         const taskList: ITaskDispatchStruct[] = await (this.taskDispatchModel as any).findAllLocked();
         if (taskList && taskList.length > 0) {
-            return new Promise(async (resolve) => {
-                let arr: any[] = [];
-
-                const promiseContainer = (task) => {
-                    return new Promise(async (subRes) => {
-                        //对比当前时间跟上次心跳更新时间的差值与 心率, 当大于两个心率周期的时候, 认为上一个执行task的实例发生故障
-                        if ((getTimestamp() - task.heartbeat_update_time) >= cfg.taskCfg.interval.heartbeatRate * 2) {
-                            await this.releaseLockByName(task.name);
-                            subRes();
-                        } else {
-                            subRes();
-                        }
-                    });
-
-                };
-                taskList.forEach((task) => {
-                    arr.push(promiseContainer(task));
-                });
-                Promise.all(arr).then((res: any) => {
-                    if (res) {
-                        resolve(true);
-                    }
-                }).catch((e) => {
-                    resolve(true);
-                    new Logger('sync nft failed:', e.message);
-                });
-            });
-        } else {
-            return false;
+            for(let task of taskList){
+                //对比当前时间跟上次心跳更新时间的差值与 心率, 当大于两个心率周期的时候, 认为上一个执行task的实例发生故障
+                if ((getTimestamp() - task.heartbeat_update_time) >= cfg.taskCfg.interval.heartbeatRate * 2) {
+                    await this.releaseLockByName((task as any).name);
+                }
+            }
         }
     }
 

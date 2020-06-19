@@ -24,23 +24,23 @@ describe('taskDispatch module', () => {
     });
 
     describe('registerTask', () => {
-        it('should return latest block height', async () => {
-            const data: ITaskDispatchStruct = await taskDispatchService.registerTask(TaskEnum.denom);
+        it('should return register denom task', async () => {
+            let str = String(Math.floor(Math.random()*1000000))
+            const data: ITaskDispatchStruct = await taskDispatchService.registerTask((str as TaskEnum));
             expect(data).toBeDefined();
         });
     });
 
     describe('unlock', () => {
-        it('should return block average time', async () => {
+        it('should unlock', async () => {
             const data: any = await taskDispatchService.unlock(TaskEnum.denom);
             expect(data).toBeDefined();
         });
     });
 
     describe('taskDispatchFaultTolerance', () => {
-        it('should return block average time', async () => {
-            const data: boolean = await taskDispatchService.taskDispatchFaultTolerance();
-            expect(data).toBe(true);
+        it('should check over time', async () => {
+            await taskDispatchService.taskDispatchFaultTolerance();
         });
     });
 
