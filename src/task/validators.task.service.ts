@@ -17,6 +17,9 @@ export class ValidatorsTaskService {
         let PageNum = 1,limitSize = 100, allValidatorsFromLcd = [];
         //验证人第一次默认请求 默认请求第一页
         let validatorsFromLcd: any[] = await this.validatorsHttp.queryValidatorsFromLcd(null,PageNum,limitSize);
+        if (typeof validatorsFromLcd == 'undefined') {
+            return;
+        }
         if(validatorsFromLcd && validatorsFromLcd.length > 0) {
             allValidatorsFromLcd = allValidatorsFromLcd.concat(validatorsFromLcd);
         }
