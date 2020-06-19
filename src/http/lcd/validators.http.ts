@@ -12,8 +12,7 @@ export class ValidatorsHttp {
             if(validatorsData && validatorsData.result){
                 return validatorsData.result;
             }else{
-            		new Logger().error('api-error:', 'there is no result of validators from lcd');
-            		return [];
+            	new Logger().error('api-error:', 'there is no result of validators from lcd');
             }
         }catch (e) {
             new Logger().error('api-error',e.message)

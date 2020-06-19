@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 
 export interface ITxsQueryParams extends IQueryBase {
 	type?:string,
+	$nor?:object[],
 	status?:number,
 	time?:{
 		$gte?:number,
@@ -12,5 +13,5 @@ export interface ITxsQueryParams extends IQueryBase {
 
 export interface IListStruct {
 	data?: any[],
-    count?: number
+  count?: number
 }
