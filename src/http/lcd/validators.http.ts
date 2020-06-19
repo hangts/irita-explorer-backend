@@ -5,8 +5,8 @@ import { cfg } from "../../config"
 
 export class ValidatorsHttp {
     async queryValidatorsFromLcd(validatorStatus:boolean,pageNum:number,pageSize:number): Promise<any>{
+        const validatorsLcdUrl:string = `${cfg.serverCfg.lcdAddr}/validator/validators?jailed=${validatorStatus || ''}&page=${pageNum}&limit=${pageSize}`
         try {
-            const validatorsLcdUrl:string = `${cfg.serverCfg.lcdAddr}/validator/validators?jailed=${validatorStatus || ''}&page=${pageNum}&limit=${pageSize}`
             const validatorsData:any = await new HttpService().get(validatorsLcdUrl).toPromise().then(result => result.data)
             
             if(validatorsData && validatorsData.result){
@@ -15,7 +15,7 @@ export class ValidatorsHttp {
             	new Logger().error('api-error:', 'there is no result of validators from lcd');
             }
         }catch (e) {
-            new Logger().error('api-error',e.message)
+            new Logger().error(`api-error form ${validatorsLcdUrl}`,e.message)
         }
     }
 
