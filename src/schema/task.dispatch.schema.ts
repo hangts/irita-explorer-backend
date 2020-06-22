@@ -23,22 +23,44 @@ TaskDispatchSchema.statics = {
         return new this(t).save();
     },
 
-    async lock(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
-        new Logger('From task.dispatch.schema').log(`${name} task begin time: ${new Date().getTime()}`);
-        return await this.updateOne({ name, is_locked: false }, {
-            // condition: is_locked: false, those server whose query's is_locked is true should not to be updated;
-            is_locked: true,
-            task_begin_time: getTimestamp(),
-            device_ip: getIpAddress(),
-        }).exec();
+    async lock(name: TaskEnum): Promise<boolean> {
+        return new Promise(async (res)=>{
+            return await this.updateOne({ name, is_locked: false }, {
+                // condition: is_locked: false, those server whose query's is_locked is true should not to be updated;
+                is_locked: true,
+                task_begin_time: getTimestamp(),
+                device_ip: getIpAddress(),
+            }, null, (error,effect)=>{
+                if(error) res(false);
+                if(effect && effect.nModified === 1){
+                    res(true);
+                    new Logger('From task.dispatch.schema').log(`${name} task begin time: ${new Date().getTime()}`);
+                }else {
+                    res(false);
+                }
+            }).exec();
+        });
+
+
     },
 
-    async unlock(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
-        new Logger('From task.dispatch.schema').log(`${name} task end time: ${new Date().getTime()}`);
-        return await this.updateOne({ name }, {
-            is_locked: false,
-            task_end_time: getTimestamp(),
-        }).exec();
+    async unlock(name: TaskEnum): Promise<boolean> {
+        return new Promise(async (res)=>{
+            return await this.updateOne({ name, is_locked: true }, {
+                is_locked: false,
+                task_end_time: getTimestamp(),
+            }, null, (error,effect)=>{
+                if(error) res(false);
+                if(effect && effect.nModified === 1){
+                    res(true)
+                    new Logger('From task.dispatch.schema').log(`${name} task end time: ${new Date().getTime()}`);
+                }else {
+                    res(false);
+                }
+            }).exec();
+        })
+
+
     },
 
     async releaseLockByName(name: TaskEnum): Promise<ITaskDispatchStruct | null> {

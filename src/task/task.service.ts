@@ -34,18 +34,18 @@ export class TasksService {
     }
 
     @Cron(cfg.taskCfg.executeTime.nft)
-    //@Cron('22 * * * * *')
+    //@Cron('01 * * * * *')
     async syncNfts() {
         this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.txServiceName)
     async syncTxServiceName() {
-        this.logger.log('cron jobs of service name async is running!');
         this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.syncRespondServiceTxServiceName.bind(this.txTaskService));
     }
 
     @Cron(cfg.taskCfg.executeTime.validators)
+    //@Cron('03 * * * * *')
     async syncValidators() {
         this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
     }
@@ -53,13 +53,12 @@ export class TasksService {
     @Cron(cfg.taskCfg.executeTime.faultTolerance)
     //@Cron('18 * * * * *')
     async taskDispatchFaultTolerance() {
-        this.logger.log('cron jobs of fault tolerance is running');
         this.taskDispatchService.taskDispatchFaultTolerance();
     }
 
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
         const needDoTask: boolean = await this.taskDispatchService.needDoTask(taskName);
-        this.logger.log(`the ip ${getIpAddress()} should do task ${taskName}? ${needDoTask}`);
+        this.logger.log(`the ip ${getIpAddress()} (process pid is ${process.pid}) should do task ${taskName}? ${needDoTask}`);
         if (needDoTask) {
             try {
                 //因为一般情况下定时任务执行时间要小于心跳率, 为防止heartbeat_update_time一直不被更新,
@@ -71,7 +70,8 @@ export class TasksService {
                 }, cfg.taskCfg.interval.heartbeatRate);
                 await doTask();
                 //weather task is completed successfully, lock need to be released;
-                await this.taskDispatchService.unlock(taskName);
+                const unlock: boolean = await this.taskDispatchService.unlock(taskName);
+                this.logger.log(`the ip ${getIpAddress()} (process pid is ${process.pid}) has released the lock ${taskName}? ${unlock}`);
                 if (this[`${taskName}_timer`]) {
                     clearInterval(this[`${taskName}_timer`]);
                 }
