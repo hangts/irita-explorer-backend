@@ -93,7 +93,7 @@ NftSchema.statics = {
         if (owner){
             query.owner = owner;
         }
-        return await this.find(query).count().exec();
+        return await this.find(query).countDocuments().exec();
     },
     async findListByName(name: string): Promise<INftStruct> {
         return await this.find({ denom: name }).exec();

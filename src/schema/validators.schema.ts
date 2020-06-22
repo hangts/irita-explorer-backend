@@ -20,14 +20,14 @@ ValidatorSchema.statics.findValidators = async function (query:IValidatorsQueryP
     };
     queryParams.jailed = query.jailed;
     if(query && query.useCount){
-        result.count = await  this.count(queryParams)
+        result.count = await  this.countDocuments(queryParams)
     }
     result.data = await this.find(queryParams).skip((Number(query.pageNum) - 1) * Number(query.pageSize))
       .limit(Number(query.pageSize)).select({'_id':0,'__v':0,'hash':0})
     return  result
 }
 ValidatorSchema.statics.findCount = async function (isJailed: boolean):Promise<number> {
-    return await this.count({jailed:isJailed});
+    return await this.countDocuments({jailed:isJailed});
 }
 
 ValidatorSchema.statics.findAllValidators = async function ():Promise<IValidatorsStruct[]>{
