@@ -3,6 +3,7 @@ import {TxController} from '../controller/tx.controller';
 import {TxService} from './tx.service';
 import {TxSchema} from '../schema/tx.schema';
 import { AppModule } from './../app.module';
+import { Logger } from '../log'
 import { TxListReqDto, 
          TxListWithHeightReqDto,
          TxListWithAddressReqDto,
@@ -63,9 +64,9 @@ describe('TxController', () => {
             if (parseInt(String((Math.random()*10)%2))) {
                 req.endTime = parseInt(String(new Date().getTime()/1000)) + '';
             }
-            console.log('===>req:',req);
+            Logger.log('===>req:',req);
             let data = await txService.queryTxList(req);
-            console.log('===>queryTxListCount:',data.data.length);
+            Logger.log('===>queryTxListCount:',data.data.length);
         });
     });
 
@@ -165,7 +166,7 @@ describe('TxController', () => {
 
             let data = await txService.queryTxTypeList();
             if (data && data.data.length) {
-                console.log('====>txTypesCount:',data.data.length);
+                Logger.log('====>txTypesCount:',data.data.length);
             }else{
                 expect(data).toBeDefined();
             }

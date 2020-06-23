@@ -14,11 +14,11 @@ export class NftHttp {
             if(data && data.result){
                 return data.result;
             }else{
-                Logger.error('api-error:', 'there is no result of nft from lcd');
+                Logger.warn('api-error:', 'there is no result of nft from lcd');
             }
 
         } catch (e) {
-            Logger.error(`api-error from ${url}:`, e.message);
+            Logger.warn(`api-error from ${url}:`, e.message);
             // cron jobs error should not throw errors;
         }
 

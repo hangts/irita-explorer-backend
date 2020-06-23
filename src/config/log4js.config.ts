@@ -53,7 +53,7 @@ const log4jsConfig = {
     },
     categories: {
         default: { appenders: ['console'], level: LoggerLevel.DEBUG},
-        console: { appenders: ['console'], level: LoggerLevel.DEBUG},
+        console: { appenders: ['console'], level: LoggerLevel.TRACE},
         common: { appenders: ['console', 'app', 'errors'], level: LoggerLevel.INFO },
         http: { appenders: ['access', 'console'], level: LoggerLevel.INFO },
     }

@@ -122,4 +122,4 @@ export class Logger {
     }
 }
 
-export default Logger;
+(<any>global).Logger = Logger;

@@ -30,7 +30,7 @@ export class TaskDispatchService {
         } else {
             //it should be register if there is no this type of task;
             const registered = await this.registerTask(name);
-            console.log('register successfully?', registered);
+            Logger.log('register successfully?', registered);
             if (registered) {
                 const updated = await this.lock(name);
                 if (updated && updated.is_locked) {
@@ -39,7 +39,7 @@ export class TaskDispatchService {
                     return false;
                 }
             } else {
-                Logger.error(`${name} task has not been registered, but it couldn't register successfully!`);
+                Logger.warn(`${name} task has not been registered, but it couldn't register successfully!`);
                 return false;
 
             }

@@ -11,7 +11,7 @@ export class BlockHttp {
         try {
             return await new HttpService().get(url).toPromise().then(res => res.data);
         } catch (e) {
-            Logger.error(`api-error from ${url}:`, e.message);
+            Logger.warn(`api-error from ${url}:`, e.message);
             throw new ApiError(ErrorCodes.failed, e.message);
         }
     }

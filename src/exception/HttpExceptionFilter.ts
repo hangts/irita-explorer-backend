@@ -1,5 +1,4 @@
-import { ExceptionFilter, Catch, ArgumentsHost, Logger, HttpException} from '@nestjs/common';
-import log4 from '../log'
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException} from '@nestjs/common';
 import {ErrorCodes} from '../api/ResultCodes';
 import {ResultCodesMaps} from '../api/ResultCodes';
 import { getExceptionLog } from '../helper/log.helper'
@@ -13,7 +12,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const status = exception instanceof HttpException ? exception.getStatus() : 200;
 
         const logFormat = getExceptionLog(request, exception);
-        log4.error(logFormat);
+        (global as any).Logger.error(logFormat);
 
         let code: number = exception.code || ErrorCodes.failed, message: string = ResultCodesMaps.get(exception.code) || (exception.errmsg || exception.message);
         if(exception.response && exception.response.code){
