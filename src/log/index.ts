@@ -8,8 +8,6 @@ import log4Config from '../config/log4js.config';
 import { cfg } from '../config/config';
 import { ENV, LoggerLevel } from '../constant';
 
-
-// 内容跟踪类
 export class ContextTrace {
   constructor(
         public readonly context: string,
@@ -23,12 +21,12 @@ Log4js.addLayout('csrb-nest', (logConfig: any) => {
     return (logEvent: Log4js.LoggingEvent): string => {
         let moduleName: string = '';
         let position: string = '';
-        // 日志组装
+        
         const messageList: string[] = [];
         logEvent.data.forEach((value: any) => {
             if (value instanceof ContextTrace) {
                 moduleName = value.context;
-                // 显示触发日志的坐标（行，列）
+                
                 if (value.lineNumber && value.columnNumber) {
                   position = `${value.lineNumber}, ${value.columnNumber}`;
                 }
@@ -39,14 +37,14 @@ Log4js.addLayout('csrb-nest', (logConfig: any) => {
             }
             messageList.push(value);
         });
-        // 日志组成部分
+        
         const messageOutput: string = messageList.join(' ');
         const positionOutput: string = position ? ` [${position}]` : '';
         const typeOutput: string = `[${logConfig.type}] ${logEvent.pid.toString()}   - `;
         const dateOutput: string = `${moment(logEvent.startTime).format('YYYY-MM-DD HH:mm:ss')}`;
         const moduleOutput: string = moduleName ? `[${moduleName}] ` : '[LoggerService] ';
         let levelOutput: string = `[${logEvent.level}] ${messageOutput}`;
-        // 根据日志级别，用不同颜色区分
+
         switch (logEvent.level.toString()) {
             case LoggerLevel.DEBUG:
                 levelOutput = Chalk.green(levelOutput);
@@ -113,7 +111,6 @@ export class Logger {
         logger_http.info(Logger.getStackTrace(), ...args);
     }
 
-    // 日志追踪，可以追溯到哪个文件、第几行第几列
     static getStackTrace(deep: number = 2): string {
         const stackList: StackTrace.StackFrame[] = StackTrace.getSync();
         const stackInfo: StackTrace.StackFrame = stackList[deep];
