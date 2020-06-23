@@ -1,10 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ITaskDispatch, ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
 import { getIpAddress, getTimestamp } from '../util/util';
 import { TaskEnum } from '../constant';
-import { cfg } from '../config';
+import { cfg } from '../config/config';
+import { Logger } from '../log';
 
 @Injectable()
 export class TaskDispatchService {
@@ -38,7 +39,7 @@ export class TaskDispatchService {
                     return false;
                 }
             } else {
-                new Logger().error(`${name} task has not been registered, but it couldn't register successfully!`);
+                Logger.error(`${name} task has not been registered, but it couldn't register successfully!`);
                 return false;
 
             }

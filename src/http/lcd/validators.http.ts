@@ -1,5 +1,6 @@
-import { Logger, HttpServer, Injectable, HttpService } from '@nestjs/common';
-import { cfg } from "../../config"
+import { HttpServer, Injectable, HttpService } from '@nestjs/common';
+import { cfg } from "../../config/config"
+import { Logger } from '../../log';
 
 @Injectable()
 
@@ -11,10 +12,10 @@ export class ValidatorsHttp {
             if(validatorsData && validatorsData.result){
                 return validatorsData.result;
             }else{
-            	new Logger().error('api-error:', 'there is no result of validators from lcd');
+            	Logger.error('api-error:', 'there is no result of validators from lcd');
             }
         }catch (e) {
-            new Logger().error(`api-error from ${validatorsLcdUrl}`,e.message)
+            Logger.error(`api-error from ${validatorsLcdUrl}`,e.message)
         }
     }
 }

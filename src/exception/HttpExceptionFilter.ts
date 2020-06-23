@@ -1,6 +1,8 @@
-import { ExceptionFilter, Catch, ArgumentsHost, Logger} from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, Logger, HttpException} from '@nestjs/common';
+import log4 from '../log'
 import {ErrorCodes} from '../api/ResultCodes';
 import {ResultCodesMaps} from '../api/ResultCodes';
+import { getExceptionLog } from '../helper/log.helper'
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -8,15 +10,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
         const request = ctx.getRequest();
-        console.error(`there is an error from ${request.url}`, exception);
+        const status = exception instanceof HttpException ? exception.getStatus() : 200;
+
+        const logFormat = getExceptionLog(request, exception);
+        log4.error(logFormat);
+
         let code: number = exception.code || ErrorCodes.failed, message: string = ResultCodesMaps.get(exception.code) || (exception.errmsg || exception.message);
         if(exception.response && exception.response.code){
             code = exception.response.code;
             message = exception.response.message || (ResultCodesMaps.get(code) || '');
-            new Logger().log('error:',JSON.stringify({code:code, message:message}));
         }
         response
-            .status(200)
+            .status(status)
             .json({
                 code,
                 message,

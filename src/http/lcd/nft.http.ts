@@ -1,5 +1,6 @@
-import { Logger, HttpService, Injectable } from '@nestjs/common';
-import { cfg } from '../../config';
+import { HttpService, Injectable } from '@nestjs/common';
+import { cfg } from '../../config/config';
+import { Logger } from '../../log';
 
 @Injectable()
 export class NftHttp {
@@ -13,11 +14,11 @@ export class NftHttp {
             if(data && data.result){
                 return data.result;
             }else{
-                new Logger().error('api-error:', 'there is no result of nft from lcd');
+                Logger.error('api-error:', 'there is no result of nft from lcd');
             }
 
         } catch (e) {
-            new Logger().error(`api-error from ${url}:`, e.message);
+            Logger.error(`api-error from ${url}:`, e.message);
             // cron jobs error should not throw errors;
         }
 
