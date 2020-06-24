@@ -1,8 +1,8 @@
-import { Controller, Get} from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { Result } from '../api/ApiResult';
-import {StatisticsResDto} from '../dto/statistics.dto';
-import {StatisticsService} from '../service/statistics.service';
-import { ApiTags} from '@nestjs/swagger';
+import { StatisticsResDto } from '../dto/statistics.dto';
+import { StatisticsService } from '../service/statistics.service';
+import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Statistics')
 @Controller('statistics')

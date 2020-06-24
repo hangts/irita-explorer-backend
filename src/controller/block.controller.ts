@@ -2,9 +2,8 @@ import { Controller, Get, Param, Query, UsePipes } from '@nestjs/common';
 import { BlockService } from '../service/block.service';
 import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
-import {BlockListResDto, BlockListReqDto, BlockDetailReqDto} from '../dto/block.dto';
-import ValidationPipe from '../pipe/validation.pipe';
-import { ApiTags} from '@nestjs/swagger';
+import { BlockListResDto, BlockListReqDto, BlockDetailReqDto } from '../dto/block.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Blocks')
 @Controller('blocks')
@@ -12,7 +11,6 @@ export class BlockController {
     constructor(private readonly blockService: BlockService) {
     }
 
-    @UsePipes(new ValidationPipe())
     @Get()
     async queryBlockList(@Query() q: BlockListReqDto): Promise<Result<ListStruct<BlockListResDto[]>>> {
         const data: ListStruct<BlockListResDto[]> = await this.blockService.queryBlockList(q);
@@ -26,7 +24,6 @@ export class BlockController {
     }
 
     @Get(':height')
-    @UsePipes(new ValidationPipe())
     async queryBlockDetail(@Param() p: BlockDetailReqDto): Promise<Result<BlockListResDto | null>> {
         const data: BlockListResDto | null = await this.blockService.queryBlockDetail(p);
         return new Result<BlockListResDto | null>(data);

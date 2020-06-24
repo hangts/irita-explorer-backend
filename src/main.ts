@@ -6,6 +6,7 @@ import * as express from 'express';
 import { MyLogger } from './log/logger';
 import { LoggerMiddleware } from './middleware/logger.middleware'; 
 import { LoggerInterceptor } from './interceptor/logger.interceptor'; 
+import ValidationPipe from './pipe/validation.pipe';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
@@ -16,6 +17,7 @@ async function bootstrap() {
     app.enableCors();
     app.use(LoggerMiddleware);
     app.useGlobalInterceptors(new LoggerInterceptor());
+    app.useGlobalPipes(new ValidationPipe());
     setUpSwagger(app);
     await app.listen(3000);
 }
