@@ -1,4 +1,4 @@
-import { cfg } from '../config';
+import { cfg } from '../config/config';
 
 export enum TaskEnum {
     denom = 'ex_sync_denom',
@@ -13,6 +13,10 @@ export const DefaultPaging = {
     pageSize: 10,
 };
 
+export enum ENV {
+    development = 'development',
+    production = 'production',
+};
 
 export enum TxType {
     create_record = 'create_record',
@@ -30,4 +34,16 @@ export enum TxType {
     transfer_token_owner = 'transfer_token_owner',
     issue_token = 'issue_token',
     edit_token = 'edit_token',
+}
+
+export enum LoggerLevel {
+    ALL = 'ALL',
+    TRACE = 'TRACE',
+    DEBUG = 'DEBUG',
+    INFO = 'INFO',
+    WARN = 'WARN',
+    ERROR = 'ERROR',
+    FATAL = 'FATAL',
+    MARK = 'MARK',
+    OFF = 'OFF',
 }

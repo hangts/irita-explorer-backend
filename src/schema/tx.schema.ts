@@ -8,7 +8,7 @@ import { ITxStruct, ITxStructMsgs, ITxStructHash } from '../types/schemaTypes/tx
 import { ITxsQueryParams} from '../types/tx.interface';
 import {IListStruct} from '../types';
 import { TxType } from '../constant';
-import { cfg } from '../config';
+import { cfg } from '../config/config';
 export const TxSchema = new mongoose.Schema({
     time:Number,
     height:Number,

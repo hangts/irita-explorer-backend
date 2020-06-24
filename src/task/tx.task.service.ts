@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Logger } from '../log'
 import { getReqContextIdWithReqId, 
          getReqContextIdFromEvents,
          getServiceNameFromMsgs } from '../helper/tx.helper';
@@ -35,7 +36,7 @@ export class TxTaskService {
         });
         Object.values(respondServiceTxMap).forEach((item:{tx_hash:string, reqContextId:string, serviceName:string})=>{
             if (item.tx_hash && item.serviceName) {
-                console.log('tx sync serviceName:',item)
+                Logger.log('tx sync serviceName:',item);
                 this.txModel.updateServiceNameToResServiceTxWithTxHash( item.tx_hash, item.serviceName, item.reqContextId );
             }
         });

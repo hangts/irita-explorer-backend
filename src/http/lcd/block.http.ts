@@ -1,7 +1,8 @@
-import { Logger, HttpService } from '@nestjs/common';
+import { HttpService } from '@nestjs/common';
 import { ErrorCodes } from '../../api/ResultCodes';
 import { ApiError } from '../../api/ApiResult';
-import { cfg } from '../../config';
+import { cfg } from '../../config/config';
+import { Logger } from '../../log';
 
 export class BlockHttp {
 
@@ -10,7 +11,7 @@ export class BlockHttp {
         try {
             return await new HttpService().get(url).toPromise().then(res => res.data);
         } catch (e) {
-            new Logger().error(`api-error from ${url}:`, e.message);
+            Logger.warn(`api-error from ${url}:`, e.message);
             throw new ApiError(ErrorCodes.failed, e.message);
         }
     }

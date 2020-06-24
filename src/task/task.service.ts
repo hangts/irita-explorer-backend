@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { TxTaskService } from './tx.task.service';
 import { DenomTaskService } from './denom.task.service';
@@ -6,13 +6,13 @@ import { NftTaskService } from './nft.task.service';
 import { TaskDispatchService } from '../service/task.dispatch.service';
 import { TaskEnum } from '../constant';
 import { getIpAddress } from '../util/util';
-import { cfg } from '../config';
+import { cfg } from '../config/config';
 import { TaskCallback } from '../types/task.interface';
 import { ValidatorsTaskService } from './validators.task.service';
+import { Logger } from '../log'
 
 @Injectable()
 export class TasksService {
-    private readonly logger = new Logger('from task service');
 
     constructor(
         private readonly denomTaskService: DenomTaskService,
@@ -58,7 +58,7 @@ export class TasksService {
 
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
         const needDoTask: boolean = await this.taskDispatchService.needDoTask(taskName);
-        this.logger.log(`the ip ${getIpAddress()} (process pid is ${process.pid}) should do task ${taskName}? ${needDoTask}`);
+        Logger.log(`the ip ${getIpAddress()} (process pid is ${process.pid}) should do task ${taskName}? ${needDoTask}`);
         if (needDoTask) {
             try {
                 //因为一般情况下定时任务执行时间要小于心跳率, 为防止heartbeat_update_time一直不被更新,
@@ -71,11 +71,11 @@ export class TasksService {
                 await doTask();
                 //weather task is completed successfully, lock need to be released;
                 const unlock: boolean = await this.taskDispatchService.unlock(taskName);
-                this.logger.log(`the ip ${getIpAddress()} (process pid is ${process.pid}) has released the lock ${taskName}? ${unlock}`);
+                Logger.log(`the ip ${getIpAddress()} (process pid is ${process.pid}) has released the lock ${taskName}? ${unlock}`);
                 if (this[`${taskName}_timer`]) {
                     clearInterval(this[`${taskName}_timer`]);
                 }
-                this.logger.log(`${taskName} successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
+                Logger.log(`from task service ${taskName} successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
             } catch (e) {
                 await this.taskDispatchService.unlock(taskName);
                 if (this[`${taskName}_timer`]) {

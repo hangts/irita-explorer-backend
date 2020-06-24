@@ -11,7 +11,7 @@ import { HttpExceptionFilter } from './exception/HttpExceptionFilter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksService } from './task/task.service';
 
-import { cfg } from './config';
+import { cfg } from './config/config';
 import { TaskDispatchModule } from './module/task.dispatch.module';
 import { DenomTaskModule } from './module/denom.task.module';
 import { NftTaskModule } from './module/nft.task.module';

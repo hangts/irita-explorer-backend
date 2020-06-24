@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import { getIpAddress, getTimestamp } from '../util/util';
 import { ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
 import { TaskEnum } from 'src/constant';
-import {Logger} from '@nestjs/common';
+import { Logger } from '../log';
 
 export const TaskDispatchSchema = new mongoose.Schema({
     name: { type: String, unique: true },
@@ -22,7 +22,6 @@ TaskDispatchSchema.statics = {
     async createOne(t: ITaskDispatchStruct): Promise<ITaskDispatchStruct | null> {
         return new this(t).save();
     },
-
     async lock(name: TaskEnum): Promise<boolean> {
         return new Promise(async (res)=>{
             return await this.updateOne({ name, is_locked: false }, {
@@ -34,7 +33,7 @@ TaskDispatchSchema.statics = {
                 if(error) res(false);
                 if(effect && effect.nModified === 1){
                     res(true);
-                    new Logger('From task.dispatch.schema').log(`${name} task begin time: ${new Date().getTime()}`);
+                    Logger.log(`From task.dispatch.schema ${name} task begin time: ${new Date().getTime()}`);
                 }else {
                     res(false);
                 }
@@ -53,14 +52,12 @@ TaskDispatchSchema.statics = {
                 if(error) res(false);
                 if(effect && effect.nModified === 1){
                     res(true)
-                    new Logger('From task.dispatch.schema').log(`${name} task end time: ${new Date().getTime()}`);
+                    Logger.log(`From task.dispatch.schema ${name} task end time: ${new Date().getTime()}`);
                 }else {
                     res(false);
                 }
             }).exec();
         })
-
-
     },
 
     async releaseLockByName(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
