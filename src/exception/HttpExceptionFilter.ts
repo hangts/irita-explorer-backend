@@ -12,7 +12,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const status = exception instanceof HttpException ? exception.getStatus() : 200;
 
         const logFormat = getExceptionLog(request, exception);
-        Logger.error(logFormat);
+        (global as any).Logger.error(logFormat);
 
         let code: number = exception.code || ErrorCodes.failed, message: string = ResultCodesMaps.get(exception.code) || (exception.errmsg || exception.message);
         if(exception.response && exception.response.code){
