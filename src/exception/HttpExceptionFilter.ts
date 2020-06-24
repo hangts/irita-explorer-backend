@@ -1,4 +1,4 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException} from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus} from '@nestjs/common';
 import {ErrorCodes} from '../api/ResultCodes';
 import {ResultCodesMaps} from '../api/ResultCodes';
 import { getExceptionLog } from '../helper/log.helper'
@@ -9,7 +9,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
         const request = ctx.getRequest();
-        const status = exception instanceof HttpException ? exception.getStatus() : 200;
+        const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
         const logFormat = getExceptionLog(request, exception);
         (global as any).Logger.error(logFormat);
