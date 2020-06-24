@@ -55,7 +55,6 @@ export class TxController {
     
     @Get("/services/detail/:serviceName")
     async queryTxDetailWithServiceName(@Param(new ValidationPipe()) query: ServicesDetailReqDto): Promise<Result<TxResDto>> {
-        console.log(query);
         const data: TxResDto = await this.txService.queryTxDetailWithServiceName(query);
         return new Result<TxResDto>(data);
     }

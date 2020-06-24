@@ -5,6 +5,7 @@ import { ListStruct } from '../api/ApiResult';
 import { BlockListResDto, BlockListReqDto, BlockDetailReqDto } from '../dto/block.dto';
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { BlockHttp } from '../http/lcd/block.http';
+import { Logger } from '../log'
 
 @Injectable()
 export class BlockService {
@@ -44,7 +45,7 @@ export class BlockService {
                 return await this.queryLatestBlockFromDB();
             }
         } catch (e) {
-            console.error('api-error:', e.message);
+            Logger.warn('api-error:', e.message);
             return await this.queryLatestBlockFromDB();
         }
 

@@ -32,9 +32,12 @@
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.2",
     "dotenv": "^8.2.0",
+    "log4js": "^6.1.2",
+    "moment": "^2.27.0",
     "mongoose": "^5.9.15",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.5.4",
+    "stacktrace-js": "^2.0.2",
     "swagger-ui-express": "^4.1.4"
   },
   "devDependencies": {
@@ -67,6 +70,11 @@
       "json",
       "ts"
     ],
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    },
     "rootDir": "src",
     "testRegex": ".test.ts$",
     "transform": {

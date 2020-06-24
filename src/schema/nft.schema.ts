@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { Logger } from '@nestjs/common';
+import { Logger } from '../log';
 import {
     IDeleteQuery,
     INftCountQueryParams,
@@ -99,29 +99,29 @@ NftSchema.statics = {
         return await this.find({ denom: name }).exec();
     },
 
-    saveBulk(nfts: INftStruct[]): void {
-        this.insertMany(nfts, { ordered: false });
+    saveBulk(nfts: INftStruct[]): Promise<INftStruct[]> {
+        return this.insertMany(nfts, { ordered: false });
     },
 
-    async deleteOneByDenomAndId(nft: IDeleteQuery): Promise<void> {
+    async deleteOneByDenomAndId(nft: IDeleteQuery): Promise<INftStruct> {
         return await this.deleteOne(nft, (e) => {
-            if (e) new Logger().error('mongo-error:', e.message);
+            if (e) Logger.error('mongo-error:', e.message);
         });
     },
 
-    updateOneById(nft: INftStruct): void {
+    updateOneById(nft: INftStruct): Promise<INftStruct> {
         const { nft_id, owner, token_data, token_uri, hash } = nft;
-        this.updateOne({
-            nft_id,
+        return this.updateOne({
+            nft_id
         }, {
             owner,
             token_data,
             token_uri,
             hash,
-            update_time: getTimestamp(),
-        }, (e) => {
-            if (e) new Logger().error('mongo-error:', e.message);
+            update_time: getTimestamp()
+        }, 
+        (e) => {
+            if (e) Logger.error('mongo-error:', e.message);
         });
     },
-
 };
