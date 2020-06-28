@@ -6,8 +6,9 @@ import { BlockModule } from './module/block.module';
 import { StatisticsModule } from './module/statistics.module';
 import { TxModule } from './module/tx.module';
 import { TxTaskModule } from './module/tx.task.module';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { HttpExceptionFilter } from './exception/HttpExceptionFilter';
+import ValidationPipe from './pipe/validation.pipe';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksService } from './task/task.service';
 
@@ -45,12 +46,19 @@ if (cfg.env === 'development') {
             provide: APP_FILTER,
             useClass: HttpExceptionFilter,
         },
+        {
+            provide: APP_PIPE,
+            useClass: ValidationPipe,
+        }
     ];
 } else {
     params.providers = [
         {
             provide: APP_FILTER,
             useClass: HttpExceptionFilter,
+        },{
+            provide: APP_PIPE,
+            useClass: ValidationPipe,
         },
         TasksService,
     ];
