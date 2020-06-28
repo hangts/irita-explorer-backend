@@ -37,11 +37,7 @@ const params = {
         TxModule,
         TxTaskModule,
     ],
-    providers: [],
-};
-
-if (cfg.env === 'development') {
-    params.providers = [
+    providers:<any> [
         {
             provide: APP_FILTER,
             useClass: HttpExceptionFilter,
@@ -50,20 +46,12 @@ if (cfg.env === 'development') {
             provide: APP_PIPE,
             useClass: ValidationPipe,
         }
-    ];
-} else {
-    params.providers = [
-        {
-            provide: APP_FILTER,
-            useClass: HttpExceptionFilter,
-        },{
-            provide: APP_PIPE,
-            useClass: ValidationPipe,
-        },
-        TasksService,
-    ];
-}
+    ],
+};
 
+if (cfg.env !== 'development') {
+    params.providers.push(TasksService);
+}
 
 @Module(params)
 export class AppModule {
