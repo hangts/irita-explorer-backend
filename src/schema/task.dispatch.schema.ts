@@ -30,7 +30,10 @@ TaskDispatchSchema.statics = {
                 task_begin_time: getTimestamp(),
                 device_ip: getIpAddress(),
             }, null, (error,effect)=>{
-                if(error) res(false);
+                if(error) {
+                    res(false);
+                    return;
+                }
                 if(effect && effect.nModified === 1){
                     res(true);
                     Logger.log(`From task.dispatch.schema ${name} task begin time: ${new Date().getTime()}`);
@@ -49,9 +52,12 @@ TaskDispatchSchema.statics = {
                 is_locked: false,
                 task_end_time: getTimestamp(),
             }, null, (error,effect)=>{
-                if(error) res(false);
+                if(error) {
+                    res(false);
+                    return;
+                }
                 if(effect && effect.nModified === 1){
-                    res(true)
+                    res(true);
                     Logger.log(`From task.dispatch.schema ${name} task end time: ${new Date().getTime()}`);
                 }else {
                     res(false);

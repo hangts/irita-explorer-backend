@@ -99,19 +99,19 @@ NftSchema.statics = {
         return await this.find({ denom: name }).exec();
     },
 
-    async saveBulk(nfts: INftStruct[]): Promise<void> {
-        await this.insertMany(nfts, { ordered: false });
+    saveBulk(nfts: INftStruct[]): Promise<INftStruct[]> {
+        return this.insertMany(nfts, { ordered: false });
     },
 
-    async deleteOneByDenomAndId(nft: IDeleteQuery): Promise<void> {
-        await this.deleteOne(nft, (e) => {
+    async deleteOneByDenomAndId(nft: IDeleteQuery): Promise<INftStruct> {
+        return await this.deleteOne(nft, (e) => {
             if (e) Logger.error('mongo-error:', e.message);
         });
     },
 
-    async updateOneById(nft: INftStruct): Promise<void> {
+    updateOneById(nft: INftStruct): Promise<INftStruct> {
         const { nft_id, owner, token_data, token_uri, hash } = nft;
-        await this.updateOne({
+        return this.updateOne({
             nft_id
         }, {
             owner,
