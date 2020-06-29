@@ -20,7 +20,6 @@ export class BlockService {
         if (useCount) {
             count = await (this.blockModel as any).findCount();
         }
-        console.log('---------')
         const res: BlockListResDto[] = b.map((b) => {
             return new BlockListResDto(b.height, b.hash, b.txn, b.time);
         });
