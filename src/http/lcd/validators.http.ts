@@ -1,6 +1,6 @@
 import { HttpServer, Injectable, HttpService } from '@nestjs/common';
 import { cfg } from "../../config/config"
-import { Logger } from '../../log';
+import { Logger } from '../../logger';
 
 @Injectable()
 

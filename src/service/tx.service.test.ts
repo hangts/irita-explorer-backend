@@ -3,7 +3,7 @@ import {TxController} from '../controller/tx.controller';
 import {TxService} from './tx.service';
 import {TxSchema} from '../schema/tx.schema';
 import { AppModule } from './../app.module';
-import { Logger } from '../log'
+import { Logger } from '../logger'
 import { TxListReqDto, 
          TxListWithHeightReqDto,
          TxListWithAddressReqDto,

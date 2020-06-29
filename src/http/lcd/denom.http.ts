@@ -1,6 +1,6 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { cfg } from '../../config/config';
-import { Logger } from '../../log';
+import { Logger } from '../../logger';
 
 @Injectable()
 export class DenomHttp {

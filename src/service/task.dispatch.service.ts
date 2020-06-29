@@ -5,7 +5,7 @@ import { ITaskDispatch, ITaskDispatchStruct } from '../types/schemaTypes/task.di
 import { getIpAddress, getTimestamp } from '../util/util';
 import { TaskEnum } from '../constant';
 import { cfg } from '../config/config';
-import { Logger } from '../log';
+import { Logger } from '../logger';
 
 @Injectable()
 export class TaskDispatchService {

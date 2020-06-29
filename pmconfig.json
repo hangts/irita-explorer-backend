@@ -1,0 +1,36 @@
+{
+  "apps": [
+    {
+      "name": "csrb_explorer_01",
+      "script": "main.js",
+      "cwd": "dist",
+      "watch": true,
+      "merge_logs": true,
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "max_memory_restart": "500M",
+      "min_uptime": "60s",
+      "max_restarts": 10,
+      "exec_interpreter": "node",
+      "exec_mode": "cluster",
+      "instances": 1,
+      "autorestart": true,
+      "vizion": true
+    },
+    {
+      "name": "csrb_explorer_02",
+      "script": "main.js",
+      "cwd": "dist",
+      "watch": true,
+      "merge_logs": true,
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "max_memory_restart": "500M",
+      "min_uptime": "60s",
+      "max_restarts": 10,
+      "exec_interpreter": "node",
+      "exec_mode": "cluster",
+      "instances": 1,
+      "autorestart": true,
+      "vizion": true
+    }
+  ]
+}

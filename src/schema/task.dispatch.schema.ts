@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import { getIpAddress, getTimestamp } from '../util/util';
 import { ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
 import { TaskEnum } from 'src/constant';
-import { Logger } from '../log';
+import { Logger } from '../logger';
 
 export const TaskDispatchSchema = new mongoose.Schema({
     name: { type: String, unique: true },

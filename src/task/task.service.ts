@@ -9,7 +9,7 @@ import { getIpAddress } from '../util/util';
 import { cfg } from '../config/config';
 import { TaskCallback } from '../types/task.interface';
 import { ValidatorsTaskService } from './validators.task.service';
-import { Logger } from '../log'
+import { Logger } from '../logger'
 
 @Injectable()
 export class TasksService {

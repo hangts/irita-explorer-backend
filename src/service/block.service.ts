@@ -5,7 +5,7 @@ import { ListStruct } from '../api/ApiResult';
 import { BlockListResDto, BlockListReqDto, BlockDetailReqDto } from '../dto/block.dto';
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { BlockHttp } from '../http/lcd/block.http';
-import { Logger } from '../log'
+import { Logger } from '../logger'
 
 @Injectable()
 export class BlockService {
@@ -20,6 +20,7 @@ export class BlockService {
         if (useCount) {
             count = await (this.blockModel as any).findCount();
         }
+        console.log('---------')
         const res: BlockListResDto[] = b.map((b) => {
             return new BlockListResDto(b.height, b.hash, b.txn, b.time);
         });

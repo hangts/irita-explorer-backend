@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { Logger } from '../log';
+import { Logger } from '../logger';
 import {
     IDeleteQuery,
     INftCountQueryParams,
@@ -99,19 +99,19 @@ NftSchema.statics = {
         return await this.find({ denom: name }).exec();
     },
 
-    saveBulk(nfts: INftStruct[]): Promise<INftStruct[]> {
-        return this.insertMany(nfts, { ordered: false });
+    async saveBulk(nfts: INftStruct[]): Promise<void> {
+        await this.insertMany(nfts, { ordered: false });
     },
 
-    async deleteOneByDenomAndId(nft: IDeleteQuery): Promise<INftStruct> {
-        return await this.deleteOne(nft, (e) => {
+    async deleteOneByDenomAndId(nft: IDeleteQuery): Promise<void> {
+        await this.deleteOne(nft, (e) => {
             if (e) Logger.error('mongo-error:', e.message);
         });
     },
 
-    updateOneById(nft: INftStruct): Promise<INftStruct> {
+    async updateOneById(nft: INftStruct): Promise<void> {
         const { nft_id, owner, token_data, token_uri, hash } = nft;
-        return this.updateOne({
+        await this.updateOne({
             nft_id
         }, {
             owner,

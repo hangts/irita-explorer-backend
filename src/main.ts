@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as express from 'express';
 
-import { MyLogger } from './log/logger';
+import { MyLogger } from './logger/logger';
 import { LoggerMiddleware } from './middleware/logger.middleware'; 
 import { LoggerInterceptor } from './interceptor/logger.interceptor'; 
 
