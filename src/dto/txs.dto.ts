@@ -22,7 +22,7 @@ export class TxListReqDto extends PagingReqDto{
     static validate(value:any){
       	super.validate(value);
 		if (value.status && value.status !=='1' && value.status !=='2') {
-			throw new ApiError(ErrorCodes.InvalidParameter, 'status m ust be 1 or 2');
+			throw new ApiError(ErrorCodes.InvalidParameter, 'status must be 1 or 2');
 		}
 	}
 }

@@ -1,3 +1,4 @@
+import { HttpStatus} from '@nestjs/common';
 
 export function getHttpRequestLog(req, res):string{
     let logFormat: string = ` >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -23,7 +24,7 @@ export function getHttpRespondLog(req, resData):string{
 }
 
 export function getExceptionLog(req, exception):string{
-    const status: string = typeof exception.getStatus === 'function' ? exception.getStatus() : 200;
+    const status: string = typeof exception.getStatus === 'function' ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     const logFormat: string = `<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                         Request original url: ${req.originalUrl}
                         Method: ${req.method}
