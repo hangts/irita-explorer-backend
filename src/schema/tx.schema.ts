@@ -60,7 +60,7 @@ TxSchema.statics.queryTxList = async function (query:ITxsQuery):Promise<IListStr
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
     if (query.useCount && query.useCount == true) {
-        result.count = await this.find(queryParameters).count();
+        result.count = await this.find(queryParameters).countDocuments();
     }
 	return result;
 }
@@ -75,7 +75,7 @@ TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery):P
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
 	if (query.useCount && query.useCount == true) {
-        result.count = await this.find(queryParameters).count();
+        result.count = await this.find(queryParameters).countDocuments();
     }
 	return result;
 }
@@ -99,7 +99,7 @@ TxSchema.statics.queryTxWithAddress = async function(query:ITxsWhthAddressQuery)
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
 	if (query.useCount && query.useCount == true) {
-        result.count = await this.find(queryParameters).count();
+        result.count = await this.find(queryParameters).countDocuments();
     }
 	return result;
 }
@@ -119,7 +119,7 @@ TxSchema.statics.queryTxWithNft = async function(query:ITxsWhthNftQuery):Promise
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
 	if (query.useCount && query.useCount == true) {
-        result.count = await this.find(queryParameters).count();
+        result.count = await this.find(queryParameters).countDocuments();
     }
 	return result;
 }
@@ -142,7 +142,7 @@ TxSchema.statics.queryTxWithServiceName = async function(query:ITxsWhthServiceNa
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
 	if (query.useCount && query.useCount == true) {
-        result.count = await this.find(queryParameters).count();
+        result.count = await this.find(queryParameters).countDocuments();
     }
 	return result;
 }
@@ -159,8 +159,8 @@ TxSchema.statics.queryTxWithHash = async function(hash:string):Promise<ITxStruct
 
 //  /statistics
 TxSchema.statics.queryTxStatistics = async function():Promise<{txCount:number,serviceCount:number}>{
-	let txCount = await this.find().count();
-	let serviceCount = await this.find({type:TxType.define_service}).count();
+	let txCount = await this.find().countDocuments();
+	let serviceCount = await this.find({type:TxType.define_service}).countDocuments();
 	return  {
 		txCount,
 		serviceCount

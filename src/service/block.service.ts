@@ -5,7 +5,7 @@ import { ListStruct } from '../api/ApiResult';
 import { BlockListResDto, BlockListReqDto, BlockDetailReqDto } from '../dto/block.dto';
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { BlockHttp } from '../http/lcd/block.http';
-import { Logger } from '../log'
+import { Logger } from '../logger'
 
 @Injectable()
 export class BlockService {
