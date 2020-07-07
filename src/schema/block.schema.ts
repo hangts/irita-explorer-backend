@@ -22,7 +22,7 @@ BlockSchema.statics = {
     },
 
     async findCount(): Promise<number> {
-        return await this.find({}).count().exec();
+        return await this.find({}).countDocuments().exec();
     },
 
     async findOneByHeight(height: number): Promise<IBlockStruct | null> {

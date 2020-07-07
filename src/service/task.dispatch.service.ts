@@ -5,7 +5,7 @@ import { ITaskDispatch, ITaskDispatchStruct } from '../types/schemaTypes/task.di
 import { getIpAddress, getTimestamp } from '../util/util';
 import { TaskEnum } from '../constant';
 import { cfg } from '../config/config';
-import { Logger } from '../log';
+import { Logger } from '../logger';
 
 @Injectable()
 export class TaskDispatchService {
@@ -20,7 +20,7 @@ export class TaskDispatchService {
             if (task.is_locked) {
                 return false;
             } else {
-                const updated = await this.lock(name);
+                const updated: boolean = await this.lock(name);
                 if (updated) {
                     return true;
                 } else {
@@ -32,8 +32,8 @@ export class TaskDispatchService {
             const registered = await this.registerTask(name);
             Logger.log('register successfully?', registered);
             if (registered) {
-                const updated = await this.lock(name);
-                if (updated && updated.is_locked) {
+                const updated: boolean = await this.lock(name);
+                if (updated) {
                     return true;
                 } else {
                     return false;
@@ -59,11 +59,11 @@ export class TaskDispatchService {
         return await (this.taskDispatchModel as any).createOne(task);
     }
 
-    private async lock(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
+    private async lock(name: TaskEnum): Promise<boolean> {
         return await (this.taskDispatchModel as any).lock(name);
     }
 
-    async unlock(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
+    async unlock(name: TaskEnum): Promise<boolean> {
         return await (this.taskDispatchModel as any).unlock(name);
     }
 

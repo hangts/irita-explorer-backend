@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Logger } from '../log'
+import { Logger } from '../logger'
 import { getReqContextIdWithReqId, 
          getReqContextIdFromEvents,
          getServiceNameFromMsgs } from '../helper/tx.helper';
