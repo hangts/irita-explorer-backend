@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-explorer server for csrb-bond chain
-=======
- 
-  
-
 ## Description
 
 <p align="center">IRITA service end</p>
@@ -46,5 +40,3 @@ $ npm run start:prod
 
 ### log configure
 - DisableLog: `Optional` `string` disable Log `true/false`
-
->>>>>>> c50c4d1c232d38574c7075a3f04fe5e7985cb5fc
