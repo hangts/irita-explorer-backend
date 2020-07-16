@@ -27,7 +27,7 @@ export class TasksService {
         this[`${TaskEnum.validators}_timer`] = null;
     }
 
-    @Cron(cfg.taskCfg.executeTime.denom)
+    /*@Cron(cfg.taskCfg.executeTime.denom)
     //@Cron('50 * * * * *')
     async syncDenoms() {
         this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
@@ -37,14 +37,16 @@ export class TasksService {
     //@Cron('01 * * * * *')
     async syncNfts() {
         this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
-    }
+    }*/
 
-    @Cron(cfg.taskCfg.executeTime.txServiceName)
+    //@Cron(cfg.taskCfg.executeTime.txServiceName)
+    @Cron('20 * * * * *')
     async syncTxServiceName() {
-        this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.syncRespondServiceTxServiceName.bind(this.txTaskService));
+        //this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.syncRespondServiceTxServiceName.bind(this.txTaskService));
+        this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.doTask);
     }
 
-    @Cron(cfg.taskCfg.executeTime.validators)
+    /*@Cron(cfg.taskCfg.executeTime.validators)
     //@Cron('03 * * * * *')
     async syncValidators() {
         this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
@@ -54,7 +56,7 @@ export class TasksService {
     //@Cron('18 * * * * *')
     async taskDispatchFaultTolerance() {
         this.taskDispatchService.taskDispatchFaultTolerance();
-    }
+    }*/
 
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
         const needDoTask: boolean = await this.taskDispatchService.needDoTask(taskName);

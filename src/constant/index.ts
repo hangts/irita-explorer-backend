@@ -34,6 +34,16 @@ export enum TxType {
     transfer_token_owner = 'transfer_token_owner',
     issue_token = 'issue_token',
     edit_token = 'edit_token',
+    update_service_binding = 'update_service_binding',
+    disable_service_binding = 'disable_service_binding',
+    enable_service_binding = 'enable_service_binding',
+    refund_service_deposit = 'refund_service_deposit',
+    pause_request_context = 'pause_request_context',
+    start_request_context = 'start_request_context',
+    kill_request_context = 'kill_request_context',
+    update_request_context = 'update_request_context',
+
+
 }
 
 export enum LoggerLevel {

@@ -51,3 +51,12 @@ export interface ITxStructHash {
     tx_hash:object[],
     msgs:object[],
 }
+
+export interface IExFieldQuery {
+    requestContextId?: string;
+    consumer?: string;
+    serviceName?: string;
+    callHash?: string;
+    hash: string;
+    bind?: number;
+}
