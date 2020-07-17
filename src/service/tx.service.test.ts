@@ -7,6 +7,7 @@ import { Logger } from '../logger'
 import { TxListReqDto, 
          TxListWithHeightReqDto,
          TxListWithAddressReqDto,
+         TxListWithContextIdReqDto,
          TxListWithNftReqDto,
          TxListWithServicesNameReqDto,
          ServicesDetailReqDto,
@@ -101,6 +102,22 @@ describe('TxController', () => {
                     let addresses:any[] = [item.from,item.to,item.signer];
                     expect(addresses).toContain(req.address);
                 });
+            }else{
+                expect(data.data).toBeDefined();
+            }
+        });
+    });
+
+    describe('queryTxWithContextId', () => {
+        it('should return an array of contextId', async () => {
+            let req:TxListWithContextIdReqDto = {};
+            req.pageNum = 1;
+            req.pageSize = 10;
+            req.useCount = true;
+            req.contextId = '08901E1B9EDF8B3A020D4169C345FF2044C032DD7589B7924F8F7B8370BD05120000000000000000';
+            let data = await txService.queryTxWithContextId(req);
+            if (data && data.data.length) {
+                expect(data.data).toBeDefined();
             }else{
                 expect(data.data).toBeDefined();
             }
