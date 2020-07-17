@@ -337,7 +337,13 @@ TxSchema.statics.findServiceProviderCount = async function (serviceName):Promise
     return await this.countDocuments(queryParameters)
 };
 
-TxSchema.statics.findServiceTx = async function (serviceName: string, type: string, status: number, pageNum: number, pageSize: number):Promise<number>{
+TxSchema.statics.findServiceTx = async function (
+    serviceName: string,
+    type: string,
+    status: number,
+    pageNum: number,
+    pageSize: number
+):Promise<ITxStruct>{
     const queryParameters: any = {
         'msgs.msg.ex.service_name': serviceName
     };
@@ -364,6 +370,29 @@ TxSchema.statics.findServiceTxCount = async function (serviceName: string, type:
     }
     return await this.countDocuments(queryParameters);
 };
+
+TxSchema.statics.findBindTx = async function (serviceName: string, provider: string):Promise<ITxStruct | null>{
+    const queryParameters: any = {
+        'msgs.msg.service_name': serviceName,
+        'msgs.msg.provider': provider,
+        type: TxType.bind_service,
+        status: 1,
+    };
+    return await this.findOne(queryParameters);
+};
+
+TxSchema.statics.findServiceOwner = async function (serviceName: string):Promise<ITxStruct | null>{
+    const queryParameters: any = {
+        'msgs.msg.name': serviceName,
+        type: TxType.define_service,
+        status: 1,
+    };
+    return await this.findOne(queryParameters);
+};
+
+
+
+
 
 
 

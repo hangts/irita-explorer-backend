@@ -18,7 +18,7 @@ import {
     ServiceProvidersReqDto,
     ServiceProvidersResDto,
     ServiceTxReqDto,
-    ServiceTxResDto,
+    ServiceTxResDto, ServiceBindInfoReqDto, ServiceBindInfoResDto,
 } from '../dto/txs.dto';
 import { TxResDto, 
          TxTypeResDto } from '../dto/txs.dto';
@@ -188,6 +188,21 @@ export class TxService {
             count = await (this.txModel as any).findServiceTxCount(serviceName, type, status);
         }
         return new ListStruct(res, pageNum, pageSize, count);
+    }
+
+    async queryServiceBindInfo(query: ServiceBindInfoReqDto): Promise<ServiceBindInfoResDto | null>{
+        const {serviceName, provider} = query;
+
+        const bindTx: ITxStruct = await (this.txModel as any).findBindTx(serviceName, provider);
+        const defineTx: ITxStruct = await (this.txModel as any).findServiceOwner(serviceName);
+        if(bindTx && defineTx){
+            const hash = bindTx.tx_hash;
+            const time = bindTx.time;
+            const owner = (defineTx as any).msgs[0].msg.author;
+            return new ServiceBindInfoResDto(hash, owner, time)
+        }else {
+            return null
+        }
     }
 
 

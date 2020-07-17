@@ -19,7 +19,7 @@ import {
     ServiceProvidersReqDto,
     ServiceProvidersResDto,
     ServiceTxReqDto,
-    ServiceTxResDto,
+    ServiceTxResDto, ServiceBindInfoReqDto, ServiceBindInfoResDto,
 } from '../dto/txs.dto';
 import { TxResDto, 
          TxTypeResDto } from '../dto/txs.dto';
@@ -112,6 +112,14 @@ export class TxController {
         const data: ListStruct<ServiceTxResDto[]> = await this.txService.queryServiceTx(query);
         return new Result<ListStruct<ServiceTxResDto[]>>(data);
     }
+
+    @Get("/services/bind_info")
+    async queryServiceBindInfo(@Query() query: ServiceBindInfoReqDto): Promise<Result<ServiceBindInfoResDto>> {
+        const data: ServiceBindInfoResDto = await this.txService.queryServiceBindInfo(query);
+        return new Result<ServiceBindInfoResDto>(data);
+    }
+
+
 
 
 

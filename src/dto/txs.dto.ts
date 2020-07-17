@@ -139,6 +139,29 @@ export class ServiceTxReqDto extends PagingReqDto {
     }
 }
 
+export class ServiceBindInfoReqDto {
+    @ApiProperty()
+    serviceName: string;
+
+    @ApiProperty()
+    provider: string;
+}
+
+export class ServiceBindInfoResDto {
+    hash: string;
+    owner: string;
+    time: number;
+    constructor(
+        hash: string,
+        owner: string,
+        time: number,
+    ) {
+        this.hash = hash;
+        this.time = time;
+        this.owner = owner;
+    }
+}
+
 export class ServiceTxResDto {
     hash: string;
     type: string;
