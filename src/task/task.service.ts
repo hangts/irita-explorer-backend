@@ -26,7 +26,7 @@ export class TasksService {
         this[`${TaskEnum.txServiceName}_timer`] = null;
         this[`${TaskEnum.validators}_timer`] = null;
     }
-
+//todo 暂时注释
     /*@Cron(cfg.taskCfg.executeTime.denom)
     //@Cron('50 * * * * *')
     async syncDenoms() {

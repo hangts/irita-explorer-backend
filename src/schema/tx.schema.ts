@@ -7,7 +7,7 @@ import {
     ITxsWhthServiceNameQuery, IExFieldQuery,
 } from '../types/schemaTypes/tx.interface';
 import { ITxStruct, ITxStructMsgs, ITxStructHash } from '../types/schemaTypes/tx.interface';
-import { ITxsQueryParams} from '../types/tx.interface';
+import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
 import {IListStruct} from '../types';
 import { TxType } from '../constant';
 import { cfg } from '../config/config';
@@ -174,7 +174,7 @@ TxSchema.statics.findRespondServiceTx = async function(pageSize?:number):Promise
 	pageSize = pageSize || cfg.taskCfg.syncTxServiceNameSize;
 	return await this.find({
 							type:TxType.respond_service,
-							/*'msgs.msg.ex.service_name':null*/
+							/*'msgs.msg.ex.service_name':null*///todo 暂时注释
 						},{tx_hash:1,'msgs.msg.request_id':1})
 					 .sort({height:-1})
 					 .limit(Number(pageSize));
@@ -272,6 +272,50 @@ TxSchema.statics.queryDefineServiceTxHashByServiceName = async function (service
     };
     return await this.findOne(queryParameters,{"tx_hash":1});
 };
+
+
+TxSchema.statics.findServiceAllList = async function (pageNum: number, pageSize: number, useCount: boolean):Promise<ITxStruct>{
+    const queryParameters: any = {
+        type: TxType.define_service,
+        status: 1,
+    };
+    return await this.find(queryParameters)
+        .sort({
+            'msgs.msg.ex.bind':-1,
+            time: -1,
+        })
+        .skip((Number(pageNum) - 1) * Number(pageSize))
+        .limit(Number(pageSize));
+};
+
+
+TxSchema.statics.findBindServiceTxList = async function (serviceName: IServiceName):Promise<ITxStruct>{
+    const queryParameters: any = {
+        type: TxType.bind_service,
+        status: 1,
+        'msgs.msg.service_name': serviceName
+    };
+    return await this.find(queryParameters);
+};
+
+//查询某个provider在某个service下所有的响应次数
+TxSchema.statics.findProviderRespondTimesForService = async function (serviceName: IServiceName, provider: IBindTx):Promise<number>{
+    const queryParameters: any = {
+        type: TxType.respond_service,
+        status: 1,
+        'msgs.msg.ex.service_name': serviceName,
+        'msgs.msg.provider': provider,
+    };
+    return await this.countDocuments(queryParameters);
+};
+
+
+
+
+
+
+
+
 
 
 
