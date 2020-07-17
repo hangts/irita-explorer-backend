@@ -187,6 +187,39 @@ export class ServiceTxResDto {
     }
 }
 
+export class ServiceRespondReqDto extends PagingReqDto {
+    @ApiPropertyOptional()
+    serviceName: string;
+
+    @ApiProperty()
+    provider?: string;
+}
+
+export class ServiceRespondResDto {
+    respond_hash: string;
+    type: string;
+    height:number;
+    time:number;
+    consumer:string;
+    request_hash:string;
+
+    constructor(
+        respond_hash: string,
+        type: string,
+        height: number,
+        time: number,
+        consumer: string,
+        request_hash: string,
+    ) {
+        this.respond_hash = respond_hash;
+        this.type = type;
+        this.height = height;
+        this.time = time;
+        this.consumer = consumer;
+        this.request_hash = request_hash;
+    }
+}
+
 
 /************************   response dto   ***************************/
 //txs response dto
