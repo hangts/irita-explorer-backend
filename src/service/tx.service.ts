@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ListStruct } from '../api/ApiResult';
+import { ListStruct, Result } from '../api/ApiResult';
 import {
     TxListReqDto,
     TxListWithHeightReqDto,
@@ -12,7 +12,7 @@ import {
     PostTxTypesReqDto,
     PutTxTypesReqDto,
     DeleteTxTypesReqDto,
-    TxWithHashReqDto, ServiceResDto, ServiceListReqDto,
+    TxWithHashReqDto, ServiceResDto, ServiceListReqDto, ServiceProvidersReqDto, ServiceProvidersResDto,
 } from '../dto/txs.dto';
 import { TxResDto, 
          TxTypeResDto } from '../dto/txs.dto';
@@ -142,6 +142,31 @@ export class TxService {
         let count: number = 0;
         if (useCount) {
             count = await (this.txModel as any).findAllServiceCount();
+        }
+        return new ListStruct(res, pageNum, pageSize, count);
+    }
+
+    async queryServiceProviders(query: ServiceProvidersReqDto): Promise<ListStruct<ServiceProvidersResDto[]>>{
+        const {serviceName, pageNum, pageSize, useCount} = query;
+        const bindServiceTxList: ITxStruct[] = await (this.txModel as any).findBindServiceTxList(serviceName, pageNum, pageSize);
+        const bindTxList: IBindTx[] = bindServiceTxList.map((item: any)=>{
+            return {
+                provider: item.msgs[0].msg.provider,
+                bindTime: item.time,
+            }
+        });
+        console.log(query,bindServiceTxList)
+        //查出每个provider在当前绑定的serviceName下所有的绑定次数
+        for(let bindTx of bindTxList){
+            bindTx.respondTimes = await (this.txModel as any).findProviderRespondTimesForService(serviceName, bindTx.provider);
+        }
+        const res: ServiceProvidersResDto[] = bindTxList.map((service: ServiceProvidersResDto)=>{
+            return new ServiceProvidersResDto(service.provider, service.respondTimes, service.bindTime);
+        });
+
+        let count: number = 0;
+        if (useCount) {
+            count = await (this.txModel as any).findServiceProviderCount(serviceName);
         }
         return new ListStruct(res, pageNum, pageSize, count);
     }

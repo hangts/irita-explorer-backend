@@ -289,17 +289,28 @@ TxSchema.statics.findServiceAllList = async function (pageNum: number, pageSize:
 };
 
 
-TxSchema.statics.findBindServiceTxList = async function (serviceName: IServiceName):Promise<ITxStruct>{
+TxSchema.statics.findBindServiceTxList = async function (
+    serviceName: IServiceName,
+    pageNum?: number,
+    pageSize?: number
+):Promise<ITxStruct>{
     const queryParameters: any = {
         type: TxType.bind_service,
         status: 1,
         'msgs.msg.service_name': serviceName
     };
-    return await this.find(queryParameters);
+    if(pageNum && pageSize){
+        return await this.find(queryParameters)
+            .skip((Number(pageNum) - 1) * Number(pageSize))
+            .limit(Number(pageSize));
+    }else{
+        return await this.find(queryParameters);
+    }
+
 };
 
 //查询某个provider在某个service下所有的响应次数
-TxSchema.statics.findProviderRespondTimesForService = async function (serviceName: IServiceName, provider: IBindTx):Promise<number>{
+TxSchema.statics.findProviderRespondTimesForService = async function (serviceName: string, provider: string):Promise<number>{
     const queryParameters: any = {
         type: TxType.respond_service,
         status: 1,
@@ -316,6 +327,17 @@ TxSchema.statics.findAllServiceCount = async function ():Promise<number>{
     };
     return await this.countDocuments(queryParameters)
 };
+
+TxSchema.statics.findServiceProviderCount = async function (serviceName):Promise<number>{
+    const queryParameters: any = {
+        type: TxType.bind_service,
+        status: 1,
+        'msgs.msg.service_name': serviceName
+    };
+    return await this.countDocuments(queryParameters)
+};
+
+
 
 
 

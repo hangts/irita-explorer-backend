@@ -104,8 +104,25 @@ export class ServiceResDto {
         this.serviceName = serviceName;
         this.bindList = bindList;
     }
-
 }
+
+export class ServiceProvidersReqDto extends PagingReqDto{
+    @ApiProperty()
+    serviceName: string;
+}
+
+export class ServiceProvidersResDto implements IBindTx{
+    provider: string;
+    respondTimes?: number;
+    bindTime: string;
+
+    constructor(provider: string, respondTimes: number, bindTime: string) {
+        this.provider = provider;
+        this.respondTimes = respondTimes;
+        this.bindTime = bindTime;
+    }
+}
+
 
 
 /************************   response dto   ***************************/

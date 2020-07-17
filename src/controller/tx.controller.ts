@@ -13,7 +13,7 @@ import {
     PostTxTypesReqDto,
     PutTxTypesReqDto,
     DeleteTxTypesReqDto,
-    TxWithHashReqDto, ServiceResDto, ServiceListReqDto,
+    TxWithHashReqDto, ServiceResDto, ServiceListReqDto, ServiceProvidersReqDto, ServiceProvidersResDto,
 } from '../dto/txs.dto';
 import { TxResDto, 
          TxTypeResDto } from '../dto/txs.dto';
@@ -55,7 +55,7 @@ export class TxController {
     }*/
     async queryServiceList(@Query() query: ServiceListReqDto):Promise<Result<ListStruct<ServiceResDto[]>>> {
         const data: ListStruct<ServiceResDto[]> = await this.txService.findServiceList(query);
-        return new Result<any>(data);
+        return new Result<ListStruct<ServiceResDto[]>>(data);
     }
 
     
@@ -94,6 +94,14 @@ export class TxController {
         const data: TxResDto = await this.txService.queryTxWithHash(query);
         return new Result<TxResDto>(data);
     }
+
+    @Get("/services/providers")
+    async queryServiceProviders(@Query() query: ServiceProvidersReqDto): Promise<Result<ListStruct<ServiceProvidersResDto[]>>> {
+        const data: ListStruct<ServiceProvidersResDto[]> = await this.txService.queryServiceProviders(query);
+        return new Result<ListStruct<ServiceProvidersResDto[]>>(data);
+    }
+
+
 }
 
 
