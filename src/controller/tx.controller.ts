@@ -3,16 +3,18 @@ import { ApiTags } from '@nestjs/swagger';
 import { TxService } from '../service/tx.service';
 import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
-import { TxListReqDto, 
-         TxListWithHeightReqDto,
-         TxListWithAddressReqDto,
-         TxListWithNftReqDto,
-         TxListWithServicesNameReqDto,
-         ServicesDetailReqDto,
-         PostTxTypesReqDto,
-         PutTxTypesReqDto,
-         DeleteTxTypesReqDto,
-         TxWithHashReqDto } from '../dto/txs.dto';
+import {
+    TxListReqDto,
+    TxListWithHeightReqDto,
+    TxListWithAddressReqDto,
+    TxListWithNftReqDto,
+    TxListWithServicesNameReqDto,
+    ServicesDetailReqDto,
+    PostTxTypesReqDto,
+    PutTxTypesReqDto,
+    DeleteTxTypesReqDto,
+    TxWithHashReqDto, ServiceResDto, ServiceListReqDto,
+} from '../dto/txs.dto';
 import { TxResDto, 
          TxTypeResDto } from '../dto/txs.dto';
 
@@ -47,10 +49,15 @@ export class TxController {
     }
 
     @Get("/services")
-    async queryTxWithServiceName(@Query() query: TxListWithServicesNameReqDto):Promise<Result<ListStruct<TxResDto>>> {
+   /* async queryTxWithServiceName(@Query() query: TxListWithServicesNameReqDto):Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithServiceName(query);
         return new Result<any>(data);
+    }*/
+    async queryServiceList(@Query() query: ServiceListReqDto):Promise<Result<ListStruct<ServiceResDto[]>>> {
+        const data: ListStruct<ServiceResDto[]> = await this.txService.findServiceList(query);
+        return new Result<any>(data);
     }
+
     
     @Get("/services/detail/:serviceName")
     async queryTxDetailWithServiceName(@Param() query: ServicesDetailReqDto): Promise<Result<TxResDto>> {

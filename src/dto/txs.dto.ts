@@ -3,6 +3,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {BaseReqDto, BaseResDto, PagingReqDto} from './base.dto';
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
+import { IBindTx } from '../types/tx.interface';
+import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 
 /************************   request dto   ***************************/
 //txs request dto
@@ -89,6 +91,20 @@ export class DeleteTxTypesReqDto extends BaseReqDto{
 export class TxWithHashReqDto extends BaseReqDto{
     @ApiProperty()
 	hash: string;
+}
+
+export class ServiceListReqDto extends PagingReqDto {
+}
+
+export class ServiceResDto {
+    serviceName: string;
+    bindList: IBindTx[];
+
+    constructor(serviceName: string, bindList: IBindTx[]) {
+        this.serviceName = serviceName;
+        this.bindList = bindList;
+    }
+
 }
 
 

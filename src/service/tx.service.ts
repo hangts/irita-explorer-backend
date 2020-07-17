@@ -2,18 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { TxListReqDto, 
-         TxListWithHeightReqDto,
-         TxListWithAddressReqDto,
-         TxListWithNftReqDto,
-         TxListWithServicesNameReqDto,
-         ServicesDetailReqDto,
-         PostTxTypesReqDto,
-         PutTxTypesReqDto,
-         DeleteTxTypesReqDto,
-         TxWithHashReqDto} from '../dto/txs.dto';
+import {
+    TxListReqDto,
+    TxListWithHeightReqDto,
+    TxListWithAddressReqDto,
+    TxListWithNftReqDto,
+    TxListWithServicesNameReqDto,
+    ServicesDetailReqDto,
+    PostTxTypesReqDto,
+    PutTxTypesReqDto,
+    DeleteTxTypesReqDto,
+    TxWithHashReqDto, ServiceResDto, ServiceListReqDto,
+} from '../dto/txs.dto';
 import { TxResDto, 
          TxTypeResDto } from '../dto/txs.dto';
+import { IBindTx, IServiceName } from '../types/tx.interface';
+import { ITxStruct } from '../types/schemaTypes/tx.interface';
 
 @Injectable()
 export class TxService {
@@ -102,5 +106,46 @@ export class TxService {
         }
         return result;
     }
+
+
+    async findServiceList(query: ServiceListReqDto): Promise<ListStruct<ServiceResDto[]>>{
+        const { pageNum, pageSize, useCount } = query;
+        const serviceTxList: ITxStruct[] = await (this.txModel as any).findServiceAllList(pageNum, pageSize, useCount);
+        const serviceNameList: IServiceName[] = serviceTxList.map((item: any)=>{
+            return {
+                serviceName: item.msgs[0].msg.ex.service_name,
+                bind: item.msgs[0].msg.ex.bind,
+            }
+        });
+
+        for(let name of serviceNameList){
+            if(name.bind && name.bind > 0){
+                const bindServiceTxList: ITxStruct[] = await (this.txModel as any).findBindServiceTxList(name.serviceName);
+                const bindTxList: IBindTx[] = bindServiceTxList.map((item: any)=>{
+                    return {
+                        provider: item.msgs[0].msg.provider,
+                        bindTime: item.time,
+                    }
+                });
+                //查出每个provider在当前绑定的serviceName下所有的绑定次数
+                for(let bindTx of bindTxList){
+                    bindTx.respondTimes = await (this.txModel as any).findProviderRespondTimesForService(name.serviceName, bindTx.provider);
+                }
+                name.bindList = bindTxList;
+            }else{
+                name.bindList = [];
+            }
+        }
+        const res: ServiceResDto[] = serviceNameList.map((service: IServiceName)=>{
+            return new ServiceResDto(service.serviceName, service.bindList)
+        });
+        let count: number = 0;
+        if (useCount) {
+            count = await (this.txModel as any).findAllServiceCount();
+        }
+        return new ListStruct(res, pageNum, pageSize, count);
+    }
+
+
 }
 

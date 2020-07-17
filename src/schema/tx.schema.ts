@@ -274,7 +274,7 @@ TxSchema.statics.queryDefineServiceTxHashByServiceName = async function (service
 };
 
 
-TxSchema.statics.findServiceAllList = async function (pageNum: number, pageSize: number, useCount: boolean):Promise<ITxStruct>{
+TxSchema.statics.findServiceAllList = async function (pageNum: number, pageSize: number,):Promise<ITxStruct>{
     const queryParameters: any = {
         type: TxType.define_service,
         status: 1,
@@ -308,6 +308,16 @@ TxSchema.statics.findProviderRespondTimesForService = async function (serviceNam
     };
     return await this.countDocuments(queryParameters);
 };
+
+TxSchema.statics.findAllServiceCount = async function ():Promise<number>{
+    const queryParameters: any = {
+        type: TxType.define_service,
+        status: 1,
+    };
+    return await this.countDocuments(queryParameters)
+};
+
+
 
 
 
