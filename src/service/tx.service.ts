@@ -12,7 +12,13 @@ import {
     PostTxTypesReqDto,
     PutTxTypesReqDto,
     DeleteTxTypesReqDto,
-    TxWithHashReqDto, ServiceResDto, ServiceListReqDto, ServiceProvidersReqDto, ServiceProvidersResDto,
+    TxWithHashReqDto,
+    ServiceResDto,
+    ServiceListReqDto,
+    ServiceProvidersReqDto,
+    ServiceProvidersResDto,
+    ServiceTxReqDto,
+    ServiceTxResDto,
 } from '../dto/txs.dto';
 import { TxResDto, 
          TxTypeResDto } from '../dto/txs.dto';
@@ -167,6 +173,19 @@ export class TxService {
         let count: number = 0;
         if (useCount) {
             count = await (this.txModel as any).findServiceProviderCount(serviceName);
+        }
+        return new ListStruct(res, pageNum, pageSize, count);
+    }
+
+    async queryServiceTx(query: ServiceTxReqDto): Promise<ListStruct<ServiceTxResDto[]>>{
+        const {serviceName, type, status, pageNum, pageSize, useCount} = query;
+        const txList: ITxStruct[] = await (this.txModel as any).findServiceTx(serviceName, type, status, pageNum, pageSize);
+        const res: ServiceTxResDto[] = txList.map((service: ITxStruct)=>{
+            return new ServiceTxResDto(service.tx_hash, service.type,service.height,service.time,service.status,service.msgs,)
+        });
+        let count: number = 0;
+        if (useCount) {
+            count = await (this.txModel as any).findServiceTxCount(serviceName, type, status);
         }
         return new ListStruct(res, pageNum, pageSize, count);
     }

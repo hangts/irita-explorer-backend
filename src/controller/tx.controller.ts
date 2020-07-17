@@ -13,7 +13,13 @@ import {
     PostTxTypesReqDto,
     PutTxTypesReqDto,
     DeleteTxTypesReqDto,
-    TxWithHashReqDto, ServiceResDto, ServiceListReqDto, ServiceProvidersReqDto, ServiceProvidersResDto,
+    TxWithHashReqDto,
+    ServiceResDto,
+    ServiceListReqDto,
+    ServiceProvidersReqDto,
+    ServiceProvidersResDto,
+    ServiceTxReqDto,
+    ServiceTxResDto,
 } from '../dto/txs.dto';
 import { TxResDto, 
          TxTypeResDto } from '../dto/txs.dto';
@@ -100,6 +106,14 @@ export class TxController {
         const data: ListStruct<ServiceProvidersResDto[]> = await this.txService.queryServiceProviders(query);
         return new Result<ListStruct<ServiceProvidersResDto[]>>(data);
     }
+
+    @Get("/services/tx")
+    async queryServiceTx(@Query() query: ServiceTxReqDto): Promise<Result<ListStruct<ServiceTxResDto[]>>> {
+        const data: ListStruct<ServiceTxResDto[]> = await this.txService.queryServiceTx(query);
+        return new Result<ListStruct<ServiceTxResDto[]>>(data);
+    }
+
+
 
 
 }
