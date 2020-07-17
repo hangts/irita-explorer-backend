@@ -13,6 +13,14 @@ export interface ITxsWhthHeightQuery extends IQueryBase {
 
 export interface ITxsWhthAddressQuery extends IQueryBase {
 	address?:string,
+    type?:string,
+    status?:string,
+}
+
+export interface ITxsWhthContextIdQuery extends IQueryBase {
+    contextId?:string,
+    type?:string,
+    status?:string,
 }
 
 export interface ITxsWhthNftQuery extends IQueryBase {

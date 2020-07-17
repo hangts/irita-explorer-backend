@@ -5,6 +5,7 @@ import { ListStruct } from '../api/ApiResult';
 import { TxListReqDto, 
          TxListWithHeightReqDto,
          TxListWithAddressReqDto,
+         TxListWithContextIdReqDto,
          TxListWithNftReqDto,
          TxListWithServicesNameReqDto,
          ServicesDetailReqDto,
@@ -36,6 +37,12 @@ export class TxService {
     //  txs/addresses
     async queryTxWithAddress(query: TxListWithAddressReqDto): Promise<ListStruct<TxResDto[]>> {
         let txListData = await this.txModel.queryTxWithAddress(query);
+        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+    }
+
+    //  txs/relevance
+    async queryTxWithContextId(query: TxListWithContextIdReqDto): Promise<ListStruct<TxResDto[]>> {
+        let txListData = await this.txModel.queryTxWithContextId(query);
         return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 

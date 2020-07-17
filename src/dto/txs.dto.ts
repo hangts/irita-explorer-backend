@@ -33,10 +33,42 @@ export class TxListWithHeightReqDto extends PagingReqDto{
     height?: string;
 }
 
-//txs/address request dto
+//txs/addresses request dto
 export class TxListWithAddressReqDto extends PagingReqDto{
 	@ApiPropertyOptional()
     address?: string;
+
+    @ApiPropertyOptional()
+    type?: string;
+
+    @ApiPropertyOptional({description:'1:success  2:fail'})
+    status?: string;
+
+    static validate(value:any){
+        super.validate(value);
+        if (value.status && value.status !=='1' && value.status !=='2') {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'status must be 1 or 2');
+        }
+    }
+}
+
+// txs/relevance 
+export class TxListWithContextIdReqDto extends PagingReqDto{
+    @ApiPropertyOptional()
+    contextId?: string;
+
+    @ApiPropertyOptional()
+    type?: string;
+
+    @ApiPropertyOptional({description:'1:success  2:fail'})
+    status?: string;
+
+    static validate(value:any){
+        super.validate(value);
+        if (value.status && value.status !=='1' && value.status !=='2') {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'status must be 1 or 2');
+        }
+    }
 }
 
 //txs/nfts request dto

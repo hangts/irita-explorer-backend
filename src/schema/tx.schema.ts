@@ -2,8 +2,10 @@ import * as mongoose from 'mongoose';
 import { ITxsQuery, 
 		 ITxsWhthHeightQuery,
 		 ITxsWhthAddressQuery,
+		 ITxsWhthContextIdQuery,
 	     ITxsWhthNftQuery,
-	 	 ITxsWhthServiceNameQuery} from '../types/schemaTypes/tx.interface';
+	 	 ITxsWhthServiceNameQuery,
+	 	 } from '../types/schemaTypes/tx.interface';
 import { ITxStruct, ITxStructMsgs, ITxStructHash } from '../types/schemaTypes/tx.interface';
 import { ITxsQueryParams} from '../types/tx.interface';
 import {IListStruct} from '../types';
@@ -71,7 +73,7 @@ TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery):P
 	let queryParameters:{height?:number,$nor:object[]} = {$nor:[{type:filterExTxTypeRegExp()}]};
 	if (query.height) { queryParameters.height = Number(query.height);}
 	result.data = await this.find(queryParameters)
-					 		.sort({height:-1})
+					 		.sort({time:-1})
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
 	if (query.useCount && query.useCount == true) {
@@ -84,18 +86,71 @@ TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery):P
 TxSchema.statics.queryTxWithAddress = async function(query:ITxsWhthAddressQuery):Promise<IListStruct>{
 	let result:IListStruct = {};
 	let queryParameters:any = {};
-	if (query.address) { 
+	if (query.address && query.address.length) { 
 		queryParameters = {
 			$or:[
 				{"from":query.address},
 				{"to":query.address},
 				{"signer":query.address},
 			],
-			$nor:[{type:filterExTxTypeRegExp()}]
 		};
 	}
+	if (query.type && query.type.length) { 
+    	queryParameters.type = query.type
+    }else{
+    	queryParameters.$nor = [{type:filterExTxTypeRegExp()}];
+    }
+    if (query.status && query.status.length) { 
+        switch(query.status){
+            case '1':
+            queryParameters.status = 1; 
+            break;
+            case '2':
+            queryParameters.status = 0; 
+            break;
+        }
+    }
 	result.data = await this.find(queryParameters)
-					 		.sort({height:-1})
+					 		.sort({time:-1})
+					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+					 		.limit(Number(query.pageSize));
+	if (query.useCount && query.useCount == true) {
+        result.count = await this.find(queryParameters).countDocuments();
+    }
+	return result;
+}
+
+//  txs/relevance
+TxSchema.statics.queryTxWithContextId = async function(query:ITxsWhthContextIdQuery):Promise<IListStruct>{
+	let result:IListStruct = {};
+	let queryParameters:any = {};
+	if (query.contextId && query.contextId.length) {
+		queryParameters = {
+			$or:[
+				{'events.attributes.value':query.contextId},
+				{"msgs.msg.ex.request_context_id":query.contextId},
+				{"msgs.msg.request_context_id":query.contextId}
+			],
+		};
+	}
+	if (query.type && query.type.length) { 
+    	queryParameters.type = query.type;
+    }else{
+    	queryParameters.$nor = [{type:filterExTxTypeRegExp()}];
+    }
+
+    if (query.status && query.status.length) { 
+        switch(query.status){
+            case '1':
+            queryParameters.status = 1; 
+            break;
+            case '2':
+            queryParameters.status = 0; 
+            break;
+        }
+    }
+	result.data = await this.find(queryParameters)
+					 		.sort({time:-1})
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
 					 		.limit(Number(query.pageSize));
 	if (query.useCount && query.useCount == true) {

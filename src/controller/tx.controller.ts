@@ -6,6 +6,7 @@ import { ListStruct } from '../api/ApiResult';
 import { TxListReqDto, 
          TxListWithHeightReqDto,
          TxListWithAddressReqDto,
+         TxListWithContextIdReqDto,
          TxListWithNftReqDto,
          TxListWithServicesNameReqDto,
          ServicesDetailReqDto,
@@ -37,6 +38,12 @@ export class TxController {
     @Get("/addresses")
     async queryTxWithAddress(@Query() query: TxListWithAddressReqDto):Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithAddress(query);
+        return new Result<any>(data);
+    }
+
+    @Get("/relevance")
+    async queryTxWithContextId(@Query() query: TxListWithContextIdReqDto):Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithContextId(query);
         return new Result<any>(data);
     }
     
