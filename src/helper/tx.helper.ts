@@ -33,3 +33,16 @@ export function getServiceNameFromMsgs(msgs:[]):string{
     }
     return serviceName;
 }
+
+export function getConsumerFromMsgs(msgs:[]):string{
+    let consumer:string = '';
+    if (msgs && msgs.length) {
+        msgs.forEach((msg:{msg:{consumer:string}})=>{
+            if (!consumer.length && msg.msg && msg.msg.consumer) {
+                consumer = msg.msg.consumer || '';
+            }
+        });
+    }
+    return consumer;
+}
+

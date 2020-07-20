@@ -7,28 +7,28 @@ export interface ITxsQuery extends IQueryBase {
   	endTime?:string,
 }
 
-export interface ITxsWhthHeightQuery extends IQueryBase {
+export interface ITxsWithHeightQuery extends IQueryBase {
 	height?:string,
 }
 
-export interface ITxsWhthAddressQuery extends IQueryBase {
+export interface ITxsWithAddressQuery extends IQueryBase {
 	address?:string,
     type?:string,
     status?:string,
 }
 
-export interface ITxsWhthContextIdQuery extends IQueryBase {
+export interface ITxsWithContextIdQuery extends IQueryBase {
     contextId?:string,
     type?:string,
     status?:string,
 }
 
-export interface ITxsWhthNftQuery extends IQueryBase {
+export interface ITxsWithNftQuery extends IQueryBase {
 	denom?:string,
 	tokenId?:string,
 }
 
-export interface ITxsWhthServiceNameQuery extends IQueryBase {
+export interface ITxsWithServiceNameQuery extends IQueryBase {
 	serviceName?:string,
 }
 
@@ -66,4 +66,13 @@ export interface ITxStructMsgs {
 export interface ITxStructHash {
     tx_hash:object[],
     msgs:object[],
+}
+
+export interface IExFieldQuery {
+    requestContextId?: string;
+    consumer?: string;
+    serviceName?: string;
+    callHash?: string;
+    hash: string;
+    bind?: number;
 }

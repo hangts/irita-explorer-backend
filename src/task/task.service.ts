@@ -26,7 +26,6 @@ export class TasksService {
         this[`${TaskEnum.txServiceName}_timer`] = null;
         this[`${TaskEnum.validators}_timer`] = null;
     }
-
     @Cron(cfg.taskCfg.executeTime.denom)
     //@Cron('50 * * * * *')
     async syncDenoms() {
@@ -40,8 +39,9 @@ export class TasksService {
     }
 
     @Cron(cfg.taskCfg.executeTime.txServiceName)
+    //@Cron('20 * * * * *')
     async syncTxServiceName() {
-        this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.syncRespondServiceTxServiceName.bind(this.txTaskService));
+        this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.validators)

@@ -49,9 +49,11 @@ const params = {
     ],
 };
 
-if (cfg.env !== 'development') {
-    params.providers.push(TasksService);
-}
+params.providers.push(TasksService);
+
+// if (cfg.env !== 'development') {
+//     params.providers.push(TasksService);
+// }
 
 @Module(params)
 export class AppModule {

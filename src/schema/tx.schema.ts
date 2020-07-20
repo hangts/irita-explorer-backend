@@ -1,13 +1,14 @@
 import * as mongoose from 'mongoose';
 import { ITxsQuery, 
-		 ITxsWhthHeightQuery,
-		 ITxsWhthAddressQuery,
-		 ITxsWhthContextIdQuery,
-	     ITxsWhthNftQuery,
-	 	 ITxsWhthServiceNameQuery,
-	 	 } from '../types/schemaTypes/tx.interface';
+		 ITxsWithHeightQuery,
+		 ITxsWithAddressQuery,
+		 ITxsWithContextIdQuery,
+	     ITxsWithNftQuery,
+	 	 ITxsWithServiceNameQuery,
+	 	 IExFieldQuery
+	 	} from '../types/schemaTypes/tx.interface';
 import { ITxStruct, ITxStructMsgs, ITxStructHash } from '../types/schemaTypes/tx.interface';
-import { ITxsQueryParams} from '../types/tx.interface';
+import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
 import {IListStruct} from '../types';
 import { TxType } from '../constant';
 import { cfg } from '../config/config';
@@ -68,7 +69,7 @@ TxSchema.statics.queryTxList = async function (query:ITxsQuery):Promise<IListStr
 }
 
 // 	txs/blocks
-TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery):Promise<IListStruct>{
+TxSchema.statics.queryTxWithHeight = async function(query:ITxsWithHeightQuery):Promise<IListStruct>{
 	let result:IListStruct = {};
 	let queryParameters:{height?:number,$nor:object[]} = {$nor:[{type:filterExTxTypeRegExp()}]};
 	if (query.height) { queryParameters.height = Number(query.height);}
@@ -83,7 +84,7 @@ TxSchema.statics.queryTxWithHeight = async function(query:ITxsWhthHeightQuery):P
 }
 
 //  txs/addresses
-TxSchema.statics.queryTxWithAddress = async function(query:ITxsWhthAddressQuery):Promise<IListStruct>{
+TxSchema.statics.queryTxWithAddress = async function(query:ITxsWithAddressQuery):Promise<IListStruct>{
 	let result:IListStruct = {};
 	let queryParameters:any = {};
 	if (query.address && query.address.length) { 
@@ -121,7 +122,7 @@ TxSchema.statics.queryTxWithAddress = async function(query:ITxsWhthAddressQuery)
 }
 
 //  txs/relevance
-TxSchema.statics.queryTxWithContextId = async function(query:ITxsWhthContextIdQuery):Promise<IListStruct>{
+TxSchema.statics.queryTxWithContextId = async function(query:ITxsWithContextIdQuery):Promise<IListStruct>{
 	let result:IListStruct = {};
 	let queryParameters:any = {};
 	if (query.contextId && query.contextId.length) {
@@ -160,7 +161,7 @@ TxSchema.statics.queryTxWithContextId = async function(query:ITxsWhthContextIdQu
 }
 
 //  txs/nfts
-TxSchema.statics.queryTxWithNft = async function(query:ITxsWhthNftQuery):Promise<IListStruct>{
+TxSchema.statics.queryTxWithNft = async function(query:ITxsWithNftQuery):Promise<IListStruct>{
 	let result:IListStruct = {};
 	let queryParameters:{denom?:string, tokenId?:string, $nor:object[]} = {$nor:[{type:filterExTxTypeRegExp()}]};
 	if (query.denom && query.denom.length) {
@@ -180,7 +181,7 @@ TxSchema.statics.queryTxWithNft = async function(query:ITxsWhthNftQuery):Promise
 }
 
 //  txs/services
-TxSchema.statics.queryTxWithServiceName = async function(query:ITxsWhthServiceNameQuery):Promise<IListStruct>{
+TxSchema.statics.queryTxWithServiceName = async function(query:ITxsWithServiceNameQuery):Promise<IListStruct>{
 	let result:IListStruct = {};
 	let queryParameters: any = {};
 	if (query.serviceName && query.serviceName.length) {
@@ -282,14 +283,263 @@ TxSchema.statics.findCallServiceTxWithReqContextIds = async function(reqContextI
 		type:TxType.call_service,
 		'events.attributes.value':{$in:reqContextIds}
 	};
-	return await this.find(query,{'events.attributes':1,"msgs.msg.service_name":1});
+	return await this.find(query,{'events.attributes':1,"msgs.msg.service_name":1, "msgs.msg.consumer":1, "tx_hash": 1});
 }
 
 //	根据Request_Context_Id list && type == call_service 获取指定tx list
-TxSchema.statics.updateServiceNameToResServiceTxWithTxHash = async function(txHash:string, serviceName:string, requestContextId:string):Promise<ITxStruct>{
+TxSchema.statics.updateServiceNameToResServiceTxWithTxHash = async function(txHash:string, serviceName:string, requestContextId:string, callHash: string, consumer: string):Promise<ITxStruct>{
 	if (!txHash || !txHash.length) {return null};
 	let query = {
 		tx_hash:txHash,
 	};
-	return await this.findOneAndUpdate(query,{$set: {'msgs.0.msg.ex.service_name': serviceName, 'msgs.0.msg.ex.request_context_id': requestContextId}});
+	let updateParams: any = {
+	    $set: {
+	        'msgs.0.msg.ex.service_name': serviceName,
+            'msgs.0.msg.ex.request_context_id': requestContextId,
+            'msgs.0.msg.ex.call_hash': callHash,
+            'msgs.0.msg.ex.consumer': consumer,
+	    }
+	};
+	return await this.findOneAndUpdate(query,updateParams);
 }
+
+//定时任务, 查询所有关于service的tx
+TxSchema.statics.findAllServiceTx = async function ():Promise<ITxStruct[]>{
+    let queryParameters: any = {
+        $or:[
+            {"type":TxType.define_service},
+            {"type":TxType.bind_service},
+            {"type":TxType.call_service},
+            /*{"type":TxType.respond_service},*/
+            {"type":TxType.update_service_binding},
+            {"type":TxType.disable_service_binding},
+            {"type":TxType.enable_service_binding},
+            {"type":TxType.refund_service_deposit},
+            {"type":TxType.pause_request_context},
+            {"type":TxType.start_request_context},
+            {"type":TxType.kill_request_context},
+            {"type":TxType.update_request_context},
+        ],
+        'msgs.msg.ex.service_name':null
+    };
+    return await this.find(queryParameters);
+};
+
+//用request_context_id查询call_service的service_name
+TxSchema.statics.queryServiceName = async function (requestContextId: string):Promise<string>{
+    let queryParameters: any = {
+        'type':'call_service',
+        'events.attributes.key':'request_context_id',
+        'events.attributes.value':requestContextId.toUpperCase(),
+        'status': 1
+    };
+    return await this.findOne(queryParameters);
+};
+
+//在msg结构中增加ex字段
+TxSchema.statics.addExFieldForServiceTx = async function (ex: IExFieldQuery):Promise<string>{
+    const {requestContextId, consumer, serviceName, callHash, hash, bind} = ex;
+    let updateParams: any = {
+        $set: {}
+    };
+    if(requestContextId){
+        updateParams['$set']['msgs.0.msg.ex.request_context_id'] = requestContextId;
+    }
+    if(consumer){
+        updateParams['$set']['msgs.0.msg.ex.consumer'] = consumer;
+    }
+    if(serviceName){
+        updateParams['$set']['msgs.0.msg.ex.service_name'] = serviceName;
+    }
+    if(callHash){
+        updateParams['$set']['msgs.0.msg.ex.call_hash'] = callHash;
+    }
+    if(bind){
+        updateParams['$set']['msgs.0.msg.ex.bind'] = bind;
+    }
+
+    return await this.findOneAndUpdate({tx_hash:hash},updateParams);
+};
+
+//在msg结构中增加ex字段
+TxSchema.statics.queryDefineServiceTxHashByServiceName = async function (serviceName: string):Promise<ITxStruct>{
+    let queryParameters: any = {
+        type:'define_service',
+        'msgs.msg.name':serviceName,
+    };
+    return await this.findOne(queryParameters,{"tx_hash":1});
+};
+
+
+TxSchema.statics.findServiceAllList = async function (pageNum: number, pageSize: number,):Promise<ITxStruct>{
+    const queryParameters: any = {
+        type: TxType.define_service,
+        status: 1,
+    };
+    return await this.find(queryParameters)
+        .sort({
+            'msgs.msg.ex.bind':-1,
+            time: -1,
+        })
+        .skip((Number(pageNum) - 1) * Number(pageSize))
+        .limit(Number(pageSize));
+};
+
+
+TxSchema.statics.findBindServiceTxList = async function (
+    serviceName: IServiceName,
+    pageNum?: number,
+    pageSize?: number
+):Promise<ITxStruct>{
+    const queryParameters: any = {
+        type: TxType.bind_service,
+        status: 1,
+        'msgs.msg.service_name': serviceName
+    };
+    if(pageNum && pageSize){
+        return await this.find(queryParameters)
+            .skip((Number(pageNum) - 1) * Number(pageSize))
+            .limit(Number(pageSize));
+    }else{
+        return await this.find(queryParameters);
+    }
+
+};
+
+//查询某个provider在某个service下所有的响应次数
+TxSchema.statics.findProviderRespondTimesForService = async function (serviceName: string, provider: string):Promise<number>{
+    const queryParameters: any = {
+        type: TxType.respond_service,
+        status: 1,
+        'msgs.msg.ex.service_name': serviceName,
+        'msgs.msg.provider': provider,
+    };
+    return await this.countDocuments(queryParameters);
+};
+
+TxSchema.statics.findAllServiceCount = async function ():Promise<number>{
+    const queryParameters: any = {
+        type: TxType.define_service,
+        status: 1,
+    };
+    return await this.countDocuments(queryParameters)
+};
+
+TxSchema.statics.findServiceProviderCount = async function (serviceName):Promise<number>{
+    const queryParameters: any = {
+        type: TxType.bind_service,
+        status: 1,
+        'msgs.msg.service_name': serviceName
+    };
+    return await this.countDocuments(queryParameters)
+};
+
+TxSchema.statics.findServiceTx = async function (
+    serviceName: string,
+    type: string,
+    status: number,
+    pageNum: number,
+    pageSize: number
+):Promise<ITxStruct>{
+    const queryParameters: any = {
+        'msgs.msg.ex.service_name': serviceName
+    };
+    if(type){
+        queryParameters.type = type;
+    }
+    if(status || status === 0){
+        queryParameters.status = status;
+    }
+    return await this.find(queryParameters)
+        .skip((Number(pageNum) - 1) * Number(pageSize))
+        .limit(Number(pageSize));
+};
+
+TxSchema.statics.findServiceTxCount = async function (serviceName: string, type: string, status: number):Promise<number>{
+    const queryParameters: any = {
+        'msgs.msg.ex.service_name': serviceName
+    };
+    if(type){
+        queryParameters.type = type;
+    }
+    if(status || status === 0){
+        queryParameters.status = status;
+    }
+    return await this.countDocuments(queryParameters);
+};
+
+TxSchema.statics.findBindTx = async function (serviceName: string, provider: string):Promise<ITxStruct | null>{
+    const queryParameters: any = {
+        'msgs.msg.service_name': serviceName,
+        'msgs.msg.provider': provider,
+        type: TxType.bind_service,
+        status: 1,
+    };
+    return await this.findOne(queryParameters);
+};
+
+TxSchema.statics.findServiceOwner = async function (serviceName: string):Promise<ITxStruct | null>{
+    const queryParameters: any = {
+        'msgs.msg.name': serviceName,
+        type: TxType.define_service,
+        status: 1,
+    };
+    return await this.findOne(queryParameters);
+};
+
+
+TxSchema.statics.queryServiceRespondTx = async function (serviceName: string, provider: string, pageNum: number, pageSize: number):Promise<ITxStruct[]>{
+    const queryParameters: any = {
+        'msgs.msg.ex.service_name': serviceName,
+        type: TxType.respond_service,
+        status: 1,
+    };
+    if(provider){
+        queryParameters['msgs.msg.provider'] = provider;
+    }
+    return await this.find(queryParameters)
+        .skip((Number(pageNum) - 1) * Number(pageSize))
+        .limit(Number(pageSize));
+};
+
+TxSchema.statics.findRespondServiceCount = async function (serviceName: string, provider: string):Promise<ITxStruct[]>{
+    const queryParameters: any = {
+        'msgs.msg.ex.service_name': serviceName,
+        type: TxType.respond_service,
+        status: 1,
+    };
+    if(provider){
+        queryParameters['msgs.msg.provider'] = provider;
+    }
+    return await this.countDocuments(queryParameters);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
