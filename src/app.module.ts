@@ -49,7 +49,8 @@ if (cfg.env === 'development') {
         {
             provide: APP_PIPE,
             useClass: ValidationPipe,
-        }
+        },
+        TasksService,
     ];
 } else {
     params.providers = [
