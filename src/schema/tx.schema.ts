@@ -328,7 +328,7 @@ TxSchema.statics.findAllServiceTx = async function ():Promise<ITxStruct[]>{
 //用request_context_id查询call_service的service_name
 TxSchema.statics.queryServiceName = async function (requestContextId: string):Promise<string>{
     let queryParameters: any = {
-        'type':'call_service',
+        'type':TxType.call_service,
         'events.attributes.key':'request_context_id',
         'events.attributes.value':requestContextId.toUpperCase(),
         'status': 1
@@ -364,7 +364,7 @@ TxSchema.statics.addExFieldForServiceTx = async function (ex: IExFieldQuery):Pro
 //在msg结构中增加ex字段
 TxSchema.statics.queryDefineServiceTxHashByServiceName = async function (serviceName: string):Promise<ITxStruct>{
     let queryParameters: any = {
-        type:'define_service',
+        type:TxType.define_service,
         'msgs.msg.name':serviceName,
     };
     return await this.findOne(queryParameters,{"tx_hash":1});
