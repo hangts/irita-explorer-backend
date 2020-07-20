@@ -10,6 +10,8 @@ import { TxListReqDto,
          TxListWithNftReqDto,
          TxListWithServicesNameReqDto,
          ServicesDetailReqDto,
+         TxListWithCallServiceReqDto,
+         TxListWithRespondServiceReqDto,
          PostTxTypesReqDto,
          PutTxTypesReqDto,
          DeleteTxTypesReqDto,
@@ -56,6 +58,18 @@ export class TxController {
     @Get("/services")
     async queryTxWithServiceName(@Query() query: TxListWithServicesNameReqDto):Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithServiceName(query);
+        return new Result<any>(data);
+    }
+
+    @Get("/services/call-service")
+    async queryTxWithCallService(@Query() query: TxListWithCallServiceReqDto):Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithCallService(query);
+        return new Result<any>(data);
+    }
+
+    @Get("/services/respond-service")
+    async queryTxWithRespondService(@Query() query: TxListWithRespondServiceReqDto):Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithRespondService(query);
         return new Result<any>(data);
     }
     

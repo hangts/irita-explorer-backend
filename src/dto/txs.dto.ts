@@ -1,4 +1,4 @@
-import { IsString, IsInt, Length , Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty} from 'class-validator';
+import { IsString, IsInt, Length , Min, Max ,IsOptional, Equals, MinLength, ArrayNotEmpty} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {BaseReqDto, BaseResDto, PagingReqDto} from './base.dto';
 import {ApiError} from '../api/ApiResult';
@@ -92,6 +92,20 @@ export class ServicesDetailReqDto extends BaseReqDto{
     serviceName: string;
 }
 
+//txs/service/call-service
+export class TxListWithCallServiceReqDto extends PagingReqDto{
+    @ApiProperty()
+    @MinLength(1, {message: "consumerAddr is too short"})
+    consumerAddr: string;
+}
+
+//txs/service/respond-service
+export class TxListWithRespondServiceReqDto extends PagingReqDto{
+    @ApiProperty()
+    @MinLength(1, {message: "providerAddr is too short"})
+    providerAddr: string;
+}
+
 //Post txs/types request dto
 export class PostTxTypesReqDto extends BaseReqDto{
     @ApiProperty()
@@ -168,6 +182,46 @@ export class TxResDto extends BaseResDto{
       		return new TxResDto(v);
       	});
       	return data;
+    }
+}
+
+//txs/service/call-service
+export class callServiceResDto extends TxResDto{
+    respond: TxResDto[];
+
+    constructor(txData){
+        super(txData);
+        if (txData.respond && txData.respond.length) {
+            this.respond = (txData.respond || []).map((item)=>{
+                return new TxResDto(item);
+            });
+        }
+    }
+
+    static bundleData(value:any):callServiceResDto[]{
+        let data:callServiceResDto[] = [];
+        data = value.map((v:any)=>{
+            return new callServiceResDto(v);
+        });
+        return data;
+    }
+}
+
+//txs/service/respond-service
+export class RespondServiceResDto extends TxResDto{
+    respond_times: number;
+
+    constructor(txData){
+        super(txData);
+        this.respond_times = txData.respond_times;
+    }
+
+    static bundleData(value:any):RespondServiceResDto[]{
+        let data:RespondServiceResDto[] = [];
+        data = value.map((v:any)=>{
+            return new RespondServiceResDto(v);
+        });
+        return data;
     }
 }
 

@@ -6,7 +6,7 @@ export function getReqContextIdWithReqId(requestId:string):string{
     }
 }
 
-export function getReqContextIdFromEvents(events:[]):string{
+export function getReqContextIdFromEvents(events:any[]):string{
     let reqContextId:string = '';
     if (events && events.length) {
         events.forEach((item:{attributes:{key:string, value:string}[]})=>{
@@ -25,9 +25,9 @@ export function getReqContextIdFromEvents(events:[]):string{
 export function getServiceNameFromMsgs(msgs:[]):string{
     let serviceName:string = '';
     if (msgs && msgs.length) {
-        msgs.forEach((msg:{msg:{service_name:string}})=>{
-            if (!serviceName.length && msg.msg && msg.msg.service_name) {
-                serviceName = msg.msg.service_name || '';
+        msgs.forEach((msg:{msg:{service_name:string, name:string}})=>{
+            if (!serviceName.length && msg.msg && (msg.msg.service_name || msg.msg.name)) {
+                serviceName = msg.msg.service_name || (msg.msg.name || '');
             }
         });
     }

@@ -50,6 +50,14 @@ export interface ITxStruct {
     signers:string[]
 }
 
+export interface callServiceStruct extends ITxStruct {
+    respond?:object[],
+}
+
+export interface bindServiceStruct extends ITxStruct {
+    respond_times?:number,
+}
+
 export interface ITxStructMsgs {
     events:object[],
     msgs:object[],
