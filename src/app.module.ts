@@ -50,7 +50,7 @@ if (cfg.env === 'development') {
             provide: APP_PIPE,
             useClass: ValidationPipe,
         },
-        TasksService,//todo 暂时加上
+        TasksService,
     ];
 } else {
     params.providers = [

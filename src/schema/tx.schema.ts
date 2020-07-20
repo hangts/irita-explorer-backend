@@ -174,7 +174,7 @@ TxSchema.statics.findRespondServiceTx = async function(pageSize?:number):Promise
 	pageSize = pageSize || cfg.taskCfg.syncTxServiceNameSize;
 	return await this.find({
 							type:TxType.respond_service,
-							/*'msgs.msg.ex.service_name':null*///todo 暂时注释
+							'msgs.msg.ex.service_name':null
 						},{tx_hash:1,'msgs.msg.request_id':1})
 					 .sort({height:-1})
 					 .limit(Number(pageSize));

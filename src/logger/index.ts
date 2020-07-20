@@ -102,13 +102,13 @@ export class Logger {
         logger_common.warn(Logger.getStackTrace(), ...args);
     }
     static error(...args) {
-        // logger_common.error(Logger.getStackTrace(), ...args);//todo 暂时注释
+        logger_common.error(Logger.getStackTrace(), ...args);
     }
     static fatal(...args) {
         logger_common.fatal(Logger.getStackTrace(), ...args);
     }
     static access(...args) {
-        // logger_http.info(Logger.getStackTrace(), ...args);
+        logger_http.info(Logger.getStackTrace(), ...args);
     }
 
     static getStackTrace(deep: number = 2): string {
