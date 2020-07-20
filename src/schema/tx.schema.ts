@@ -224,7 +224,7 @@ TxSchema.statics.findAllServiceTx = async function ():Promise<ITxStruct[]>{
             {"type":TxType.kill_request_context},
             {"type":TxType.update_request_context},
         ],
-        /*'msgs.msg.ex.service_name':null*/
+        'msgs.msg.ex.service_name':null
     };
     return await this.find(queryParameters);
 };
@@ -232,11 +232,12 @@ TxSchema.statics.findAllServiceTx = async function ():Promise<ITxStruct[]>{
 //用request_context_id查询call_service的service_name
 TxSchema.statics.queryServiceName = async function (requestContextId: string):Promise<string>{
     let queryParameters: any = {
-        type:'call_service',
-        'events.attributes.value':{$in:requestContextId},
-        status: 1
+        'type':'call_service',
+        'events.attributes.key':'request_context_id',
+        'events.attributes.value':requestContextId,
+        'status': 1
     };
-    return await this.find(queryParameters);
+    return await this.findOne(queryParameters);
 };
 
 //在msg结构中增加ex字段

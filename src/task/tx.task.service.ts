@@ -19,7 +19,6 @@ export class TxTaskService {
         let respondServiceTxMap:object = {};
         
         let respondServiceTxData = await this.txModel.findRespondServiceTx();
-        console.log('----',respondServiceTxData)
         respondServiceTxData.forEach((item:{tx_hash:string, msgs:any[]})=>{
             let reqContextId:string = '';
             if (item.msgs && 
@@ -54,11 +53,17 @@ export class TxTaskService {
     async doTask(): Promise<void>{
         //查询所有关于service的交易
         let txList: ITxStruct[] = await this.txModel.findAllServiceTx();
-        await this.syncRespondServiceTxServiceName();
+        //await this.syncRespondServiceTxServiceName();
         for(let tx of txList){
-            if(tx.type === TxType.pause_request_context || tx.type === TxType.start_request_context ||
-                tx.type === TxType.kill_request_context || tx.type === TxType.update_request_context){
-                const serviceName: string = await this.queryServiceName(tx)
+            if(
+                tx.type === TxType.pause_request_context ||
+                tx.type === TxType.start_request_context ||
+                tx.type === TxType.kill_request_context ||
+                tx.type === TxType.update_request_context
+            ){
+                console.log(tx.type)
+                const serviceTx: any = await this.queryServiceName(tx);
+                const serviceName = serviceTx.msgs[0].msg.service_name;
                 let exFieldQuery: IExFieldQuery = {
                     hash: tx.tx_hash,
                     serviceName,
@@ -99,7 +104,7 @@ export class TxTaskService {
     }
 
     async queryServiceName(tx: ITxStruct): Promise<string>{
-        return await this.txModel.queryServiceName((tx as any).msgs.msg.request_context_id);
+        return await this.txModel.queryServiceName((tx as any).msgs[0].msg.request_context_id);
 
     }
 
