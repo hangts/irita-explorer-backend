@@ -12,7 +12,7 @@ import {
     TxListWithServicesNameReqDto,
     ServicesDetailReqDto,
     TxListWithCallServiceReqDto,
-         TxListWithRespondServiceReqDto,
+    TxListWithRespondServiceReqDto,
     PostTxTypesReqDto,
     PutTxTypesReqDto,
     DeleteTxTypesReqDto,
