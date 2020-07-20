@@ -133,7 +133,7 @@ export class TxController {
         return new Result<ListStruct<ServiceTxResDto[]>>(data);
     }
 
-    @Get("/services/bind_info")
+    @Get("/services/bind-info")
     async queryServiceBindInfo(@Query() query: ServiceBindInfoReqDto): Promise<Result<ServiceBindInfoResDto>> {
         const data: ServiceBindInfoResDto = await this.txService.queryServiceBindInfo(query);
         return new Result<ServiceBindInfoResDto>(data);
