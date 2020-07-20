@@ -234,7 +234,7 @@ TxSchema.statics.queryServiceName = async function (requestContextId: string):Pr
     let queryParameters: any = {
         'type':'call_service',
         'events.attributes.key':'request_context_id',
-        'events.attributes.value':requestContextId,
+        'events.attributes.value':requestContextId.toUpperCase(),
         'status': 1
     };
     return await this.findOne(queryParameters);

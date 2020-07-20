@@ -61,7 +61,6 @@ export class TxTaskService {
                 tx.type === TxType.kill_request_context ||
                 tx.type === TxType.update_request_context
             ){
-                console.log(tx.type)
                 const serviceTx: any = await this.queryServiceName(tx);
                 const serviceName = serviceTx.msgs[0].msg.service_name;
                 let exFieldQuery: IExFieldQuery = {
