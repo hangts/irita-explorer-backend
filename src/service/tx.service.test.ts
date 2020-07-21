@@ -7,9 +7,12 @@ import { Logger } from '../logger'
 import { TxListReqDto, 
          TxListWithHeightReqDto,
          TxListWithAddressReqDto,
+         TxListWithContextIdReqDto,
          TxListWithNftReqDto,
          TxListWithServicesNameReqDto,
          ServicesDetailReqDto,
+         TxListWithCallServiceReqDto,
+         TxListWithRespondServiceReqDto,
          PostTxTypesReqDto,
          PutTxTypesReqDto,
          DeleteTxTypesReqDto,
@@ -107,6 +110,22 @@ describe('TxController', () => {
         });
     });
 
+    describe('queryTxWithContextId', () => {
+        it('should return an array of contextId', async () => {
+            let req:TxListWithContextIdReqDto = {};
+            req.pageNum = 1;
+            req.pageSize = 10;
+            req.useCount = true;
+            req.contextId = '08901E1B9EDF8B3A020D4169C345FF2044C032DD7589B7924F8F7B8370BD05120000000000000000';
+            let data = await txService.queryTxWithContextId(req);
+            if (data && data.data.length) {
+                expect(data.data).toBeDefined();
+            }else{
+                expect(data.data).toBeDefined();
+            }
+        });
+    });
+
     describe('queryTxWithNft', () => {
         it('should return an array of Nft', async () => {
             let req:TxListWithNftReqDto = {};
@@ -157,6 +176,41 @@ describe('TxController', () => {
                 expect(data.msgs[0].msg.name).toBe(req.serviceName);
             }else{
                 expect(data).toBe(null);
+            }
+        });
+    });
+
+    describe('queryTxWithCallService', () => {
+        it('should return an array of callService tx', async () => {
+            let req:TxListWithCallServiceReqDto = {consumerAddr:''};
+            req.pageNum = 1;
+            req.pageSize = 10;
+            req.useCount = true;
+            req.consumerAddr = 'caa1ywhamh2kc2z807762tnl8pkhypdq6f2rhprst0';
+
+            let data = await txService.queryTxWithCallService(req);
+            if (data && data.data.length) {
+                expect(data.data).toBeDefined();
+            }else{
+                expect(data.data).toBeDefined();
+            }
+        });
+    });
+
+
+    describe('queryTxWithRespondService', () => {
+        it('should return an array of respondService tx', async () => {
+            let req:TxListWithRespondServiceReqDto = {providerAddr:''};
+            req.pageNum = 1;
+            req.pageSize = 10;
+            req.useCount = true;
+            req.providerAddr = 'caa1ywhamh2kc2z807762tnl8pkhypdq6f2rhprst0';
+
+            let data = await txService.queryTxWithRespondService(req);
+            if (data && data.data.length) {
+                expect(data.data).toBeDefined();
+            }else{
+                expect(data.data).toBeDefined();
             }
         });
     });

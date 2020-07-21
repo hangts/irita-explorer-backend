@@ -6,26 +6,36 @@ import {
     TxListReqDto,
     TxListWithHeightReqDto,
     TxListWithAddressReqDto,
+    TxListWithContextIdReqDto,
     TxListWithNftReqDto,
     TxListWithServicesNameReqDto,
     ServicesDetailReqDto,
+    TxListWithCallServiceReqDto,
+    TxListWithRespondServiceReqDto,
     PostTxTypesReqDto,
     PutTxTypesReqDto,
     DeleteTxTypesReqDto,
     TxWithHashReqDto,
-    ServiceResDto,
     ServiceListReqDto,
     ServiceProvidersReqDto,
-    ServiceProvidersResDto,
     ServiceTxReqDto,
-    ServiceTxResDto, ServiceBindInfoReqDto, ServiceBindInfoResDto, ServiceRespondReqDto, ServiceRespondResDto,
+    ServiceBindInfoReqDto, 
+    ServiceRespondReqDto,
 } from '../dto/txs.dto';
 import {
     TxResDto,
     TxTypeResDto,
+    callServiceResDto,
+    ServiceResDto,
+    RespondServiceResDto,
+    ServiceProvidersResDto,
+    ServiceTxResDto,
+    ServiceBindInfoResDto,
+    ServiceRespondResDto
 } from '../dto/txs.dto';
 import { IBindTx, IServiceName } from '../types/tx.interface';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
+import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 
 @Injectable()
 export class TxService {
@@ -51,6 +61,12 @@ export class TxService {
         return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
+    //  txs/relevance
+    async queryTxWithContextId(query: TxListWithContextIdReqDto): Promise<ListStruct<TxResDto[]>> {
+        let txListData = await this.txModel.queryTxWithContextId(query);
+        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+    }
+
     //  txs/nfts
     async queryTxWithNft(query: TxListWithNftReqDto): Promise<ListStruct<TxResDto[]>> {
         let txListData = await this.txModel.queryTxWithNft(query);
@@ -61,6 +77,40 @@ export class TxService {
     async queryTxWithServiceName(query: TxListWithServicesNameReqDto): Promise<ListStruct<TxResDto[]>> {
         let txListData = await this.txModel.queryTxWithServiceName(query);
         return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+    }
+
+    //  txs/services/call-service
+    async queryTxWithCallService(query: TxListWithCallServiceReqDto): Promise<ListStruct<callServiceResDto[]>> {
+        let callServices = await this.txModel.queryCallServiceWithConsumerAddr(query.consumerAddr, query.pageNum, query.pageSize, query.useCount);
+        if (callServices && callServices.data) {
+            for(let item of callServices.data){
+                let context_id:string = getReqContextIdFromEvents(item.events);
+                if (context_id && context_id.length) {
+                    let respond = await this.txModel.queryRespondServiceWithContextId(context_id);
+                    item.respond = respond || [];
+                }else{
+                    item.respond = [];
+                }
+            }
+        }
+        return new ListStruct(callServiceResDto.bundleData(callServices.data), Number(query.pageNum), Number(query.pageSize), callServices.count);
+    }
+
+    //  txs/services/respond-service
+    async queryTxWithRespondService(query: TxListWithRespondServiceReqDto): Promise<ListStruct<TxResDto[]>> {
+        let bindServices = await this.txModel.queryBindServiceWithProviderAddr(query.providerAddr, query.pageNum, query.pageSize, query.useCount);
+        if (bindServices && bindServices.data) {
+            for(let item of bindServices.data){
+                let serviceName:string = getServiceNameFromMsgs(item.msgs);
+                if (serviceName && serviceName.length) {
+                    let respond_times = await this.txModel.queryRespondCountWithServceName(serviceName, query.providerAddr);
+                    item.respond_times = respond_times;
+                }else{
+                    item.respond_times = 0;
+                }
+            }
+        }
+        return new ListStruct(RespondServiceResDto.bundleData(bindServices.data), Number(query.pageNum), Number(query.pageSize), bindServices.count);
     }
 
     //  txs/services/detail/{serviceName}

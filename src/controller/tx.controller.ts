@@ -7,9 +7,12 @@ import {
     TxListReqDto,
     TxListWithHeightReqDto,
     TxListWithAddressReqDto,
+    TxListWithContextIdReqDto,
     TxListWithNftReqDto,
     TxListWithServicesNameReqDto,
     ServicesDetailReqDto,
+    TxListWithCallServiceReqDto,
+    TxListWithRespondServiceReqDto,
     PostTxTypesReqDto,
     PutTxTypesReqDto,
     DeleteTxTypesReqDto,
@@ -47,6 +50,12 @@ export class TxController {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithAddress(query);
         return new Result<any>(data);
     }
+
+    @Get("/relevance")
+    async queryTxWithContextId(@Query() query: TxListWithContextIdReqDto):Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithContextId(query);
+        return new Result<any>(data);
+    }
     
     @Get("/nfts")
     async queryTxWithNft(@Query() query: TxListWithNftReqDto):Promise<Result<ListStruct<TxResDto>>> {
@@ -64,6 +73,17 @@ export class TxController {
         return new Result<ListStruct<ServiceResDto[]>>(data);
     }
 
+    @Get("/services/call-service")
+    async queryTxWithCallService(@Query() query: TxListWithCallServiceReqDto):Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithCallService(query);
+        return new Result<any>(data);
+    }
+
+    @Get("/services/respond-service")
+    async queryTxWithRespondService(@Query() query: TxListWithRespondServiceReqDto):Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithRespondService(query);
+        return new Result<any>(data);
+    }
     
     @Get("/services/detail/:serviceName")
     async queryTxDetailWithServiceName(@Param() query: ServicesDetailReqDto): Promise<Result<TxResDto>> {
@@ -113,7 +133,7 @@ export class TxController {
         return new Result<ListStruct<ServiceTxResDto[]>>(data);
     }
 
-    @Get("/services/bind_info")
+    @Get("/services/bind-info")
     async queryServiceBindInfo(@Query() query: ServiceBindInfoReqDto): Promise<Result<ServiceBindInfoResDto>> {
         const data: ServiceBindInfoResDto = await this.txService.queryServiceBindInfo(query);
         return new Result<ServiceBindInfoResDto>(data);
