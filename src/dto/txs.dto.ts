@@ -169,6 +169,7 @@ export class ServiceTxResDto {
     time: number;
     status: number;
     msgs: any;
+    events: any;
 
     constructor(
         hash: string,
@@ -177,6 +178,7 @@ export class ServiceTxResDto {
         time: number,
         status: number,
         msgs: any,
+        events: any,
     ) {
         this.hash = hash;
         this.type = type;
@@ -184,6 +186,7 @@ export class ServiceTxResDto {
         this.time = time;
         this.status = status;
         this.msgs = msgs;
+        this.events = events;
     }
 }
 
@@ -196,27 +199,30 @@ export class ServiceRespondReqDto extends PagingReqDto {
 }
 
 export class ServiceRespondResDto {
-    respond_hash: string;
+    respondHash: string;
     type: string;
     height:number;
     time:number;
     consumer:string;
-    request_hash:string;
+    requestHash:string;
+    requestContextId:string;
 
     constructor(
-        respond_hash: string,
+        respondHash: string,
         type: string,
         height: number,
         time: number,
         consumer: string,
-        request_hash: string,
+        requestHash: string,
+        requestContextId: string,
     ) {
-        this.respond_hash = respond_hash;
+        this.respondHash = respondHash;
         this.type = type;
         this.height = height;
         this.time = time;
         this.consumer = consumer;
-        this.request_hash = request_hash;
+        this.requestHash = requestHash;
+        this.requestContextId = requestContextId;
     }
 }
 

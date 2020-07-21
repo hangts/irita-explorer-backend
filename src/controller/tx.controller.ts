@@ -77,6 +77,13 @@ export class TxController {
         return new Result<any>(data);
     }
 
+    @Get("/types/service")
+    async queryServiceTxTypeList(): Promise<Result<ListStruct<TxTypeResDto>>> {
+        const data: ListStruct<TxTypeResDto[]> = await this.txService.queryServiceTxTypeList();
+        return new Result<any>(data);
+    }
+
+
     @Post("/types")
     async insertTxTypes(@Body() prarms:PostTxTypesReqDto): Promise<Result<ListStruct<TxTypeResDto>>> {
         const data: ListStruct<TxTypeResDto[]> = await this.txService.insertTxTypes(prarms);
