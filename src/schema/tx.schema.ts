@@ -266,51 +266,53 @@ TxSchema.statics.queryTxStatistics = async function():Promise<{txCount:number,se
 }
 
 //	获取指定条数的serviceName==null&&type == respond_service 的 tx
-TxSchema.statics.findRespondServiceTx = async function(pageSize?:number):Promise<ITxStructHash[]>{
-	pageSize = pageSize || cfg.taskCfg.syncTxServiceNameSize;
-	return await this.find({
-							type:TxType.respond_service,
-							'msgs.msg.ex.service_name':null
-						},{tx_hash:1,'msgs.msg.request_id':1})
-					 .sort({time:-1})
-					 .limit(Number(pageSize));
-}
+// TxSchema.statics.findRespondServiceTx = async function(pageSize?:number):Promise<ITxStructHash[]>{
+// 	pageSize = pageSize || cfg.taskCfg.syncTxServiceNameSize;
+// 	return await this.find({
+// 							type:TxType.respond_service,
+// 							'msgs.msg.ex.service_name':null
+// 						},{tx_hash:1,'msgs.msg.request_id':1})
+// 					 .sort({time:-1})
+// 					 .limit(Number(pageSize));
+// }
 
 //	根据Request_Context_Id list && type == call_service 获取指定tx list
 TxSchema.statics.findCallServiceTxWithReqContextIds = async function(reqContextIds:string[]):Promise<ITxStructMsgs[]>{
 	if (!reqContextIds || !reqContextIds.length) {return []};
 	let query = {
 		type:TxType.call_service,
+		'events.attributes.key':'request_context_id',
 		'events.attributes.value':{$in:reqContextIds}
 	};
 	return await this.find(query,{'events.attributes':1,"msgs.msg.service_name":1, "msgs.msg.consumer":1, "tx_hash": 1});
 }
 
 //	根据Request_Context_Id list && type == call_service 获取指定tx list
-TxSchema.statics.updateServiceNameToResServiceTxWithTxHash = async function(txHash:string, serviceName:string, requestContextId:string, callHash: string, consumer: string):Promise<ITxStruct>{
-	if (!txHash || !txHash.length) {return null};
-	let query = {
-		tx_hash:txHash,
-	};
-	let updateParams: any = {
-	    $set: {
-	        'msgs.0.msg.ex.service_name': serviceName,
-            'msgs.0.msg.ex.request_context_id': requestContextId,
-            'msgs.0.msg.ex.call_hash': callHash,
-            'msgs.0.msg.ex.consumer': consumer,
-	    }
-	};
-	return await this.findOneAndUpdate(query,updateParams);
-}
+// TxSchema.statics.updateServiceNameToResServiceTxWithTxHash = async function(txHash:string, serviceName:string, requestContextId:string, callHash: string, consumer: string):Promise<ITxStruct>{
+// 	if (!txHash || !txHash.length) {return null};
+// 	let query = {
+// 		tx_hash:txHash,
+// 	};
+// 	let updateParams: any = {
+// 	    $set: {
+// 	        'msgs.0.msg.ex.service_name': serviceName,
+//             'msgs.0.msg.ex.request_context_id': requestContextId,
+//             'msgs.0.msg.ex.call_hash': callHash,
+//             'msgs.0.msg.ex.consumer': consumer,
+// 	    }
+// 	};
+// 	return await this.findOneAndUpdate(query,updateParams);
+// }
 
 //定时任务, 查询所有关于service的tx
-TxSchema.statics.findAllServiceTx = async function ():Promise<ITxStruct[]>{
+TxSchema.statics.findAllServiceTx = async function (pageSize?:number):Promise<ITxStruct[]>{
+    pageSize = pageSize || cfg.taskCfg.syncTxServiceNameSize;
     let queryParameters: any = {
         $or:[
             {"type":TxType.define_service},
             {"type":TxType.bind_service},
             {"type":TxType.call_service},
-            /*{"type":TxType.respond_service},*/
+            {"type":TxType.respond_service},
             {"type":TxType.update_service_binding},
             {"type":TxType.disable_service_binding},
             {"type":TxType.enable_service_binding},
@@ -322,7 +324,7 @@ TxSchema.statics.findAllServiceTx = async function ():Promise<ITxStruct[]>{
         ],
         'msgs.msg.ex.service_name':null
     };
-    return await this.find(queryParameters);
+    return await this.find(queryParameters).sort({time:-1}).limit(Number(pageSize));;
 };
 
 //用request_context_id查询call_service的service_name
@@ -342,16 +344,16 @@ TxSchema.statics.addExFieldForServiceTx = async function (ex: IExFieldQuery):Pro
     let updateParams: any = {
         $set: {}
     };
-    if(requestContextId){
+    if(requestContextId && requestContextId.length){
         updateParams['$set']['msgs.0.msg.ex.request_context_id'] = requestContextId;
     }
-    if(consumer){
+    if(consumer && consumer.length){
         updateParams['$set']['msgs.0.msg.ex.consumer'] = consumer;
     }
-    if(serviceName){
+    if(serviceName && serviceName.length){
         updateParams['$set']['msgs.0.msg.ex.service_name'] = serviceName;
     }
-    if(callHash){
+    if(callHash && callHash.length){
         updateParams['$set']['msgs.0.msg.ex.call_hash'] = callHash;
     }
     if(bind){
@@ -361,7 +363,7 @@ TxSchema.statics.addExFieldForServiceTx = async function (ex: IExFieldQuery):Pro
     return await this.findOneAndUpdate({tx_hash:hash},updateParams);
 };
 
-//在msg结构中增加ex字段
+//根据serviceName 查询define_service tx
 TxSchema.statics.queryDefineServiceTxHashByServiceName = async function (serviceName: string):Promise<ITxStruct>{
     let queryParameters: any = {
         type:TxType.define_service,
@@ -513,33 +515,4 @@ TxSchema.statics.findRespondServiceCount = async function (serviceName: string, 
     }
     return await this.countDocuments(queryParameters);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

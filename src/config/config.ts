@@ -40,7 +40,7 @@ export const cfg = {
             faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME || '41 * * * * *',
             validators: VALIDATORS_EXECTUTE_TIME || '1 * * * * *'
         },
-        syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 100,
+        syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
     }
 };
 
