@@ -17,7 +17,7 @@ describe('TxTaskService', () => {
 
     describe('syncRespondServiceTxServiceName', () => {
         it('sync respond service tx service name', async () => {
-            txTaskService.syncRespondServiceTxServiceName();
+            txTaskService.doTask();
         });
     });
 });
