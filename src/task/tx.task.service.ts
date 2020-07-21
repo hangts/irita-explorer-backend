@@ -94,7 +94,7 @@ export class TxTaskService {
         //更新到数据库
         respondServiceTxData.forEach(async (item:IExFieldTx)=>{
             let exFieldQuery:IExFieldQuery = {hash:item.tx_hash};
-            console.log('+++++++++++:',item);
+            console.log('service will update:',item);
             if (item.type == TxType.bind_service) {
                 const res: ITxStruct = await this.txModel.queryDefineServiceTxHashByServiceName(getServiceNameFromMsgs(item.msgs));
                 if (res && res.tx_hash && res.tx_hash.length) {
