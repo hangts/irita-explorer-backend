@@ -13,12 +13,12 @@ export function getHttpRequestLog(req, res):string{
 }
 
 export function getHttpRespondLog(req, resData):string{
-    let resBodyStr: string = JSON.stringify(resData.data);
+    let resBodyStr: string = JSON.stringify(resData.data) || '';
     let logFormat: string = ` <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                             Request original url: ${req.originalUrl}
                             Method: ${req.method}
                             IP: ${req.ip}
-                            User: ${JSON.stringify(req.user)}
+                            User: ${JSON.stringify(req.user || '{}')}
                             Response data:\n ${resBodyStr.length>1000 ? resBodyStr.substr(0,1000) : resBodyStr} \n <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<`;
     return logFormat;
 }

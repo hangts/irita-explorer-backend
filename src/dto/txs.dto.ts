@@ -35,10 +35,42 @@ export class TxListWithHeightReqDto extends PagingReqDto {
     height?: string;
 }
 
-//txs/address request dto
-export class TxListWithAddressReqDto extends PagingReqDto {
-    @ApiPropertyOptional()
+//txs/addresses request dto
+export class TxListWithAddressReqDto extends PagingReqDto{
+	@ApiPropertyOptional()
     address?: string;
+
+    @ApiPropertyOptional()
+    type?: string;
+
+    @ApiPropertyOptional({description:'1:success  2:fail'})
+    status?: string;
+
+    static validate(value:any){
+        super.validate(value);
+        if (value.status && value.status !=='1' && value.status !=='2') {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'status must be 1 or 2');
+        }
+    }
+}
+
+// txs/relevance 
+export class TxListWithContextIdReqDto extends PagingReqDto{
+    @ApiPropertyOptional()
+    contextId?: string;
+
+    @ApiPropertyOptional()
+    type?: string;
+
+    @ApiPropertyOptional({description:'1:success  2:fail'})
+    status?: string;
+
+    static validate(value:any){
+        super.validate(value);
+        if (value.status && value.status !=='1' && value.status !=='2') {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'status must be 1 or 2');
+        }
+    }
 }
 
 //txs/nfts request dto
@@ -60,6 +92,20 @@ export class TxListWithServicesNameReqDto extends PagingReqDto {
 export class ServicesDetailReqDto extends BaseReqDto {
     @ApiProperty()
     serviceName: string;
+}
+
+//txs/service/call-service
+export class TxListWithCallServiceReqDto extends PagingReqDto{
+    @ApiProperty()
+    @MinLength(1, {message: "consumerAddr is too short"})
+    consumerAddr: string;
+}
+
+//txs/service/respond-service
+export class TxListWithRespondServiceReqDto extends PagingReqDto{
+    @ApiProperty()
+    @MinLength(1, {message: "providerAddr is too short"})
+    providerAddr: string;
 }
 
 //Post txs/types request dto
@@ -96,32 +142,12 @@ export class TxWithHashReqDto extends BaseReqDto {
 export class ServiceListReqDto extends PagingReqDto {
 }
 
-export class ServiceResDto {
-    serviceName: string;
-    bindList: IBindTx[];
-
-    constructor(serviceName: string, bindList: IBindTx[]) {
-        this.serviceName = serviceName;
-        this.bindList = bindList;
-    }
-}
 
 export class ServiceProvidersReqDto extends PagingReqDto {
     @ApiProperty()
     serviceName: string;
 }
 
-export class ServiceProvidersResDto implements IBindTx {
-    provider: string;
-    respondTimes?: number;
-    bindTime: string;
-
-    constructor(provider: string, respondTimes: number, bindTime: string) {
-        this.provider = provider;
-        this.respondTimes = respondTimes;
-        this.bindTime = bindTime;
-    }
-}
 
 export class ServiceTxReqDto extends PagingReqDto {
     @ApiProperty()
@@ -147,20 +173,6 @@ export class ServiceBindInfoReqDto {
     provider: string;
 }
 
-export class ServiceBindInfoResDto {
-    hash: string;
-    owner: string;
-    time: number;
-    constructor(
-        hash: string,
-        owner: string,
-        time: number,
-    ) {
-        this.hash = hash;
-        this.time = time;
-        this.owner = owner;
-    }
-}
 
 export class ServiceTxResDto {
     hash: string;
@@ -225,8 +237,6 @@ export class ServiceRespondResDto {
         this.requestContextId = requestContextId;
     }
 }
-
-
 /************************   response dto   ***************************/
 //txs response dto
 export class TxResDto extends BaseResDto {
@@ -274,6 +284,46 @@ export class TxResDto extends BaseResDto {
     }
 }
 
+//txs/service/call-service
+export class callServiceResDto extends TxResDto{
+    respond: TxResDto[];
+
+    constructor(txData){
+        super(txData);
+        if (txData.respond && txData.respond.length) {
+            this.respond = (txData.respond || []).map((item)=>{
+                return new TxResDto(item);
+            });
+        }
+    }
+
+    static bundleData(value:any):callServiceResDto[]{
+        let data:callServiceResDto[] = [];
+        data = value.map((v:any)=>{
+            return new callServiceResDto(v);
+        });
+        return data;
+    }
+}
+
+//txs/service/respond-service
+export class RespondServiceResDto extends TxResDto{
+    respond_times: number;
+
+    constructor(txData){
+        super(txData);
+        this.respond_times = txData.respond_times;
+    }
+
+    static bundleData(value:any):RespondServiceResDto[]{
+        let data:RespondServiceResDto[] = [];
+        data = value.map((v:any)=>{
+            return new RespondServiceResDto(v);
+        });
+        return data;
+    }
+}
+
 //txs/types response dto
 export class TxTypeResDto extends BaseResDto {
     typeName: string;
@@ -289,5 +339,42 @@ export class TxTypeResDto extends BaseResDto {
             return new TxTypeResDto(v);
         });
         return data;
+    }
+}
+
+export class ServiceResDto {
+    serviceName: string;
+    bindList: IBindTx[];
+
+    constructor(serviceName: string, bindList: IBindTx[]) {
+        this.serviceName = serviceName;
+        this.bindList = bindList;
+    }
+}
+
+export class ServiceProvidersResDto implements IBindTx {
+    provider: string;
+    respondTimes?: number;
+    bindTime: string;
+
+    constructor(provider: string, respondTimes: number, bindTime: string) {
+        this.provider = provider;
+        this.respondTimes = respondTimes;
+        this.bindTime = bindTime;
+    }
+}
+
+export class ServiceBindInfoResDto {
+    hash: string;
+    owner: string;
+    time: number;
+    constructor(
+        hash: string,
+        owner: string,
+        time: number,
+    ) {
+        this.hash = hash;
+        this.time = time;
+        this.owner = owner;
     }
 }
