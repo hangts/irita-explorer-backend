@@ -276,6 +276,8 @@ export class TxService {
                 (service.msgs as any)[0].msg.ex.consumer,
                 (service.msgs as any)[0].msg.ex.call_hash,
                 (service.msgs as any)[0].msg.ex.request_context_id,
+                (service.msgs as any)[0].msg.ex.service_name,
+                service.status,
             );
         });
         let count: number = 0;

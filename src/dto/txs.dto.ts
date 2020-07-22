@@ -218,6 +218,8 @@ export class ServiceRespondResDto {
     consumer:string;
     requestHash:string;
     requestContextId:string;
+    serviceName:string;
+    respondStatus: number;
 
     constructor(
         respondHash: string,
@@ -227,6 +229,8 @@ export class ServiceRespondResDto {
         consumer: string,
         requestHash: string,
         requestContextId: string,
+        serviceName: string,
+        respondStatus: number,
     ) {
         this.respondHash = respondHash;
         this.type = type;
@@ -235,6 +239,8 @@ export class ServiceRespondResDto {
         this.consumer = consumer;
         this.requestHash = requestHash;
         this.requestContextId = requestContextId;
+        this.serviceName = serviceName;
+        this.respondStatus = respondStatus;
     }
 }
 /************************   response dto   ***************************/
