@@ -115,12 +115,6 @@ export class TxController {
         return new Result<TxTypeResDto>(data);
     }
 
-    @Get(":hash")
-    async queryTxWithHash(@Param() query: TxWithHashReqDto): Promise<Result<TxResDto>> {
-        const data: TxResDto = await this.txService.queryTxWithHash(query);
-        return new Result<TxResDto>(data);
-    }
-
     @Get("/services/providers")
     async queryServiceProviders(@Query() query: ServiceProvidersReqDto): Promise<Result<ListStruct<ServiceProvidersResDto[]>>> {
         const data: ListStruct<ServiceProvidersResDto[]> = await this.txService.queryServiceProviders(query);
@@ -144,6 +138,14 @@ export class TxController {
         const data: ListStruct<ServiceRespondResDto[]> = await this.txService.queryServiceRespondTx(query);
         return new Result<ListStruct<ServiceRespondResDto[]>>(data);
     }
+    
+    @Get(":hash")
+    async queryTxWithHash(@Param() query: TxWithHashReqDto): Promise<Result<TxResDto>> {
+        const data: TxResDto = await this.txService.queryTxWithHash(query);
+        return new Result<TxResDto>(data);
+    }
+
+    
 
 
 

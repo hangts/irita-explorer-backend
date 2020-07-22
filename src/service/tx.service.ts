@@ -155,17 +155,6 @@ export class TxService {
         return result;
     }
 
-    //  txs/{hash}
-    async queryTxWithHash(query: TxWithHashReqDto): Promise<TxResDto> {
-        let result: TxResDto | null = null;
-        let txData = await this.txModel.queryTxWithHash(query.hash);
-        if (txData) {
-            result = new TxResDto(txData);
-        }
-        return result;
-    }
-
-
     async findServiceList(query: ServiceListReqDto): Promise<ListStruct<ServiceResDto[]>> {
         const { pageNum, pageSize, useCount } = query;
         const serviceTxList: ITxStruct[] = await (this.txModel as any).findServiceAllList(pageNum, pageSize, useCount);
@@ -271,6 +260,15 @@ export class TxService {
 
     }
 
+    //  txs/{hash}
+    async queryTxWithHash(query: TxWithHashReqDto): Promise<TxResDto> {
+        let result: TxResDto | null = null;
+        let txData = await this.txModel.queryTxWithHash(query.hash);
+        if (txData) {
+            result = new TxResDto(txData);
+        }
+        return result;
+    }
 
 }
 
