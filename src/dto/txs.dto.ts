@@ -173,6 +173,35 @@ export class ServiceBindInfoReqDto {
     provider: string;
 }
 
+
+export class ServiceTxResDto {
+    hash: string;
+    type: string;
+    height: number;
+    time: number;
+    status: number;
+    msgs: any;
+    events: any;
+
+    constructor(
+        hash: string,
+        type: string,
+        height: number,
+        time: number,
+        status: number,
+        msgs: any,
+        events: any,
+    ) {
+        this.hash = hash;
+        this.type = type;
+        this.height = height;
+        this.time = time;
+        this.status = status;
+        this.msgs = msgs;
+        this.events = events;
+    }
+}
+
 export class ServiceRespondReqDto extends PagingReqDto {
     @ApiPropertyOptional()
     serviceName: string;
@@ -181,6 +210,39 @@ export class ServiceRespondReqDto extends PagingReqDto {
     provider?: string;
 }
 
+export class ServiceRespondResDto {
+    respondHash: string;
+    type: string;
+    height:number;
+    time:number;
+    consumer:string;
+    requestHash:string;
+    requestContextId:string;
+    serviceName:string;
+    respondStatus: number;
+
+    constructor(
+        respondHash: string,
+        type: string,
+        height: number,
+        time: number,
+        consumer: string,
+        requestHash: string,
+        requestContextId: string,
+        serviceName: string,
+        respondStatus: number,
+    ) {
+        this.respondHash = respondHash;
+        this.type = type;
+        this.height = height;
+        this.time = time;
+        this.consumer = consumer;
+        this.requestHash = requestHash;
+        this.requestContextId = requestContextId;
+        this.serviceName = serviceName;
+        this.respondStatus = respondStatus;
+    }
+}
 /************************   response dto   ***************************/
 //txs response dto
 export class TxResDto extends BaseResDto {
@@ -320,55 +382,5 @@ export class ServiceBindInfoResDto {
         this.hash = hash;
         this.time = time;
         this.owner = owner;
-    }
-}
-
-export class ServiceTxResDto {
-    hash: string;
-    type: string;
-    height: number;
-    time: number;
-    status: number;
-    msgs: any;
-
-    constructor(
-        hash: string,
-        type: string,
-        height: number,
-        time: number,
-        status: number,
-        msgs: any,
-    ) {
-        this.hash = hash;
-        this.type = type;
-        this.height = height;
-        this.time = time;
-        this.status = status;
-        this.msgs = msgs;
-    }
-}
-
-export class ServiceRespondResDto {
-    respond_hash: string;
-    type: string;
-    height:number;
-    time:number;
-    consumer:string;
-    request_hash:string;
-
-    constructor(
-        respond_hash: string,
-        type: string,
-        height: number,
-        time: number,
-        consumer: string,
-        request_hash: string,
-    ) {
-        this.respond_hash = respond_hash;
-        this.type = type;
-        this.height = height;
-        this.time = time;
-        this.consumer = consumer;
-        this.request_hash = request_hash;
     }
 }

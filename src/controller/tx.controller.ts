@@ -97,6 +97,13 @@ export class TxController {
         return new Result<any>(data);
     }
 
+    @Get("/types/service")
+    async queryServiceTxTypeList(): Promise<Result<ListStruct<TxTypeResDto>>> {
+        const data: ListStruct<TxTypeResDto[]> = await this.txService.queryServiceTxTypeList();
+        return new Result<any>(data);
+    }
+
+
     @Post("/types")
     async insertTxTypes(@Body() prarms:PostTxTypesReqDto): Promise<Result<ListStruct<TxTypeResDto>>> {
         const data: ListStruct<TxTypeResDto[]> = await this.txService.insertTxTypes(prarms);
@@ -127,7 +134,7 @@ export class TxController {
         return new Result<ListStruct<ServiceTxResDto[]>>(data);
     }
 
-    @Get("/services/bind-info")
+    @Get("/services/bind_info")
     async queryServiceBindInfo(@Query() query: ServiceBindInfoReqDto): Promise<Result<ServiceBindInfoResDto>> {
         const data: ServiceBindInfoResDto = await this.txService.queryServiceBindInfo(query);
         return new Result<ServiceBindInfoResDto>(data);

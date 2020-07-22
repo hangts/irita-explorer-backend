@@ -129,6 +129,13 @@ export class TxService {
         return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
     }
 
+    async queryServiceTxTypeList(): Promise<ListStruct<TxTypeResDto[]>> {
+        let txTypeListData = await this.txTypeModel.queryServiceTxTypeList();
+        return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
+    }
+
+
+
     //  post txs/types
     async insertTxTypes(prarms: PostTxTypesReqDto): Promise<ListStruct<TxTypeResDto[]>> {
         let txTypeListData = await this.txTypeModel.insertTxTypes(prarms.typeNames);
@@ -222,7 +229,7 @@ export class TxService {
         const { serviceName, type, status, pageNum, pageSize, useCount } = query;
         const txList: ITxStruct[] = await (this.txModel as any).findServiceTx(serviceName, type, status, pageNum, pageSize);
         const res: ServiceTxResDto[] = txList.map((service: ITxStruct) => {
-            return new ServiceTxResDto(service.tx_hash, service.type, service.height, service.time, service.status, service.msgs);
+            return new ServiceTxResDto(service.tx_hash, service.type, service.height, service.time, service.status, service.msgs, service.events);
         });
         let count: number = 0;
         if (useCount) {
@@ -250,7 +257,17 @@ export class TxService {
         const { serviceName, provider, pageNum, pageSize, useCount } = query;
         const respondTxList: ITxStruct[] = await (this.txModel as any).queryServiceRespondTx(serviceName, provider, pageNum, pageSize);
         const res: ServiceRespondResDto[] = respondTxList.map((service: ITxStruct) => {
-            return new ServiceRespondResDto(service.tx_hash, service.type, service.height, service.time, (service.msgs as any)[0].msg.ex.consumer, (service.msgs as any)[0].msg.ex.call_hash);
+            return new ServiceRespondResDto(
+                service.tx_hash,
+                service.type,
+                service.height,
+                service.time,
+                (service.msgs as any)[0].msg.ex.consumer,
+                (service.msgs as any)[0].msg.ex.call_hash,
+                (service.msgs as any)[0].msg.ex.request_context_id,
+                (service.msgs as any)[0].msg.ex.service_name,
+                service.status,
+            );
         });
         let count: number = 0;
         if (useCount) {
