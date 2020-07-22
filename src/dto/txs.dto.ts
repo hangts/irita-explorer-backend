@@ -315,10 +315,12 @@ export class callServiceResDto extends TxResDto{
 //txs/service/respond-service
 export class RespondServiceResDto extends TxResDto{
     respond_times: number;
+    unbinding_time: number;
 
     constructor(txData){
         super(txData);
         this.respond_times = txData.respond_times;
+        this.unbinding_time = txData.unbinding_time;
     }
 
     static bundleData(value:any):RespondServiceResDto[]{

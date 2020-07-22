@@ -102,11 +102,15 @@ export class TxService {
         if (bindServices && bindServices.data) {
             for(let item of bindServices.data){
                 let serviceName:string = getServiceNameFromMsgs(item.msgs);
+                item.respond_times = 0;
+                item.unbinding_time = 0;
                 if (serviceName && serviceName.length) {
                     let respond_times = await this.txModel.queryRespondCountWithServceName(serviceName, query.providerAddr);
+                    let disableTxs = await this.txModel.querydisableServiceBindingWithServceName(serviceName, query.providerAddr);
                     item.respond_times = respond_times;
-                }else{
-                    item.respond_times = 0;
+                    if (disableTxs && disableTxs.length) {
+                        item.unbinding_time = disableTxs[0].time;
+                    }
                 }
             }
         }
