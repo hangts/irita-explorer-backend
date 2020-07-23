@@ -89,11 +89,12 @@ TxSchema.statics.queryTxWithAddress = async function(query:ITxsWithAddressQuery)
 	let queryParameters:any = {};
 	if (query.address && query.address.length) { 
 		queryParameters = {
-			$or:[
-				{"from":query.address},
-				{"to":query.address},
-				{"signer":query.address},
-			],
+			// $or:[
+			// 	{"from":query.address},
+			// 	{"to":query.address},
+			// 	{"signer":query.address},
+			// ],
+			addrs:{$elemMatch:{$eq:query.address}}
 		};
 	}
 	if (query.type && query.type.length) { 
@@ -211,7 +212,7 @@ TxSchema.statics.queryTxDetailWithServiceName = async function(serviceName:strin
 // ==> txs/services/call-service
 TxSchema.statics.queryCallServiceWithConsumerAddr = async function(consumerAddr:string, pageNum:string, pageSize:string, useCount:boolean):Promise<IListStruct>{
 	let result:IListStruct = {};
-	let queryParameters: any = {'msgs.msg.consumer':consumerAddr, type:TxType.call_service};
+	let queryParameters: any = {'msgs.msg.consumer':consumerAddr, type:TxType.call_service, status:1};
 	result.data = await this.find(queryParameters)
 					 		.sort({time:-1})
 					 		.skip((Number(pageNum) - 1) * Number(pageSize))
@@ -247,6 +248,16 @@ TxSchema.statics.queryRespondCountWithServceName = async function(servceName:str
 		'msgs.msg.ex.service_name':servceName,
 		'msgs.msg.provider':providerAddr,
 		type:TxType.respond_service}).countDocuments();
+}
+
+// ==> txs/services/respond-service
+TxSchema.statics.querydisableServiceBindingWithServceName = async function(servceName:string, providerAddr:string):Promise<ITxStruct[]>{
+	return await this.find({
+		'msgs.msg.service_name':servceName,
+		'msgs.msg.provider':providerAddr,
+		type:TxType.disable_service_binding})
+		.sort({time:-1})
+ 		.limit(1);
 }
 
 
