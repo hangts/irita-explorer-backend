@@ -495,7 +495,6 @@ TxSchema.statics.findServiceOwner = async function (serviceName: string):Promise
 TxSchema.statics.queryServiceRespondTx = async function (serviceName: string, provider: string, pageNum: number, pageSize: number):Promise<ITxStruct[]>{
     const queryParameters: any = {
         type: TxType.respond_service,
-        status: 1,
     };
     if(serviceName && serviceName.length){
         queryParameters['msgs.msg.ex.service_name'] = serviceName;
