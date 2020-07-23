@@ -400,10 +400,11 @@ TxSchema.statics.findBindServiceTxList = async function (
     };
     if(pageNum && pageSize){
         return await this.find(queryParameters)
+            .sort({"time": -1})
             .skip((Number(pageNum) - 1) * Number(pageSize))
             .limit(Number(pageSize));
     }else{
-        return await this.find(queryParameters);
+        return await this.find(queryParameters).sort({"time": -1});
     }
 
 };
