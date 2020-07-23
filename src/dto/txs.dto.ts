@@ -350,10 +350,12 @@ export class TxTypeResDto extends BaseResDto {
 
 export class ServiceResDto {
     serviceName: string;
+    description: string;
     bindList: IBindTx[];
 
-    constructor(serviceName: string, bindList: IBindTx[]) {
+    constructor(serviceName: string, description: string, bindList: IBindTx[]) {
         this.serviceName = serviceName;
+        this.description = description;
         this.bindList = bindList;
     }
 }

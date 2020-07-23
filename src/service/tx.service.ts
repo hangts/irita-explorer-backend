@@ -168,6 +168,7 @@ export class TxService {
         const serviceNameList: IServiceName[] = serviceTxList.map((item: any) => {
             return {
                 serviceName: item.msgs[0].msg.ex.service_name,
+                description: item.msgs[0].msg.description,
                 bind: item.msgs[0].msg.ex.bind,
             };
         });
@@ -191,7 +192,7 @@ export class TxService {
             }
         }
         const res: ServiceResDto[] = serviceNameList.map((service: IServiceName) => {
-            return new ServiceResDto(service.serviceName, service.bindList);
+            return new ServiceResDto(service.serviceName, service.description, service.bindList);
         });
         let count: number = 0;
         if (useCount) {
