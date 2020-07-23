@@ -94,7 +94,7 @@ TxSchema.statics.queryTxWithAddress = async function(query:ITxsWithAddressQuery)
 			// 	{"to":query.address},
 			// 	{"signer":query.address},
 			// ],
-			addrs:{$elemMatch:{$eq:address}}
+			addrs:{$elemMatch:{$eq:query.address}}
 		};
 	}
 	if (query.type && query.type.length) { 
