@@ -411,10 +411,11 @@ TxSchema.statics.findBindServiceTxList = async function (
     };
     if(pageNum && pageSize){
         return await this.find(queryParameters)
+            .sort({"time": -1})
             .skip((Number(pageNum) - 1) * Number(pageSize))
             .limit(Number(pageSize));
     }else{
-        return await this.find(queryParameters);
+        return await this.find(queryParameters).sort({"time": -1});
     }
 
 };
@@ -464,6 +465,7 @@ TxSchema.statics.findServiceTx = async function (
         queryParameters.status = status;
     }
     return await this.find(queryParameters)
+        .sort({"height":-1})
         .skip((Number(pageNum) - 1) * Number(pageSize))
         .limit(Number(pageSize));
 };
@@ -513,6 +515,7 @@ TxSchema.statics.queryServiceRespondTx = async function (serviceName: string, pr
         queryParameters['msgs.msg.provider'] = provider;
     }
     return await this.find(queryParameters)
+        .sort({"height":-1})
         .skip((Number(pageNum) - 1) * Number(pageSize))
         .limit(Number(pageSize));
 };
