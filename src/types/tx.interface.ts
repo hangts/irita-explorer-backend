@@ -25,6 +25,7 @@ export interface IBindTx {
 
 export interface IServiceName {
     serviceName: string;
+    description?: string;
     bind: number;
     bindList?:IBindTx[],
 }
