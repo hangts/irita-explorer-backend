@@ -89,11 +89,12 @@ TxSchema.statics.queryTxWithAddress = async function(query:ITxsWithAddressQuery)
 	let queryParameters:any = {};
 	if (query.address && query.address.length) { 
 		queryParameters = {
-			$or:[
-				{"from":query.address},
-				{"to":query.address},
-				{"signer":query.address},
-			],
+			// $or:[
+			// 	{"from":query.address},
+			// 	{"to":query.address},
+			// 	{"signer":query.address},
+			// ],
+			addrs:{$elemMatch:{$eq:address}}
 		};
 	}
 	if (query.type && query.type.length) { 
