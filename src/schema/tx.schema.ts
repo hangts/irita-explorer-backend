@@ -424,7 +424,6 @@ TxSchema.statics.findBindServiceTxList = async function (
 TxSchema.statics.findProviderRespondTimesForService = async function (serviceName: string, provider: string):Promise<number>{
     const queryParameters: any = {
         type: TxType.respond_service,
-        status: 1,
         'msgs.msg.ex.service_name': serviceName,
         'msgs.msg.provider': provider,
     };
