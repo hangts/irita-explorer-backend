@@ -46,6 +46,11 @@ export enum TxType {
 
 }
 
+export enum TxStatus {
+    SUCCESS = 1,
+    FAILED = 0,
+}
+
 export enum LoggerLevel {
     ALL = 'ALL',
     TRACE = 'TRACE',
