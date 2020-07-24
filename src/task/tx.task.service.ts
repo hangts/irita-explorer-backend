@@ -28,7 +28,7 @@ export class TxTaskService {
         respondServiceTxData.forEach((item:IExFieldTx)=>{
             switch(item.type){
                 case TxType.respond_service:{
-                    let reqContextId:string = getReqContextIdWithReqId(getRequestIdFromMsgs(item.msgs) || '');
+                    let reqContextId:string = getReqContextIdWithReqId(getRequestIdFromMsgs(item.msgs) || '').toUpperCase();
                     if (reqContextId && reqContextId.length) {
                         callServiceTxMap[getCtxKey(reqContextId, item.type)] = item;
                         callContextIds.add(reqContextId);
@@ -39,10 +39,10 @@ export class TxTaskService {
                 case TxType.start_request_context:
                 case TxType.kill_request_context:
                 case TxType.update_request_context:{
-                    let reqContextId:string = getReqContextIdFromMsgs(item.msgs);
+                    let reqContextId:string = (getReqContextIdFromMsgs(item.msgs) || '').toUpperCase();
                     if (reqContextId && reqContextId.length) {
                         callServiceTxMap[getCtxKey(reqContextId, item.type)] = item;
-                        callContextIds.add(reqContextId);
+                        callContextIds.add(reqContextId.toUpperCase());
                     }
                 }
                 break;
@@ -70,7 +70,6 @@ export class TxTaskService {
             let serviceName = getServiceNameFromMsgs(item.msgs);
             const consumer: string = getConsumerFromMsgs(item.msgs);
             let reqContextId = getReqContextIdFromEvents(item.events);
-
             let callTypes = [
                 getCtxKey(reqContextId, TxType.respond_service),
                 getCtxKey(reqContextId, TxType.pause_request_context),
