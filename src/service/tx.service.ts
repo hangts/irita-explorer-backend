@@ -170,10 +170,11 @@ export class TxService {
         const { pageNum, pageSize, useCount } = query;
         const serviceTxList: ITxStruct[] = await (this.txModel as any).findServiceAllList(pageNum, pageSize, useCount);
         const serviceNameList: IServiceName[] = serviceTxList.map((item: any) => {
+            let ex:any = item.msgs[0].msg.ex || {};
             return {
-                serviceName: item.msgs[0].msg.ex.service_name,
+                serviceName: ex.service_name || '',
                 description: item.msgs[0].msg.description,
-                bind: item.msgs[0].msg.ex.bind,
+                bind: ex.bind || 0,
             };
         });
 
@@ -262,15 +263,16 @@ export class TxService {
         const { serviceName, provider, pageNum, pageSize, useCount } = query;
         const respondTxList: ITxStruct[] = await (this.txModel as any).queryServiceRespondTx(serviceName, provider, pageNum, pageSize);
         const res: ServiceRespondResDto[] = respondTxList.map((service: ITxStruct) => {
+            let ex:any = (service.msgs as any)[0].msg.ex || {};
             return new ServiceRespondResDto(
                 service.tx_hash,
                 service.type,
                 service.height,
                 service.time,
-                (service.msgs as any)[0].msg.ex.consumer,
-                (service.msgs as any)[0].msg.ex.call_hash,
-                (service.msgs as any)[0].msg.ex.request_context_id,
-                (service.msgs as any)[0].msg.ex.service_name,
+                ex.consumer || '',
+                ex.call_hash || '',
+                ex.request_context_id || '',
+                ex.service_name || '',
                 service.status,
             );
         });
