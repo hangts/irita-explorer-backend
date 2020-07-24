@@ -29,7 +29,6 @@ export class TxTaskService {
             switch(item.type){
                 case TxType.respond_service:{
                     let reqContextId:string = getReqContextIdWithReqId(getRequestIdFromMsgs(item.msgs) || '').toUpperCase();
-                    console.log('dd:',item.msgs,'ssssssss:',reqContextId);
                     if (reqContextId && reqContextId.length) {
                         callServiceTxMap[getCtxKey(reqContextId, item.type)] = item;
                         callContextIds.add(reqContextId);
