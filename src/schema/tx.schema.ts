@@ -196,7 +196,6 @@ TxSchema.statics.queryTxWithNft = async function(query:ITxsWithNftQuery):Promise
 	if (query.tokenId && query.tokenId.length) {
 		queryParameters['msgs.msg.id'] = query.tokenId;
 	}
-    console.log(queryParameters)
 	result.data = await this.find(queryParameters)
 					 		.sort({time:-1})
 					 		.skip((Number(query.pageNum) - 1) * Number(query.pageSize))
