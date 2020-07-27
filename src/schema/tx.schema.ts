@@ -35,9 +35,7 @@ function filterExTxTypeRegExp():object{
 	return new RegExp(`${TxType.mint_token}|${TxType.transfer_token_owner}|${TxType.issue_token}|${TxType.edit_token}`);
 }
 
-//	csrb 浏览器交易记录过滤正则表达式
-function filterNftTxTypeRegExp(types: TxType[]):object{
-	//return new RegExp(`${TxType.mint_token}|${TxType.transfer_token_owner}|${TxType.issue_token}|${TxType.edit_token}`);
+function filterTxTypeRegExp(types: TxType[]):object{
     if(!Array.isArray(types) || types.length === 0) return;
     let typeStr: string = ``;
     types.forEach((type: TxType)=>{
@@ -47,7 +45,6 @@ function filterNftTxTypeRegExp(types: TxType[]):object{
             typeStr += `|${type}`;
         }
     });
-    console.log('typeStr:',typeStr);
     return new RegExp(typeStr)
 }
 
@@ -188,7 +185,7 @@ TxSchema.statics.queryTxWithNft = async function(query:ITxsWithNftQuery):Promise
 	    TxType.transfer_nft,
 	    TxType.burn_nft,
     ];
-	let queryParameters:{denom?:string, tokenId?:string, $or:object[]} = {$or:[{type:filterNftTxTypeRegExp(nftTypesList)}]};
+	let queryParameters:{denom?:string, tokenId?:string, $or:object[]} = {$or:[{type:filterTxTypeRegExp(nftTypesList)}]};
 
 	if (query.denom && query.denom.length) {
 		queryParameters['msgs.msg.denom'] = query.denom;
