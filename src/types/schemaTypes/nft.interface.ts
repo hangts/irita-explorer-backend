@@ -29,7 +29,12 @@ export interface INftListStruct extends INftStruct{
     denomDetail: IDenomStruct,
 }
 
-
+export interface INftMapStruct extends INftStruct{
+    denom?: string,
+    denom_name?: string,
+    nft_id?: string,
+    nft_name?: string,
+}
 
 export interface INft extends INftStruct,Document {
 

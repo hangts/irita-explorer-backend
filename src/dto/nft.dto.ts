@@ -36,29 +36,54 @@ export class NftResDto {
     tokenUri: string;
     tokenData: string;
     denomDetail: IDenomStruct;
+    denom_name: string;
+    nft_name: string;
 
-    constructor(denom: string, id: string, owner: string, tokenUri: string, tokenData: string, denomDetail: IDenomStruct) {
+    constructor(denom: string, 
+                id: string, 
+                owner: string, 
+                tokenUri: string, 
+                tokenData: string, 
+                denomDetail: IDenomStruct,
+                denom_name: string,
+                nft_name: string) {
         this.denom = denom;
         this.id = id;
         this.owner = owner;
         this.tokenUri = tokenUri;
         this.tokenData = tokenData;
         this.denomDetail = denomDetail;
+        this.denom_name = denom_name;
+        this.nft_name = nft_name;
     }
 
 }
 
 export class NftListResDto extends NftResDto {
-    constructor(denom: string, id: string, owner: string, tokenUri: string, tokenData: string, denomDetail: IDenomStruct) {
-        super(denom, id, owner, tokenUri, tokenData, denomDetail);
+    constructor(denom: string, 
+                id: string, 
+                owner: string, 
+                tokenUri: string, 
+                tokenData: string, 
+                denomDetail: IDenomStruct,
+                denom_name: string,
+                nft_name: string) {
+        super(denom, id, owner, tokenUri, tokenData, denomDetail, denom_name, nft_name);
     }
 
 }
 
 export class NftDetailResDto extends NftResDto {
 
-    constructor(denom: string, id: string, owner: string, tokenUri: string, tokenData: string, denomDetail: IDenomStruct) {
-        super(denom, id, owner, tokenUri, tokenData, denomDetail);
+    constructor(denom: string, 
+                id: string, 
+                owner: string, 
+                tokenUri: string, 
+                tokenData: string, 
+                denomDetail: IDenomStruct,
+                denom_name: string,
+                nft_name: string) {
+        super(denom, id, owner, tokenUri, tokenData, denomDetail, denom_name, nft_name);
 
     }
 }

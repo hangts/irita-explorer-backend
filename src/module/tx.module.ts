@@ -4,6 +4,7 @@ import {TxService} from '../service/tx.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {TxSchema} from '../schema/tx.schema';
 import {TxTypeSchema} from '../schema/txType.schema';
+import { NftMapSchema } from '../schema/nftMap.schema';
 
 @Module({
     imports:[
@@ -16,6 +17,11 @@ import {TxTypeSchema} from '../schema/txType.schema';
             name: 'TxType',
             schema: TxTypeSchema,
             collection: 'ex_tx_type'
+        },
+        {
+            name: 'NftMap',
+            schema: NftMapSchema,
+            collection: 'ex_sync_nft_mapping'
         }])
     ],
     providers:[TxService],

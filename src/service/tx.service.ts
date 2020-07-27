@@ -35,12 +35,14 @@ import {
 } from '../dto/txs.dto';
 import { IBindTx, IServiceName } from '../types/tx.interface';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
+import { INftMapStruct } from '../types/schemaTypes/nft.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 
 @Injectable()
 export class TxService {
     constructor(@InjectModel('Tx') private txModel: any,
-                @InjectModel('TxType') private txTypeModel: any) {
+                @InjectModel('TxType') private txTypeModel: any,
+                @InjectModel('NftMap') private nftMapModel: any) {
     }
 
     // txs
@@ -287,8 +289,13 @@ export class TxService {
     //  txs/{hash}
     async queryTxWithHash(query: TxWithHashReqDto): Promise<TxResDto> {
         let result: TxResDto | null = null;
-        let txData = await this.txModel.queryTxWithHash(query.hash);
+        let txData: any = await this.txModel.queryTxWithHash(query.hash);
         if (txData) {
+            if (txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.denom && txData.msgs[0].msg.denom.length) {
+                let nftName : INftMapStruct = await this.nftMapModel.findName(txData.msgs[0].msg.denom, txData.msgs[0].msg.id || '');
+                txData.msgs[0].msg.denom_name =  nftName ? nftName.denom_name : '';
+                txData.msgs[0].msg.nft_name =  nftName ? nftName.nft_name : '';
+            }
             result = new TxResDto(txData);
         }
         return result;
