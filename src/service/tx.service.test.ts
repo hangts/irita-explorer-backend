@@ -3,7 +3,8 @@ import {TxController} from '../controller/tx.controller';
 import {TxService} from './tx.service';
 import {TxSchema} from '../schema/tx.schema';
 import { AppModule } from './../app.module';
-import { Logger } from '../logger'
+import { Logger } from '../logger';
+import { TxStatus, TxType } from '../constant';
 import { TxListReqDto, 
          TxListWithHeightReqDto,
          TxListWithAddressReqDto,
@@ -42,21 +43,21 @@ describe('TxController', () => {
             req.useCount = true;
             if (parseInt(String((Math.random()*10)%2))) {
                 req.type = [
-                "create_record",
-                "mint_token",
-                "burn_nft",
-                "send",
-                "respond_service",
-                "transfer_nft",
-                "edit_nft",
-                "define_service",
-                "bind_service",
-                "call_service",
-                "issue_denom",
-                "mint_nft",
-                "transfer_token_owner",
-                "issue_token",
-                "edit_token"][parseInt(String(Math.random()*100))%15];
+                TxType.create_record,
+                TxType.mint_token,
+                TxType.burn_nft,
+                TxType.send,
+                TxType.respond_service,
+                TxType.transfer_nft,
+                TxType.edit_nft,
+                TxType.define_service,
+                TxType.bind_service,
+                TxType.call_service,
+                TxType.issue_denom,
+                TxType.mint_nft,
+                TxType.transfer_token_owner,
+                TxType.issue_token,
+                TxType.edit_token][parseInt(String(Math.random()*100))%15];
             }
             if (parseInt(String((Math.random()*10)%2))) {
                 req.status = ['1','2'][parseInt(String(Math.random()*100))%2];

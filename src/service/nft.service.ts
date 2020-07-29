@@ -46,8 +46,8 @@ export class NftService {
     async queryDetail(query: NftDetailReqDto): Promise<NftDetailResDto | null> {
         const { denom, nftId } = query;
         const nft: INftDetailStruct = await (this.nftModel as any).findOneByDenomAndNftId(denom, nftId);
-        let nftName:INftMapStruct = await this.nftMapModel.findName(nft.denom, nftId || '');
         if (nft) {
+            let nftName:INftMapStruct = await this.nftMapModel.findName(nft.denom, nftId || '');
             let denomDetail = (nft.denomDetail as any).length > 0 ? nft.denomDetail[0] : null;
             let denom_name = nftName ? nftName.denom_name : '';
             let nft_name = nftName ? nftName.nft_name : '';
