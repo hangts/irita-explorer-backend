@@ -42,8 +42,6 @@ export enum TxType {
     start_request_context = 'start_request_context',
     kill_request_context = 'kill_request_context',
     update_request_context = 'update_request_context',
-
-
 }
 
 export enum TxStatus {
