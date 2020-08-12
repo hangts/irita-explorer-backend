@@ -20,15 +20,16 @@ export class NftTaskService {
     async doTask(): Promise<void> {
         const denomList: IDenomStruct[] = await (this.denomModel as any).findAllNames();
         if (denomList && denomList.length > 0) {
+
             for(let denom of denomList){
-                const res: any = await this.nftHttp.queryNftsFromLcdByDenom(denom.name);
-                const nftFromDb: INftStruct[] = await (this.nftModel as any).findListByName(denom.name);
+                const res: any = await this.nftHttp.queryNftsFromLcdByDenom(denom.denom_id);
+                const nftFromDb: INftStruct[] = await (this.nftModel as any).findListByName(denom.denom_id);
                 if (res) {
                     let lcdNftMap: Map<string, ILcdNftStruct> | null = new Map<string, ILcdNftStruct>(),
                         dbNftMap: Map<string, INftStruct> | null = new Map<string, INftStruct>();
                     if (res.nfts && Array.isArray(res.nfts) && res.nfts.length > 0) {
                         res.nfts.forEach(nft => {
-                            lcdNftMap.set(nft.value.id, nft.value);
+                            lcdNftMap.set(nft.id, nft);
                         });
                     } else {
                         lcdNftMap = null;
@@ -45,24 +46,27 @@ export class NftTaskService {
                     let shouldInsertMap: Map<string, ILcdNftStruct> = NftTaskService.getShouldInsertList(lcdNftMap, dbNftMap);
                     let shouldDeleteNftMap: Map<string, INftStruct> = NftTaskService.getShouldDeleteList(lcdNftMap, dbNftMap);
                     let shouldUpdateNftMap: Map<string, ILcdNftStruct> = NftTaskService.getShouldUpdateList(lcdNftMap, dbNftMap);
-                    await this.saveNft(denom.name, shouldInsertMap);
-                    await this.deleteNft(denom.name, shouldDeleteNftMap);
-                    await this.updateNft(denom.name, shouldUpdateNftMap);
+                    await this.saveNft(denom.denom_id,denom.name, shouldInsertMap);
+                    await this.deleteNft(denom.denom_id, shouldDeleteNftMap);
+                    await this.updateNft(denom.denom_id,denom.name, shouldUpdateNftMap);
                 }
             }
 
         }
     }
 
-    private async saveNft(name: string, shouldInsertMap: Map<string, ILcdNftStruct>): Promise<void> {
+    private async saveNft(denomId: string, denomName: string, shouldInsertMap: Map<string, ILcdNftStruct>): Promise<void> {
         if (shouldInsertMap && shouldInsertMap.size > 0) {
             let insertNftList: INftStruct[] = Array.from(shouldInsertMap.values()).map((nft) => {
-                const { owner, token_uri, token_data, id } = nft;
+                const { owner, token_uri, token_data, id, name } = nft;
                 const str: string = `${owner}${token_uri ? token_uri : ''}${token_data ? token_data : ''}`,
                     hash = md5(str);
+                console.log('-------',denomName)
                 return {
-                    denom: name,
+                    denom_id: denomId,
+                    denom_name: denomName || '',
                     nft_id: id,
+                    nft_name: name,
                     owner: owner,
                     token_uri: token_uri ? token_uri : '',
                     token_data: token_data ? token_data : '',
@@ -75,28 +79,31 @@ export class NftTaskService {
         }
     }
 
-    private async deleteNft(name: string, shouldDeleteNftMap: Map<string, INftStruct>): Promise<void> {
+    private async deleteNft(denomId: string, shouldDeleteNftMap: Map<string, INftStruct>): Promise<void> {
         if (shouldDeleteNftMap && shouldDeleteNftMap.size > 0) {
             for(let nft of Array.from(shouldDeleteNftMap.values())){
                 await (this.nftModel as any).deleteOneByDenomAndId({
                     nft_id: nft.nft_id,
-                    denom: name,
+                    denom_id: denomId,
                 });
             }
         }
     }
 
-    private async updateNft(name: string, shouldUpdateNftMap: Map<string, ILcdNftStruct>): Promise<void> {
+    private async updateNft(denomId: string, denomName: string,shouldUpdateNftMap: Map<string, ILcdNftStruct>): Promise<void> {
         if (shouldUpdateNftMap && shouldUpdateNftMap.size > 0) {
             for(let nft of Array.from(shouldUpdateNftMap.values())){
-                const { id, owner, token_uri, token_data, hash } = nft;
+                const { id, owner, token_uri, token_data, hash, name } = nft;
+                console.log('-------',denomName)
                 const nftEntity: INftStruct = {
                     nft_id: id,
+                    nft_name: name,
                     owner: owner,
                     token_uri: token_uri,
                     token_data: token_data,
                     hash: hash,
-                    denom: name,
+                    denom_id: denomId,
+                    denom_name: denomName || '',
                 };
                 await (this.nftModel as any).updateOneById(nftEntity);
             }

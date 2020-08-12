@@ -1,13 +1,15 @@
 import { Document } from 'mongoose';
 import { IDenomStruct } from './denom.interface';
 export interface IDeleteQuery {
-    denom: string,
+    denom_id: string,
     nft_id: string,
 }
 
 export interface INftStruct {
-    denom?: string,
+    denom_id?: string,
+    denom_name?: string,
     nft_id?: string,
+    nft_name?: string,
     owner?: string,
     token_uri?: string,
     token_data?: string,
@@ -16,8 +18,8 @@ export interface INftStruct {
     hash?: string,
 }
 export interface INftCountQueryParams {
-    denom?: string;
-    nftId?: string;
+    denom_id?: string;
+    nft_id?: string;
     owner?: string;
 }
 
@@ -38,4 +40,10 @@ export interface INftMapStruct extends INftStruct{
 
 export interface INft extends INftStruct,Document {
 
+}
+
+export interface INftListQueryParams {
+    denom_id?: string;
+    nft_id?: string;
+    owner?: string;
 }

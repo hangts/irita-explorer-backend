@@ -3,15 +3,17 @@ import { Logger } from '../logger';
 import {
     IDeleteQuery,
     INftCountQueryParams,
-    INftDetailStruct,
+    INftDetailStruct, INftListQueryParams,
     INftListStruct,
     INftStruct,
 } from '../types/schemaTypes/nft.interface';
 import { getTimestamp } from '../util/util';
 
 export const NftSchema = new mongoose.Schema({
-    denom: String,
+    denom_id: String,
+    denom_name: String,
     nft_id: String,
+    nft_name: String,
     owner: String,
     token_uri: String,
     token_data: String,
@@ -19,16 +21,22 @@ export const NftSchema = new mongoose.Schema({
     update_time: Number,
     hash: String,
 },{versionKey: false});
-NftSchema.index({ denom: 1, nft_id: 1 }, { unique: true });
+NftSchema.index({ denom_id: 1, nft_id: 1 }, { unique: true });
 
 NftSchema.statics = {
-    async findList(pageNum: number, pageSize: number, denom?: string, nftId?: string, owner?: string): Promise<INftListStruct[]> {
+    async findList(
+        pageNum: number,
+        pageSize: number,
+        denomId?: string,
+        nftId?: string,
+        owner?: string
+    ): Promise<INftListStruct[]> {
         const condition = [
             {
                 $lookup: {
                     from: 'ex_sync_denom',
-                    localField: 'denom',
-                    foreignField: 'name',
+                    localField: 'denom_id',
+                    foreignField: 'denom_id',
                     as: 'denomDetail',
                 },
             }, {
@@ -39,12 +47,15 @@ NftSchema.statics = {
                 },
             },
         ];
-        if (denom || nftId || owner) {
+        if (denomId || nftId || owner) {
             let cond: any = {
                 '$match': {},
             };
-            if (denom) cond['$match'].denom = denom;
-            if (nftId) cond['$match'].nft_id = nftId;
+            if (denomId) cond['$match'].denom_id = denomId;
+            if (nftId) cond['$match']['$or']= [
+                {'nft_name': nftId},
+                {'nft_id': nftId},
+            ];
             if (owner) cond['$match'].owner = owner;
             condition.push(cond);
         }
@@ -53,18 +64,18 @@ NftSchema.statics = {
             .limit(Number(pageSize));
     },
 
-    async findOneByDenomAndNftId(denom: string, nftId: string): Promise<INftDetailStruct | null> {
+    async findOneByDenomAndNftId(denomId: string, nftId: string): Promise<INftDetailStruct | null> {
         const res: INftDetailStruct[] = await this.aggregate([
             {
                 $lookup: {
                     from: 'ex_sync_denom',
-                    localField: 'denom',
-                    foreignField: 'name',
+                    localField: 'denom_id',
+                    foreignField: 'denom_id',
                     as: 'denomDetail',
                 },
             }, {
                 $match: {
-                    denom,
+                    denom_id:denomId,
                     nft_id: nftId,
                 },
             }, {
@@ -82,21 +93,21 @@ NftSchema.statics = {
         }
     },
 
-    async findCount(denom: string, nftId: string, owner: string): Promise<number> {
+    async findCount(denomId: string, nftId: string, owner: string): Promise<number> {
         let query: INftCountQueryParams = {};
-        if (denom){
-            query.denom = denom;
+        if (denomId){
+            query.denom_id = denomId;
         }
         if (nftId){
-            query.nftId = nftId;
+            query.nft_id = nftId;
         }
         if (owner){
             query.owner = owner;
         }
         return await this.find(query).countDocuments().exec();
     },
-    async findListByName(name: string): Promise<INftStruct> {
-        return await this.find({ denom: name }).exec();
+    async findListByName(denomId: string): Promise<INftStruct> {
+        return await this.find({ denom_id: denomId }).exec();
     },
 
     saveBulk(nfts: INftStruct[]): Promise<INftStruct[]> {

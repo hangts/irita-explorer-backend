@@ -2,6 +2,7 @@ import { Document } from 'mongoose';
 
 export interface IDenomStruct {
     name?: string,
+    denom_id?: string,
     json_schema?: string,
     creator?: string,
     create_time?: number,
