@@ -3,8 +3,9 @@ import { getTimestamp } from '../util/util';
 import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 
 export const DenomSchema = new mongoose.Schema({
-    name: { type: String, unique: true },
+    name: String,
     json_schema: String,
+    denom_id:{ type: String, unique: true },
     creator: String,
     create_time: Number,
     update_time: Number,
@@ -23,7 +24,8 @@ DenomSchema.statics = {
     async saveBulk(denoms: any[]): Promise<IDenomStruct[]> {
         const entitiesList: IDenomStruct[] = denoms.map((d) => {
             return {
-                name: d.name,
+                name: d.name || '',
+                denom_id:d.id,
                 json_schema: d.schema,
                 creator: d.creator,
                 create_time: getTimestamp(),
@@ -33,6 +35,6 @@ DenomSchema.statics = {
         return await this.insertMany(entitiesList, { ordered: false });
     },
     async findAllNames(): Promise<IDenomStruct[]> {
-        return await this.find({}, { name: 1 }).exec();
+        return await this.find({}, { denom_id: 1 }).exec();
     },
 };

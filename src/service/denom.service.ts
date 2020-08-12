@@ -16,12 +16,7 @@ export class DenomService {
         const denomList: IDenomStruct[] = await (this.denomModel as any).findList();
         const res: DenomListResDto[] = [];
         for (let d of denomList) {
-        	let denom_name = '';
-        	if (d.name && d.name.length) {
-        		let denomMap: INftMapStruct = await this.nftMapModel.findName(d.name);
-        		denom_name = denomMap ? denomMap.denom_name : '';
-        	}
-        	res.push(new DenomListResDto(d.name, d.json_schema, d.creator, denom_name));
+        	res.push(new DenomListResDto(d.name,d.denom_id, d.json_schema, d.creator));
         }
         return new ListStruct(res, 0, 0, 0);
     }

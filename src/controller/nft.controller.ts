@@ -13,8 +13,13 @@ export class NftController {
 
     @Get()
     async queryList(@Query() q: NftListReqDto): Promise<Result<ListStruct<NftListResDto[]>>> {
-        const data: ListStruct<NftListResDto[]> = await this.nftService.queryList(q);
-        return new Result<ListStruct<NftListResDto[]>>(data);
+        try {
+            const data: ListStruct<NftListResDto[]> = await this.nftService.queryList(q);
+            return new Result<ListStruct<NftListResDto[]>>(data);
+        }catch (e) {
+            console.error(e)
+        }
+
     }
 
     @Get('details')

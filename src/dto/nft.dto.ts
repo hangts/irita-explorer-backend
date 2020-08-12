@@ -5,7 +5,7 @@ import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 
 export class NftListReqDto extends PagingReqDto {
     @ApiPropertyOptional()
-    denom?: string;
+    denomId?: string;
 
     @ApiPropertyOptional()
     nftId?: string;
