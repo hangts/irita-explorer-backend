@@ -26,14 +26,14 @@ export class TasksService {
         this[`${TaskEnum.txServiceName}_timer`] = null;
         this[`${TaskEnum.validators}_timer`] = null;
     }
-    @Cron(cfg.taskCfg.executeTime.denom)
-    //@Cron('30 * * * * *')
+   //@Cron(cfg.taskCfg.executeTime.denom)
+    @Cron('30 * * * * *')
     async syncDenoms() {
         this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
     }
 
-    @Cron(cfg.taskCfg.executeTime.nft)
-    //@Cron('58 * * * * *')
+    //@Cron(cfg.taskCfg.executeTime.nft)
+    @Cron('58 * * * * *')
     async syncNfts() {
         this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
     }

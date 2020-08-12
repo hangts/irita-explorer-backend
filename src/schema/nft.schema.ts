@@ -135,4 +135,8 @@ NftSchema.statics = {
             if (e) Logger.error('mongo-error:', e.message);
         });
     },
+
+    async queryNftCount(denomId: string): Promise<INftStruct>{
+        return await this.find({denom_id:denomId}).countDocuments().exec();
+    }
 };
