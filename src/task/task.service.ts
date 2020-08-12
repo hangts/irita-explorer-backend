@@ -27,7 +27,7 @@ export class TasksService {
         this[`${TaskEnum.validators}_timer`] = null;
     }
    //@Cron(cfg.taskCfg.executeTime.denom)
-    @Cron('59 * * * * *')
+    @Cron('30 * * * * *')
     async syncDenoms() {
         this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
     }

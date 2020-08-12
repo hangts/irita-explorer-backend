@@ -31,12 +31,12 @@ NftSchema.statics = {
         nftId?: string,
         owner?: string
     ): Promise<INftListStruct[]> {
-        /*const condition = [
+        const condition = [
             {
                 $lookup: {
                     from: 'ex_sync_denom',
-                    localField: 'denomId',
-                    foreignField: 'name',
+                    localField: 'denom_id',
+                    foreignField: 'denom_id',
                     as: 'denomDetail',
                 },
             }, {
@@ -52,16 +52,14 @@ NftSchema.statics = {
                 '$match': {},
             };
             if (denomId) cond['$match'].denom_id = denomId;
-            if (nftId) cond['$match'].nft_id = nftId;
+            if (nftId) cond['$match']['$or']= [
+                {'nft_name': nftId},
+                {'nft_id': nftId},
+            ];
             if (owner) cond['$match'].owner = owner;
             condition.push(cond);
-        }*/
-        const params: INftListQueryParams = {};
-        if(denomId) params.denom_id = denomId;
-        if(nftId) params.nft_id = nftId;
-        if(owner) params.owner = owner;
-
-        return await this.find(params)
+        }
+        return await this.aggregate(condition)
             .skip((Number(pageNum) - 1) * Number(pageSize))
             .limit(Number(pageSize));
     },

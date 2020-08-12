@@ -13,17 +13,10 @@ export class NftService {
     async queryList(query: NftListReqDto): Promise<ListStruct<NftListResDto[]>> {
         const { pageNum, pageSize, denomId, nftId, useCount, owner } = query;
         const nftList: INftListStruct[] = await (this.nftModel as any).findList(pageNum, pageSize, denomId, nftId, owner);
-        
+        console.log(nftList)
         const res: NftListResDto[] = [];
         for (let nft of nftList) {
             let denomDetail = (nft.denomDetail as any).length > 0 ? nft.denomDetail[0] : null;
-            /*let denom_name = '';
-            let nft_name = '';
-            if (nft.denom_id && nft.denom_id.length) {
-                let nftName:INftMapStruct = await this.nftMapModel.findName(nft.denom_id, nft.nft_id || '');
-                denom_name = nftName ? nftName.denom_name : '';
-                nft_name = nftName ? nftName.nft_name : '';
-            }*/
             let result = new NftListResDto(
                 nft.denom_id,
                 nft.nft_id, 
@@ -44,8 +37,8 @@ export class NftService {
     }
 
     async queryDetail(query: NftDetailReqDto): Promise<NftDetailResDto | null> {
-        const { denom, nftId } = query;
-        const nft: INftDetailStruct = await (this.nftModel as any).findOneByDenomAndNftId(denom, nftId);
+        const { denomId, nftId } = query;
+        const nft: INftDetailStruct = await (this.nftModel as any).findOneByDenomAndNftId(denomId, nftId);
         if (nft) {
             //let nftName:INftMapStruct = await this.nftMapModel.findName(nft.denom_id, nftId || '');
             let denomDetail = (nft.denomDetail as any).length > 0 ? nft.denomDetail[0] : null;

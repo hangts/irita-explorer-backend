@@ -35,6 +35,6 @@ DenomSchema.statics = {
         return await this.insertMany(entitiesList, { ordered: false });
     },
     async findAllNames(): Promise<IDenomStruct[]> {
-        return await this.find({}, { denom_id: 1 }).exec();
+        return await this.find({}, { denom_id: 1, name: 1 }).exec();
     },
 };

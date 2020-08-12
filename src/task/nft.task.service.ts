@@ -58,13 +58,15 @@ export class NftTaskService {
     private async saveNft(denomId: string, denomName: string, shouldInsertMap: Map<string, ILcdNftStruct>): Promise<void> {
         if (shouldInsertMap && shouldInsertMap.size > 0) {
             let insertNftList: INftStruct[] = Array.from(shouldInsertMap.values()).map((nft) => {
-                const { owner, token_uri, token_data, id } = nft;
+                const { owner, token_uri, token_data, id, name } = nft;
                 const str: string = `${owner}${token_uri ? token_uri : ''}${token_data ? token_data : ''}`,
                     hash = md5(str);
+                console.log('-------',denomName)
                 return {
                     denom_id: denomId,
-                    denom_name: denomName,
+                    denom_name: denomName || '',
                     nft_id: id,
+                    nft_name: name,
                     owner: owner,
                     token_uri: token_uri ? token_uri : '',
                     token_data: token_data ? token_data : '',
@@ -91,15 +93,17 @@ export class NftTaskService {
     private async updateNft(denomId: string, denomName: string,shouldUpdateNftMap: Map<string, ILcdNftStruct>): Promise<void> {
         if (shouldUpdateNftMap && shouldUpdateNftMap.size > 0) {
             for(let nft of Array.from(shouldUpdateNftMap.values())){
-                const { id, owner, token_uri, token_data, hash } = nft;
+                const { id, owner, token_uri, token_data, hash, name } = nft;
+                console.log('-------',denomName)
                 const nftEntity: INftStruct = {
                     nft_id: id,
+                    nft_name: name,
                     owner: owner,
                     token_uri: token_uri,
                     token_data: token_data,
                     hash: hash,
                     denom_id: denomId,
-                    denom_name: denomName,
+                    denom_name: denomName || '',
                 };
                 await (this.nftModel as any).updateOneById(nftEntity);
             }
