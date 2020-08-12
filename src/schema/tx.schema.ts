@@ -652,4 +652,17 @@ TxSchema.statics.queryDenomTxCount = async function (denomNameOrId?: string,):Pr
 };
 
 
+TxSchema.statics.queryTxByDenom = async function(
+    denom: string,
+): Promise<ITxStruct | null> {
+    const params = {
+        type:TxType.issue_denom,
+        status: TxStatus.SUCCESS,
+        'msgs.msg.id': denom,
+    };
+    return await this.findOne(params);
+};
+
+
+
 

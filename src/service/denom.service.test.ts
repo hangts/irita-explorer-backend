@@ -19,7 +19,7 @@ describe('denom module', () => {
 
     describe('queryList', () => {
         it('should return denom list', async () => {
-            const data: ListStruct<DenomListResDto[]> = await denomService.queryList();
+            const data: ListStruct<DenomListResDto[]> = await denomService.queryList({needAll:true});
             expect(data).toBeDefined();
         });
     });

@@ -2,32 +2,18 @@ import { IsString, IsNotEmpty } from 'class-validator';
 import { PagingReqDto } from './base.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class DenomResDto {
-    name: string;
-    denom_id: string;
-    schema: string;
-    creator: string;
 
-    constructor(name: string, denom_id: string, schema: string, creator: string){
-        this.name = name;
-        this.denom_id = denom_id;
-        this.schema = schema;
-        this.creator = creator;
-    }
-}
-
-export class DenomListResDto extends DenomResDto{
-    constructor(name: string, denom_id: string, schema: string, creator: string){
-        super(name, denom_id, schema, creator);
-    }
-}
-
-export class DenomTxListReqDto extends PagingReqDto{
+export class DenomListReqDto extends PagingReqDto{
     @ApiPropertyOptional()
     denomNameOrId?: string;
+
+    @ApiPropertyOptional()
+    needAll?: boolean;
+
+
 }
 
-export class DenomTxResDto {
+export class DenomResDto {
     denomName: string;
     denomId: string;
     hash: string;
@@ -52,7 +38,7 @@ export class DenomTxResDto {
     }
 }
 
-export class DenomTxListResDto extends DenomTxResDto{
+export class DenomListResDto extends DenomResDto{
     constructor(
         denomName: string,
         denomId: string,

@@ -3,6 +3,7 @@ import {DenomTaskService} from '../task/denom.task.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {DenomSchema} from '../schema/denom.schema';
 import { DenomHttp } from '../http/lcd/denom.http';
+import { TxSchema } from '../schema/tx.schema';
 
 @Module({
     imports:[
@@ -10,6 +11,10 @@ import { DenomHttp } from '../http/lcd/denom.http';
             name: 'Denom',
             schema: DenomSchema,
             collection: 'ex_sync_denom'
+        },{
+            name: 'Tx',
+            schema: TxSchema,
+            collection: 'sync_tx',
         }]),
     ],
     providers:[DenomTaskService, DenomHttp],
