@@ -12,8 +12,8 @@ async function bootstrap() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.enableCors();
-    /*app.use(LoggerMiddleware);
-    app.useGlobalInterceptors(new LoggerInterceptor());*/
+    app.use(LoggerMiddleware);
+    app.useGlobalInterceptors(new LoggerInterceptor());
     setUpSwagger(app);
     await app.listen(3000);
 }

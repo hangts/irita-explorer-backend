@@ -36,7 +36,7 @@ export const cfg = {
         executeTime:{
             denom:DENOM_EXECUTE_TIME || '1 * * * * *',
             nft:NFT_EXECUTE_TIME || '21 * * * * *',
-            txServiceName:TX_SERVICE_NAME_EXECUTE_TIME || '53 * * * * *',
+            txServiceName:TX_SERVICE_NAME_EXECUTE_TIME || '30 * * * * *',
             faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME || '41 * * * * *',
             validators: VALIDATORS_EXECTUTE_TIME || '1 * * * * *'
         },
