@@ -12,7 +12,7 @@ export class DenomController {
     }
 
     @Get()
-    async queryDenomTxList(@Query() q: DenomListReqDto): Promise<Result<ListStruct<DenomListResDto[]>>> {
+    async queryDenomList(@Query() q: DenomListReqDto): Promise<Result<ListStruct<DenomListResDto[]>>> {
         try {
             const data: ListStruct<DenomListResDto[]> = await this.denomService.queryList(q);
             return new Result<ListStruct<DenomListResDto[]>>(data);

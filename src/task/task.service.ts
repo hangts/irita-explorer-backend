@@ -26,8 +26,8 @@ export class TasksService {
         this[`${TaskEnum.txServiceName}_timer`] = null;
         this[`${TaskEnum.validators}_timer`] = null;
     }
-    @Cron(cfg.taskCfg.executeTime.denom)
-    //@Cron('30 * * * * *')
+    //@Cron(cfg.taskCfg.executeTime.denom)
+    @Cron('10 * * * * *')
     async syncDenoms() {
         this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
     }
@@ -77,6 +77,7 @@ export class TasksService {
                 }
                 Logger.log(`from task service ${taskName} successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
             } catch (e) {
+                console.log(e)
                 await this.taskDispatchService.unlock(taskName);
                 if (this[`${taskName}_timer`]) {
                     clearInterval(this[`${taskName}_timer`]);

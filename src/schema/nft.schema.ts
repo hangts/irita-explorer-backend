@@ -3,7 +3,7 @@ import { Logger } from '../logger';
 import {
     IDeleteQuery,
     INftCountQueryParams,
-    INftDetailStruct, INftListQueryParams,
+    INftDetailStruct,
     INftListStruct,
     INftStruct,
 } from '../types/schemaTypes/nft.interface';
