@@ -15,8 +15,8 @@ export const NftSchema = new mongoose.Schema({
     nft_id: String,
     nft_name: String,
     owner: String,
-    token_uri: String,
-    token_data: String,
+    uri: String,
+    data: String,
     create_time: Number,
     update_time: Number,
     hash: String,
@@ -121,13 +121,13 @@ NftSchema.statics = {
     },
 
     updateOneById(nft: INftStruct): Promise<INftStruct> {
-        const { nft_id, owner, token_data, token_uri, hash } = nft;
+        const { nft_id, owner, data, uri, hash } = nft;
         return this.updateOne({
             nft_id
         }, {
             owner,
-            token_data,
-            token_uri,
+            data,
+            uri,
             hash,
             update_time: getTimestamp()
         }, 
