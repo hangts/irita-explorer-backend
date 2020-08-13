@@ -34,7 +34,7 @@ describe('nft module', () => {
     describe('queryDetail', () => {
         it('should return nft detail', async () => {
             const q: NftDetailReqDto = {
-                denom: 'sunshine',
+                denomId: 'sunshine',
                 nftId: 'xiaobai1',
             };
 

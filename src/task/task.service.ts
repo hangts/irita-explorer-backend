@@ -27,13 +27,13 @@ export class TasksService {
         this[`${TaskEnum.validators}_timer`] = null;
     }
     @Cron(cfg.taskCfg.executeTime.denom)
-    //@Cron('50 * * * * *')
+    //@Cron('30 * * * * *')
     async syncDenoms() {
         this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.nft)
-    //@Cron('01 * * * * *')
+    //@Cron('58 * * * * *')
     async syncNfts() {
         this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
     }
@@ -77,6 +77,7 @@ export class TasksService {
                 }
                 Logger.log(`from task service ${taskName} successfully it took ${new Date().getTime() - beginTime}ms, and release the lock!`);
             } catch (e) {
+                console.error(e)
                 await this.taskDispatchService.unlock(taskName);
                 if (this[`${taskName}_timer`]) {
                     clearInterval(this[`${taskName}_timer`]);

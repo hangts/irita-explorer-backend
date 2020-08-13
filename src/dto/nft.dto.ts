@@ -5,7 +5,7 @@ import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 
 export class NftListReqDto extends PagingReqDto {
     @ApiPropertyOptional()
-    denom?: string;
+    denomId?: string;
 
     @ApiPropertyOptional()
     nftId?: string;
@@ -19,19 +19,19 @@ export class NftListReqDto extends PagingReqDto {
 export class NftDetailReqDto {
     @IsString()
     @ApiProperty()
-    @IsNotEmpty({ message: 'denom is necessary' })
-    denom: string;
+    @IsNotEmpty({ message: 'denom id is necessary' })
+    denomId: string;
 
     @IsString()
     @ApiProperty()
-    @IsNotEmpty({ message: 'nft is necessary' })
+    @IsNotEmpty({ message: 'nft id is necessary' })
     nftId: string;
 }
 
 
 export class NftResDto {
-    denom: string;
-    id: string;
+    denom_id: string;
+    nft_id: string;
     owner: string;
     tokenUri: string;
     tokenData: string;
@@ -39,16 +39,18 @@ export class NftResDto {
     denom_name: string;
     nft_name: string;
 
-    constructor(denom: string, 
-                id: string, 
-                owner: string, 
-                tokenUri: string, 
-                tokenData: string, 
-                denomDetail: IDenomStruct,
-                denom_name: string,
-                nft_name: string) {
-        this.denom = denom;
-        this.id = id;
+    constructor(
+        denom_id: string,
+        nft_id: string,
+        owner: string,
+        tokenUri: string,
+        tokenData: string,
+        denomDetail: IDenomStruct,
+        denom_name: string,
+        nft_name: string,
+    ) {
+        this.denom_id = denom_id;
+        this.nft_id = nft_id;
         this.owner = owner;
         this.tokenUri = tokenUri;
         this.tokenData = tokenData;
@@ -60,31 +62,34 @@ export class NftResDto {
 }
 
 export class NftListResDto extends NftResDto {
-    constructor(denom: string, 
-                id: string, 
-                owner: string, 
-                tokenUri: string, 
-                tokenData: string, 
-                denomDetail: IDenomStruct,
-                denom_name: string,
-                nft_name: string) {
-        super(denom, id, owner, tokenUri, tokenData, denomDetail, denom_name, nft_name);
+    constructor(
+        denom_id: string,
+        nft_id: string,
+        owner: string,
+        tokenUri: string,
+        tokenData: string,
+        denomDetail: IDenomStruct,
+        denom_name: string,
+        nft_name: string,
+    ) {
+        super(denom_id, nft_id, owner, tokenUri, tokenData, denomDetail, denom_name, nft_name);
     }
 
 }
 
 export class NftDetailResDto extends NftResDto {
 
-    constructor(denom: string, 
-                id: string, 
-                owner: string, 
-                tokenUri: string, 
-                tokenData: string, 
-                denomDetail: IDenomStruct,
-                denom_name: string,
-                nft_name: string) {
-        super(denom, id, owner, tokenUri, tokenData, denomDetail, denom_name, nft_name);
-
+    constructor(
+        denom_id: string,
+        nft_id: string,
+        owner: string,
+        tokenUri: string,
+        tokenData: string,
+        denomDetail: IDenomStruct,
+        denom_name: string,
+        nft_name: string,
+    ) {
+        super(denom_id, nft_id, owner, tokenUri, tokenData, denomDetail, denom_name, nft_name);
     }
 }
 

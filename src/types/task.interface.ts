@@ -4,6 +4,7 @@ export interface TaskCallback {
 
 export interface ILcdNftStruct {
     id: string;
+    name:string;
     owner: string;
     token_data: string;
     token_uri?: string;

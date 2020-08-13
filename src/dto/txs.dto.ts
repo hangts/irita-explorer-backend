@@ -140,6 +140,8 @@ export class TxWithHashReqDto extends BaseReqDto {
 }
 
 export class ServiceListReqDto extends PagingReqDto {
+    @ApiPropertyOptional()
+    nameOrDescription?: string;
 }
 
 

@@ -407,11 +407,24 @@ TxSchema.statics.queryDefineServiceTxHashByServiceName = async function (service
 };
 
 
-TxSchema.statics.findServiceAllList = async function (pageNum: number, pageSize: number,):Promise<ITxStruct>{
+TxSchema.statics.findServiceAllList = async function (
+    pageNum: number,
+    pageSize: number,
+    useCount: boolean | undefined,
+    nameOrDescription?: string,
+    ):Promise<ITxStruct>{
+
     const queryParameters: any = {
         type: TxType.define_service,
         status: TxStatus.SUCCESS,
     };
+    if(nameOrDescription){
+        const reg = new RegExp(nameOrDescription, 'i');
+        queryParameters['$or'] = [
+            {'msgs.msg.name' : {$regex : reg}},
+            {'msgs.msg.description' : {$regex : reg}}
+        ]
+    }
     return await this.find(queryParameters)
         .sort({
             'msgs.msg.ex.bind':-1,
@@ -453,11 +466,18 @@ TxSchema.statics.findProviderRespondTimesForService = async function (serviceNam
     return await this.countDocuments(queryParameters);
 };
 
-TxSchema.statics.findAllServiceCount = async function ():Promise<number>{
+TxSchema.statics.findAllServiceCount = async function (nameOrDescription?: string):Promise<number>{
     const queryParameters: any = {
         type: TxType.define_service,
         status: TxStatus.SUCCESS,
     };
+    if(nameOrDescription){
+        const reg = new RegExp(nameOrDescription, 'i');
+        queryParameters['$or'] = [
+            {'msgs.msg.name' : {$regex : reg}},
+            {'msgs.msg.description' : {$regex : reg}}
+        ]
+    }
     return await this.countDocuments(queryParameters)
 };
 
