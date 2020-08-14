@@ -3,21 +3,40 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
 import { IDenom, IDenomStruct } from '../types/schemaTypes/denom.interface';
-import { INftMapStruct } from '../types/schemaTypes/nft.interface';
-import { DenomListResDto } from '../dto/denom.dto';
+import { DenomListReqDto, DenomListResDto } from '../dto/denom.dto';
 
 @Injectable()
 export class DenomService {
-    constructor(@InjectModel('Denom') private denomModel: Model<IDenom>) {
+    constructor(
+        @InjectModel('Denom') private denomModel: Model<IDenom>,
+        @InjectModel('Nft') private nftModel: any,
+    ) {
     }
 
-    async queryList(): Promise<ListStruct<DenomListResDto[]>> {
-        const denomList: IDenomStruct[] = await (this.denomModel as any).findList();
+    async queryList(q: DenomListReqDto): Promise<ListStruct<DenomListResDto[]>> {
+        const {pageNum, pageSize, denomNameOrId, useCount, needAll} = q;
+        const denomList: IDenomStruct[] = await (this.denomModel as any).findList(pageNum, pageSize, denomNameOrId,needAll);
         const res: DenomListResDto[] = [];
         for (let d of denomList) {
-        	res.push(new DenomListResDto(d.name,d.denom_id, d.json_schema, d.creator));
+            const count = await (this.nftModel as any).queryNftCount(d.denom_id)
+            res.push(new DenomListResDto(
+                d.name,
+                d.denom_id,
+                d.tx_hash,
+                count,
+                d.creator,
+                d.time,
+            ))
+
         }
-        return new ListStruct(res, 0, 0, 0);
+        let count: number = 0;
+        if(useCount && !needAll){
+            count = await (this.denomModel as any).queryDenomCount(denomNameOrId);
+        }
+
+        return new ListStruct(res, pageNum, pageSize, count);
     }
+
+
 }
 

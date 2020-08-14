@@ -61,7 +61,6 @@ export class NftTaskService {
                 const { owner, uri, data, id, name } = nft;
                 const str: string = `${owner}${uri ? uri : ''}${data ? data : ''}`,
                     hash = md5(str);
-                console.log('-------',denomName)
                 return {
                     denom_id: denomId,
                     denom_name: denomName || '',
@@ -94,7 +93,6 @@ export class NftTaskService {
         if (shouldUpdateNftMap && shouldUpdateNftMap.size > 0) {
             for(let nft of Array.from(shouldUpdateNftMap.values())){
                 const { id, owner, uri, data, hash, name } = nft;
-                console.log('-------',denomName)
                 const nftEntity: INftStruct = {
                     nft_id: id,
                     nft_name: name,

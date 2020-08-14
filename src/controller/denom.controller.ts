@@ -1,9 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { DenomService } from '../service/denom.service';
 import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
-import { DenomListResDto } from '../dto/denom.dto';
-import { ApiTags} from '@nestjs/swagger';
+import { DenomListReqDto, DenomListResDto } from '../dto/denom.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Denoms')
 @Controller('denoms')
@@ -12,9 +12,14 @@ export class DenomController {
     }
 
     @Get()
-    async queryList(): Promise<Result<ListStruct<DenomListResDto[]>>> {
-        const data: ListStruct<DenomListResDto[]> = await this.denomService.queryList();
-        return new Result<ListStruct<DenomListResDto[]>>(data);
+    async queryDenomList(@Query() q: DenomListReqDto): Promise<Result<ListStruct<DenomListResDto[]>>> {
+        try {
+            const data: ListStruct<DenomListResDto[]> = await this.denomService.queryList(q);
+            return new Result<ListStruct<DenomListResDto[]>>(data);
+        } catch (e) {
+            console.error(e);
+        }
+
     }
 
 

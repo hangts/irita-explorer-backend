@@ -5,20 +5,58 @@ import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 export const DenomSchema = new mongoose.Schema({
     name: String,
     json_schema: String,
-    denom_id:{ type: String, unique: true },
+    denom_id: { type: String, unique: true },
     creator: String,
+    tx_hash: String,
+    height: Number,
+    time:Number,
     create_time: Number,
     update_time: Number,
-},{versionKey: false});
+}, { versionKey: false });
 
 DenomSchema.statics = {
-    async findList(): Promise<IDenomStruct[]> {
-        return await this.find().select({
-            _id:0,
-            create_time:0,
-            update_time:0,
-            __:0,
-        }).exec();
+    async findList(
+        pageNum: number,
+        pageSize: number,
+        denomNameOrId?: string,
+        needAll?: string,
+    ): Promise<IDenomStruct[]> {
+        if (needAll) {
+            return await this.find({});
+        } else {
+            const params = {};
+            if(denomNameOrId){
+                params['$or'] = [
+                    {
+                        name: denomNameOrId,
+                    },
+                    {
+                        denom_id: denomNameOrId,
+                    },
+
+                ]
+            }
+            return await this.find(params)
+                .skip((Number(pageNum) - 1) * Number(pageSize))
+                .limit(Number(pageSize))
+                .sort({ time: -1 });
+        }
+    },
+
+    async queryDenomCount(denomNameOrId?: string){
+        const params = {};
+        if(denomNameOrId){
+            params['$or'] = [
+                {
+                    name: denomNameOrId,
+                },
+                {
+                    denom_id: denomNameOrId,
+                },
+
+            ]
+        }
+        return this.countDocuments(params);
     },
     async findOneByDenomId(denomId:string): Promise<IDenomStruct> {
         return await this.findOne({denom_id:denomId});
@@ -26,10 +64,13 @@ DenomSchema.statics = {
     async saveBulk(denoms: any[]): Promise<IDenomStruct[]> {
         const entitiesList: IDenomStruct[] = denoms.map((d) => {
             return {
-                name: d.name || '',
-                denom_id:d.id,
-                json_schema: d.schema,
+                name: d.name,
+                denom_id: d.denomId,
+                json_schema: d.jsonSchema,
                 creator: d.creator,
+                tx_hash: d.txHash,
+                height: d.height,
+                time: d.createTime,
                 create_time: getTimestamp(),
                 update_time: getTimestamp(),
             };
