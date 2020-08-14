@@ -25,7 +25,7 @@ export class DenomService {
                 d.tx_hash,
                 count,
                 d.creator,
-                d.create_time,
+                d.time,
             ))
 
         }

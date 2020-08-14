@@ -9,6 +9,7 @@ export const DenomSchema = new mongoose.Schema({
     creator: String,
     tx_hash: String,
     height: Number,
+    time:Number,
     create_time: Number,
     update_time: Number,
 }, { versionKey: false });
@@ -38,7 +39,7 @@ DenomSchema.statics = {
             return await this.find(params)
                 .skip((Number(pageNum) - 1) * Number(pageSize))
                 .limit(Number(pageSize))
-                .sort({ create_time: -1 });
+                .sort({ time: -1 });
         }
     },
 
@@ -69,7 +70,8 @@ DenomSchema.statics = {
                 creator: d.creator,
                 tx_hash: d.txHash,
                 height: d.height,
-                create_time: d.createTime,
+                time: d.createTime,
+                create_time: getTimestamp(),
                 update_time: getTimestamp(),
             };
         });

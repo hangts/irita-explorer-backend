@@ -7,6 +7,7 @@ export interface IDenomStruct {
     creator?: string,
     tx_hash?: string,
     height?: number,
+    time?: number,
     create_time?: number,
 }
 export interface IDenom extends IDenomStruct, Document {
