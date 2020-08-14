@@ -292,22 +292,22 @@ export class TxService {
         let result: TxResDto | null = null;
         let txData: any = await this.txModel.queryTxWithHash(query.hash);
         if (txData) {
-            // if (txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.denom && txData.msgs[0].msg.denom.length) {
-            //     let nftNameInfo : {denom_name:string,nft_name:string} = {
-            //         denom_name:'',
-            //         nft_name:'',
-            //     };
-            //     if (txData.msgs[0].msg.id && txData.msgs[0].msg.id.length) {
-            //         let nft = await this.nftModel.findOneByDenomAndNftId(txData.msgs[0].msg.denom, txData.msgs[0].msg.id);
-            //         nftNameInfo.denom_name = (nft || {}).denom_name || '';
-            //         nftNameInfo.nft_name = (nft || {}).nft_name || '';
-            //     }else{
-            //         let denom = await this.denomModel.findOneByDenomId(txData.msgs[0].msg.denom);
-            //         nftNameInfo.denom_name = (denom || {}).name || '';
-            //     }
-            //     txData.msgs[0].msg.denom_name =  nftNameInfo.denom_name;
-            //     txData.msgs[0].msg.nft_name =  nftNameInfo.nft_name;
-            // }
+            if (txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.denom && txData.msgs[0].msg.denom.length) {
+                let nftNameInfo : {denom_name:string,nft_name:string} = {
+                    denom_name:'',
+                    nft_name:'',
+                };
+                if (txData.msgs[0].msg.id && txData.msgs[0].msg.id.length) {
+                    let nft = await this.nftModel.findOneByDenomAndNftId(txData.msgs[0].msg.denom, txData.msgs[0].msg.id);
+                    nftNameInfo.denom_name = (nft || {}).denom_name || '';
+                    nftNameInfo.nft_name = (nft || {}).nft_name || '';
+                }else{
+                    let denom = await this.denomModel.findOneByDenomId(txData.msgs[0].msg.denom);
+                    nftNameInfo.denom_name = (denom || {}).name || '';
+                }
+                txData.msgs[0].msg.denom_name =  nftNameInfo.denom_name;
+                txData.msgs[0].msg.nft_name =  nftNameInfo.nft_name;
+            }
             result = new TxResDto(txData);
         }
         return result;
