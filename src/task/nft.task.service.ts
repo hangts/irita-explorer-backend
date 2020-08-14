@@ -58,8 +58,8 @@ export class NftTaskService {
     private async saveNft(denomId: string, denomName: string, shouldInsertMap: Map<string, ILcdNftStruct>): Promise<void> {
         if (shouldInsertMap && shouldInsertMap.size > 0) {
             let insertNftList: INftStruct[] = Array.from(shouldInsertMap.values()).map((nft) => {
-                const { owner, token_uri, token_data, id, name } = nft;
-                const str: string = `${owner}${token_uri ? token_uri : ''}${token_data ? token_data : ''}`,
+                const { owner, uri, data, id, name } = nft;
+                const str: string = `${owner}${uri ? uri : ''}${data ? data : ''}`,
                     hash = md5(str);
                 console.log('-------',denomName)
                 return {
@@ -68,8 +68,8 @@ export class NftTaskService {
                     nft_id: id,
                     nft_name: name,
                     owner: owner,
-                    token_uri: token_uri ? token_uri : '',
-                    token_data: token_data ? token_data : '',
+                    uri: uri ? uri : '',
+                    data: data ? data : '',
                     create_time: getTimestamp(),
                     update_time: getTimestamp(),
                     hash,
@@ -93,14 +93,14 @@ export class NftTaskService {
     private async updateNft(denomId: string, denomName: string,shouldUpdateNftMap: Map<string, ILcdNftStruct>): Promise<void> {
         if (shouldUpdateNftMap && shouldUpdateNftMap.size > 0) {
             for(let nft of Array.from(shouldUpdateNftMap.values())){
-                const { id, owner, token_uri, token_data, hash, name } = nft;
+                const { id, owner, uri, data, hash, name } = nft;
                 console.log('-------',denomName)
                 const nftEntity: INftStruct = {
                     nft_id: id,
                     nft_name: name,
                     owner: owner,
-                    token_uri: token_uri,
-                    token_data: token_data,
+                    uri: uri,
+                    data: data,
                     hash: hash,
                     denom_id: denomId,
                     denom_name: denomName || '',
@@ -157,8 +157,8 @@ export class NftTaskService {
                 const updateNftMap = new Map<string, ILcdNftStruct>();
                 for (let key of nftFromLcd.keys()) {
                     if (nftFromDb.has(key)) {
-                        const { owner, token_data, token_uri } = nftFromLcd.get(key),
-                            lcdStr = `${owner}${token_uri ? token_uri : ''}${token_data ? token_data : ''}`,
+                        const { name, owner, data, uri } = nftFromLcd.get(key),
+                            lcdStr = `${name}${owner}${uri ? uri : ''}${data ? data : ''}`,
                             lcdHash = md5(lcdStr);
                         if (nftFromDb.get(key).hash !== lcdHash) {
                             let tempLcdNft: ILcdNftStruct = nftFromLcd.get(key);

@@ -8,8 +8,7 @@ import { DenomListResDto } from '../dto/denom.dto';
 
 @Injectable()
 export class DenomService {
-    constructor(@InjectModel('Denom') private denomModel: Model<IDenom>,
-    						@InjectModel('NftMap') private nftMapModel: any) {
+    constructor(@InjectModel('Denom') private denomModel: Model<IDenom>) {
     }
 
     async queryList(): Promise<ListStruct<DenomListResDto[]>> {

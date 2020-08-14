@@ -6,8 +6,7 @@ import { INft, INftDetailStruct, INftListStruct, INftStruct, INftMapStruct } fro
 import { NftDetailReqDto, NftDetailResDto, NftListReqDto, NftListResDto } from '../dto/nft.dto';
 @Injectable()
 export class NftService {
-    constructor(@InjectModel('Nft') private nftModel: Model<INft>,
-                @InjectModel('NftMap') private nftMapModel: any) {
+    constructor(@InjectModel('Nft') private nftModel: Model<INft>) {
     }
 
     async queryList(query: NftListReqDto): Promise<ListStruct<NftListResDto[]>> {
@@ -21,8 +20,8 @@ export class NftService {
                 nft.denom_id,
                 nft.nft_id, 
                 nft.owner, 
-                nft.token_uri, 
-                nft.token_data, 
+                nft.uri, 
+                nft.data, 
                 denomDetail,
                 nft.denom_name,
                 nft.nft_name);
@@ -40,16 +39,13 @@ export class NftService {
         const { denomId, nftId } = query;
         const nft: INftDetailStruct = await (this.nftModel as any).findOneByDenomAndNftId(denomId, nftId);
         if (nft) {
-            //let nftName:INftMapStruct = await this.nftMapModel.findName(nft.denom_id, nftId || '');
             let denomDetail = (nft.denomDetail as any).length > 0 ? nft.denomDetail[0] : null;
-            //let denom_name = nftName ? nftName.denom_name : '';
-            //let nft_name = nftName ? nftName.nft_name : '';
             return new NftDetailResDto(
                 nft.denom_id,
                 nft.nft_id, 
                 nft.owner, 
-                nft.token_uri, 
-                nft.token_data, 
+                nft.uri, 
+                nft.data, 
                 denomDetail,
                 nft.denom_name,
                 nft.nft_name);
