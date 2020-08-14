@@ -2,10 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { DenomHttp } from '../http/lcd/denom.http';
-import { IDenom, IDenomMapStruct } from '../types/schemaTypes/denom.interface';
-import { getServiceNameFromMsgs } from '../helper/tx.helper';
+import { IDenom, IDenomMapStruct, IDenomStruct } from '../types/schemaTypes/denom.interface';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
-import { getTimestamp } from '../util/util';
 
 @Injectable()
 export class DenomTaskService {
@@ -19,23 +17,35 @@ export class DenomTaskService {
 
     async doTask(): Promise<void> {
         const data: any = await this.denomHttp.queryDenomsFromLcd();
-        const denomList: IDenomMapStruct[] = [];
         for(let denom of data){
             const res: ITxStruct = await this.txModel.queryTxByDenom(denom.id);
-            if(res){
-                denomList.push({
-                    name:denom.name || '',
-                    denomId: denom.id,
-                    jsonSchema: denom.schema,
-                    creator: denom.creator,
-                    height: res.height,
-                    txHash: res.tx_hash,
-                    createTime: res.time,
-                })
+            const denomFromDb: IDenomStruct = await (this.denomModel as any).findOneByDenomId(denom.id);
+            const d: IDenomMapStruct = {
+                name:denom.name || '',
+                denomId: denom.id,
+                jsonSchema: denom.schema,
+                creator: denom.creator,
+                height: res ? res.height : 0,
+                txHash: res ? res.tx_hash : '',
+                createTime: res ? res.time : 0,
+            };
+            if(denomFromDb){
+                if(res
+                    && res.height
+                    && res.tx_hash
+                    && res.time
+                    && res.height !== denomFromDb.height
+                    && res.tx_hash !== denomFromDb.tx_hash
+                    && res.time !== denomFromDb.time
+                ){
+                    await (this.denomModel as any).updateDenom(d);
+                }
+            }else{
+                await (this.denomModel as any).saveDenom(d);
             }
         }
 
-        await (this.denomModel as any).saveBulk(denomList);
+
     }
 }
 
