@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { getTimestamp } from '../util/util';
-import { IDenomStruct } from '../types/schemaTypes/denom.interface';
+import { IDenomMapStruct, IDenomStruct } from '../types/schemaTypes/denom.interface';
 
 export const DenomSchema = new mongoose.Schema({
     name: String,
@@ -61,23 +61,31 @@ DenomSchema.statics = {
     async findOneByDenomId(denomId:string): Promise<IDenomStruct> {
         return await this.findOne({denom_id:denomId});
     },
-    async saveBulk(denoms: any[]): Promise<IDenomStruct[]> {
-        const entitiesList: IDenomStruct[] = denoms.map((d) => {
-            return {
-                name: d.name,
-                denom_id: d.denomId,
-                json_schema: d.jsonSchema,
-                creator: d.creator,
-                tx_hash: d.txHash,
-                height: d.height,
-                time: d.createTime,
-                create_time: getTimestamp(),
-                update_time: getTimestamp(),
-            };
+    async saveDenom(denoms: IDenomMapStruct): Promise<IDenomStruct[]> {
+        return await this.create({
+            name: denoms.name,
+            denom_id: denoms.denomId,
+            json_schema: denoms.jsonSchema,
+            creator: denoms.creator,
+            tx_hash: denoms.txHash,
+            height: denoms.height,
+            time: denoms.createTime,
+            create_time: getTimestamp(),
+            update_time: getTimestamp(),
         });
-        return await this.insertMany(entitiesList, { ordered: false });
     },
     async findAllNames(): Promise<IDenomStruct[]> {
         return await this.find({}, { denom_id: 1, name: 1 }).exec();
     },
+
+    async updateDenom(denom: IDenomMapStruct): Promise<IDenomStruct> {
+        return await this.findOneAndUpdate({
+            denom_id:denom.denomId,
+        }, {
+            tx_hash: denom.txHash,
+            height: denom.height,
+            time:denom.createTime,
+            update_time: getTimestamp(),
+        });
+    }
 };
