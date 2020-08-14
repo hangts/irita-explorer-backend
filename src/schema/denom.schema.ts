@@ -57,7 +57,9 @@ DenomSchema.statics = {
         }
         return this.countDocuments(params);
     },
-
+    async findOneByDenomId(denomId:string): Promise<IDenomStruct> {
+        return await this.findOne({denom_id:denomId});
+    },
     async saveBulk(denoms: any[]): Promise<IDenomStruct[]> {
         const entitiesList: IDenomStruct[] = denoms.map((d) => {
             return {

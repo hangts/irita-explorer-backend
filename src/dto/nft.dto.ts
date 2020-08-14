@@ -13,7 +13,6 @@ export class NftListReqDto extends PagingReqDto {
     @ApiPropertyOptional()
     owner?: string;
 
-
 }
 
 export class NftDetailReqDto {

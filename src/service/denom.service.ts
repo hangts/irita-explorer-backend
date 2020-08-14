@@ -9,7 +9,6 @@ import { DenomListReqDto, DenomListResDto } from '../dto/denom.dto';
 export class DenomService {
     constructor(
         @InjectModel('Denom') private denomModel: Model<IDenom>,
-        @InjectModel('NftMap') private nftMapModel: any,
         @InjectModel('Nft') private nftModel: any,
     ) {
     }
