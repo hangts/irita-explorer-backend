@@ -93,13 +93,17 @@ NftSchema.statics = {
         }
     },
 
-    async findCount(denomId: string, nftId: string, owner: string): Promise<number> {
-        let query: INftCountQueryParams = {};
+    async findCount(denomId: string, nftIdOrName: string, nftName: string, owner: string): Promise<number> {
+        let query: any = {};
         if (denomId){
             query.denom_id = denomId;
         }
-        if (nftId){
-            query.nft_id = nftId;
+        if (nftIdOrName){
+            const reg = new RegExp(nftIdOrName, 'i');
+            query['$or'] = [
+                { 'nft_name': nftIdOrName },
+                { 'nft_id': nftIdOrName },
+            ];
         }
         if (owner){
             query.owner = owner;
