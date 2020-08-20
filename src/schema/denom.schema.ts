@@ -38,18 +38,13 @@ DenomSchema.statics = {
                 .sort({ time: -1 });
         }
     },
-
     async queryDenomCount(denomNameOrId?: string){
         const params = {};
         if(denomNameOrId){
+            const reg = new RegExp(denomNameOrId, 'i');
             params['$or'] = [
-                {
-                    name: denomNameOrId,
-                },
-                {
-                    denom_id: denomNameOrId,
-                },
-
+                { 'name': { $regex: reg } },
+                { 'denom_id': { $regex: reg } },
             ]
         }
         return this.countDocuments(params);
