@@ -53,7 +53,7 @@ export class StatisticsService {
                     return null;
                 }
             }
-            return Math.floor(avgTime);
+            return !isNaN(avgTime) ? Number(avgTime.toFixed(2)) : null;
         } else {
             return null;
         }
