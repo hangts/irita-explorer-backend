@@ -92,7 +92,6 @@ export enum TxType {
     update_client = 'update_client',
     create_identity = 'create_identity',
     update_identity = 'update_identity',
-
 }
 
 export enum TxStatus {
@@ -111,3 +110,4 @@ export enum LoggerLevel {
     MARK = 'MARK',
     OFF = 'OFF',
 }
+

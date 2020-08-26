@@ -4,7 +4,7 @@ import { ITxStruct } from './schemaTypes/tx.interface';
 
 export interface ITxsQueryParams extends IQueryBase {
     type?: string,
-    $nor?: object[],
+    $or?: object[],
     status?: number,
     time?: {
         $gte?: number,
