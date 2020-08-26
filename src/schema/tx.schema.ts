@@ -57,9 +57,9 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<IListSt
     let result: IListStruct = {};
     let queryParameters: ITxsQueryParams = {};
     if (query.type && query.type.length) {
-        queryParameters.type = query.type;
+        queryParameters['msgs.type'] = query.type;
     } else {
-        queryParameters.$nor = [{ type: filterExTxTypeRegExp() }];
+        queryParameters.$nor = [{ type : filterExTxTypeRegExp() }];
     }
     if (query.status && query.status.length) {
         switch (query.status) {
@@ -80,7 +80,6 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<IListSt
     if (query.endTime && query.endTime.length) {
         queryParameters.time.$lte = Number(query.endTime);
     }
-
     result.data = await this.find(queryParameters)
         .sort({ time: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
@@ -386,7 +385,6 @@ TxSchema.statics.findAllServiceTx = async function(pageSize?: number): Promise<I
         'msgs.msg.ex.service_name': null,
     };
     return await this.find(queryParameters).sort({ time: -1 }).limit(Number(pageSize));
-    ;
 };
 
 //用request_context_id查询call_service的service_name
