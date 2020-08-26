@@ -54,7 +54,7 @@ export class TxListWithAddressReqDto extends PagingReqDto{
     }
 }
 
-// txs/relevance 
+// txs/relevance
 export class TxListWithContextIdReqDto extends PagingReqDto{
     @ApiPropertyOptional()
     contextId?: string;
@@ -174,7 +174,11 @@ export class ServiceBindInfoReqDto {
     @ApiProperty()
     provider: string;
 }
-
+//tx identity
+export class TxIdentityReqDto extends PagingReqDto {
+    @ApiPropertyOptional()
+    identity?: string;
+}
 
 export class ServiceTxResDto {
     hash: string;
@@ -388,5 +392,27 @@ export class ServiceBindInfoResDto {
         this.hash = hash;
         this.time = time;
         this.owner = owner;
+    }
+}
+export class TxIdentityResDto extends BaseResDto{
+    id: string;
+    owner: string;
+    pubkeys: [];
+    certificates: [];
+    credentials: string;
+    constructor(txIdentitiesData){
+        super();
+        this.id = txIdentitiesData.id;
+        this.owner = txIdentitiesData.owner;
+        this.pubkeys = txIdentitiesData.pubkeys;
+        this.certificates = txIdentitiesData.certificates;
+        this.credentials = txIdentitiesData.credentials;
+    }
+    static bundleData(value: any): TxIdentityResDto[] {
+        let data: TxIdentityResDto[] = [];
+        data = value.map((v: any) => {
+            return new TxIdentityResDto(v);
+        });
+        return data;
     }
 }

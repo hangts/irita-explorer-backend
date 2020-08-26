@@ -37,3 +37,7 @@ export interface IExFieldTx extends ITxStruct{
     ex_consumer?: string,
     ex_bind?:number,
 }
+
+export interface IIdentity extends  IQueryBase{
+    id?:string
+}

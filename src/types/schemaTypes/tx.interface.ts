@@ -76,3 +76,6 @@ export interface IExFieldQuery {
     hash: string;
     bind?: number;
 }
+export interface ITXWithIdentity extends IQueryBase {
+    identity?: string
+}

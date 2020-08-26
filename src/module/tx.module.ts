@@ -6,6 +6,7 @@ import { TxSchema } from '../schema/tx.schema';
 import { TxTypeSchema } from '../schema/txType.schema';
 import { DenomSchema } from '../schema/denom.schema';
 import { NftSchema } from '../schema/nft.schema';
+import { IdentitySchema } from '../schema/identity.schema';
 
 @Module({
     imports:[
@@ -23,6 +24,11 @@ import { NftSchema } from '../schema/nft.schema';
             name: 'Denom',
             schema: DenomSchema,
             collection: 'ex_sync_denom'
+        },
+        {
+            name: 'Identity',
+            schema: IdentitySchema,
+            collection: 'sync_identity'
         },
         {
             name: 'Nft',

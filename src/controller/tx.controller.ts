@@ -4,6 +4,8 @@ import { TxService } from '../service/tx.service';
 import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
 import {
+    TxIdentityReqDto,
+    TxIdentityResDto,
     TxListReqDto,
     TxListWithHeightReqDto,
     TxListWithAddressReqDto,
@@ -24,7 +26,7 @@ import {
     ServiceTxReqDto,
     ServiceTxResDto, ServiceBindInfoReqDto, ServiceBindInfoResDto, ServiceRespondReqDto, ServiceRespondResDto,
 } from '../dto/txs.dto';
-import { TxResDto, 
+import { TxResDto,
          TxTypeResDto } from '../dto/txs.dto';
 
 @ApiTags('Txs')
@@ -56,7 +58,6 @@ export class TxController {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithContextId(query);
         return new Result<any>(data);
     }
-    
     @Get("/nfts")
     async queryTxWithNft(@Query() query: TxListWithNftReqDto):Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithNft(query);
@@ -84,7 +85,7 @@ export class TxController {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithRespondService(query);
         return new Result<any>(data);
     }
-    
+
     @Get("/services/detail/:serviceName")
     async queryTxDetailWithServiceName(@Param() query: ServicesDetailReqDto): Promise<Result<TxResDto>> {
         const data: TxResDto = await this.txService.queryTxDetailWithServiceName(query);
@@ -145,14 +146,16 @@ export class TxController {
         const data: ListStruct<ServiceRespondResDto[]> = await this.txService.queryServiceRespondTx(query);
         return new Result<ListStruct<ServiceRespondResDto[]>>(data);
     }
-    
+    @Get("/identities")
+    async queryTxIdentities(@Query() query: TxIdentityReqDto): Promise<Result<ListStruct<TxIdentityResDto[]>>> {
+        const data: ListStruct<TxIdentityResDto[]> = await this.txService.queryTxIdentities(query)
+        return new Result<ListStruct<TxIdentityResDto[]>>(data);
+    }
     @Get(":hash")
     async queryTxWithHash(@Param() query: TxWithHashReqDto): Promise<Result<TxResDto>> {
         const data: TxResDto = await this.txService.queryTxWithHash(query);
         return new Result<TxResDto>(data);
     }
-
-    
 
 
 

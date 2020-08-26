@@ -3,6 +3,8 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct, Result } from '../api/ApiResult';
 import {
+    TxIdentityReqDto,
+    TxIdentityResDto,
     TxListReqDto,
     TxListWithHeightReqDto,
     TxListWithAddressReqDto,
@@ -19,7 +21,7 @@ import {
     ServiceListReqDto,
     ServiceProvidersReqDto,
     ServiceTxReqDto,
-    ServiceBindInfoReqDto, 
+    ServiceBindInfoReqDto,
     ServiceRespondReqDto,
 } from '../dto/txs.dto';
 import {
@@ -43,7 +45,9 @@ export class TxService {
     constructor(@InjectModel('Tx') private txModel: any,
                 @InjectModel('TxType') private txTypeModel: any,
                 @InjectModel('Denom') private denomModel: any,
-                @InjectModel('Nft') private nftModel: any) {
+                @InjectModel('Nft') private nftModel: any,
+                @InjectModel('Identity') private identityModel:any
+                ) {
     }
 
     // txs
@@ -311,6 +315,11 @@ export class TxService {
             result = new TxResDto(txData);
         }
         return result;
+    }
+    // txs/identities
+    async queryTxIdentities(query: TxIdentityReqDto): Promise<ListStruct<TxIdentityResDto[]>> {
+        const txIdentitiesData = await this.identityModel.queryTxIdentityList(query)
+        return new ListStruct(TxIdentityResDto.bundleData(txIdentitiesData.data), Number(query.pageNum), Number(query.pageSize), txIdentitiesData.count);
     }
 
 }
