@@ -86,6 +86,13 @@ export enum TxType {
     start_feed = 'start_feed',
     pause_feed = 'pause_feed',
     edit_feed = 'edit_feed',
+    // IBC
+    recv_packet = 'recv_packet',
+    create_client = 'create_client',
+    update_client = 'update_client',
+    create_identity = 'create_identity',
+    update_identity = 'update_identity',
+
 }
 
 export enum TxStatus {
