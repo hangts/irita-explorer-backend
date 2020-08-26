@@ -12,7 +12,7 @@ import { ITxStruct, ITxStructMsgs, ITxStructHash } from '../types/schemaTypes/tx
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
 import { IListStruct } from '../types';
 import { TxStatus, TxType } from '../constant';
-import Cache from '../constant/cache';
+import Cache from '../helper/cache';
 import { cfg } from '../config/config';
 
 export const TxSchema = new mongoose.Schema({

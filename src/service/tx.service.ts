@@ -37,7 +37,7 @@ import { IBindTx, IServiceName } from '../types/tx.interface';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
 import { INftMapStruct } from '../types/schemaTypes/nft.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
-import Cache from '../constant/cache';
+import Cache from '../helper/cache';
 @Injectable()
 export class TxService {
     constructor(@InjectModel('Tx') private txModel: any,
