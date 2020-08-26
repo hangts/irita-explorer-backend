@@ -35,7 +35,7 @@ export const TxSchema = new mongoose.Schema({
 
 //	csrb 浏览器交易记录过滤正则表达式
 function filterExTxTypeRegExp(): object {
-    return new RegExp(`${TxType.mint_token}|${TxType.transfer_token_owner}|${TxType.issue_token}|${TxType.edit_token}`);
+    return new RegExp(`${TxType.mint_token}|${TxType.transfer_token_owner}|${TxType.issue_token}|${TxType.edit_token}|${TxType.create_client}|${TxType.update_client}`);
 }
 
 function filterTxTypeRegExp(types: TxType[]): object {
