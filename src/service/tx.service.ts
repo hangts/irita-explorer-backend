@@ -45,15 +45,14 @@ export class TxService {
     constructor(@InjectModel('Tx') private txModel: any,
                 @InjectModel('TxType') private txTypeModel: any,
                 @InjectModel('Denom') private denomModel: any,
-                @InjectModel('Nft') private nftModel: any) {
+                @InjectModel('Nft') private nftModel: any,
+                @InjectModel('Identity') private identityModel:any
+    ) {
         this.cacheTxTypes();
     }
     async cacheTxTypes(){
             let txTypes = await this.txTypeModel.queryTxTypeList();
             Cache.supportTypes = txTypes.map((item)=>item.type_name);
-                @InjectModel('Nft') private nftModel: any,
-                @InjectModel('Identity') private identityModel:any
-                ) {
     }
 
     // txs
