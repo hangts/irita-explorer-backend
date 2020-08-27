@@ -77,5 +77,5 @@ export interface IExFieldQuery {
     bind?: number;
 }
 export interface ITXWithIdentity extends IQueryBase {
-    identity?: string
+    search?: string
 }

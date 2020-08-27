@@ -15,9 +15,12 @@ export const IdentitySchema  = new mongoose.Schema({
 IdentitySchema.statics.queryTxIdentityList = async function(query: ITXWithIdentity):Promise<IListStruct> {
   const result: IListStruct = {}
   const queryParameters: any = {};
-  if(query.identity && query.identity !== ''){
+  if(query.search && query.search !== ''){
     //单条件模糊查询使用$regex $options为'i' 不区分大小写
-    queryParameters.id = { $regex: query.identity,$options:'i' }
+    queryParameters.$or = [
+      {id:{ $regex: query.search,$options:'i' }},
+      {owner:{ $regex: query.search,$options:'i' }}
+      ]
     result.data = await  this.find(queryParameters)
       .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
       .limit(Number(query.pageSize));
