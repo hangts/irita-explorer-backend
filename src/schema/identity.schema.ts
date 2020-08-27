@@ -23,10 +23,10 @@ IdentitySchema.statics.queryTxIdentityList = async function(query: ITXWithIdenti
       ]
     result.data = await  this.find(queryParameters)
       .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-      .limit(Number(query.pageSize));
+      .limit(Number(query.pageSize)).sort({id: 1});
   }else {
     result.data = await  this.find().skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-      .limit(Number(query.pageSize))
+      .limit(Number(query.pageSize)).sort({id: 1})
   }
   if (query.useCount && query.useCount == true) {
     result.count = await this.find(queryParameters).countDocuments();
