@@ -12,6 +12,7 @@ import { ITxStruct, ITxStructMsgs, ITxStructHash } from '../types/schemaTypes/tx
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
 import { IListStruct } from '../types';
 import { TxStatus, TxType } from '../constant';
+import Cache from '../helper/cache';
 import { cfg } from '../config/config';
 
 export const TxSchema = new mongoose.Schema({
@@ -35,7 +36,9 @@ export const TxSchema = new mongoose.Schema({
 
 //	csrb 浏览器交易记录过滤正则表达式
 function filterExTxTypeRegExp(): object {
-    return new RegExp(`${TxType.mint_token}|${TxType.transfer_token_owner}|${TxType.issue_token}|${TxType.edit_token}`);
+    let RegExpStr:string = Cache.supportTypes.join('|');
+    console.log('supportTypes:',RegExpStr);
+    return new RegExp(RegExpStr || '//');
 }
 
 function filterTxTypeRegExp(types: TxType[]): object {
@@ -59,7 +62,7 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<IListSt
     if (query.type && query.type.length) {
         queryParameters['msgs.type'] = query.type;
     } else {
-        queryParameters.$nor = [{ type : filterExTxTypeRegExp() }];
+        queryParameters.$or = [{ 'msgs.type' : filterExTxTypeRegExp() }];
     }
     if (query.status && query.status.length) {
         switch (query.status) {
@@ -93,7 +96,7 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<IListSt
 // 	txs/blocks
 TxSchema.statics.queryTxWithHeight = async function(query: ITxsWithHeightQuery): Promise<IListStruct> {
     let result: IListStruct = {};
-    let queryParameters: { height?: number, $nor: object[] } = { $nor: [{ type: filterExTxTypeRegExp() }] };
+    let queryParameters: { height?: number, $or: object[] } = { $or: [{ 'msgs.type': filterExTxTypeRegExp() }] };
     if (query.height) {
         queryParameters.height = Number(query.height);
     }
@@ -122,9 +125,9 @@ TxSchema.statics.queryTxWithAddress = async function(query: ITxsWithAddressQuery
         };
     }
     if (query.type && query.type.length) {
-        queryParameters.type = query.type;
+        queryParameters['msgs.type'] = query.type;
     } else {
-        queryParameters.$nor = [{ type: filterExTxTypeRegExp() }];
+        queryParameters.$or = [{ 'msgs.type': filterExTxTypeRegExp() }];
     }
     if (query.status && query.status.length) {
         switch (query.status) {
@@ -160,9 +163,9 @@ TxSchema.statics.queryTxWithContextId = async function(query: ITxsWithContextIdQ
         };
     }
     if (query.type && query.type.length) {
-        queryParameters.type = query.type;
+        queryParameters['msgs.type'] = query.type;
     } else {
-        queryParameters.$nor = [{ type: filterExTxTypeRegExp() }];
+        queryParameters.$or = [{ 'msgs.type': filterExTxTypeRegExp() }];
     }
 
     if (query.status && query.status.length) {
@@ -221,8 +224,8 @@ TxSchema.statics.queryTxWithServiceName = async function(query: ITxsWithServiceN
             $or: [
                 { 'msgs.msg.service_name': query.serviceName },
                 { 'msgs.msg.ex.service_name': query.serviceName },
+                { 'msgs.type': filterExTxTypeRegExp() }
             ],
-            $nor: [{ type: filterExTxTypeRegExp() }],
         };
     }
     result.data = await this.find(queryParameters)

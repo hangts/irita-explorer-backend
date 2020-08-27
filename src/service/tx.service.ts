@@ -39,12 +39,18 @@ import { IBindTx, IServiceName } from '../types/tx.interface';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
 import { INftMapStruct } from '../types/schemaTypes/nft.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
-
+import Cache from '../helper/cache';
 @Injectable()
 export class TxService {
     constructor(@InjectModel('Tx') private txModel: any,
                 @InjectModel('TxType') private txTypeModel: any,
                 @InjectModel('Denom') private denomModel: any,
+                @InjectModel('Nft') private nftModel: any) {
+        this.cacheTxTypes();
+    }
+    async cacheTxTypes(){
+            let txTypes = await this.txTypeModel.queryTxTypeList();
+            Cache.supportTypes = txTypes.map((item)=>item.type_name);
                 @InjectModel('Nft') private nftModel: any,
                 @InjectModel('Identity') private identityModel:any
                 ) {
@@ -52,6 +58,9 @@ export class TxService {
 
     // txs
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
+        if (!Cache.supportTypes || !Cache.supportTypes.length) {
+            await this.cacheTxTypes();
+        }
         let txListData = await this.txModel.queryTxList(query);
         return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
@@ -146,10 +155,10 @@ export class TxService {
     }
 
 
-
     //  post txs/types
     async insertTxTypes(prarms: PostTxTypesReqDto): Promise<ListStruct<TxTypeResDto[]>> {
         let txTypeListData = await this.txTypeModel.insertTxTypes(prarms.typeNames);
+        this.cacheTxTypes();
         return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
     }
 
@@ -157,6 +166,7 @@ export class TxService {
     async updateTxType(prarms: PutTxTypesReqDto): Promise<TxTypeResDto> {
         let result: TxTypeResDto | null = null;
         let txData = await this.txTypeModel.updateTxType(prarms.typeName, prarms.newTypeName);
+        this.cacheTxTypes();
         if (txData) {
             result = new TxTypeResDto(txData);
         }
@@ -167,6 +177,7 @@ export class TxService {
     async deleteTxType(prarms: DeleteTxTypesReqDto): Promise<TxTypeResDto> {
         let result: TxTypeResDto | null = null;
         let txData = await this.txTypeModel.deleteTxType(prarms.typeName);
+        this.cacheTxTypes();
         if (txData) {
             result = new TxTypeResDto(txData);
         }
