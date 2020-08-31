@@ -197,7 +197,7 @@ TxSchema.statics.queryTxWithNft = async function(query: ITxsWithNftQuery): Promi
         TxType.transfer_nft,
         TxType.burn_nft,
     ];
-    let queryParameters: { denom?: string, tokenId?: string, $or: object[] } = { $or: [{ type: filterTxTypeRegExp(nftTypesList) }] };
+    let queryParameters: { denom?: string, tokenId?: string, $or: object[] } = { $or: [{ 'msgs.type': filterTxTypeRegExp(nftTypesList) }] };
 
     if (query.denom && query.denom.length) {
         queryParameters['msgs.msg.denom'] = query.denom;
