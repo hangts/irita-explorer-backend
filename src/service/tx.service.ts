@@ -3,8 +3,6 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct, Result } from '../api/ApiResult';
 import {
-    TxIdentityReqDto,
-    TxIdentityResDto,
     TxListReqDto,
     TxListWithHeightReqDto,
     TxListWithAddressReqDto,
@@ -22,7 +20,7 @@ import {
     ServiceProvidersReqDto,
     ServiceTxReqDto,
     ServiceBindInfoReqDto,
-    ServiceRespondReqDto,
+    ServiceRespondReqDto, IdentityTxReqDto,
 } from '../dto/txs.dto';
 import {
     TxResDto,
@@ -326,10 +324,10 @@ export class TxService {
         }
         return result;
     }
-    // txs/identities
-    async queryTxIdentities(query: TxIdentityReqDto): Promise<ListStruct<TxIdentityResDto[]>> {
-        const txIdentitiesData = await this.identityModel.queryTxIdentityList(query)
-        return new ListStruct(TxIdentityResDto.bundleData(txIdentitiesData.data), Number(query.pageNum), Number(query.pageSize), txIdentitiesData.count);
+    //tx/identity
+    async queryIdentityTx(query:IdentityTxReqDto):Promise<ListStruct<TxResDto[]>>{
+        let txListData = await this.txModel.queryTxListByIdentity(query);
+        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
 }

@@ -19,6 +19,9 @@ import { NftTaskModule } from './module/nft.task.module';
 import { ValidatorTaskModule } from './module/validator.task.module';
 import { ValidatorModule } from './module/validator.module';
 
+import { IdentityTaskModule } from './module/identity.task.module';
+import { IdentityModule } from './module/identity.module';
+
 console.log(cfg);
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 const params = {
@@ -36,6 +39,8 @@ const params = {
         ValidatorModule,
         TxModule,
         TxTaskModule,
+        IdentityTaskModule,
+        IdentityModule
     ],
     providers:<any> [
         {

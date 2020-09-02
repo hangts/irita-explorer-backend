@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Cron,Interval } from '@nestjs/schedule';
 import { TxTaskService } from './tx.task.service';
 import { DenomTaskService } from './denom.task.service';
 import { NftTaskService } from './nft.task.service';
@@ -9,7 +9,8 @@ import { getIpAddress } from '../util/util';
 import { cfg } from '../config/config';
 import { TaskCallback } from '../types/task.interface';
 import { ValidatorsTaskService } from './validators.task.service';
-import { Logger } from '../logger'
+import { Logger } from '../logger';
+import { IdentityTaskService } from './idnetity.task.service';
 
 @Injectable()
 export class TasksService {
@@ -19,12 +20,14 @@ export class TasksService {
         private readonly nftTaskService: NftTaskService,
         private readonly taskDispatchService: TaskDispatchService,
         private readonly txTaskService: TxTaskService,
-        private readonly validatorsTaskService: ValidatorsTaskService
+        private readonly validatorsTaskService: ValidatorsTaskService,
+        private readonly identityTaskService: IdentityTaskService
     ) {
         this[`${TaskEnum.denom}_timer`] = null;
         this[`${TaskEnum.nft}_timer`] = null;
         this[`${TaskEnum.txServiceName}_timer`] = null;
         this[`${TaskEnum.validators}_timer`] = null;
+        this[`${TaskEnum.identity}_timer`] = null;
     }
     @Cron(cfg.taskCfg.executeTime.denom)
     //@Cron('50 * * * * *')
@@ -55,7 +58,12 @@ export class TasksService {
     async taskDispatchFaultTolerance() {
         this.taskDispatchService.taskDispatchFaultTolerance();
     }
-
+    //@Cron('1 * * * * *')
+    @Cron(cfg.taskCfg.executeTime.identity)
+    /*@Interval(5000)*/
+    async syncIdentity() {
+        this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)
+    }
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
         const needDoTask: boolean = await this.taskDispatchService.needDoTask(taskName);
         Logger.log(`the ip ${getIpAddress()} (process pid is ${process.pid}) should do task ${taskName}? ${needDoTask}`);

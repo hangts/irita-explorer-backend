@@ -5,6 +5,7 @@ export enum TaskEnum {
     nft = 'ex_sync_nft',
     txServiceName = "sync_tx_service_name",
     validators = 'sync_validators',
+    identity = 'sync_identity'
 }
 
 
