@@ -65,6 +65,7 @@ export class IdentityPubKeyResDto extends BaseResDto{
     this.hash = IdentityData.hash;
     this.height = IdentityData.height;
     this.pubkey = IdentityData.pubkey;
+    this.time = IdentityData.time;
   }
   static bundleData(value: any): IdentityPubKeyResDto[] {
     let data: IdentityPubKeyResDto[] = [];
@@ -87,6 +88,7 @@ export class IdentityCertificateResDto extends BaseResDto{
     this.hash = IdentityData.hash;
     this.height = IdentityData.height;
     this.certificate = IdentityData.certificate;
+    this.time = IdentityData.time;
   }
   static bundleData(value: any): IdentityCertificateResDto[] {
     let data: IdentityCertificateResDto[] = [];
