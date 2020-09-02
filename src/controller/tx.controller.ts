@@ -149,7 +149,7 @@ export class TxController {
         const data: ListStruct<ServiceRespondResDto[]> = await this.txService.queryServiceRespondTx(query);
         return new Result<ListStruct<ServiceRespondResDto[]>>(data);
     }
-    @Get("/identity")
+    @Get("/identities")
     async queryIdentityTx(@Query() query: IdentityTxReqDto): Promise<Result<ListStruct<TxResDto[]>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryIdentityTx(query)
         return new Result<ListStruct<TxResDto[]>>(data);
