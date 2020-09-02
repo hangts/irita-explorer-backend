@@ -17,7 +17,7 @@ export class IdentityInfoReqDto extends BaseReqDto {
   @ApiProperty()
   id: string;
 }
-export class IdentityByAddressReqDto extends BaseResDto{
+export class IdentityByAddressReqDto extends PagingReqDto{
   @ApiProperty()
   address: string;
 }

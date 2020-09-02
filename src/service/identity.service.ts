@@ -38,6 +38,6 @@ export class IdentityService {
     //identity Address
     async queryIdentityListByAddress(query:IdentityByAddressReqDto):Promise<ListStruct<IdentityResDto[]>>{
       const txIdentitiesData = await this.identityModel.queryIdentityByAddress(query)
-      return txIdentitiesData;
+      return new ListStruct(IdentityResDto.bundleData(txIdentitiesData.data), Number(query.pageNum), Number(query.pageSize), txIdentitiesData.count);
     }
 }

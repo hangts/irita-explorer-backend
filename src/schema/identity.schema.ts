@@ -79,11 +79,18 @@ IdentitySchema.statics = {
     return  infoData
   },
   // owner
-  async queryIdentityByAddress(address: IdentityByAddressReqDto):Promise<IdentityResDto>{
-    const queryParameters:any = {}
-    queryParameters.owner = address.address
-    const identityListByAddress:IdentityResDto = await this.find(queryParameters)
-    return identityListByAddress
+  async queryIdentityByAddress(query: IdentityByAddressReqDto):Promise<IListStruct>{
+    const result: IListStruct = {}
+    const queryParameters: any = {};
+    queryParameters.owner = query.address
+
+    result.data = await this.find(queryParameters)
+        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+        .limit(Number(query.pageSize)).sort({'update_block_time':-1});
+    if (query.useCount && query.useCount == true) {
+      result.count = await this.find(queryParameters).countDocuments();
+    }
+    return result
   }
 }
 
