@@ -31,7 +31,10 @@ IdentitySchema.statics = {
     const queryParameters: any = {};
     if(query.search && query.search !== ''){
       //单条件模糊查询使用$regex $options为'i' 不区分大小写
-      queryParameters.id = { $regex: query.search,$options:'i' }
+      queryParameters.$or = [
+        {id:{ $regex: query.search,$options:'i' }},
+        {owner:{ $regex: query.search,$options:'i' }}
+      ]
       result.data = await this.find(queryParameters)
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize)).sort({'update_block_time':-1});
