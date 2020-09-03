@@ -55,24 +55,18 @@ IdentitySchema.statics = {
   },
 
   async insertIdentityInfo(IdentityInfo) {
-      IdentityInfo.forEach( (item:IIdentityStruct) => {
-        item.create_time = getTimestamp();
-        item.update_time = getTimestamp();
-      })
       await  this.insertMany(IdentityInfo,{ ordered: false })
   },
   // base information
   async updateIdentityInfo(updateIdentityData) {
       if(updateIdentityData.credentials){
         const { id,credentials, update_block_time, update_block_height, update_tx_hash } = updateIdentityData;
-        const update_time = getTimestamp()
-        await this.updateOne({id},{credentials,update_block_time,update_block_height,update_tx_hash,update_time},(e) => {
+        await this.updateOne({id},{credentials,update_block_time,update_block_height,update_tx_hash},(e) => {
           if (e) Logger.error('mongo-error:', e.message);
         });
       }else {
         const { id, update_block_time, update_block_height, update_tx_hash } = updateIdentityData;
-        const update_time = getTimestamp()
-        await this.updateOne({id},{update_block_time,update_block_height,update_tx_hash,update_time},(e) => {
+        await this.updateOne({id},{update_block_time,update_block_height,update_tx_hash},(e) => {
           if (e) Logger.error('mongo-error:', e.message);
         });
       }

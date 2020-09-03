@@ -11,13 +11,13 @@ export const PubkeySchema = new mongoose.Schema({
     height: String,
     time: String,
     'msg_index': Number,
+    create_time:Number
 })
 PubkeySchema.index({id: 1,'msg_index':1},{unique: true})
 
 PubkeySchema.statics = {
-    async insertPubkey (pubkey:IIdentityPubKeyStruct) {
-        pubkey['create_time'] = getTimestamp()
-        await this.create(pubkey)
+    async insertPubkey (pubkey) {
+        await this.insertMany(pubkey,{ ordered: false })
     },
     async queryPubkeyList(query:IdentityPubKeyAndCertificateReqDto) :Promise<IListStruct>  {
         const result: IListStruct = {}

@@ -11,8 +11,8 @@ export interface IIdentityStruct extends IBaseIdentityStruct{
     update_block_time: string,
     update_block_height: string,
     update_tx_hash: string,
-    create_time?: number,
-    update_time?: number
+    create_time: number,
+    update_time: number
 }
 export interface IIdentityPubKeyStruct extends IBaseIdentityStruct {
     pubkey: object,
@@ -20,7 +20,7 @@ export interface IIdentityPubKeyStruct extends IBaseIdentityStruct {
     height: number,
     time: number,
     msg_index: number,
-    create_time?: number,
+    create_time: number,
 }
 export interface IIdentityCertificateStruct extends IBaseIdentityStruct{
     certificate:string,
@@ -28,7 +28,7 @@ export interface IIdentityCertificateStruct extends IBaseIdentityStruct{
     height: number,
     time: number,
     msg_index:number,
-    create_time?: number,
+    create_time: number,
 }
 
 export interface IUpDateIdentityCredentials extends IBaseIdentityStruct {
