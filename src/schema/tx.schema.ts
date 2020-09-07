@@ -670,7 +670,7 @@ TxSchema.statics.queryListByCreateAndUpDateIdentity = async function(
 ):Promise<ITxStruct | null >{
     const params =  {
         height:{
-            $gt:height
+            $gte:height
         },
         $or:[
             {

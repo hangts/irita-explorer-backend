@@ -1,3 +1,4 @@
+import { IQueryBase } from '../index';
 export interface IBaseIdentityStruct {
     id:string
 }
@@ -37,4 +38,22 @@ export interface IUpDateIdentityCredentials extends IBaseIdentityStruct {
     update_block_height: string,
     update_tx_hash: string,
     update_time?: number
+}
+
+export interface IIdentityPubKeyAndCertificateQuery extends IQueryBase{
+    id:string
+}
+export interface IIdentityByAddressQuery extends IQueryBase{
+    address:string
+}
+export interface IIdentityInfoQuery extends IQueryBase{
+    id:string
+}
+export interface IIdentityInfoResponse {
+    id: string
+    owner: string
+    credentials: string
+    create_block_height: number
+    create_block_time: number
+    create_tx_hash: string
 }

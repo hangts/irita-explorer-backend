@@ -1,15 +1,8 @@
 import * as mongoose from 'mongoose'
-import { IIdentityStruct } from '../types/schemaTypes/identity.interface';
+import { IIdentityInfoQuery,IIdentityInfoResponse, IIdentityByAddressQuery} from '../types/schemaTypes/identity.interface';
 import { Logger } from '../logger';
 import { ITXWithIdentity } from '../types/schemaTypes/tx.interface';
 import { IListStruct } from '../types';
-import {
-  IdentityByAddressReqDto,
-  IdentityInfoReqDto,
-  IdentityInfoResDto,
-  IdentityResDto,
-} from '../dto/Identity.dto';
-import { getTimestamp } from '../util/util';
 
 export const IdentitySchema = new mongoose.Schema({
   id: String,
@@ -35,16 +28,13 @@ IdentitySchema.statics = {
         {id:{ $regex: query.search,$options:'i' }},
         {owner:{ $regex: query.search,$options:'i' }}
       ]
-      result.data = await this.find(queryParameters)
-        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-        .limit(Number(query.pageSize)).sort({'update_block_time':-1});
-    }else {
-      result.data = await this.find(queryParameters).skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-        .limit(Number(query.pageSize)).sort({'update_block_time':-1})
     }
     if (query.useCount && query.useCount == true) {
       result.count = await this.find(queryParameters).countDocuments();
     }
+    result.data = await this.find(queryParameters)
+        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+        .limit(Number(query.pageSize)).sort({'update_block_time':-1});
     return result;
   },
 
@@ -61,22 +51,18 @@ IdentitySchema.statics = {
   async updateIdentityInfo(updateIdentityData) {
       if(updateIdentityData.credentials){
         const { id,credentials, update_block_time, update_block_height, update_tx_hash } = updateIdentityData;
-        await this.updateOne({id},{credentials,update_block_time,update_block_height,update_tx_hash},(e) => {
-          if (e) Logger.error('mongo-error:', e.message);
-        });
+        await this.updateOne({id},{credentials,update_block_time,update_block_height,update_tx_hash});
       }else {
         const { id, update_block_time, update_block_height, update_tx_hash } = updateIdentityData;
-        await this.updateOne({id},{update_block_time,update_block_height,update_tx_hash},(e) => {
-          if (e) Logger.error('mongo-error:', e.message);
-        });
+        await this.updateOne({id},{update_block_time,update_block_height,update_tx_hash});
       }
   },
-  async queryIdentityInfo(id:IdentityInfoReqDto):Promise<IdentityInfoResDto> {
-    const infoData:IdentityInfoResDto = await this.findOne(id)
+  async queryIdentityInfo(id:IIdentityInfoQuery):Promise<IIdentityInfoResponse> {
+    const infoData:IIdentityInfoResponse = await this.findOne(id)
     return  infoData
   },
   // owner
-  async queryIdentityByAddress(query: IdentityByAddressReqDto):Promise<IListStruct>{
+  async queryIdentityByAddress(query: IIdentityByAddressQuery):Promise<IListStruct>{
     const result: IListStruct = {}
     const queryParameters: any = {};
     queryParameters.owner = query.address

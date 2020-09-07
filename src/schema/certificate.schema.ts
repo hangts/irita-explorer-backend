@@ -1,8 +1,8 @@
 import * as mongoose from 'mongoose'
 import { IListStruct } from '../types';
-import { IdentityPubKeyAndCertificateReqDto } from '../dto/Identity.dto';
-import { IIdentityCertificateStruct } from '../types/schemaTypes/identity.interface';
-import { getTimestamp } from '../util/util';
+import {
+  IIdentityPubKeyAndCertificateQuery,
+} from '../types/schemaTypes/identity.interface';
 
 export const CertificateSchema = new mongoose.Schema({
   id:String,
@@ -19,7 +19,7 @@ CertificateSchema.statics = {
   async insertCertificate(certificateData){
     await this.insertMany(certificateData,{ ordered: false })
   },
-  async queryCertificate(query:IdentityPubKeyAndCertificateReqDto):Promise<IListStruct>{
+  async queryCertificate(query:IIdentityPubKeyAndCertificateQuery):Promise<IListStruct>{
     const result: IListStruct = {}
     const queryParameters: any = {};
     queryParameters.id = query.id

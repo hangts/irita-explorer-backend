@@ -1,9 +1,6 @@
 import * as mongoose from 'mongoose';
 import { IListStruct } from '../types';
-import { IdentityPubKeyAndCertificateReqDto } from '../dto/Identity.dto';
-import { IIdentityPubKeyStruct } from '../types/schemaTypes/identity.interface';
-import { getTimestamp } from '../util/util';
-
+import { IIdentityPubKeyAndCertificateQuery } from '../types/schemaTypes/identity.interface'
 export const PubkeySchema = new mongoose.Schema({
     id: String,
     pubkey: Object,
@@ -19,7 +16,7 @@ PubkeySchema.statics = {
     async insertPubkey (pubkey) {
         await this.insertMany(pubkey,{ ordered: false })
     },
-    async queryPubkeyList(query:IdentityPubKeyAndCertificateReqDto) :Promise<IListStruct>  {
+    async queryPubkeyList(query:IIdentityPubKeyAndCertificateQuery) :Promise<IListStruct>  {
         const result: IListStruct = {}
         const queryParameters: any = {};
         queryParameters.id = query.id
