@@ -1,6 +1,6 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
-import {TxType} from '../constant';
+import {IdentityLimitSize, TxType} from '../constant';
 import {
     IIdentityCertificateStruct,
     IIdentityPubKeyStruct,
@@ -90,10 +90,9 @@ export class IdentityTaskService {
     }
 
     async doTask(): Promise<void> {
-        // const height: number = await this.identityTaskModel.queryHeight() || 0
-        const height: number =  0
-
-        const txlist = await this.txModel.queryListByCreateAndUpDateIdentity(height)
+        const height: number = await this.identityTaskModel.queryHeight() || 0
+        const limitSize:number = IdentityLimitSize
+        const txlist = await this.txModel.queryListByCreateAndUpDateIdentity(height,limitSize)
         const identityInsertData: any = [], identityUpdateData: any = [], pubkeyInsertData: any = [],
             certificateInsertData: any = []
         txlist.forEach(item => {
@@ -134,11 +133,26 @@ export class IdentityTaskService {
                 }
             })
         })
+
+        identityUpdateData.sort((a,b) => {
+            return a.update_block_height - b.update_block_height
+        })
+
+        let newIdentityUpdateDataList = [];
+        identityUpdateData.forEach((data) => {
+            for (let i = 0; i < newIdentityUpdateDataList.length; i++) {
+                if (newIdentityUpdateDataList[i].id === data.id) {
+                    newIdentityUpdateDataList[i] = data;
+                    return;
+                }
+            }
+            newIdentityUpdateDataList.push(data);
+        });
         await this.identityTaskModel.insertIdentityInfo(identityInsertData)
+        newIdentityUpdateDataList.forEach( (item: IUpDateIdentityCredentials) => {
+            this.identityTaskModel.updateIdentityInfo(item)
+        })
         await this.pubkeyModel.insertPubkey(pubkeyInsertData)
         await this.certificateModel.insertCertificate(certificateInsertData)
-        identityUpdateData.forEach(async (item: IUpDateIdentityCredentials) => {
-            await this.identityTaskModel.updateIdentityInfo(item)
-        })
     }
 }

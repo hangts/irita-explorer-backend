@@ -50,11 +50,11 @@ IdentitySchema.statics = {
   // base information
   async updateIdentityInfo(updateIdentityData) {
       if(updateIdentityData.credentials){
-        const { id,credentials, update_block_time, update_block_height, update_tx_hash } = updateIdentityData;
-        await this.updateOne({id},{credentials,update_block_time,update_block_height,update_tx_hash});
+        const { id,credentials, update_block_time, update_block_height, update_tx_hash,update_time } = updateIdentityData;
+        await this.updateOne({id},{credentials,update_block_time,update_block_height,update_tx_hash,update_time});
       }else {
-        const { id, update_block_time, update_block_height, update_tx_hash } = updateIdentityData;
-        await this.updateOne({id},{update_block_time,update_block_height,update_tx_hash});
+        const { id, update_block_time, update_block_height, update_tx_hash,update_time } = updateIdentityData;
+        await this.updateOne({id},{update_block_time,update_block_height,update_tx_hash,update_time});
       }
   },
   async queryIdentityInfo(id:IIdentityInfoQuery):Promise<IIdentityInfoResponse> {

@@ -99,6 +99,7 @@ export enum TxStatus {
     SUCCESS = 1,
     FAILED = 0,
 }
+export const IdentityLimitSize = 1000
 
 export enum LoggerLevel {
     ALL = 'ALL',
