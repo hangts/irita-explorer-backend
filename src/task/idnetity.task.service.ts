@@ -135,15 +135,12 @@ export class IdentityTaskService {
         })
         let newIdentityUpdateDataMap = new Map();
         identityUpdateData.forEach((data) => {
-            for (let key of newIdentityUpdateDataMap){
-                if(key === data.id){
-                    if(data.credentials){
-                        data.credentials = data.credentials
-                    }
-                    newIdentityUpdateDataMap.set(data.id,data)
-                }
+            let identity = {...data};
+            let currentIdentity = newIdentityUpdateDataMap.get(data.id) || {};
+            if (!identity.credentials) {
+                identity.credentials = currentIdentity.credentials || '';
             }
-            newIdentityUpdateDataMap.set(data.id,data)
+            newIdentityUpdateDataMap.set(data.id,identity);
         });
         await this.identityTaskModel.insertIdentityInfo(identityInsertData)
         newIdentityUpdateDataMap.forEach((item: IUpDateIdentityCredentials) => {
