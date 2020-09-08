@@ -683,7 +683,7 @@ TxSchema.statics.queryListByCreateAndUpDateIdentity = async function(
             }
         ]
     }
-    return await this.find(params).limit(limitSize).sort({'update_block_height':-1})
+    return await this.find(params).limit(limitSize).sort({'height':-1})
 }
 
 TxSchema.statics.queryTxListByIdentity = async function (query:IIdentityTx){
