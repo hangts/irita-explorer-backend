@@ -6,7 +6,7 @@ import {
     ITxsWithContextIdQuery,
     ITxsWithNftQuery,
     ITxsWithServiceNameQuery,
-    IExFieldQuery,
+    IExFieldQuery, IIdentityTx,
 } from '../types/schemaTypes/tx.interface';
 import { ITxStruct, ITxStructMsgs, ITxStructHash } from '../types/schemaTypes/tx.interface';
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
@@ -64,6 +64,7 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<IListSt
     } else {
         queryParameters.$or = [{ 'msgs.type' : filterExTxTypeRegExp() }];
     }
+
     if (query.status && query.status.length) {
         switch (query.status) {
             case '1':
@@ -663,7 +664,48 @@ TxSchema.statics.queryTxByDenom = async function(
     };
     return await this.findOne(params);
 };
+TxSchema.statics.queryListByCreateAndUpDateIdentity = async function(
+  height: number,
+  limitSize:number,
+):Promise<ITxStruct | null >{
+    const params =  {
+        height:{
+            $gte:height
+        },
+        $or:[
+            {
+                'msgs.type': TxType.create_identity,
+                status: TxStatus.SUCCESS,
+            },
+            {
+                'msgs.type': TxType.update_identity,
+                status: TxStatus.SUCCESS,
+            }
+        ]
+    }
+    return await this.find(params).limit(limitSize).sort({'height':-1})
+}
 
-
-
+TxSchema.statics.queryTxListByIdentity = async function (query:IIdentityTx){
+    let result: IListStruct = {};
+    const params =  {
+        'msgs.msg.id':query.id,
+        $or:[
+            {
+                'msgs.type': TxType.create_identity,
+            },
+            {
+                'msgs.type': TxType.update_identity,
+            }
+        ]
+    }
+    result.data = await this.find(params)
+      .sort({ time: -1 })
+      .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+      .limit(Number(query.pageSize));
+    if (query.useCount && query.useCount == true) {
+        result.count = await this.find(params).countDocuments();
+    }
+    return result;
+}
 

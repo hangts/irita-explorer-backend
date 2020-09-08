@@ -5,6 +5,7 @@ export enum TaskEnum {
     nft = 'ex_sync_nft',
     txServiceName = "sync_tx_service_name",
     validators = 'sync_validators',
+    identity = 'sync_identity'
 }
 
 
@@ -98,6 +99,7 @@ export enum TxStatus {
     SUCCESS = 1,
     FAILED = 0,
 }
+export const IdentityLimitSize = 1000
 
 export enum LoggerLevel {
     ALL = 'ALL',

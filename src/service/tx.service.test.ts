@@ -5,22 +5,25 @@ import {TxSchema} from '../schema/tx.schema';
 import { AppModule } from './../app.module';
 import { Logger } from '../logger';
 import { TxStatus, TxType } from '../constant';
-import { TxListReqDto, 
-         TxListWithHeightReqDto,
-         TxListWithAddressReqDto,
-         TxListWithContextIdReqDto,
-         TxListWithNftReqDto,
-         TxListWithServicesNameReqDto,
-         ServicesDetailReqDto,
-         TxListWithCallServiceReqDto,
-         TxListWithRespondServiceReqDto,
-         PostTxTypesReqDto,
-         PutTxTypesReqDto,
-         DeleteTxTypesReqDto,
-         TxWithHashReqDto} from '../dto/txs.dto';
-import { TxResDto, 
+import {
+    TxListReqDto,
+    TxListWithHeightReqDto,
+    TxListWithAddressReqDto,
+    TxListWithContextIdReqDto,
+    TxListWithNftReqDto,
+    TxListWithServicesNameReqDto,
+    ServicesDetailReqDto,
+    TxListWithCallServiceReqDto,
+    TxListWithRespondServiceReqDto,
+    PostTxTypesReqDto,
+    PutTxTypesReqDto,
+    DeleteTxTypesReqDto,
+    TxWithHashReqDto, IdentityTxReqDto
+} from '../dto/txs.dto';
+import { TxResDto,
          TxTypeResDto } from '../dto/txs.dto';
-        
+import {ListStruct} from "../api/ApiResult";
+
 describe('TxController', () => {
     let txController: TxController;
     let txService: TxService;
@@ -283,6 +286,15 @@ describe('TxController', () => {
             }else{
                 expect(data).toBe(null);
             }
+        });
+    });
+    describe('queryTxByIdentity', () => {
+        it('should return identity tx list', async () => {
+            let req:IdentityTxReqDto = {
+                id:'9817E29ADFB1742EBD69375ACBE2745F'
+            };
+            let data:ListStruct<TxResDto[]> = await txService.queryIdentityTx(req);
+            expect(data.data).toBeDefined();
         });
     });
 });

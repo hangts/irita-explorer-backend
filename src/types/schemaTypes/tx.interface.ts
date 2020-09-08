@@ -79,3 +79,6 @@ export interface IExFieldQuery {
 export interface ITXWithIdentity extends IQueryBase {
     search?: string
 }
+export interface IIdentityTx extends IQueryBase {
+    id?: string
+}

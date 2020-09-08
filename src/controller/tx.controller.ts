@@ -4,8 +4,6 @@ import { TxService } from '../service/tx.service';
 import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
 import {
-    TxIdentityReqDto,
-    TxIdentityResDto,
     TxListReqDto,
     TxListWithHeightReqDto,
     TxListWithAddressReqDto,
@@ -24,7 +22,12 @@ import {
     ServiceProvidersReqDto,
     ServiceProvidersResDto,
     ServiceTxReqDto,
-    ServiceTxResDto, ServiceBindInfoReqDto, ServiceBindInfoResDto, ServiceRespondReqDto, ServiceRespondResDto,
+    ServiceTxResDto,
+    ServiceBindInfoReqDto,
+    ServiceBindInfoResDto,
+    ServiceRespondReqDto,
+    ServiceRespondResDto,
+    IdentityTxReqDto,
 } from '../dto/txs.dto';
 import { TxResDto,
          TxTypeResDto } from '../dto/txs.dto';
@@ -147,9 +150,9 @@ export class TxController {
         return new Result<ListStruct<ServiceRespondResDto[]>>(data);
     }
     @Get("/identities")
-    async queryTxIdentities(@Query() query: TxIdentityReqDto): Promise<Result<ListStruct<TxIdentityResDto[]>>> {
-        const data: ListStruct<TxIdentityResDto[]> = await this.txService.queryTxIdentities(query)
-        return new Result<ListStruct<TxIdentityResDto[]>>(data);
+    async queryIdentityTx(@Query() query: IdentityTxReqDto): Promise<Result<ListStruct<TxResDto[]>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryIdentityTx(query)
+        return new Result<ListStruct<TxResDto[]>>(data);
     }
     @Get(":hash")
     async queryTxWithHash(@Param() query: TxWithHashReqDto): Promise<Result<TxResDto>> {
