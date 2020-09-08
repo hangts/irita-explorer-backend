@@ -133,23 +133,20 @@ export class IdentityTaskService {
                 }
             })
         })
-
-        identityUpdateData.sort((a,b) => {
-            return a.update_block_height - b.update_block_height
-        })
-
-        let newIdentityUpdateDataList = [];
+        let newIdentityUpdateDataMap = new Map();
         identityUpdateData.forEach((data) => {
-            for (let i = 0; i < newIdentityUpdateDataList.length; i++) {
-                if (newIdentityUpdateDataList[i].id === data.id) {
-                    newIdentityUpdateDataList[i] = data;
-                    return;
+            for (let key of newIdentityUpdateDataMap){
+                if(key === data.id){
+                    if(data.credentials){
+                        data.credentials = data.credentials
+                    }
+                    newIdentityUpdateDataMap.set(data.id,data)
                 }
             }
-            newIdentityUpdateDataList.push(data);
+            newIdentityUpdateDataMap.set(data.id,data)
         });
         await this.identityTaskModel.insertIdentityInfo(identityInsertData)
-        newIdentityUpdateDataList.forEach( (item: IUpDateIdentityCredentials) => {
+        newIdentityUpdateDataMap.forEach((item: IUpDateIdentityCredentials) => {
             this.identityTaskModel.updateIdentityInfo(item)
         })
         await this.pubkeyModel.insertPubkey(pubkeyInsertData)
