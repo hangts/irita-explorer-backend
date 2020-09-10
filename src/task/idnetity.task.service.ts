@@ -21,7 +21,7 @@ export class IdentityTaskService {
 
     handleCreateIdentity(item: any, value: any) {
         const insertData: IIdentityStruct = {
-            id: value.msg.id,
+            identities_id: value.msg.id,
             owner: value.msg.owner,
             credentials: value.msg.credentials,
             'create_block_height': item.height,
@@ -38,10 +38,10 @@ export class IdentityTaskService {
 
     handlePubkey(item: any, value: any, index: number) {
         const pubkeyData: IIdentityPubKeyStruct = {
-            id: value.msg.id,
+            identities_id: value.msg.id,
             pubkey: {
-                pubkey: value.msg.pubkey[0].pubkey,
-                algorithm: value.msg.pubkey[0].algorithm,
+                pubkey: value.msg.pubkey.pubkey,
+                algorithm: value.msg.pubkey.algorithm,
             },
             hash: item.tx_hash,
             height: item.height,
@@ -55,7 +55,7 @@ export class IdentityTaskService {
 
     handleCertificate(item: any, value: any, index: number) {
         const certificateData: IIdentityCertificateStruct = {
-            id: value.msg.id,
+            identities_id: value.msg.id,
             certificate: value.msg.certificate,
             hash: item.tx_hash,
             height: item.height,
@@ -70,7 +70,7 @@ export class IdentityTaskService {
         let updateData: IUpDateIdentityCredentials
         if (value.msg.credentials) {
             updateData = {
-                id: value.msg.id,
+                identities_id: value.msg.id,
                 credentials: value.msg.credentials,
                 'update_block_height': item.height,
                 'update_block_time': item.time,
@@ -79,7 +79,7 @@ export class IdentityTaskService {
             }
         } else {
             updateData = {
-                id: value.msg.id,
+                identities_id: value.msg.id,
                 'update_block_height': item.height,
                 'update_block_time': item.time,
                 'update_tx_hash': item.tx_hash,
@@ -136,11 +136,11 @@ export class IdentityTaskService {
         let newIdentityUpdateDataMap = new Map();
         identityUpdateData.forEach((data) => {
             let identity = {...data};
-            let currentIdentity = newIdentityUpdateDataMap.get(data.id) || {};
+            let currentIdentity = newIdentityUpdateDataMap.get(data.identities_id) || {};
             if (!identity.credentials) {
                 identity.credentials = currentIdentity.credentials || '';
             }
-            newIdentityUpdateDataMap.set(data.id,identity);
+            newIdentityUpdateDataMap.set(data.identities_id,identity);
         });
         await this.identityTaskModel.insertIdentityInfo(identityInsertData)
         newIdentityUpdateDataMap.forEach((item: IUpDateIdentityCredentials) => {

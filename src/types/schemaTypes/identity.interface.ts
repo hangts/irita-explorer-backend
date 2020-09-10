@@ -1,6 +1,6 @@
 import { IQueryBase } from '../index';
 export interface IBaseIdentityStruct {
-    id:string
+    identities_id:string
 }
 
 export interface IIdentityStruct extends IBaseIdentityStruct{
@@ -50,7 +50,7 @@ export interface IIdentityInfoQuery extends IQueryBase{
     id:string
 }
 export interface IIdentityInfoResponse {
-    id: string
+    identities_id: string
     owner: string
     credentials: string
     create_block_height: number

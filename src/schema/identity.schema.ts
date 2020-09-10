@@ -5,7 +5,7 @@ import { ITXWithIdentity } from '../types/schemaTypes/tx.interface';
 import { IListStruct } from '../types';
 
 export const IdentitySchema = new mongoose.Schema({
-  id: String,
+  identities_id: String,
   owner: String,
   credentials: String,
   'create_block_height': Number,
@@ -17,7 +17,7 @@ export const IdentitySchema = new mongoose.Schema({
   create_time: Number,
   update_time: Number,
 })
-IdentitySchema.index({id: 1},{unique: true})
+IdentitySchema.index({identities_id: 1},{unique: true})
 IdentitySchema.statics = {
   async queryIdentityList(query:ITXWithIdentity):Promise<IListStruct> {
     const result: IListStruct = {}
@@ -25,7 +25,7 @@ IdentitySchema.statics = {
     if(query.search && query.search !== ''){
       //单条件模糊查询使用$regex $options为'i' 不区分大小写
       queryParameters.$or = [
-        {id:{ $regex: query.search,$options:'i' }},
+        {identities_id:{ $regex: query.search,$options:'i' }},
         {owner:{ $regex: query.search,$options:'i' }}
       ]
     }
@@ -49,16 +49,18 @@ IdentitySchema.statics = {
   },
   // base information
   async updateIdentityInfo(updateIdentityData) {
+    const {update_block_time,update_block_height,update_tx_hash,update_time} = updateIdentityData
+    const setId = {identities_id: updateIdentityData.id}
       if(updateIdentityData.credentials){
-        const { id,credentials, update_block_time, update_block_height, update_tx_hash,update_time } = updateIdentityData;
-        await this.updateOne({id},{credentials,update_block_time,update_block_height,update_tx_hash,update_time});
+        const { credentials } = updateIdentityData;
+        await this.updateOne({setId},{credentials,update_block_time,update_block_height,update_tx_hash,update_time});
       }else {
-        const { id, update_block_time, update_block_height, update_tx_hash,update_time } = updateIdentityData;
-        await this.updateOne({id},{update_block_time,update_block_height,update_tx_hash,update_time});
+        await this.updateOne({setId},{update_block_time,update_block_height,update_tx_hash,update_time});
       }
   },
   async queryIdentityInfo(id:IIdentityInfoQuery):Promise<IIdentityInfoResponse> {
-    const infoData:IIdentityInfoResponse = await this.findOne(id)
+    const querId = {identities_id:id.id}
+    const infoData:IIdentityInfoResponse = await this.findOne(querId)
     return  infoData
   },
   // owner
