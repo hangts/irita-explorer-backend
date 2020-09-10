@@ -59,8 +59,8 @@ IdentitySchema.statics = {
       }
   },
   async queryIdentityInfo(id:IIdentityInfoQuery):Promise<IIdentityInfoResponse> {
-    const querId = {identities_id:id.id}
-    const infoData:IIdentityInfoResponse = await this.findOne(querId)
+    const queryId = {identities_id:id.id}
+    const infoData:IIdentityInfoResponse = await this.findOne(queryId)
     return  infoData
   },
   // owner
