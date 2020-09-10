@@ -23,7 +23,7 @@ export class IdentityByAddressReqDto extends PagingReqDto{
 }
 /****************Res******************/
 export class IdentityResDto extends BaseResDto{
-  id: string;
+  identities_id: string;
   owner: string;
   credentials: string;
   create_block_height: string;
@@ -34,7 +34,7 @@ export class IdentityResDto extends BaseResDto{
   update_block_time: string;
   constructor(txIdentitiesData){
     super();
-    this.id = txIdentitiesData.id;
+    this.identities_id = txIdentitiesData.identities_id;
     this.owner = txIdentitiesData.owner;
     this.credentials = txIdentitiesData.credentials;
     this.create_block_height = txIdentitiesData.create_block_height;
@@ -54,14 +54,14 @@ export class IdentityResDto extends BaseResDto{
 }
 
 export class IdentityPubKeyResDto extends BaseResDto{
-  id: string
+  identities_id: string
   hash: string
   height: number
   time: number
   pubkey: object
   constructor(IdentityData){
     super();
-    this.id = IdentityData.id;
+    this.identities_id = IdentityData.identities_id;
     this.hash = IdentityData.hash;
     this.height = IdentityData.height;
     this.pubkey = IdentityData.pubkey;
@@ -77,14 +77,14 @@ export class IdentityPubKeyResDto extends BaseResDto{
 }
 
 export class IdentityCertificateResDto extends BaseResDto{
-  id:string
+  identities_id:string
   hash: string
   height: number
   time: number
   certificate: string
   constructor(IdentityData){
     super();
-    this.id = IdentityData.id;
+    this.identities_id = IdentityData.identities_id;
     this.hash = IdentityData.hash;
     this.height = IdentityData.height;
     this.certificate = IdentityData.certificate;
@@ -99,7 +99,7 @@ export class IdentityCertificateResDto extends BaseResDto{
   }
 }
 export class IdentityInfoResDto extends BaseResDto {
-  id: string
+  identities_id: string
   owner: string
   credentials: string
   create_block_height: number
@@ -107,7 +107,7 @@ export class IdentityInfoResDto extends BaseResDto {
   create_tx_hash: string
   constructor(IdentityData){
     super();
-    this.id = IdentityData.id;
+    this.identities_id = IdentityData.identities_id;
     this.owner = IdentityData.owner;
     this.credentials = IdentityData.credentials;
     this.create_block_height = IdentityData.create_block_height;

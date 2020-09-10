@@ -5,7 +5,7 @@ import {
 } from '../types/schemaTypes/identity.interface';
 
 export const CertificateSchema = new mongoose.Schema({
-  id:String,
+  identities_id:String,
   certificate:String,
   hash: String,
   height: Number,
@@ -13,7 +13,7 @@ export const CertificateSchema = new mongoose.Schema({
   'msg_index': Number,
   create_time:Number
 })
-CertificateSchema.index({id: 1,'msg_index':1},{unique: true})
+CertificateSchema.index({identities_id: 1,'msg_index':1},{unique: true})
 
 CertificateSchema.statics = {
   async insertCertificate(certificateData){
@@ -22,7 +22,7 @@ CertificateSchema.statics = {
   async queryCertificate(query:IIdentityPubKeyAndCertificateQuery):Promise<IListStruct>{
     const result: IListStruct = {}
     const queryParameters: any = {};
-    queryParameters.id = query.id
+    queryParameters.identities_id = query.id
     result.data = await this.find(queryParameters)
       .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
       .limit(Number(query.pageSize)).sort({'time':-1});

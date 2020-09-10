@@ -2,15 +2,15 @@ import * as mongoose from 'mongoose';
 import { IListStruct } from '../types';
 import { IIdentityPubKeyAndCertificateQuery } from '../types/schemaTypes/identity.interface'
 export const PubkeySchema = new mongoose.Schema({
-    id: String,
+    identities_id: String,
     pubkey: Object,
     hash: String,
-    height: String,
-    time: String,
+    height: Number,
+    time: Number,
     'msg_index': Number,
     create_time:Number
 })
-PubkeySchema.index({id: 1,'msg_index':1},{unique: true})
+PubkeySchema.index({identities_id: 1,'msg_index':1},{unique: true})
 
 PubkeySchema.statics = {
     async insertPubkey (pubkey) {
@@ -19,7 +19,7 @@ PubkeySchema.statics = {
     async queryPubkeyList(query:IIdentityPubKeyAndCertificateQuery) :Promise<IListStruct>  {
         const result: IListStruct = {}
         const queryParameters: any = {};
-        queryParameters.id = query.id
+        queryParameters.identities_id = query.id
         result.data = await this.find(queryParameters)
           .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
           .limit(Number(query.pageSize)).sort({'time':-1});
