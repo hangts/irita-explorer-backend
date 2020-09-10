@@ -142,11 +142,11 @@ export class IdentityTaskService {
             }
             newIdentityUpdateDataMap.set(data.identities_id,identity);
         });
-        this.identityTaskModel.insertIdentityInfo(identityInsertData)
+        await this.identityTaskModel.insertIdentityInfo(identityInsertData)
         newIdentityUpdateDataMap.forEach((item: IUpDateIdentityCredentials) => {
             this.identityTaskModel.updateIdentityInfo(item)
         })
-        this.pubkeyModel.insertPubkey(pubkeyInsertData)
-        this.certificateModel.insertCertificate(certificateInsertData)
+        await this.pubkeyModel.insertPubkey(pubkeyInsertData)
+        await this.certificateModel.insertCertificate(certificateInsertData)
     }
 }
