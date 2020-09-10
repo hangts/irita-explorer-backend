@@ -117,7 +117,7 @@ export class IdentityTaskService {
 
                     //ex_sync_identity update identity
                     const updateData = this.handleUpdateIdentity(item, value)
-                    identityUpdateData.push(updateData)
+                    identityUpdateData.unshift(updateData)
 
                     //ex_sync_identity_pubkey   pubkey
                     if (value.msg.pubkey) {
