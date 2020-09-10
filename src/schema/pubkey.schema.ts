@@ -10,7 +10,7 @@ export const PubkeySchema = new mongoose.Schema({
     'msg_index': Number,
     create_time:Number
 })
-PubkeySchema.index({hash: 1},{unique: true})
+PubkeySchema.index({msg_index:1,hash: 1},{unique: true})
 
 PubkeySchema.statics = {
     async insertPubkey (pubkey) {

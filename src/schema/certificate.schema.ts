@@ -13,7 +13,7 @@ export const CertificateSchema = new mongoose.Schema({
   'msg_index': Number,
   create_time:Number
 })
-CertificateSchema.index({hash: 1},{unique: true})
+CertificateSchema.index({msg_index:1,hash: 1},{unique: true})
 
 CertificateSchema.statics = {
   async insertCertificate(certificateData){
