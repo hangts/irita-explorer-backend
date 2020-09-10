@@ -49,13 +49,13 @@ IdentitySchema.statics = {
   },
   // base information
   async updateIdentityInfo(updateIdentityData) {
-    const {identities_id,update_block_time,update_block_height,update_tx_hash,update_time} = updateIdentityData
+    const {update_block_time,update_block_height,update_tx_hash,update_time} = updateIdentityData
     const setId = {identities_id: updateIdentityData.identities_id}
       if(updateIdentityData.credentials){
         const { credentials } = updateIdentityData;
         await this.updateOne({setId},{credentials,update_block_time,update_block_height,update_tx_hash,update_time});
       }else {
-       await this.updateOne({setId},{update_block_time,update_block_height,update_tx_hash,update_time});
+        await this.updateOne({setId},{update_block_time,update_block_height,update_tx_hash,update_time});
       }
   },
   async queryIdentityInfo(id:IIdentityInfoQuery):Promise<IIdentityInfoResponse> {
