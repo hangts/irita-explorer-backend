@@ -1,6 +1,6 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
-import {IdentityLimitSize, TxType} from '../constant';
+import {IdentityLimitSize, PubKeyAlgorithm, TxType} from '../constant';
 import {
     IIdentityCertificateStruct,
     IIdentityPubKeyStruct,
@@ -41,7 +41,7 @@ export class IdentityTaskService {
             identities_id: value.msg.id,
             pubkey: {
                 pubkey: value.msg.pubkey.pubkey,
-                algorithm: value.msg.pubkey.algorithm,
+                algorithm: PubKeyAlgorithm[value.msg.pubkey.algorithm],
             },
             hash: item.tx_hash,
             height: item.height,
@@ -68,7 +68,7 @@ export class IdentityTaskService {
 
     handleUpdateIdentity(item: any, value: any) {
         let updateData: IUpDateIdentityCredentials
-        if (value.msg.credentials) {
+        if (value.msg.credentials && value.msg.credentials !== '[do-not-modify]') {
             updateData = {
                 identities_id: value.msg.id,
                 credentials: value.msg.credentials,
@@ -138,15 +138,15 @@ export class IdentityTaskService {
             let identity = {...data};
             let currentIdentity = newIdentityUpdateDataMap.get(data.identities_id) || {};
             if (!identity.credentials) {
-                identity.credentials = currentIdentity.credentials || '';
+                identity.credentials = currentIdentity.credentials || '[do-not-modify]';
             }
             newIdentityUpdateDataMap.set(data.identities_id,identity);
         });
-        await this.identityTaskModel.insertIdentityInfo(identityInsertData)
+        this.identityTaskModel.insertIdentityInfo(identityInsertData)
         newIdentityUpdateDataMap.forEach((item: IUpDateIdentityCredentials) => {
             this.identityTaskModel.updateIdentityInfo(item)
         })
-        await this.pubkeyModel.insertPubkey(pubkeyInsertData)
-        await this.certificateModel.insertCertificate(certificateInsertData)
+        this.pubkeyModel.insertPubkey(pubkeyInsertData)
+        this.certificateModel.insertCertificate(certificateInsertData)
     }
 }

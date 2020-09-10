@@ -50,7 +50,7 @@ IdentitySchema.statics = {
   // base information
   async updateIdentityInfo(updateIdentityData) {
     const {identities_id,update_block_time,update_block_height,update_tx_hash,update_time} = updateIdentityData
-    if(updateIdentityData.credentials){
+    if(updateIdentityData.credentials && updateIdentityData.credentials !== '[do-not-modify]'){
         const { credentials } = updateIdentityData;
         await this.updateOne({identities_id},{credentials,update_block_time,update_block_height,update_tx_hash,update_time});
       }else {
