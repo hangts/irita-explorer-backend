@@ -21,9 +21,12 @@ export interface IIdentityPubKeyStruct extends IBaseIdentityStruct {
     height: number,
     time: number,
     msg_index: number,
+    pubkey_hash: string,
+    certificate_hash: string,
     create_time: number,
 }
 export interface IIdentityCertificateStruct extends IBaseIdentityStruct{
+    certificate_hash:string,
     certificate:string,
     hash: string,
     height: number,

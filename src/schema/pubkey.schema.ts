@@ -8,13 +8,18 @@ export const PubkeySchema = new mongoose.Schema({
     height: Number,
     time: Number,
     'msg_index': Number,
+    pubkey_hash: String,
+    certificate_hash:String,
     create_time:Number
 })
-PubkeySchema.index({identities_id: 1,'msg_index':1},{unique: true})
+PubkeySchema.index({identities_id:1,pubkey_hash: 1},{unique: true})
 
 PubkeySchema.statics = {
     async insertPubkey (pubkey) {
-        await this.insertMany(pubkey,{ ordered: false })
+        const query = {
+            identities_id:pubkey.identities_id,
+            pubkey_hash:pubkey.pubkey_hash}
+        await this.findOneAndUpdate(query,pubkey,{ upsert:true,new: true})
     },
     async queryPubkeyList(query:IIdentityPubKeyAndCertificateQuery) :Promise<IListStruct>  {
         const result: IListStruct = {}
