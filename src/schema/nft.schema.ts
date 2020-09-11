@@ -34,7 +34,7 @@ NftSchema.statics = {
         useCount?:boolean,
     ): Promise<IListStruct> {
         let result: IListStruct = {};
-        const condition = <any>[
+        const condition: any[] = [
             {
                 $lookup: {
                     from: 'ex_sync_denom',
@@ -51,9 +51,6 @@ NftSchema.statics = {
             },
         ];
 
-        // let cond: any = {
-        //     '$match': {},
-        // };
         let queryParameters:any = {};
         if (denomId || nftId || owner) {
             if (denomId) queryParameters.denom_id = denomId;

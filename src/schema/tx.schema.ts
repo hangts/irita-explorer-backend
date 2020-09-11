@@ -199,7 +199,7 @@ TxSchema.statics.queryTxWithNft = async function(query: ITxsWithNftQuery): Promi
         TxType.burn_nft,
     ];
 
-    let queryParameters: { 'msgs.msg.denom'?: string, msgs.msg.id?: string, $or: object[] } = { $or: [{ 'msgs.type': filterTxTypeRegExp(nftTypesList) }] };
+    let queryParameters: { 'msgs.msg.denom'?: string, 'msgs.msg.id'?: string, $or: object[] } = { $or: [{ 'msgs.type': filterTxTypeRegExp(nftTypesList) }] };
     if (query.denomId && query.denomId.length) {
         queryParameters['msgs.msg.denom'] = query.denomId;
     }
