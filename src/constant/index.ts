@@ -120,3 +120,5 @@ export const PubKeyAlgorithm = {
     4:'ED25519',
     5:'SM2',
 }
+
+export const hubDefaultEmptyValue = '[do-not-modify]'

@@ -1,6 +1,6 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
-import {IdentityLimitSize, PubKeyAlgorithm, TxType} from '../constant';
+import {hubDefaultEmptyValue, IdentityLimitSize, PubKeyAlgorithm, TxType} from '../constant';
 import {
     IIdentityCertificateStruct,
     IIdentityPubKeyStruct,
@@ -93,7 +93,7 @@ export class IdentityTaskService {
 
     handleUpdateIdentity(item: any, value: any) {
         let updateData: IUpDateIdentityCredentials
-        if (value.msg.credentials && value.msg.credentials !== '[do-not-modify]') {
+        if (value.msg.credentials && value.msg.credentials !== hubDefaultEmptyValue) {
             updateData = {
                 identities_id: value.msg.id,
                 credentials: value.msg.credentials,
@@ -174,7 +174,7 @@ export class IdentityTaskService {
             let identity = {...data};
             let currentIdentity = newIdentityUpdateDataMap.get(data.identities_id) || {};
             if (!identity.credentials) {
-                identity.credentials = currentIdentity.credentials || '[do-not-modify]';
+                identity.credentials = currentIdentity.credentials || hubDefaultEmptyValue;
             }
             newIdentityUpdateDataMap.set(data.identities_id,identity);
         });
