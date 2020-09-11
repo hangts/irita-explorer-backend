@@ -24,7 +24,7 @@ export interface ITxsWithContextIdQuery extends IQueryBase {
 }
 
 export interface ITxsWithNftQuery extends IQueryBase {
-	denom?:string,
+	denomId?:string,
 	tokenId?:string,
 }
 
