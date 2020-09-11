@@ -7,6 +7,7 @@ import {
     IIdentityStruct, IUpDateIdentityCredentials,
 } from '../types/schemaTypes/identity.interface';
 import {getTimestamp} from '../util/util';
+import md5 from 'blueimp-md5';
 @Injectable()
 
 export class IdentityTaskService {
@@ -37,26 +38,50 @@ export class IdentityTaskService {
     }
 
     handlePubkey(item: any, value: any, index: number) {
+        const pubkeyMd5Hash = md5(JSON.stringify(value.msg.pubkey.pubkey))
+        const certificate_hash = ''
         const pubkeyData: IIdentityPubKeyStruct = {
             identities_id: value.msg.id,
             pubkey: {
                 pubkey: value.msg.pubkey.pubkey,
                 algorithm: PubKeyAlgorithm[value.msg.pubkey.algorithm],
             },
+            certificate_hash: certificate_hash,
             hash: item.tx_hash,
             height: item.height,
             time: item.time,
+            pubkey_hash: pubkeyMd5Hash,
             'msg_index': index,
             create_time:getTimestamp(),
         }
         return pubkeyData
 
     }
-
+    handlePubKeyByCertificate(item: any, value:any,index: number){
+        const pubkeyMd5Hash = md5(JSON.stringify(value.msg.ex.cert_pub_key.pubkey))
+        const certificate_hash = md5(JSON.stringify(value.msg.ex.cert_pub_key.pubkey))
+        const updatePubKeyByCertificate:IIdentityPubKeyStruct = {
+            identities_id: value.msg.id,
+            pubkey: {
+                pubkey: value.msg.ex.cert_pub_key.pubkey,
+                algorithm: PubKeyAlgorithm[value.msg.ex.cert_pub_key.algorithm],
+            },
+            certificate_hash: certificate_hash,
+            hash: item.tx_hash,
+            height: item.height,
+            time: item.time,
+            pubkey_hash: pubkeyMd5Hash,
+            'msg_index': index,
+            create_time:getTimestamp(),
+        }
+        return updatePubKeyByCertificate
+    }
     handleCertificate(item: any, value: any, index: number) {
+        const certificate_hash = md5(value.msg.certificate)
         const certificateData: IIdentityCertificateStruct = {
             identities_id: value.msg.id,
             certificate: value.msg.certificate,
+            certificate_hash:certificate_hash,
             hash: item.tx_hash,
             height: item.height,
             time: item.time,
@@ -94,7 +119,7 @@ export class IdentityTaskService {
         const limitSize:number = IdentityLimitSize
         const txlist = await this.txModel.queryListByCreateAndUpDateIdentity(height,limitSize)
         const identityInsertData: any = [], identityUpdateData: any = [], pubkeyInsertData: any = [],
-            certificateInsertData: any = []
+            certificateInsertData: any = [], pubKeyByCertificateData: any = []
         txlist.forEach(item => {
             item.msgs.forEach(async (value: any, msgIndex: number) => {
                 if (value.type === TxType.create_identity) {
@@ -113,6 +138,12 @@ export class IdentityTaskService {
                         const certificateData:IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
                         certificateInsertData.push(certificateData)
                     }
+
+                    if(value.msg.ex){
+                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item,value,msgIndex)
+                        pubKeyByCertificateData.push(pubKeyByCertificate)
+                    }
+
                 } else if (value.type === TxType.update_identity) {
 
                     //ex_sync_identity update identity
@@ -130,6 +161,11 @@ export class IdentityTaskService {
                         const certificateData:IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
                         certificateInsertData.push(certificateData)
                     }
+
+                    if(value.msg.ex){
+                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item,value,msgIndex)
+                        pubKeyByCertificateData.push(pubKeyByCertificate)
+                    }
                 }
             })
         })
@@ -146,7 +182,29 @@ export class IdentityTaskService {
         newIdentityUpdateDataMap.forEach((item: IUpDateIdentityCredentials) => {
             this.identityTaskModel.updateIdentityInfo(item)
         })
-        await this.pubkeyModel.insertPubkey(pubkeyInsertData)
-        await this.certificateModel.insertCertificate(certificateInsertData)
+        //
+        pubkeyInsertData.sort((a:IIdentityPubKeyStruct,b:IIdentityPubKeyStruct) => {
+            return a.height - b.height
+        })
+
+        pubKeyByCertificateData.sort((a:IIdentityPubKeyStruct,b:IIdentityPubKeyStruct) => {
+            return a.height - b.height
+        })
+
+        certificateInsertData.sort((a:IIdentityCertificateStruct,b:IIdentityCertificateStruct) => {
+            return a.height - b.height
+        })
+
+        pubkeyInsertData.forEach( (item:IIdentityPubKeyStruct) => {
+            this.pubkeyModel.insertPubkey(item)
+        })
+
+        pubKeyByCertificateData.forEach( (item:IIdentityPubKeyStruct) => {
+            this.pubkeyModel.insertPubkey(item)
+        })
+
+        certificateInsertData.forEach( (item:IIdentityCertificateStruct) => {
+            this.certificateModel.insertCertificate(item)
+        })
     }
 }

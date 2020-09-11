@@ -11,13 +11,17 @@ export const CertificateSchema = new mongoose.Schema({
   height: Number,
   time: Number,
   'msg_index': Number,
+  certificate_hash:String,
   create_time:Number
 })
-CertificateSchema.index({msg_index:1,hash: 1},{unique: true})
+CertificateSchema.index({identities_id:1,certificate_hash: 1},{unique: true})
 
 CertificateSchema.statics = {
   async insertCertificate(certificateData){
-    await this.insertMany(certificateData,{ ordered: false })
+    const query = {
+      identities_id:certificateData.identities_id,
+      certificate_hash:certificateData.certificate_hash}
+    await this.findOneAndUpdate(query,certificateData,{upsert:true,new: true})
   },
   async queryCertificate(query:IIdentityPubKeyAndCertificateQuery):Promise<IListStruct>{
     const result: IListStruct = {}
