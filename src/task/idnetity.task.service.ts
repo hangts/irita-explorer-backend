@@ -139,7 +139,7 @@ export class IdentityTaskService {
                         certificateInsertData.push(certificateData)
                     }
 
-                    if(value.msg.ex){
+                    if(value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey){
                         const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item,value,msgIndex)
                         pubKeyByCertificateData.push(pubKeyByCertificate)
                     }
@@ -162,7 +162,7 @@ export class IdentityTaskService {
                         certificateInsertData.push(certificateData)
                     }
 
-                    if(value.msg.ex){
+                    if(value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey){
                         const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item,value,msgIndex)
                         pubKeyByCertificateData.push(pubKeyByCertificate)
                     }
@@ -195,15 +195,14 @@ export class IdentityTaskService {
             return a.height - b.height
         })
 
-        pubkeyInsertData.forEach( (item:IIdentityPubKeyStruct) => {
+        await pubkeyInsertData.forEach( (item:IIdentityPubKeyStruct) => {
             this.pubkeyModel.insertPubkey(item)
         })
 
-        pubKeyByCertificateData.forEach( (item:IIdentityPubKeyStruct) => {
+        await pubKeyByCertificateData.forEach( (item:IIdentityPubKeyStruct) => {
             this.pubkeyModel.insertPubkey(item)
         })
-
-        certificateInsertData.forEach( (item:IIdentityCertificateStruct) => {
+        await certificateInsertData.forEach( (item:IIdentityCertificateStruct) => {
             this.certificateModel.insertCertificate(item)
         })
     }
