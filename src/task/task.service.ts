@@ -35,36 +35,36 @@ export class TasksService {
     @Cron(cfg.taskCfg.executeTime.denom)
     //@Cron('50 * * * * *')
     async syncDenoms() {
-        //this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
+        this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.nft)
     //@Cron('58 * * * * *')
     async syncNfts() {
-       // this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
+        this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.txServiceName)
     //@Cron('20 * * * * *')
     async syncTxServiceName() {
-       // this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.doTask);
+        this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.validators)
     //@Cron('03 * * * * *')
     async syncValidators() {
-       // this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
+        this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.faultTolerance)
     //@Cron('18 * * * * *')
     async taskDispatchFaultTolerance() {
-       // this.taskDispatchService.taskDispatchFaultTolerance();
+        this.taskDispatchService.taskDispatchFaultTolerance();
     }
     //@Cron('1 * * * * *')
     @Cron(cfg.taskCfg.executeTime.identity)
     async syncIdentity() {
-       // this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)
+        this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)
     }
 
     // @Cron('*/5 * * * * *')
