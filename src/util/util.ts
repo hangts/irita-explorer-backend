@@ -16,3 +16,6 @@ export function getIpAddress() {
 export function getTimestamp(): number{
     return Math.floor(new Date().getTime() / 1000);
 }
+export function formatDateStringToNumber(dateString) {
+    return Math.floor(new Date(dateString).getTime() / 1000)
+}

@@ -11,6 +11,7 @@ import { TaskCallback } from '../types/task.interface';
 import { ValidatorsTaskService } from './validators.task.service';
 import { Logger } from '../logger';
 import { IdentityTaskService } from './idnetity.task.service';
+import {StakingValidatorTaskService} from "./staking.validator.task.service";
 
 @Injectable()
 export class TasksService {
@@ -21,48 +22,55 @@ export class TasksService {
         private readonly taskDispatchService: TaskDispatchService,
         private readonly txTaskService: TxTaskService,
         private readonly validatorsTaskService: ValidatorsTaskService,
-        private readonly identityTaskService: IdentityTaskService
+        private readonly identityTaskService: IdentityTaskService,
+        private readonly stakingValidatorTaskService: StakingValidatorTaskService
     ) {
         this[`${TaskEnum.denom}_timer`] = null;
         this[`${TaskEnum.nft}_timer`] = null;
         this[`${TaskEnum.txServiceName}_timer`] = null;
         this[`${TaskEnum.validators}_timer`] = null;
         this[`${TaskEnum.identity}_timer`] = null;
+        this[`${TaskEnum.stakingSyncValidators}_timer`] = null;
     }
     @Cron(cfg.taskCfg.executeTime.denom)
     //@Cron('50 * * * * *')
     async syncDenoms() {
-        this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
+        //this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.nft)
     //@Cron('58 * * * * *')
     async syncNfts() {
-        this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
+       // this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.txServiceName)
     //@Cron('20 * * * * *')
     async syncTxServiceName() {
-        this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.doTask);
+       // this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.validators)
     //@Cron('03 * * * * *')
     async syncValidators() {
-        this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
+       // this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
     }
 
     @Cron(cfg.taskCfg.executeTime.faultTolerance)
     //@Cron('18 * * * * *')
     async taskDispatchFaultTolerance() {
-        this.taskDispatchService.taskDispatchFaultTolerance();
+       // this.taskDispatchService.taskDispatchFaultTolerance();
     }
     //@Cron('1 * * * * *')
     @Cron(cfg.taskCfg.executeTime.identity)
-    /*@Interval(5000)*/
     async syncIdentity() {
-        this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)
+       // this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)
+    }
+
+    // @Cron('*/5 * * * * *')
+    @Cron(cfg.taskCfg.executeTime.validators)
+    async syncStakingValidators() {
+        this.handleDoTask(TaskEnum.stakingSyncValidators,this.stakingValidatorTaskService.doTask)
     }
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
         const needDoTask: boolean = await this.taskDispatchService.needDoTask(taskName);
