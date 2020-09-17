@@ -67,6 +67,8 @@ export class VValidatorDto {
     certificate: string;
     power: string;
     operator: string;
+    jailed:boolean;
+    details:string;
 
     constructor(value) {
         this.id = value.id || '';
@@ -75,6 +77,8 @@ export class VValidatorDto {
         this.certificate = value.certificate || '';
         this.power = value.power || '';
         this.operator = value.operator || '';
+        this.jailed = value.jailed || undefined;
+        this.details = value.details || '';
     }
 
     static bundleData(value: any = []): VValidatorDto[] {

@@ -34,7 +34,7 @@ export class eTxListReqDto extends PagingReqDto {
     @ApiPropertyOptional()
     types?: string;
 
-    @ApiPropertyOptional()
+    @ApiPropertyOptional({description:'Greater than or equal to block height'})
     height?: number;
 }
 
