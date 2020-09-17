@@ -5,6 +5,7 @@ import { Result } from '../api/ApiResult';
 import { ListStruct } from '../api/ApiResult';
 import {
     TxListReqDto,
+    eTxListReqDto,
     TxListWithHeightReqDto,
     TxListWithAddressReqDto,
     TxListWithContextIdReqDto,
@@ -41,6 +42,13 @@ export class TxController {
     @Get()
     async queryTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxList(query);
+        return new Result<any>(data);
+    }
+
+    // 供eageServer调用  返回数据不做过滤
+    @Get('/e')
+    async queryTxList_e(@Query() query: eTxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryTxList_e(query);
         return new Result<any>(data);
     }
 
