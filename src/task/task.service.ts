@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Cron,Interval } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { TxTaskService } from './tx.task.service';
 import { DenomTaskService } from './denom.task.service';
 import { NftTaskService } from './nft.task.service';
@@ -12,6 +12,7 @@ import { ValidatorsTaskService } from './validators.task.service';
 import { Logger } from '../logger';
 import { IdentityTaskService } from './idnetity.task.service';
 import {StakingValidatorTaskService} from "./staking.validator.task.service";
+import {ParametersTaskService} from "./parameters.task.service";
 
 @Injectable()
 export class TasksService {
@@ -23,7 +24,8 @@ export class TasksService {
         private readonly txTaskService: TxTaskService,
         private readonly validatorsTaskService: ValidatorsTaskService,
         private readonly identityTaskService: IdentityTaskService,
-        private readonly stakingValidatorTaskService: StakingValidatorTaskService
+        private readonly stakingValidatorTaskService: StakingValidatorTaskService,
+        private readonly parametersTaskService: ParametersTaskService,
     ) {
         this[`${TaskEnum.denom}_timer`] = null;
         this[`${TaskEnum.nft}_timer`] = null;
@@ -31,6 +33,7 @@ export class TasksService {
         this[`${TaskEnum.validators}_timer`] = null;
         this[`${TaskEnum.identity}_timer`] = null;
         this[`${TaskEnum.stakingSyncValidators}_timer`] = null;
+        this[`${TaskEnum.stakingSyncParameters}_timer`] = null;
     }
     @Cron(cfg.taskCfg.executeTime.denom)
     //@Cron('50 * * * * *')
@@ -68,9 +71,14 @@ export class TasksService {
     }
 
     // @Cron('*/5 * * * * *')
-    @Cron(cfg.taskCfg.executeTime.validators)
+    @Cron(cfg.taskCfg.executeTime.stakingValidators)
+    //@Cron('*/5 * * * * *')
     async syncStakingValidators() {
-        this.handleDoTask(TaskEnum.stakingSyncValidators,this.stakingValidatorTaskService.doTask)
+       this.handleDoTask(TaskEnum.stakingSyncValidators,this.stakingValidatorTaskService.doTask)
+    }
+    @Cron(cfg.taskCfg.executeTime.stakingParameters)
+    async syncStakingParmeters(){
+        this.handleDoTask(TaskEnum.stakingSyncParameters,this.parametersTaskService.doTask)
     }
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
         const needDoTask: boolean = await this.taskDispatchService.needDoTask(taskName);

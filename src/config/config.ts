@@ -16,7 +16,9 @@ const {
     SYNC_TX_SERVICE_NAME_SIZE,
     HEARTBEAT_RATE,
     VALIDATORS_EXECTUTE_TIME,
-    DisableLog
+    DisableLog,
+    STAKING_VALIDATORS_TIME,
+    STAKING_PARAMETERS,
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -28,7 +30,7 @@ export const cfg = {
         dbName: DB_DATABASE,
     },
     serverCfg:{
-        lcdAddr:LCD_ADDR
+        lcdAddr:'http://192.168.150.31:11317'
     },
     taskCfg:{
         interval:{
@@ -40,7 +42,9 @@ export const cfg = {
             txServiceName:TX_SERVICE_NAME_EXECUTE_TIME || '30 * * * * *',
             faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME || '41 * * * * *',
             validators:VALIDATORS_EXECTUTE_TIME || '1 * * * * *',
-            identity: IDENTITY_EXECUTE_TIME || '1 * * * * *'
+            identity: IDENTITY_EXECUTE_TIME || '1 * * * * *',
+            stakingValidators: STAKING_VALIDATORS_TIME || '15 * * * * * *',
+            stakingParameters: STAKING_PARAMETERS || '* 30 * * * * *'
         },
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
     }

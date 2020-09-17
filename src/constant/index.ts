@@ -6,7 +6,8 @@ export enum TaskEnum {
     txServiceName = "sync_tx_service_name",
     validators = 'sync_validators',
     identity = 'sync_identity',
-    stakingSyncValidators = 'staking_sync_validators'
+    stakingSyncValidators = 'staking_sync_validators',
+    stakingSyncParameters = 'staking_sync_parameters'
 }
 
 
@@ -121,5 +122,9 @@ export const PubKeyAlgorithm = {
     4:'ED25519',
     5:'SM2',
 }
-
+export const addressPrefix = {
+    iaa:'iaa',
+    iva:'iva'
+}
+export const signedBlocksWindow = 'signed_blocks_window'
 export const hubDefaultEmptyValue = '[do-not-modify]'
