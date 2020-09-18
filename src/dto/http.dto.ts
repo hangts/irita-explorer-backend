@@ -187,3 +187,89 @@ export class BlockDto {
         this.block = new Block(block);
     }
 }
+export class StakingValidatorLcdDto {
+    operator_address: string;
+    consensus_pubkey: string;
+    status: number;
+    tokens:string;
+    delegator_shares:string;
+    description: object;
+    unbonding_time: string;
+    commission:object;
+    min_self_delegation:string;
+    constructor(value) {
+        this.operator_address = value.operator_address || '';
+        this.consensus_pubkey = value.consensus_pubkey || '';
+        this.status = value.status || '';
+        this.tokens = value.tokens || '';
+        this.delegator_shares = value.delegator_shares || '';
+        this.description = value.description || '';
+        this.unbonding_time = value.unbonding_time || '';
+        this.commission = value.commission || null;
+        this.min_self_delegation = value.min_self_delegation || '';
+    }
+
+    static bundleData(value: any = []): StakingValidatorLcdDto[] {
+        let data: StakingValidatorLcdDto[] = [];
+        data = value.map((v: any) => {
+            return new StakingValidatorLcdDto(v);
+        });
+        return data;
+    }
+}
+
+export class StakingValidatorSlashLcdDto {
+    address: string;
+    start_height?: string;
+    index_offset: string;
+    jailed_until: string;
+    tombstoned?: boolean;
+    missed_blocks_counter?: string;
+    constructor(value) {
+        this.address = value.address || '';
+        this.start_height = value.start_height || '';
+        this.index_offset = value.index_offset || '';
+        this.jailed_until = value.jailed_until || '';
+        this.tombstoned = value.tombstoned || '';
+        this.missed_blocks_counter = value.missed_blocks_counter || '';
+    }
+}
+export class IDelegationLcd {
+    delegation: {
+        delegator_address:string;
+        validator_address:string;
+        shares:string
+    };
+    balance: {
+        amount:string;
+        denom: string
+    };
+    constructor(value) {
+        this.delegation = value.delegation || {};
+        this.balance = value.balance || {};
+    }
+}
+export class StakingValidatorDelegationLcdDto {
+    result:Array<IDelegationLcd>;
+    static bundleData(value: any = []): IDelegationLcd[] {
+        let data: IDelegationLcd[] = [];
+        data = value.map((v: any) => {
+            return new IDelegationLcd(v);
+        });
+        return data;
+    }
+}
+export class StakingValidatorPaarametersLcdDto {
+    signed_blocks_window: string;
+    min_signed_per_window: string;
+    downtime_jail_duration: string;
+    slash_fraction_double_sign:string;
+    slash_fraction_downtime:string;
+    constructor(value) {
+        this.signed_blocks_window = value.signed_blocks_window || '';
+        this.min_signed_per_window = value.min_signed_per_window || '';
+        this.downtime_jail_duration = value.downtime_jail_duration || '';
+        this.slash_fraction_double_sign = value.slash_fraction_double_sign || '';
+        this.slash_fraction_downtime = value.slash_fraction_downtime || '';
+    }
+}

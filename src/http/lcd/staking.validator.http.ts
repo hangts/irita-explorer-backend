@@ -1,6 +1,12 @@
-import { HttpService, Injectable } from '@nestjs/common';
-import { cfg } from '../../config/config';
-import { Logger } from '../../logger';
+import {HttpService, Injectable} from '@nestjs/common';
+import {cfg} from '../../config/config';
+import {Logger} from '../../logger';
+import {IStakingValidatorFromLcd} from "../../types/schemaTypes/staking.validator.interface";
+import {
+    StakingValidatorDelegationLcdDto,
+    StakingValidatorLcdDto, StakingValidatorPaarametersLcdDto,
+    StakingValidatorSlashLcdDto
+} from "../../dto/http.dto";
 
 
 @Injectable()
@@ -9,10 +15,12 @@ export class StakingValidatorHttp {
     async queryValidatorListFromLcd(pageNum:number,pageSize:number){
         const validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?pageNum=${pageNum}&pageSize=${pageSize}`
         try {
-            const stakingValidatorData:any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)
-            if(stakingValidatorData && stakingValidatorData.result){
-                return stakingValidatorData.result;
-            }else{
+            let stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => {
+                return result.data.result
+            })
+            if (stakingValidatorData && stakingValidatorData) {
+                return StakingValidatorLcdDto.bundleData(stakingValidatorData);
+            } else {
                 Logger.warn('api-error:', 'there is no result of validators from lcd');
             }
           }catch (e) {
@@ -24,7 +32,7 @@ export class StakingValidatorHttp {
         try {
             const stakingSlashValidatorData:any = await new HttpService().get(slashValidatorUri).toPromise().then(result => result.data)
             if(stakingSlashValidatorData && stakingSlashValidatorData.result){
-                return stakingSlashValidatorData.result;
+                return new StakingValidatorSlashLcdDto(stakingSlashValidatorData.result);
             }else{
                 Logger.warn('api-error:', 'there is no result of validators from lcd');
             }
@@ -32,26 +40,12 @@ export class StakingValidatorHttp {
             Logger.warn(`api-error from ${slashValidatorUri}`,e.message)
         }
     }
-
-    async queryValDelegationFormLcd(valAddr:string){
-        const valDelegationUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${valAddr}/delegations`
-        try {
-            const valDelegationData:any = await new HttpService().get(valDelegationUri).toPromise().then(result => result.data)
-            if(valDelegationData && valDelegationData.result){
-                return valDelegationData.result;
-            }else{
-                Logger.warn('api-error:', 'there is no result of validators from lcd');
-            }
-        }catch (e) {
-            Logger.warn(`api-error from ${valDelegationUri}`,e.message)
-        }
-    }
     async querySelfBondFromLcd(valOperatorAddr:string){
         const selfBondUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${valOperatorAddr}/delegations`
         try {
             const selfBondData:any = await new HttpService().get(selfBondUri).toPromise().then(result => result.data)
             if(selfBondData && selfBondData.result){
-                return selfBondData.result;
+                return StakingValidatorDelegationLcdDto.bundleData(selfBondData.result);
             }else{
                 Logger.warn('api-error:', 'there is no result of validators from lcd');
             }
@@ -78,13 +72,13 @@ export class StakingValidatorHttp {
         try {
             const parameterData:any = await new HttpService().get(parameterUri).toPromise().then(result => result.data)
             if(parameterData  && parameterData.result){
-                return parameterData.result
+                return new StakingValidatorPaarametersLcdDto(parameterData.result)
             }else {
                 Logger.warn('api-error:', 'there is no result of validators from lcd');
             }
 
-        }catch (e) {
-            Logger.warn(`api-error from ${parameterUri}`,e.message)
+        } catch (e) {
+            Logger.warn(`api-error from ${parameterUri}`, e.message)
         }
     }
 }
