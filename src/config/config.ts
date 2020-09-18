@@ -30,7 +30,7 @@ export const cfg = {
         dbName: DB_DATABASE,
     },
     serverCfg:{
-        lcdAddr:'http://192.168.150.31:11317'
+        lcdAddr:LCD_ADDR
     },
     taskCfg:{
         interval:{

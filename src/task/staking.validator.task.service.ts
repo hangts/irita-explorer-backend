@@ -17,7 +17,6 @@ export class StakingValidatorTaskService {
     }
 
     async doTask(): Promise<void> {
-        console.log('*****************************************')
         let pageNum = 1, pageSize = 100, allValidatorsFromLcd = []
         let validatorListDataFromLcd: [] = await this.stakingValidatorHttp.queryValidatorListFromLcd(pageNum, pageSize)
         if (typeof validatorListDataFromLcd == 'undefined') {
@@ -42,7 +41,6 @@ export class StakingValidatorTaskService {
         let validatorsFromDb: [] = await (this.stakingSyncValidatorsModel as any).queryAllValidators();
         let needInsertOrValidators = await StakingValidatorTaskService.getInsertOrUpdateValidators(allValidatorsFromLcd, validatorsFromDb)
         let needDeleteValidators = await StakingValidatorTaskService.getDeleteValidators(allValidatorsFromLcd, validatorsFromDb)
-        console.log(needInsertOrValidators,">>>>>>>>>>>>>>>>>???????????????????")
         await this.insertAndUpdateValidators(needInsertOrValidators)
         await this.deleteValidators(needDeleteValidators)
     }
