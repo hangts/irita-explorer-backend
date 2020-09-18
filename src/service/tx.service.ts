@@ -64,9 +64,9 @@ export class TxService {
     }
 
     // txs/e  供eageServer调用  返回数据不做过滤
-    async queryTxList_e(query: eTxListReqDto): Promise<ListStruct<TxResDto[]>> {
+    async queryTxList_e(query: eTxListReqDto): Promise<ListStruct<any[]>> {
         let txListData = await this.txModel.queryTxList_e(query.types, query.height, query.pageNum, query.pageSize, query.useCount);
-        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+        return new ListStruct(txListData.data, Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
     
     // txs/blocks
