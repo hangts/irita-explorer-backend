@@ -5,7 +5,7 @@ import {Model} from "mongoose"
 import {addressTransform, formatDateStringToNumber, getTimestamp} from "../util/util";
 import {IStakingValidatorDbMap, IStakingValidatorLcdMap} from "../types/schemaTypes/staking.validator.interface";
 import {IValidatorsStruct} from "../types/schemaTypes/validators.interface";
-import {addressPrefix} from "../constant";
+import {addressPrefix, moduleSlashing} from "../constant";
 
 @Injectable()
 
@@ -177,7 +177,8 @@ export class StakingValidatorTaskService {
     }
 
     private async updateUpTime(dbValidators) {
-        const signedBlocksWindow = await (this.parametersTaskModel as any).querySignedBlocksWindow()
+        const moduleName = moduleSlashing
+        const signedBlocksWindow = await (this.parametersTaskModel as any).querySignedBlocksWindow(moduleName)
         const currentHeight = Number(dbValidators.current_height) || 0
         const startHeight = Number(dbValidators.start_height) || 0
         let diffCurrentStart = currentHeight - startHeight + 1
