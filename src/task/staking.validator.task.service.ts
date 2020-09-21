@@ -18,7 +18,8 @@ export class StakingValidatorTaskService {
 
     async doTask(): Promise<void> {
         let pageNum = 1, pageSize = 100, allValidatorsFromLcd = []
-        let validatorListDataFromLcd: [] = await this.stakingValidatorHttp.queryValidatorListFromLcd(pageNum, pageSize)
+        let validatorsFromDb = await (this.stakingSyncValidatorsModel as any).queryAllValidators();
+        let validatorListDataFromLcd = await this.stakingValidatorHttp.queryValidatorListFromLcd(pageNum, pageSize)
         if (typeof validatorListDataFromLcd == 'undefined') {
             return
         }
@@ -38,21 +39,32 @@ export class StakingValidatorTaskService {
         }
 
         //设置map
-        let validatorsFromDb: [] = await (this.stakingSyncValidatorsModel as any).queryAllValidators();
-        let needInsertOrValidators = await StakingValidatorTaskService.getInsertOrUpdateValidators(allValidatorsFromLcd, validatorsFromDb)
-        let needDeleteValidators = await StakingValidatorTaskService.getDeleteValidators(allValidatorsFromLcd, validatorsFromDb)
+        let validatorsFromDbMap = new Map()
+        let allValidatorsFromLcdMap = new Map()
+
+        validatorListDataFromLcd.forEach(item => {
+            allValidatorsFromLcdMap.set(item.operator_address, item)
+        })
+        if (validatorsFromDb.length > 0) {
+            validatorsFromDb.forEach(item => {
+                validatorsFromDbMap.set(item.operator_address, item)
+            })
+        }
+        let needInsertOrValidators = await StakingValidatorTaskService.getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
+        let needDeleteValidators = await StakingValidatorTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
         await this.insertAndUpdateValidators(needInsertOrValidators)
         await this.deleteValidators(needDeleteValidators)
     }
-    private async handDbValidators(allValidatorsFromLcd){
-        for (let i = 0; i < allValidatorsFromLcd.length; i++){
-             if(allValidatorsFromLcd[i].commission && allValidatorsFromLcd[i].commission.update_time){
+
+    private async handDbValidators(allValidatorsFromLcd) {
+        for (let i = 0; i < allValidatorsFromLcd.length; i++) {
+            if (allValidatorsFromLcd[i].commission && allValidatorsFromLcd[i].commission.update_time) {
                 allValidatorsFromLcd[i].commission.update_time = formatDateStringToNumber(allValidatorsFromLcd[i].commission.update_time)
             }
-             if (allValidatorsFromLcd[i].unbonding_time) {
+            if (allValidatorsFromLcd[i].unbonding_time) {
                 allValidatorsFromLcd[i].unbonding_time = formatDateStringToNumber(allValidatorsFromLcd[i].unbonding_time)
             }
-             if (allValidatorsFromLcd[i].tokens) {
+            if (allValidatorsFromLcd[i].tokens) {
                 allValidatorsFromLcd[i].voting_power = Number(allValidatorsFromLcd[i].tokens)
             }
 
@@ -62,60 +74,44 @@ export class StakingValidatorTaskService {
             await this.updateUpTime(allValidatorsFromLcd[i])
         }
     }
-    static getDeleteValidators(allValidatorsFromLcd, validatorsFromDb) {
-        if(allValidatorsFromLcd.length !== 0 && validatorsFromDb !== 0){
-            let  validatorsFromDbMap = new Map()
-            let  allValidatorsFromLcdMap = new Map()
-            allValidatorsFromLcdMap.forEach(item =>{
-                allValidatorsFromLcdMap.set(item.operator_address,item)
-            })
 
-            validatorsFromDbMap.forEach( item => {
-                validatorsFromDbMap.set(item.operator_address,item)
-            })
-            for (let key of validatorsFromDbMap) {
+    static getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap) {
+        if (allValidatorsFromLcdMap.size !== 0 && validatorsFromDbMap.size !== 0) {
+            let needDeleteValidatorDbMap = new Map()
+            for (let key of validatorsFromDbMap.keys()) {
                 if (!allValidatorsFromLcdMap.has(key)) {
-                    return validatorsFromDbMap
+                    needDeleteValidatorDbMap.set(validatorsFromDbMap.get(key).operator_address, needDeleteValidatorDbMap)
                 }
             }
+            return needDeleteValidatorDbMap
         }
     }
 
     //获取需要插入及更新的validators
-    static async getInsertOrUpdateValidators(allValidatorsFromLcd, validatorsFromDb) {
+    static async getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap) {
         //数据库中没有数据的情况
-        let  validatorsFromDbMap = new Map()
-        let  allValidatorsFromLcdMap = new Map()
-        if(validatorsFromDb.length === 0){
-            await allValidatorsFromLcd.forEach( item => {
+        let needInsertOrUpdate = new Map()
+        if (validatorsFromDbMap.size === 0) {
+            await allValidatorsFromLcdMap.forEach(item => {
                 item.create_time = getTimestamp()
-                allValidatorsFromLcdMap.set(item.operator_address,item)
+                allValidatorsFromLcdMap.set(item.operator_address, item)
             })
-            return allValidatorsFromLcdMap
-        }else {
-
-            allValidatorsFromLcd.forEach(item =>{
-                allValidatorsFromLcdMap.set(item.operator_address,item)
-            })
-
-            validatorsFromDb.forEach( item => {
-                validatorsFromDbMap.set(item.operator_address,item)
-            })
+        } else {
 
             for (let key of validatorsFromDbMap.keys()) {
                 if (allValidatorsFromLcdMap.has(key)) {
                     const validatorWithUpdateTime = allValidatorsFromLcdMap.get(key)
                     validatorWithUpdateTime.update_time = getTimestamp()
-                    return allValidatorsFromLcdMap.set(validatorWithUpdateTime.operator_address, validatorWithUpdateTime)
+                    needInsertOrUpdate.set(validatorWithUpdateTime.operator_address, validatorWithUpdateTime)
                 } else {
-                    allValidatorsFromLcd.forEach( item => {
+                    allValidatorsFromLcdMap.forEach(item => {
                         item.create_time = getTimestamp()
-                        allValidatorsFromLcdMap.set(item.operator_address,item)
+                        needInsertOrUpdate.set(item.operator_address, item)
                     })
-                    return allValidatorsFromLcdMap
                 }
             }
         }
+        return needInsertOrUpdate
     }
 
     private insertAndUpdateValidators(validatorsFromLcdMap) {
@@ -153,9 +149,9 @@ export class StakingValidatorTaskService {
             let selfBondData = await this.stakingValidatorHttp.querySelfBondFromLcd(dbValidators.operator_address)
             dbValidators.delegator_num = selfBondData.length;
             await selfBondData.forEach((item) => {
-                if(item.delegation
+                if (item.delegation
                     && item.delegation.delegator_address
-                    && valTranDelAddr === item.delegation.delegator_address ){
+                    && valTranDelAddr === item.delegation.delegator_address) {
                     dbValidators.self_bond = item.balance
                 }
             })
@@ -163,6 +159,7 @@ export class StakingValidatorTaskService {
     }
 
     private async updateIcons(dbValidators) {
+        dbValidators.description.identity = '23536C5BDE3EB949'
         if (dbValidators.description && dbValidators.description.identity) {
             let validatorIconUrl = await this.stakingValidatorHttp.queryValidatorIcon(dbValidators.description.identity)
             if (validatorIconUrl.them
@@ -183,7 +180,7 @@ export class StakingValidatorTaskService {
         const startHeight = Number(dbValidators.start_height) || 0
         let diffCurrentStart = currentHeight - startHeight + 1
         let missedBlockCount = Number(dbValidators.missed_blocks_counter) || 0
-        dbValidators.uptime = 1 - missedBlockCount / Math.min(diffCurrentStart,signedBlocksWindow.cur_value)
+        dbValidators.uptime = 1 - missedBlockCount / Math.min(diffCurrentStart, signedBlocksWindow.cur_value)
 
     }
 }
