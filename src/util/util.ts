@@ -22,10 +22,14 @@ export function formatDateStringToNumber(dateString) {
 }
 
 export function addressTransform(str,prefix) {
-    let bech32str = bech32.decode(str,'utf-8')
-    prefix = prefix || 'rbid';
-    /*let words = bech32.toWords(Buffer.from(str, 'utf-8'))*/
-    let result =  bech32.encode(prefix, bech32str.words)
-    return result;
+    try {
+        let bech32str = bech32.decode(str,'utf-8')
+        prefix = prefix || '';
+        let result =  bech32.encode(prefix, bech32str.words)
+        return result;
+    }catch (e) {
+        console.warn('address transform fialed',e)
+    }
+
 }
 
