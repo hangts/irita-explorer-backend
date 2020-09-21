@@ -1,10 +1,10 @@
-import { IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BaseReqDto, BaseResDto, PagingReqDto } from './base.dto';
-import { ApiError } from '../api/ApiResult';
-import { ErrorCodes } from '../api/ResultCodes';
-import { IBindTx } from '../types/tx.interface';
-import { IDenomStruct } from '../types/schemaTypes/denom.interface';
+import {IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty} from 'class-validator';
+import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
+import {BaseReqDto, BaseResDto, PagingReqDto} from './base.dto';
+import {ApiError} from '../api/ApiResult';
+import {ErrorCodes} from '../api/ResultCodes';
+import {IBindTx} from '../types/tx.interface';
+import {IDenomStruct} from '../types/schemaTypes/denom.interface';
 
 // lcd相关请求返回值数据模型
 
@@ -12,8 +12,8 @@ import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 // /nft/nfts/denoms response dto
 export class DenomDto {
     id: string;
-    schema:string;
-    creator:string;
+    schema: string;
+    creator: string;
 
     constructor(value) {
         this.id = value.id || '';
@@ -53,7 +53,7 @@ export class NftCollectionDto {
     constructor(value) {
         let {denom, nfts} = value;
         this.denom = new DenomDto(denom);
-        this.nfts = (nfts || []).map(item=>{
+        this.nfts = (nfts || []).map(item => {
             return new Nft(item);
         });
     }
@@ -67,8 +67,8 @@ export class VValidatorDto {
     certificate: string;
     power: string;
     operator: string;
-    jailed:boolean;
-    details:string;
+    jailed: boolean;
+    details: string;
 
     constructor(value) {
         this.id = value.id || '';
@@ -94,9 +94,10 @@ export class VValidatorDto {
 // /blocks/{height} or /blocks/latest response dto
 export class BlockId {
     hash: string;
-    parts: { total:number, hash:string};
+    parts: { total: number, hash: string };
+
     constructor(value) {
-        let { hash, parts } = value;
+        let {hash, parts} = value;
         this.hash = hash || '';
         this.parts = parts;
     }
@@ -109,7 +110,7 @@ export class Signatures {
     signature: string;
 
     constructor(value) {
-        let { block_id_flag, validator_address, timestamp, signature } = value;
+        let {block_id_flag, validator_address, timestamp, signature} = value;
         this.block_id_flag = block_id_flag || '';
         this.validator_address = validator_address || '';
         this.timestamp = timestamp || '';
@@ -154,8 +155,9 @@ export class Commit {
     round: number;
     block_id: BlockId;
     signatures: Signatures;
+
     constructor(value) {
-        let { height, round, block_id, signatures } = value;
+        let {height, round, block_id, signatures} = value;
         this.height = Number(height);
         this.round = round;
         this.block_id = new BlockId(block_id);
@@ -165,15 +167,15 @@ export class Commit {
 
 export class Block {
     header: BlockHeader;
-    data: { txs:  any[]};
-    evidence: { evidence:  any[]};
+    data: { txs: any[] };
+    evidence: { evidence: any[] };
     last_commit: Commit;
 
     constructor(value) {
-        let { BlockHeader, data, evidence, last_commit } = value;
+        let {BlockHeader, data, evidence, last_commit} = value;
         this.header = new BlockHeader(BlockHeader);
-        this.data =  data;
-        this.evidence =  evidence;
+        this.data = data;
+        this.evidence = evidence;
         this.last_commit = new Commit(last_commit);
     }
 }
@@ -181,22 +183,25 @@ export class Block {
 export class BlockDto {
     block_id: BlockId;
     block: Block;
+
     constructor(value) {
-        let { block_id,  block } = value;
+        let {block_id, block} = value;
         this.block_id = new BlockId(block_id);
         this.block = new Block(block);
     }
 }
+
 export class StakingValidatorLcdDto {
     operator_address: string;
     consensus_pubkey: string;
     status: number;
-    tokens:string;
-    delegator_shares:string;
+    tokens: string;
+    delegator_shares: string;
     description: object;
     unbonding_time: string;
-    commission:object;
-    min_self_delegation:string;
+    commission: object;
+    min_self_delegation: string;
+
     constructor(value) {
         this.operator_address = value.operator_address || '';
         this.consensus_pubkey = value.consensus_pubkey || '';
@@ -225,6 +230,7 @@ export class StakingValidatorSlashLcdDto {
     jailed_until: string;
     tombstoned?: boolean;
     missed_blocks_counter?: string;
+
     constructor(value) {
         this.address = value.address || '';
         this.start_height = value.start_height || '';
@@ -234,23 +240,27 @@ export class StakingValidatorSlashLcdDto {
         this.missed_blocks_counter = value.missed_blocks_counter || '';
     }
 }
+
 export class IDelegationLcd {
     delegation: {
-        delegator_address:string;
-        validator_address:string;
-        shares:string
+        delegator_address: string;
+        validator_address: string;
+        shares: string
     };
     balance: {
-        amount:string;
+        amount: string;
         denom: string
     };
+
     constructor(value) {
         this.delegation = value.delegation || {};
         this.balance = value.balance || {};
     }
 }
+
 export class StakingValidatorDelegationLcdDto {
-    result:Array<IDelegationLcd>;
+    result: Array<IDelegationLcd>;
+
     static bundleData(value: any = []): IDelegationLcd[] {
         let data: IDelegationLcd[] = [];
         data = value.map((v: any) => {
@@ -259,12 +269,34 @@ export class StakingValidatorDelegationLcdDto {
         return data;
     }
 }
-export class StakingValidatorPaarametersLcdDto {
+export class IThemStruct {
+    id: string;
+    pictures:{
+        primary:{
+            url:string
+        }
+    }
+}
+export class IconUriLcdDto {
+    data:{
+        status:{
+            code: number,
+            name: string
+        },
+        them:Array<IThemStruct>
+    }
+    constructor(value) {
+        this.data = value.data || {};
+    }
+
+}
+export class StakingValidatorParametersLcdDto {
     signed_blocks_window: string;
     min_signed_per_window: string;
     downtime_jail_duration: string;
-    slash_fraction_double_sign:string;
-    slash_fraction_downtime:string;
+    slash_fraction_double_sign: string;
+    slash_fraction_downtime: string;
+
     constructor(value) {
         this.signed_blocks_window = value.signed_blocks_window || '';
         this.min_signed_per_window = value.min_signed_per_window || '';
@@ -273,3 +305,34 @@ export class StakingValidatorPaarametersLcdDto {
         this.slash_fraction_downtime = value.slash_fraction_downtime || '';
     }
 }
+
+export class valWithdrawAddressLcdDto {
+    address: string;
+
+    constructor(value) {
+        this.address = value || '';
+    }
+}
+
+export class ISelfBondRewards {
+    amount: string;
+    denom: string;
+
+    constructor(value) {
+        this.amount = value.amount || '';
+        this.denom = value.denom || '';
+    }
+}
+
+export class commissionRewardsLcdDto {
+    operator_address: string;
+    self_bond_rewards: [];
+    val_commission: object;
+
+    constructor(value) {
+        this.operator_address = value.operator_address || '';
+        this.self_bond_rewards = value.self_bond_rewards || [];
+        this.val_commission = value.val_commission || {};
+    }
+}
+

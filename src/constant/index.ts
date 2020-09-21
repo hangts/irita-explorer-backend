@@ -128,3 +128,5 @@ export const addressPrefix = {
 }
 export const signedBlocksWindow = 'signed_blocks_window'
 export const hubDefaultEmptyValue = '[do-not-modify]'
+export const moduleSlashing = 'slashing'
+export const iconUri = `https://keybase.io/_/api/1.0/user/lookup.json?fields=pictures&key_suffix=`
