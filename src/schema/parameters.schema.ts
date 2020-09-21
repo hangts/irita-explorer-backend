@@ -27,7 +27,7 @@ ParametersSchema.statics = {
         return await this.find({}).select({'_id':0,'__v':0})
     },
 
-    async querySignedBlocksWindow(){
-        return await this.findOne({key:signedBlocksWindow}).select({'_id':0,'__v':0})
+    async querySignedBlocksWindow(moduleName:string){
+        return await this.findOne({module:moduleName,key:signedBlocksWindow}).select({'_id':0,'__v':0})
     }
 }
