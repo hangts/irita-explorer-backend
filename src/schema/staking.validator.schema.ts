@@ -42,9 +42,7 @@ StakingValidatorSchema.statics = {
         let {operator_address} = insertValidator
         //设置 options 查询不到就插入操作
         const options = {upsert: true, new: false, setDefaultsOnInsert: true}
-        await this.findOneAndUpdate({operator_address}, insertValidator, options, (e) => {
-            Logger.log('validator update or insert failed', e)
-        })
+        await this.findOneAndUpdate({operator_address}, insertValidator, options)
     },
 
     async deleteValidator(deleteValidator:IStakingValidator) {
