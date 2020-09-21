@@ -34,27 +34,27 @@ export class StakingValidatorTaskService {
              allValidatorsFromLcd = [...nextPageValidatorsFromLcd]
         }
 
-        // 处理数据
-        if (allValidatorsFromLcd && Array.isArray(allValidatorsFromLcd) && allValidatorsFromLcd.length > 0) {
-            await this.handDbValidators(allValidatorsFromLcd)
-        }
+            // 处理数据
+            if (allValidatorsFromLcd && Array.isArray(allValidatorsFromLcd) && allValidatorsFromLcd.length > 0) {
+                await this.handDbValidators(allValidatorsFromLcd)
+            }
 
-        //设置map
-        let validatorsFromDbMap = new Map()
-        let allValidatorsFromLcdMap = new Map()
+            //设置map
+            let validatorsFromDbMap = new Map()
+            let allValidatorsFromLcdMap = new Map()
 
-        validatorListDataFromLcd.forEach(item => {
-            allValidatorsFromLcdMap.set(item.operator_address, item)
-        })
-        if (validatorsFromDb.length > 0) {
-            validatorsFromDb.forEach(item => {
-                validatorsFromDbMap.set(item.operator_address, item)
+            validatorListDataFromLcd.forEach(item => {
+                allValidatorsFromLcdMap.set(item.operator_address, item)
             })
-        }
-        let needInsertOrValidators = await StakingValidatorTaskService.getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
-        let needDeleteValidators = await StakingValidatorTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
-        await this.insertAndUpdateValidators(needInsertOrValidators)
-        await this.deleteValidators(needDeleteValidators)
+            if (validatorsFromDb.length > 0) {
+                validatorsFromDb.forEach(item => {
+                    validatorsFromDbMap.set(item.operator_address, item)
+                })
+            }
+            let needInsertOrValidators = await StakingValidatorTaskService.getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
+            let needDeleteValidators = await StakingValidatorTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
+            await this.insertAndUpdateValidators(needInsertOrValidators)
+            await this.deleteValidators(needDeleteValidators)
     }
 
     private async handDbValidators(allValidatorsFromLcd) {
@@ -68,6 +68,7 @@ export class StakingValidatorTaskService {
             if (allValidatorsFromLcd[i].tokens) {
                 allValidatorsFromLcd[i].voting_power = Number(allValidatorsFromLcd[i].tokens)
             }
+            allValidatorsFromLcd[i].jailed = allValidatorsFromLcd[i].jailed || false
 
             await this.updateSlashInfo(allValidatorsFromLcd[i])
             await this.updateSelfBond(allValidatorsFromLcd[i])
@@ -95,7 +96,7 @@ export class StakingValidatorTaskService {
         if (validatorsFromDbMap.size === 0) {
             await allValidatorsFromLcdMap.forEach(item => {
                 item.create_time = getTimestamp()
-                allValidatorsFromLcdMap.set(item.operator_address, item)
+                needInsertOrUpdate.set(item.operator_address, item)
             })
         } else {
 
