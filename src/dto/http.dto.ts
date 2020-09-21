@@ -270,23 +270,22 @@ export class StakingValidatorDelegationLcdDto {
     }
 }
 export class IThemStruct {
-    id: string;
-    pictures:{
-        primary:{
-            url:string
+    id?: string;
+    pictures?:{
+        primary?:{
+            url?:string
         }
     }
 }
 export class IconUriLcdDto {
-    data:{
         status:{
             code: number,
             name: string
-        },
-        them:Array<IThemStruct>
-    }
+        };
+        them?:IThemStruct
     constructor(value) {
-        this.data = value.data || {};
+        this.status = value.data || {};
+        this.them = value.them || {};
     }
 
 }
