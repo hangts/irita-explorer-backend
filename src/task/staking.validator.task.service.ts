@@ -24,15 +24,16 @@ export class StakingValidatorTaskService {
             return
         }
         if (validatorListDataFromLcd && validatorListDataFromLcd.length > 0) {
-            allValidatorsFromLcd = allValidatorsFromLcd.concat(validatorListDataFromLcd);
+            allValidatorsFromLcd = [...validatorListDataFromLcd];
         }
         //判断是否有第二页数据 如果有使用while循环请求
         while (allValidatorsFromLcd && allValidatorsFromLcd.length === pageSize) {
             pageNum++
-            allValidatorsFromLcd = await this.stakingValidatorHttp.queryValidatorListFromLcd(pageNum, pageSize);
+           let nextPageValidatorsFromLcd = await this.stakingValidatorHttp.queryValidatorListFromLcd(pageNum, pageSize);
             //将第二页及以后的数据合并
-            allValidatorsFromLcd = allValidatorsFromLcd.concat(allValidatorsFromLcd)
+             allValidatorsFromLcd = [...nextPageValidatorsFromLcd]
         }
+
         // 处理数据
         if (allValidatorsFromLcd && Array.isArray(allValidatorsFromLcd) && allValidatorsFromLcd.length > 0) {
             await this.handDbValidators(allValidatorsFromLcd)
