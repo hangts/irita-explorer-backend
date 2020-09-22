@@ -46,16 +46,16 @@ export class ParametersTaskService {
         needInsertData.forEach(item => {
             needInsertDataMap.set(item.key, item)
         })
-        if (needInsertDataMap.size > 0) {
+        if (needInsertData.size > 0) {
             needInsertData.forEach(item => {
-                if (dbParameters.has(item.key)) {
-                    needInsertData.get(item.key).update_time = getTimestamp()
+                if (dbParametersMap.has(item.key)) {
+                    needInsertDataMap.get(item.key).update_time = getTimestamp()
                 } else {
-                    needInsertData.get(item.key).create_time = getTimestamp()
+                    needInsertDataMap.get(item.key).create_time = getTimestamp()
                 }
             })
         }
-        needInsertData.forEach(item => {
+        needInsertDataMap.forEach(item => {
             (this.parametersTaskModel as any).updateParameters(item)
         })
 

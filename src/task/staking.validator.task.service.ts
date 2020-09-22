@@ -94,7 +94,7 @@ export class StakingValidatorTaskService {
         //数据库中没有数据的情况
         let needInsertOrUpdate = new Map()
         for (let key of allValidatorsFromLcdMap.keys()) {
-            let validator = allValidatorsFromLcdMap[key]
+            let validator = allValidatorsFromLcdMap.get(key)
             validator.update_time = getTimestamp()
             if (!validatorsFromDbMap.has(key)) {
                 validator.create_time = getTimestamp()
