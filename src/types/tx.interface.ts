@@ -6,6 +6,7 @@ export interface ITxsQueryParams extends IQueryBase {
     type?: string,
     $or?: object[],
     status?: number,
+    addrs?:any,
     time?: {
         $gte?: number,
         $lte?: number,

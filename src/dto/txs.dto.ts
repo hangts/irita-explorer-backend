@@ -16,6 +16,9 @@ export class TxListReqDto extends PagingReqDto {
     status?: string;
 
     @ApiPropertyOptional()
+    address?: string;
+
+    @ApiPropertyOptional()
     beginTime?: string;
 
     @ApiPropertyOptional()

@@ -44,6 +44,18 @@ export class TxController {
         return new Result<any>(data);
     }
 
+    @Get('/staking')
+    async queryStakingTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryStakingTxList(query);
+        return new Result<any>(data);
+    }
+
+    @Get('/declaration')
+    async queryDeclarationTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryDeclarationTxList(query);
+        return new Result<any>(data);
+    }
+
     @Get("/blocks")
     async queryTxWithHeight(@Query() query: TxListWithHeightReqDto): Promise<Result<TxResDto>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithHeight(query);
@@ -107,6 +119,17 @@ export class TxController {
         return new Result<any>(data);
     }
 
+    @Get("/types/staking")
+    async queryStakingTxTypeList(): Promise<Result<ListStruct<TxTypeResDto>>> {
+        const data: ListStruct<TxTypeResDto[]> = await this.txService.queryStakingTxTypeList();
+        return new Result<any>(data);
+    }
+
+    @Get("/types/declaration")
+    async queryDeclarationTxTypeList(): Promise<Result<ListStruct<TxTypeResDto>>> {
+        const data: ListStruct<TxTypeResDto[]> = await this.txService.queryDeclarationTxTypeList();
+        return new Result<any>(data);
+    }
 
     @Post("/types")
     async insertTxTypes(@Body() prarms:PostTxTypesReqDto): Promise<Result<ListStruct<TxTypeResDto>>> {

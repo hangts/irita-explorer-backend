@@ -62,6 +62,24 @@ export class TxService {
         return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
+    // txs/staking
+    async queryStakingTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
+        if (!Cache.supportTypes || !Cache.supportTypes.length) {
+            await this.cacheTxTypes();
+        }
+        let txListData = await this.txModel.queryStakingTxList(query);
+        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+    }
+
+    // txs/declaration 
+    async queryDeclarationTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
+        if (!Cache.supportTypes || !Cache.supportTypes.length) {
+            await this.cacheTxTypes();
+        }
+        let txListData = await this.txModel.queryDeclarationTxList(query);
+        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+    }
+
     // txs/blocks
     async queryTxWithHeight(query: TxListWithHeightReqDto): Promise<ListStruct<TxResDto[]>> {
         let txListData = await this.txModel.queryTxWithHeight(query);
@@ -146,11 +164,23 @@ export class TxService {
         return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
     }
 
+    // txs/types/service
     async queryServiceTxTypeList(): Promise<ListStruct<TxTypeResDto[]>> {
         let txTypeListData = await this.txTypeModel.queryServiceTxTypeList();
         return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
     }
 
+    // txs/types/staking
+    async queryStakingTxTypeList(): Promise<ListStruct<TxTypeResDto[]>> {
+        let txTypeListData = await this.txTypeModel.queryStakingTxTypeList();
+        return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
+    }
+
+    // txs/types/declaration
+    async queryDeclarationTxTypeList(): Promise<ListStruct<TxTypeResDto[]>> {
+        let txTypeListData = await this.txTypeModel.queryDeclarationTxTypeList();
+        return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
+    }
 
     //  post txs/types
     async insertTxTypes(prarms: PostTxTypesReqDto): Promise<ListStruct<TxTypeResDto[]>> {
