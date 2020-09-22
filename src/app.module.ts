@@ -21,6 +21,8 @@ import { ValidatorModule } from './module/validator.module';
 
 import { IdentityTaskModule } from './module/identity.task.module';
 import { IdentityModule } from './module/identity.module';
+import {StakingValidatorTaskModule} from "./module/staking.validator.task.module";
+import {ParametersTaskModule} from "./module/parameters.taskModule";
 
 console.log(cfg);
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
@@ -40,7 +42,9 @@ const params = {
         TxModule,
         TxTaskModule,
         IdentityTaskModule,
-        IdentityModule
+        IdentityModule,
+        StakingValidatorTaskModule,
+        ParametersTaskModule,
     ],
     providers:<any> [
         {

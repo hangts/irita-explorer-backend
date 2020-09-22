@@ -5,7 +5,9 @@ export enum TaskEnum {
     nft = 'ex_sync_nft',
     txServiceName = "sync_tx_service_name",
     validators = 'sync_validators',
-    identity = 'sync_identity'
+    identity = 'sync_identity',
+    stakingSyncValidators = 'staking_sync_validators',
+    stakingSyncParameters = 'staking_sync_parameters'
 }
 
 
@@ -120,5 +122,11 @@ export const PubKeyAlgorithm = {
     4:'ED25519',
     5:'SM2',
 }
-
+export const addressPrefix = {
+    iaa:'iaa',
+    iva:'iva'
+}
+export const signedBlocksWindow = 'signed_blocks_window'
 export const hubDefaultEmptyValue = '[do-not-modify]'
+export const moduleSlashing = 'slashing'
+export const iconUri = `https://keybase.io/_/api/1.0/user/lookup.json?fields=pictures&key_suffix=`
