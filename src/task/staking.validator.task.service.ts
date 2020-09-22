@@ -29,32 +29,32 @@ export class StakingValidatorTaskService {
         //判断是否有第二页数据 如果有使用while循环请求
         while (allValidatorsFromLcd && allValidatorsFromLcd.length === pageSize) {
             pageNum++
-           let nextPageValidatorsFromLcd = await this.stakingValidatorHttp.queryValidatorListFromLcd(pageNum, pageSize);
+            let nextPageValidatorsFromLcd = await this.stakingValidatorHttp.queryValidatorListFromLcd(pageNum, pageSize);
             //将第二页及以后的数据合并
-             allValidatorsFromLcd = [...nextPageValidatorsFromLcd]
+            allValidatorsFromLcd = [...nextPageValidatorsFromLcd]
         }
 
-            // 处理数据
-            if (allValidatorsFromLcd && Array.isArray(allValidatorsFromLcd) && allValidatorsFromLcd.length > 0) {
-                await this.handDbValidators(allValidatorsFromLcd)
-            }
+        // 处理数据
+        if (allValidatorsFromLcd && Array.isArray(allValidatorsFromLcd) && allValidatorsFromLcd.length > 0) {
+            await this.handDbValidators(allValidatorsFromLcd)
+        }
 
-            //设置map
-            let validatorsFromDbMap = new Map()
-            let allValidatorsFromLcdMap = new Map()
+        //设置map
+        let validatorsFromDbMap = new Map()
+        let allValidatorsFromLcdMap = new Map()
 
-            validatorListDataFromLcd.forEach(item => {
-                allValidatorsFromLcdMap.set(item.operator_address, item)
+        validatorListDataFromLcd.forEach(item => {
+            allValidatorsFromLcdMap.set(item.operator_address, item)
+        })
+        if (validatorsFromDb.length > 0) {
+            validatorsFromDb.forEach(item => {
+                validatorsFromDbMap.set(item.operator_address, item)
             })
-            if (validatorsFromDb.length > 0) {
-                validatorsFromDb.forEach(item => {
-                    validatorsFromDbMap.set(item.operator_address, item)
-                })
-            }
-            let needInsertOrValidators = await StakingValidatorTaskService.getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
-            let needDeleteValidators = await StakingValidatorTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
-            await this.insertAndUpdateValidators(needInsertOrValidators)
-            await this.deleteValidators(needDeleteValidators)
+        }
+        let needInsertOrValidators = await StakingValidatorTaskService.getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
+        let needDeleteValidators = await StakingValidatorTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
+        await this.insertAndUpdateValidators(needInsertOrValidators)
+        await this.deleteValidators(needDeleteValidators)
     }
 
     private async handDbValidators(allValidatorsFromLcd) {
@@ -82,7 +82,7 @@ export class StakingValidatorTaskService {
             let needDeleteValidatorDbMap = new Map()
             for (let key of validatorsFromDbMap.keys()) {
                 if (!allValidatorsFromLcdMap.has(key)) {
-                    needDeleteValidatorDbMap.set(validatorsFromDbMap.get(key).operator_address, needDeleteValidatorDbMap)
+                    needDeleteValidatorDbMap.set(validatorsFromDbMap.get(key).operator_address, validatorsFromDbMap.get(key))
                 }
             }
             return needDeleteValidatorDbMap
@@ -93,25 +93,13 @@ export class StakingValidatorTaskService {
     static async getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap) {
         //数据库中没有数据的情况
         let needInsertOrUpdate = new Map()
-        if (validatorsFromDbMap.size === 0) {
-            await allValidatorsFromLcdMap.forEach(item => {
-                item.create_time = getTimestamp()
-                needInsertOrUpdate.set(item.operator_address, item)
-            })
-        } else {
-
-            for (let key of validatorsFromDbMap.keys()) {
-                if (allValidatorsFromLcdMap.has(key)) {
-                    const validatorWithUpdateTime = allValidatorsFromLcdMap.get(key)
-                    validatorWithUpdateTime.update_time = getTimestamp()
-                    needInsertOrUpdate.set(validatorWithUpdateTime.operator_address, validatorWithUpdateTime)
-                } else {
-                    allValidatorsFromLcdMap.forEach(item => {
-                        item.create_time = getTimestamp()
-                        needInsertOrUpdate.set(item.operator_address, item)
-                    })
-                }
+        for (let key of allValidatorsFromLcdMap.keys()) {
+            let validator = allValidatorsFromLcdMap[key]
+            validator.update_time = getTimestamp()
+            if (!validatorsFromDbMap.has(key)) {
+                validator.create_time = getTimestamp()
             }
+            needInsertOrUpdate.set(validator.operator_address, validator)
         }
         return needInsertOrUpdate
     }
@@ -161,7 +149,6 @@ export class StakingValidatorTaskService {
     }
 
     private async updateIcons(dbValidators) {
-        dbValidators.description.identity = '23536C5BDE3EB949'
         if (dbValidators.description && dbValidators.description.identity) {
             let validatorIconUrl = await this.stakingValidatorHttp.queryValidatorIcon(dbValidators.description.identity)
             if (validatorIconUrl.them
