@@ -1,5 +1,7 @@
 import os from 'os'
+
 let bech32 = require('bech32')
+
 export function getIpAddress() {
     const interfaces = os.networkInterfaces();
     for (const devName in interfaces) {
@@ -13,7 +15,7 @@ export function getIpAddress() {
     }
 }
 
-export function getTimestamp(): number{
+export function getTimestamp(): number {
     return Math.floor(new Date().getTime() / 1000);
 }
 
@@ -21,15 +23,27 @@ export function formatDateStringToNumber(dateString) {
     return Math.floor(new Date(dateString).getTime() / 1000)
 }
 
-export function addressTransform(str,prefix) {
+export function addressTransform(str, prefix) {
     try {
-        let bech32str = bech32.decode(str,'utf-8')
+        let bech32str = bech32.decode(str, 'utf-8')
         prefix = prefix || '';
-        let result =  bech32.encode(prefix, bech32str.words)
+        let result = bech32.encode(prefix, bech32str.words)
         return result;
-    }catch (e) {
-        console.warn('address transform fialed',e)
+    } catch (e) {
+        console.warn('address transform faled', e)
     }
 
 }
 
+export function pageNation(dataArray: any[], pageSize: number = 0) {
+    let index: number = 0;
+    let newArray: any = [];
+    if (dataArray.length > pageSize) {
+        while (index < dataArray.length) {
+            newArray.push(dataArray.slice(index, index += pageSize));
+        }
+    } else {
+        newArray = dataArray
+    }
+    return newArray
+}
