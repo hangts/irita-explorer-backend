@@ -189,6 +189,28 @@ TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Prom
     return result;
 };
 
+//  txs/e
+TxSchema.statics.queryTxList_e = async function(types:string, height:number, pageNum:number, pageSize:number, useCount:boolean): Promise<IListStruct> {
+    let result: IListStruct = {};
+    let queryParameters: any = {};
+    if (types && types.length) {
+        queryParameters['msgs.type'] = {'$in':types.split(',')};
+    }
+    if (height) {
+        queryParameters['height'] = {'$gte':height};
+    }
+    result.data = await this.find(queryParameters)
+        .sort({ height: 1 })
+        .skip((Number(pageNum) - 1) * Number(pageSize))
+        .limit(Number(pageSize));
+
+    if (useCount && useCount == true) {
+        result.count = await this.find(queryParameters).countDocuments();
+    }
+    return result;
+};
+
+
 // 	txs/blocks
 TxSchema.statics.queryTxWithHeight = async function(query: ITxsWithHeightQuery): Promise<IListStruct> {
     let result: IListStruct = {};

@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct, Result } from '../api/ApiResult';
 import {
     TxListReqDto,
+    eTxListReqDto,
     TxListWithHeightReqDto,
     TxListWithAddressReqDto,
     TxListWithContextIdReqDto,
@@ -80,6 +81,12 @@ export class TxService {
         return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
+    // txs/e  供eageServer调用  返回数据不做过滤
+    async queryTxList_e(query: eTxListReqDto): Promise<ListStruct<TxResDto[]>> {
+        let txListData = await this.txModel.queryTxList_e(query.types, query.height, query.pageNum, query.pageSize, query.useCount);
+        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+    }
+    
     // txs/blocks
     async queryTxWithHeight(query: TxListWithHeightReqDto): Promise<ListStruct<TxResDto[]>> {
         let txListData = await this.txModel.queryTxWithHeight(query);

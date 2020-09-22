@@ -12,8 +12,9 @@ import {
     BlockStakingResDto
      } from '../dto/block.dto';import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { BlockHttp } from '../http/lcd/block.http';
-import { Logger } from '../logger'
-
+import { Logger } from '../logger';
+import { addressPrefix } from '../constant';
+import { hexToBech32 } from '../util/util';
 @Injectable()
 export class BlockService {
 
@@ -49,25 +50,35 @@ export class BlockService {
         const { height } = query;
         let result: BlockStakingResDto | null = null;
         let data:any = {};
+
         let block_db = await (this.blockModel as any).findOneByHeight(height);
         if (block_db) {
             let block_lcd =  await BlockHttp.queryBlockFromLcd(height);
             let latestBlock = await BlockHttp.queryLatestBlockFromLcd();
             let proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block_db.proposer || '');
             let validatorsets = await BlockHttp.queryValidatorsets(height);
-            data = {...block_db};
+            data = {
+                height: block_db.height,
+                hash: block_db.hash,
+                txn: block_db.txn,
+                time: block_db.time,
+                proposer: block_db.proposer
+            };
             if (proposer) {
                 data.proposer_moniker = (proposer.description || {}).moniker || '';
                 data.propopser_addr = proposer.operator_address || '';
             }
             if (validatorsets) {
                 data.total_validator_num = validatorsets ? validatorsets.length : 0;
+                let icaAddr = hexToBech32(block_db.proposer, addressPrefix.ica);
                 data.total_voting_power = 0;
                 validatorsets.forEach((item)=>{
                     data.total_voting_power += Number(item.voting_power || 0);
+                    if (item.address == icaAddr) {
+                        data.precommit_voting_power = item.voting_power;
+                    }
                 });
             }
-            data.precommit_voting_power = '33';
             if (block_lcd) {
                 try{
                     data.precommit_validator_num = block_lcd.block.last_commit.signatures.length;
@@ -76,15 +87,10 @@ export class BlockService {
                 }
             }
             if (latestBlock) {
-                data.latest_height = (latestBlock.header || {}).height;
+                data.latest_height = (latestBlock.block.header || {}).height;
             }
-
             result = new BlockStakingResDto(data);
         }
-        
-
-
-        
         return result;
     }
 

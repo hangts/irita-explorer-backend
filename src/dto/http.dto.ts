@@ -15,7 +15,6 @@ export class DenomDto {
     id: string;
     schema:string;
     creator:string;
-
     constructor(value) {
         this.id = value.id || '';
         this.schema = value.schema || '';
@@ -115,8 +114,7 @@ export class Signatures {
         this.validator_address = validator_address || '';
         this.timestamp = timestamp || '';
         this.signature = signature || '';
-    }
-    
+    }    
     static bundleData(value: any = []): Signatures[] {
         let data: Signatures[] = [];
         data = value.map((v: any) => {
@@ -236,8 +234,91 @@ export class Reward {
     }
 }
 
-// /validatorsets/{height}
 
+// staking/validators
+export class StakingValidatorLcdDto {
+    operator_address: string;
+    consensus_pubkey: string;
+    status: number;
+    tokens: string;
+    delegator_shares: string;
+    description: object;
+    unbonding_time: string;
+    commission: object;
+    min_self_delegation: string;
+
+    constructor(value) {
+        this.operator_address = value.operator_address || '';
+        this.consensus_pubkey = value.consensus_pubkey || '';
+        this.status = value.status || '';
+        this.tokens = value.tokens || '';
+        this.delegator_shares = value.delegator_shares || '';
+        this.description = value.description || '';
+        this.unbonding_time = value.unbonding_time || '';
+        this.commission = value.commission || null;
+        this.min_self_delegation = value.min_self_delegation || '';
+    }
+
+    static bundleData(value: any = []): StakingValidatorLcdDto[] {
+        let data: StakingValidatorLcdDto[] = [];
+        data = value.map((v: any) => {
+            return new StakingValidatorLcdDto(v);
+        });
+        return data;
+    }
+}
+
+// /slashing/validators/${validatorPubkey}/signing_info
+export class StakingValidatorSlashLcdDto {
+    address: string;
+    start_height?: string;
+    index_offset: string;
+    jailed_until: string;
+    tombstoned?: boolean;
+    missed_blocks_counter?: string;
+
+    constructor(value) {
+        this.address = value.address || '';
+        this.start_height = value.start_height || '';
+        this.index_offset = value.index_offset || '';
+        this.jailed_until = value.jailed_until || '';
+        this.tombstoned = value.tombstoned || '';
+        this.missed_blocks_counter = value.missed_blocks_counter || '';
+    }
+}
+
+// /staking/validators/${valOperatorAddr}/delegations
+export class StakingValidatorDelegationLcdDto {
+    result: Array<IDelegationLcd>;
+
+    static bundleData(value: any = []): IDelegationLcd[] {
+        let data: IDelegationLcd[] = [];
+        data = value.map((v: any) => {
+            return new IDelegationLcd(v);
+        });
+        return data;
+    }
+}
+
+export class IDelegationLcd {
+    delegation: {
+        delegator_address: string;
+        validator_address: string;
+        shares: string
+    };
+    balance: {
+        amount: string;
+        denom: string
+    };
+
+    constructor(value) {
+        this.delegation = value.delegation || {};
+        this.balance = value.balance || {};
+    }
+}
+
+
+// /validatorsets/{height}
 export class Validatorset {
     address:string;
     pub_key:string;
@@ -257,5 +338,95 @@ export class Validatorset {
             return new Validatorset(v);
         });
         return data;
+    }
+}
+
+// https://keybase.io/_/api/1.0/user/lookup.json?fields=pictures&key_suffix={identity}
+export class IconUriLcdDto {
+        status:{
+            code: number,
+            name: string
+        };
+        them?:IThemStruct
+    constructor(value) {
+        this.status = value.data || {};
+        this.them = value.them || {};
+    }
+
+}
+
+export class IThemStruct {
+    id?: string;
+    pictures?:{
+        primary?:{
+            url?:string
+        }
+    }
+}
+
+// /slashing/parameters
+export class StakingValidatorParametersLcdDto {
+    signed_blocks_window: string;
+    min_signed_per_window: string;
+    downtime_jail_duration: string;
+    slash_fraction_double_sign: string;
+    slash_fraction_downtime: string;
+
+    constructor(value) {
+        this.signed_blocks_window = value.signed_blocks_window || '';
+        this.min_signed_per_window = value.min_signed_per_window || '';
+        this.downtime_jail_duration = value.downtime_jail_duration || '';
+        this.slash_fraction_double_sign = value.slash_fraction_double_sign || '';
+        this.slash_fraction_downtime = value.slash_fraction_downtime || '';
+    }
+}
+
+// /staking/validators/${address}/unbonding_delegations
+export class StakingValUnBondingDelLcdDto {
+    delegator_address:string;
+    validator_address:string;
+    entries:Array<UnBondingDel>
+
+    constructor(value) {
+        this.delegator_address = value.delegator_address || '';
+        this.validator_address = value.validator_address || [];
+        this.entries = value.entries || [];
+    }
+    static bundleData(value: any = []): StakingValUnBondingDelLcdDto[] {
+        let data: StakingValUnBondingDelLcdDto[] = [];
+        data = value.map((v: any) => {
+            return new StakingValUnBondingDelLcdDto(v);
+        });
+        return data;
+    }
+}
+
+export class UnBondingDel {
+    creation_height:string;
+    completion_time:string;
+    initial_balance:string;
+    balance:string
+}
+
+export class ISelfBondRewards {
+    amount: string;
+    denom: string;
+
+    constructor(value) {
+        this.amount = value.amount || '';
+        this.denom = value.denom || '';
+    }
+}
+
+// /distribution/validators/${valAddress}
+export class commissionRewardsLcdDto {
+    operator_address: string;
+    self_bond_rewards: [];
+    val_commission: object;
+
+    constructor(value) {
+        this.operator_address = value.operator_address || '';
+        this.self_bond_rewards = value.self_bond_rewards || [];
+        this.val_commission = value.val_commission || {};
     }
 }

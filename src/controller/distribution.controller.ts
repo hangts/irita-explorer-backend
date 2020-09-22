@@ -15,7 +15,6 @@ import { ApiTags } from '@nestjs/swagger';
 export class DistributionController {
     constructor(private readonly distributionService: DistributionService) {}
 
-
     @Get("delegators/:delegatorAddr/withdraw_address")
     async queryTxDetailWithServiceName(@Param() query: WithdrawAddressReqDto): Promise<Result<WithdrawAddressResDto>> {
         const data: WithdrawAddressResDto = await this.distributionService.queryWithdrawAddress(query);

@@ -7,10 +7,12 @@ import { Validatorset, BlockDto} from '../../dto/http.dto';
 
 export class BlockHttp {
 
-    static async queryLatestBlockFromLcd(): Promise<any> {
+    static async queryLatestBlockFromLcd(): Promise<BlockDto> {
         const url: string = `${cfg.serverCfg.lcdAddr}/blocks/latest`;
         try {
-            return await new HttpService().get(url).toPromise().then(res => res.data);
+            return await new HttpService().get(url).toPromise().then(res => {
+            	return new BlockDto(res.data);
+            });
         } catch (e) {
             Logger.warn(`api-error from ${url}:`, e.message);
             throw new ApiError(ErrorCodes.failed, e.message);

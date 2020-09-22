@@ -53,6 +53,7 @@ StakingValidatorSchema.statics = {
         const {operator_address} = deleteValidator
         await this.deleteOne({operator_address})
     },
+    
     async queryAllValCommission(query): Promise<IListStruct> {
         const result: IListStruct = {}
         if (query.useCount && query.useCount == true) {
@@ -62,3 +63,4 @@ StakingValidatorSchema.statics = {
         return result
     }
 }
+
