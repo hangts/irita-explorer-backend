@@ -31,9 +31,8 @@ export class StakingValidatorTaskService {
             pageNum++
             let nextPageValidatorsFromLcd = await this.stakingValidatorHttp.queryValidatorListFromLcd(pageNum, pageSize);
             //将第二页及以后的数据合并
-            allValidatorsFromLcd = [...nextPageValidatorsFromLcd]
+            allValidatorsFromLcd = [...allValidatorsFromLcd ,...nextPageValidatorsFromLcd]
         }
-
         // 处理数据
         if (allValidatorsFromLcd && Array.isArray(allValidatorsFromLcd) && allValidatorsFromLcd.length > 0) {
             await this.handDbValidators(allValidatorsFromLcd)
@@ -78,7 +77,7 @@ export class StakingValidatorTaskService {
     }
 
     static getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap) {
-        if (allValidatorsFromLcdMap.size !== 0 && validatorsFromDbMap.size !== 0) {
+        if (validatorsFromDbMap.size !== 0) {
             let needDeleteValidatorDbMap = new Map()
             for (let key of validatorsFromDbMap.keys()) {
                 if (!allValidatorsFromLcdMap.has(key)) {
