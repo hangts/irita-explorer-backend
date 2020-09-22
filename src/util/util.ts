@@ -30,7 +30,7 @@ export function addressTransform(str, prefix) {
         let result = bech32.encode(prefix, bech32str.words)
         return result;
     } catch (e) {
-        console.warn('address transform faled', e)
+        console.warn('address transform failed', e)
     }
 
 }
