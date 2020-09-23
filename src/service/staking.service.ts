@@ -1,7 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
-import {StakingValidatorHttp} from "../http/lcd/staking.validator.http";
+import {StakingHttp} from "../http/lcd/staking.http";
 import {addressTransform, pageNation} from "../util/util";
 import {activeValidatorLabel, addressPrefix, moduleSlashing, ValidatorNumberStatus, ValidatorStatus} from "../constant";
 import {
@@ -9,22 +9,20 @@ import {
     allValidatorReqDto,
     CommissionInfoReqDto,
     CommissionInfoResDto, stakingValidatorResDto,
-    ValCommissionRewReqDto,
-    ValCommissionRewResDto,
     ValidatorDelegationsReqDto,
     ValidatorDelegationsResDto, ValidatorDetailResDtO,
     ValidatorUnBondingDelegationsReqDto, ValidatorUnBondingDelegationsResDto,
-} from "../dto/stakingValidator.dto";
+} from "../dto/staking.dto";
 import {ListStruct} from "../api/ApiResult";
 import {BlockHttp} from "../http/lcd/block.http";
 
 @Injectable()
-export default class StakingValidatorService {
+export default class StakingService {
     constructor(@InjectModel('Profiler') private profilerModel: Model<any>,
                 @InjectModel('StakingSyncValidators') private stakingValidatorsModel: Model<any>,
                 @InjectModel('Parameters') private parametersModel: Model<any>,
                 @InjectModel('Tx') private txModel: Model<any>,
-                private readonly stakingValidatorHttp: StakingValidatorHttp,
+                private readonly stakingHttp: StakingHttp,
     ) {
     }
 
@@ -54,11 +52,6 @@ export default class StakingValidatorService {
         return totalVotingPower
     }
 
-    async getCommissionRewardsByVal(valAddress: ValCommissionRewReqDto): Promise<ValCommissionRewResDto> {
-        const validatorAddress = valAddress.address
-        const commissionRewards = await this.stakingValidatorHttp.getCommissionRewards(validatorAddress)
-        return new ValCommissionRewResDto(commissionRewards)
-    }
 
     async getAllValCommission(q: CommissionInfoReqDto): Promise<ListStruct<CommissionInfoResDto>> {
         const allValCommissionInfo: any = await (this.stakingValidatorsModel as any).queryAllValCommission(q)
@@ -69,10 +62,10 @@ export default class StakingValidatorService {
     async getValidatorDelegationList(q: ValidatorDelegationsReqDto): Promise<ListStruct<ValidatorDelegationsResDto>> {
         const validatorAddr = q.address
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
-        const validatorDelegationsFromLcd = await this.stakingValidatorHttp.queryValidatorDelegationsFromLcd(validatorAddr)
+        const validatorDelegationsFromLcd = await this.stakingHttp.queryValidatorDelegationsFromLcd(validatorAddr)
         const allShares: number[] = []
         validatorDelegationsFromLcd.forEach(item => {
-            //TODO 使用位移进行大数字的计算
+            //TODO:zhangjinbiao 使用位移进行大数字的计算
             allShares.push(Number(item.delegation.shares))
         })
         let totalShares = allShares.reduce((total: number, item: number) => {
@@ -105,7 +98,7 @@ export default class StakingValidatorService {
     async getValidatorUnBondingDelegations(q: ValidatorUnBondingDelegationsReqDto): Promise<ListStruct<ValidatorUnBondingDelegationsResDto>> {
         const validatorAddr = q.address
         const allValidatorsMoniker = await this.getAllValidatorMonikerMap()
-        const valUnBondingDelegationsFromLcd = await this.stakingValidatorHttp.queryValidatorUnBondingDelegations(validatorAddr)
+        const valUnBondingDelegationsFromLcd = await this.stakingHttp.queryValidatorUnBondingDelegations(validatorAddr)
         let resultData = valUnBondingDelegationsFromLcd.map(item => {
             return {
                 moniker: allValidatorsMoniker.get(item.validator_address).description.moniker || '',
@@ -146,33 +139,35 @@ export default class StakingValidatorService {
     async getValidatorDetail(q: ValidatorDelegationsReqDto): Promise<ValidatorDetailResDtO> {
 
         const validatorAddress = q.address
-        let result: any = {}
-        let validatorDetail = await (this.stakingValidatorsModel as any).queryDetailByValidator(validatorAddress)
-        const moduleName = moduleSlashing
-        const signedBlocksWindow = await (this.parametersModel as any).querySignedBlocksWindow(moduleName)
-        const latestBlock = await BlockHttp.queryLatestBlockFromLcd()
-        const signedBlocksWindowCurVal = signedBlocksWindow.cur_value || undefined
-        const latestBlockHeight = latestBlock.block.header.height || 0
-        const startHeight = validatorDetail.start_height || 0
-        if (Number(signedBlocksWindowCurVal) < (Number(latestBlockHeight) - Number(startHeight))) {
-            validatorDetail.stats_blocks_window = signedBlocksWindowCurVal
-        } else {
-            validatorDetail.stats_blocks_window = (Number(latestBlockHeight) - Number(startHeight))
+        let result: any = null;
+        let validatorDetail = await (this.stakingValidatorsModel as any).queryDetailByValidator(validatorAddress);
+        if (validatorDetail) {
+            const moduleName = moduleSlashing
+            const signedBlocksWindow = await (this.parametersModel as any).querySignedBlocksWindow(moduleName)
+            const latestBlock = await BlockHttp.queryLatestBlockFromLcd()
+            const signedBlocksWindowCurVal = signedBlocksWindow.cur_value || undefined
+            const latestBlockHeight = latestBlock.block.header.height || 0
+            const startHeight = validatorDetail.start_height || 0
+            if (Number(signedBlocksWindowCurVal) < (Number(latestBlockHeight) - Number(startHeight))) {
+                validatorDetail.stats_blocks_window = signedBlocksWindowCurVal
+            } else {
+                validatorDetail.stats_blocks_window = (Number(latestBlockHeight) - Number(startHeight))
+            }
+            validatorDetail.valStatus = ValidatorNumberStatus[validatorDetail.status]
+            validatorDetail.total_power = await this.getTotalVotingPower()
+            validatorDetail.tokens = Number(validatorDetail.tokens)
+            validatorDetail.bonded_stake = (Number(validatorDetail.self_bond.amount) * (Number(validatorDetail.tokens) / Number(validatorDetail.delegator_shares))).toString()
+            validatorDetail.owner_addr = addressTransform(validatorDetail.operator_address, addressPrefix.iaa)
+            result = new ValidatorDetailResDtO(validatorDetail)
         }
-        validatorDetail.valStatus = ValidatorNumberStatus[validatorDetail.status]
-        validatorDetail.total_power = await this.getTotalVotingPower()
-        validatorDetail.tokens = Number(validatorDetail.tokens)
-        validatorDetail.bonded_stake = (Number(validatorDetail.self_bond.amount) * (Number(validatorDetail.tokens) / Number(validatorDetail.delegator_shares))).toString()
-        validatorDetail.owner_addr = addressTransform(validatorDetail.operator_address, addressPrefix.iaa)
-        result.data = new ValidatorDetailResDtO(validatorDetail)
         return result
     }
 
     async getAddressAccount(q: AccountAddrReqDto): Promise<AccountAddrResDto> {
         const address = addressTransform(q.address, addressPrefix.iaa)
         const operatorAddress = addressTransform(q.address, addressPrefix.iva)
-        const balancesArray = await this.stakingValidatorHttp.queryBalanceByAddress(address)
-        //TODO 奖励地址需要加上
+        const balancesArray = await this.stakingHttp.queryBalanceByAddress(address)
+        //TODO:zhangjinbiao 奖励地址需要加上
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const allProfilerAddress = await (this.profilerModel as any).queryProfileAddress()
         const validator = allValidatorsMap.get(operatorAddress)
@@ -187,7 +182,7 @@ export default class StakingValidatorService {
         }
         let result: any = {}
         result.amount = balancesArray
-        //TODO 奖励地址需要加上
+        //TODO:zhangjinbiao 奖励地址需要加上
         result.withdrawAddress = ''
         result.address = address
         result.moniker = validator.description.moniker
@@ -199,7 +194,7 @@ export default class StakingValidatorService {
             result.status = ''
         }
         if (deposits && deposits.data && deposits.data.length > 0) {
-            //TODO 处理查询出来与Gov相关的交易列表计算总的amount
+            //TODO:zhangjinbiao 处理查询出来与Gov相关的交易列表计算总的amount
 
         } else {
             result.deposits = {}

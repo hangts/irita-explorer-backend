@@ -3,17 +3,16 @@ import {cfg} from '../../config/config';
 import {Logger} from '../../logger';
 import {
     AddressBalancesLcdDto,
-    commissionRewardsLcdDto, IconUriLcdDto,
+    IconUriLcdDto,
     StakingValidatorDelegationLcdDto,
     StakingValidatorLcdDto, StakingValidatorParametersLcdDto,
-    StakingValidatorSlashLcdDto, StakingValUnBondingDelLcdDto, valWithdrawAddressLcdDto
+    StakingValidatorSlashLcdDto, StakingValUnBondingDelLcdDto
 } from "../../dto/http.dto";
-import {iconUri} from "../../constant";
 
 
 @Injectable()
 
-export class StakingValidatorHttp {
+export class StakingHttp {
     async queryValidatorListFromLcd(pageNum: number, pageSize: number) {
         const validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?pageNum=${pageNum}&pageSize=${pageSize}`
         try {
@@ -57,7 +56,7 @@ export class StakingValidatorHttp {
     }
 
     async queryValidatorIcon(valIdentity) {
-        const getIconUri = `${iconUri}${valIdentity || ''}`
+        const getIconUri = `${cfg.serverCfg.iconUri}?fields=pictures&key_suffix=${valIdentity || ''}`
         try {
             const valIconData: any = await new HttpService().get(getIconUri).toPromise().then(result => result)
             if (valIconData) {
@@ -83,21 +82,6 @@ export class StakingValidatorHttp {
 
         } catch (e) {
             Logger.warn(`api-error from ${parameterUri}`, e)
-        }
-    }
-
-    async getCommissionRewards(valAddress) {
-        const getCommissionRewardsUri = `${cfg.serverCfg.lcdAddr}/distribution/validators/${valAddress}`
-        try {
-            const commissionRewardsData: any = await new HttpService().get(getCommissionRewardsUri).toPromise().then(result => result.data)
-            if (commissionRewardsData && commissionRewardsData.result) {
-                return new commissionRewardsLcdDto(commissionRewardsData.result)
-            } else {
-                Logger.warn('api-error:', 'there is no result of validator withdraw address from lcd');
-            }
-
-        } catch (e) {
-            Logger.warn(`api-error from ${getCommissionRewardsUri}`, e)
         }
     }
 

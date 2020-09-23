@@ -5,7 +5,7 @@ import {
     IQueryValidatorByStatus,
     IStakingValidator,
     IDetailByValidatorAddress
-} from "../types/schemaTypes/staking.validator.interface";
+} from "../types/schemaTypes/staking.interface";
 import {ValidatorStatus} from "../constant";
 
 export const StakingValidatorSchema = new mongoose.Schema({
@@ -43,7 +43,11 @@ StakingValidatorSchema.statics = {
         return await this.find({})
     },
 
-    async insertValidator(insertValidator: IStakingValidator) {
+    async findValidatorByPropopserAddr(PropopserAddr:string):Promise<IStakingValidator>{
+        return await this.find({proposer_addr:PropopserAddr});
+    },
+
+    async insertValidator(insertValidator:IStakingValidator) {
         let {operator_address} = insertValidator
         //设置 options 查询不到就插入操作
         const options = {upsert: true, new: false, setDefaultsOnInsert: true}
@@ -54,6 +58,7 @@ StakingValidatorSchema.statics = {
         const {operator_address} = deleteValidator
         await this.deleteOne({operator_address})
     },
+    
     async queryAllValCommission(query): Promise<IListStruct> {
         const result: IListStruct = {}
         if (query.useCount && query.useCount == true) {
@@ -74,10 +79,12 @@ StakingValidatorSchema.statics = {
             .limit(Number(query.pageSize));
         return result
     },
-    async queryDetailByValidator(query: IDetailByValidatorAddress): Promise<any> {
+
+    async queryDetailByValidator(operator_address: string): Promise<any> {
         let queryParameters: any = {};
-        queryParameters.operator_address = query
+        queryParameters.operator_address = operator_address
         let result = await this.findOne(queryParameters)
         return result
     }
 }
+

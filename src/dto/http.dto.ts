@@ -1,10 +1,11 @@
-import {IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty} from 'class-validator';
-import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
-import {BaseReqDto, BaseResDto, PagingReqDto} from './base.dto';
-import {ApiError} from '../api/ApiResult';
-import {ErrorCodes} from '../api/ResultCodes';
-import {IBindTx} from '../types/tx.interface';
-import {IDenomStruct} from '../types/schemaTypes/denom.interface';
+import { IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { BaseReqDto, BaseResDto, PagingReqDto } from './base.dto';
+import { Coin } from './common.res.dto';
+import { ApiError } from '../api/ApiResult';
+import { ErrorCodes } from '../api/ResultCodes';
+import { IBindTx } from '../types/tx.interface';
+import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 
 // lcd相关请求返回值数据模型
 
@@ -12,9 +13,8 @@ import {IDenomStruct} from '../types/schemaTypes/denom.interface';
 // /nft/nfts/denoms response dto
 export class DenomDto {
     id: string;
-    schema: string;
-    creator: string;
-
+    schema:string;
+    creator:string;
     constructor(value) {
         this.id = value.id || '';
         this.schema = value.schema || '';
@@ -53,7 +53,7 @@ export class NftCollectionDto {
     constructor(value) {
         let {denom, nfts} = value;
         this.denom = new DenomDto(denom);
-        this.nfts = (nfts || []).map(item => {
+        this.nfts = (nfts || []).map(item=>{
             return new Nft(item);
         });
     }
@@ -67,8 +67,8 @@ export class VValidatorDto {
     certificate: string;
     power: string;
     operator: string;
-    jailed: boolean;
-    details: string;
+    jailed:boolean;
+    details:string;
 
     constructor(value) {
         this.id = value.id || '';
@@ -94,10 +94,9 @@ export class VValidatorDto {
 // /blocks/{height} or /blocks/latest response dto
 export class BlockId {
     hash: string;
-    parts: { total: number, hash: string };
-
+    parts: { total:number, hash:string};
     constructor(value) {
-        let {hash, parts} = value;
+        let { hash, parts } = value;
         this.hash = hash || '';
         this.parts = parts;
     }
@@ -110,16 +109,23 @@ export class Signatures {
     signature: string;
 
     constructor(value) {
-        let {block_id_flag, validator_address, timestamp, signature} = value;
+        let { block_id_flag, validator_address, timestamp, signature } = value;
         this.block_id_flag = block_id_flag || '';
         this.validator_address = validator_address || '';
         this.timestamp = timestamp || '';
         this.signature = signature || '';
+    }    
+    static bundleData(value: any = []): Signatures[] {
+        let data: Signatures[] = [];
+        data = value.map((v: any) => {
+            return new Signatures(v);
+        });
+        return data;
     }
 }
 
 export class BlockHeader {
-    version: { block: string };
+    version: { block: string, app:string };
     chain_id: string;
     height: number;
     time: string;
@@ -129,6 +135,7 @@ export class BlockHeader {
     validators_hash: string;
     next_validators_hash: string;
     consensus_hash: string;
+    app_hash: string;
     last_results_hash: string;
     evidence_hash: string;
     proposer_address: string;
@@ -144,6 +151,7 @@ export class BlockHeader {
         this.validators_hash = value.validators_hash || '';
         this.next_validators_hash = value.next_validators_hash || '';
         this.consensus_hash = value.consensus_hash || '';
+        this.app_hash = value.app_hash || '';
         this.last_results_hash = value.last_results_hash || '';
         this.evidence_hash = value.evidence_hash || '';
         this.proposer_address = value.proposer_address || '';
@@ -154,28 +162,27 @@ export class Commit {
     height: number;
     round: number;
     block_id: BlockId;
-    signatures: Signatures;
-
+    signatures: Signatures[];
     constructor(value) {
-        let {height, round, block_id, signatures} = value;
+        let { height, round, block_id, signatures } = value;
         this.height = Number(height);
         this.round = round;
         this.block_id = new BlockId(block_id);
-        this.signatures = new Signatures(signatures);
+        this.signatures = Signatures.bundleData(signatures);
     }
 }
 
 export class Block {
     header: BlockHeader;
-    data: { txs: any[] };
-    evidence: { evidence: any[] };
+    data: { txs:  any[]};
+    evidence: { evidence:  any[]};
     last_commit: Commit;
 
     constructor(value) {
-        let {header, data, evidence, last_commit} = value;
+        let { header, data, evidence, last_commit } = value;
         this.header = new BlockHeader(header);
-        this.data = data;
-        this.evidence = evidence;
+        this.data =  data;
+        this.evidence =  evidence;
         this.last_commit = new Commit(last_commit);
     }
 }
@@ -183,14 +190,52 @@ export class Block {
 export class BlockDto {
     block_id: BlockId;
     block: Block;
-
     constructor(value) {
-        let {block_id, block} = value;
+        let { block_id,  block } = value;
         this.block_id = new BlockId(block_id);
         this.block = new Block(block);
     }
 }
 
+// distribution/delegators/{delegatorAddr}/withdraw_address response dto
+export class WithdrawAddressDto {
+    address: string;
+    constructor(address:string) {
+        this.address = address;
+    }
+}
+
+// /distribution/delegators/{delegatorAddr}/rewards
+export class DelegatorRewardsDto {
+    rewards: Reward[];
+    total: Coin[];
+    constructor(value) {
+        let { rewards, total } = value;
+        this.rewards = Reward.bundleData(rewards);
+        this.total = Coin.bundleData(total);
+    }
+}
+
+export class Reward {
+    validator_address:string;
+    reward:Coin[];
+    constructor(value) {
+        let { validator_address, reward } = value;
+        this.validator_address = validator_address || '';
+        this.reward = Coin.bundleData(reward);
+    }
+
+    static bundleData(value: any = []): Reward[] {
+        let data: Reward[] = [];
+        data = value.map((v: any) => {
+            return new Reward(v);
+        });
+        return data;
+    }
+}
+
+
+// staking/validators
 export class StakingValidatorLcdDto {
     operator_address: string;
     consensus_pubkey: string;
@@ -223,6 +268,7 @@ export class StakingValidatorLcdDto {
     }
 }
 
+// /slashing/validators/${validatorPubkey}/signing_info
 export class StakingValidatorSlashLcdDto {
     address: string;
     start_height?: string;
@@ -238,6 +284,19 @@ export class StakingValidatorSlashLcdDto {
         this.jailed_until = value.jailed_until || '';
         this.tombstoned = value.tombstoned || false;
         this.missed_blocks_counter = value.missed_blocks_counter || '';
+    }
+}
+
+// /staking/validators/${valOperatorAddr}/delegations
+export class StakingValidatorDelegationLcdDto {
+    result: Array<IDelegationLcd>;
+
+    static bundleData(value: any = []): IDelegationLcd[] {
+        let data: IDelegationLcd[] = [];
+        data = value.map((v: any) => {
+            return new IDelegationLcd(v);
+        });
+        return data;
     }
 }
 
@@ -258,13 +317,25 @@ export class IDelegationLcd {
     }
 }
 
-export class StakingValidatorDelegationLcdDto {
-    result: Array<IDelegationLcd>;
 
-    static bundleData(value: any = []): IDelegationLcd[] {
-        let data: IDelegationLcd[] = [];
+// /validatorsets/{height}
+export class Validatorset {
+    address:string;
+    pub_key:string;
+    proposer_priority:string;
+    voting_power:string;
+    constructor(value) {
+        let { address, pub_key, proposer_priority, voting_power } = value;
+        this.address = address || '';
+        this.pub_key = pub_key || '';
+        this.proposer_priority = proposer_priority || '';
+        this.voting_power = voting_power || '';
+    }
+
+    static bundleData(value: any = []): Validatorset[] {
+        let data: Validatorset[] = [];
         data = value.map((v: any) => {
-            return new IDelegationLcd(v);
+            return new Validatorset(v);
         });
         return data;
     }
@@ -279,6 +350,7 @@ export class IThemStruct {
     }
 }
 
+// https://keybase.io/_/api/1.0/user/lookup.json?fields=pictures&key_suffix={identity}
 export class IconUriLcdDto {
     status: {
         code: number,
@@ -293,6 +365,8 @@ export class IconUriLcdDto {
 
 }
 
+
+// /slashing/parameters
 export class StakingValidatorParametersLcdDto {
     signed_blocks_window: string;
     min_signed_per_window: string;
@@ -309,14 +383,6 @@ export class StakingValidatorParametersLcdDto {
     }
 }
 
-export class valWithdrawAddressLcdDto {
-    address: string;
-
-    constructor(value) {
-        this.address = value || '';
-    }
-}
-
 export class ISelfBondRewards {
     amount: string;
     denom: string;
@@ -327,6 +393,7 @@ export class ISelfBondRewards {
     }
 }
 
+// /distribution/validators/${valAddress}
 export class commissionRewardsLcdDto {
     operator_address: string;
     self_bond_rewards: [];
@@ -339,13 +406,7 @@ export class commissionRewardsLcdDto {
     }
 }
 
-export class UnBondingDel {
-    creation_height: string;
-    completion_time: string;
-    initial_balance: string;
-    balance: string
-}
-
+// /staking/validators/${address}/unbonding_delegations
 export class StakingValUnBondingDelLcdDto {
     delegator_address: string;
     validator_address: string;
@@ -364,6 +425,13 @@ export class StakingValUnBondingDelLcdDto {
         });
         return data;
     }
+}
+
+export class UnBondingDel {
+    creation_height: string;
+    completion_time: string;
+    initial_balance: string;
+    balance: string
 }
 
 export class AddressBalancesLcdDto {

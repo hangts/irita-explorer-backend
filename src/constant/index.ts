@@ -126,23 +126,23 @@ export const PubKeyAlgorithm = {
 }
 export const addressPrefix = {
     iaa: 'iaa',
-    iva: 'iva'
+    iva: 'iva',
+    ica: 'ica'
 }
 export const signedBlocksWindow = 'signed_blocks_window'
 export const hubDefaultEmptyValue = '[do-not-modify]'
 export const moduleSlashing = 'slashing'
-export const iconUri = `https://keybase.io/_/api/1.0/user/lookup.json?fields=pictures&key_suffix=`
 
 export const ValidatorStatus = {
     'jailed': 1,
-    'Candidate': 2,
+    'candidate': 2,
     'active': 3,
 }
 export const ValidatorNumberStatus = {
     1: 'jailed',
-    2: 'Candidate',
+    2: 'candidate',
     3: 'active',
 }
 export const activeValidatorLabel = 'active'
-export const candidateValidatorLabel = 'Candidate'
+export const candidateValidatorLabel = 'candidate'
 export const jailedValidatorLabel = 'jailed'

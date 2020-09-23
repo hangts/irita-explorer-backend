@@ -1,10 +1,10 @@
 import {Module} from '@nestjs/common';
 import {MongooseModule} from '@nestjs/mongoose';
 import {StakingValidatorSchema} from "../schema/staking.validator.schema";
-import StakingValidatorService from "../service/staking.validator.service";
-import {StakingValidatorHttp} from "../http/lcd/staking.validator.http";
+import StakingService from "../service/staking.service";
+import {StakingHttp} from "../http/lcd/staking.http";
 import {ProfilerSchema} from "../schema/profiler.schema";
-import {StakingValidatorController} from "../controller/stakingVallidator.controller";
+import {StakingController} from "../controller/staking.controller";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {TxSchema} from "../schema/tx.schema";
 
@@ -33,8 +33,8 @@ import {TxSchema} from "../schema/tx.schema";
             }
         ])
     ],
-    providers: [StakingValidatorService, StakingValidatorHttp],
-    controllers: [StakingValidatorController],
+    providers: [StakingService, StakingHttp],
+    controllers: [StakingController],
 })
-export class StakingValidatorModule {
+export class StakingModule {
 }

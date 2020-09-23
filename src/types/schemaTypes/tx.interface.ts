@@ -3,6 +3,7 @@ import { IQueryBase } from '../index';
 export interface ITxsQuery extends IQueryBase {
 	type?:string,
 	status?:string,
+    address?:string,
 	beginTime?:string,
   	endTime?:string,
 }

@@ -2,16 +2,25 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { BlockListResDto, BlockListReqDto, BlockDetailReqDto } from '../dto/block.dto';
+import { 
+    BlockListReqDto, 
+    BlockDetailReqDto,
+    ValidatorsetsReqDto } from '../dto/block.dto';
+import { 
+    BlockListResDto,
+    ValidatorsetsResDto,
+    BlockStakingResDto} from '../dto/block.dto';
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { BlockHttp } from '../http/lcd/block.http';
-import { Logger } from '../logger'
-
+import { Logger } from '../logger';
+import { addressPrefix } from '../constant';
+import { hexToBech32 } from '../util/util';
 @Injectable()
 export class BlockService {
 
-    constructor(@InjectModel('Block') private blockModel: Model<IBlock>) {
-    }
+    constructor(
+        @InjectModel('Block') private blockModel: Model<IBlock>,
+        @InjectModel('StakingValidator') private stakingValidatorModel: any) {}
 
     async queryBlockList(query: BlockListReqDto): Promise<ListStruct<BlockListResDto[]>> {
         const { pageNum, pageSize, useCount } = query;
@@ -34,6 +43,83 @@ export class BlockService {
             data = new BlockListResDto(res.height, res.hash, res.txn, res.time);
         }
         return data;
+    }
+
+    // blocks/staking/{height}
+    async queryBlockStakingDetail(query: BlockDetailReqDto): Promise<BlockStakingResDto | null> {
+        const { height } = query;
+        let result: BlockStakingResDto | null = null;
+        let data:any = {};
+
+        let block_db = await (this.blockModel as any).findOneByHeight(height);
+        block_db = JSON.parse(JSON.stringify(block_db));
+        if (block_db) {
+            let block_lcd =  await BlockHttp.queryBlockFromLcd(height);
+            let latestBlock = await BlockHttp.queryLatestBlockFromLcd();
+            let proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block_db.proposer || '');
+            let validatorsets = await BlockHttp.queryValidatorsets(height);
+            data = {
+                height: block_db.height,
+                hash: block_db.hash,
+                txn: block_db.txn,
+                time: block_db.time,
+                proposer: block_db.proposer
+            };
+            if (proposer) {
+                data.proposer_moniker = (proposer.description || {}).moniker || '';
+                data.propopser_addr = proposer.operator_address || '';
+            }
+            if (validatorsets) {
+                data.total_validator_num = validatorsets ? validatorsets.length : 0;
+                let icaAddr = hexToBech32(block_db.proposer, addressPrefix.ica);
+                data.total_voting_power = 0;
+                validatorsets.forEach((item)=>{
+                    //TODO:hangtaishan 使用大数计算
+                    data.total_voting_power += Number(item.voting_power || 0);
+                    if (item.address == icaAddr) {
+                        data.precommit_voting_power = item.voting_power;
+                    }
+                });
+            }
+            if (block_lcd) {
+                try{
+                    data.precommit_validator_num = block_lcd.block.last_commit.signatures.length;
+                }catch(e){
+                    data.precommit_validator_num = 0;
+                }
+            }
+            if (latestBlock) {
+                data.latest_height = (latestBlock.block.header || {}).height;
+            }
+            result = new BlockStakingResDto(data);
+        }
+        return result;
+    }
+
+    // validatorset/{height}
+    async queryValidatorset(query: ValidatorsetsReqDto): Promise<ListStruct<ValidatorsetsResDto[]>> {
+        const { height, pageNum, pageSize, useCount } = query;
+        let data_lcd = await BlockHttp.queryValidatorsets(height);
+        let data = data_lcd.slice((pageNum - 1) * pageSize, pageNum * pageSize);
+        if (data && data.length) {
+            let block = await (this.blockModel as any).findOneByHeight(Number(height));
+            let validators = await this.stakingValidatorModel.queryAllValidators();
+            if (validators.length) {
+                let validatorMap = {};
+                validators.forEach((v)=>{
+                    validatorMap[v.consensus_pubkey] = v;
+                });
+                data.forEach((item)=>{
+                    let validator = validatorMap[item.pub_key];
+                    if (validator) {
+                        (item as any).moniker = (validator.description || {}).moniker || '';
+                        (item as any).operator_address = validator.operator_address || '';
+                        (item as any).is_proposer = (validator.proposer_addr == block.proposer)
+                    }
+                })
+            }
+        }
+        return new ListStruct(ValidatorsetsResDto.bundleData(data_lcd), pageNum, pageSize, data_lcd.length);
     }
 
     async queryLatestBlock(): Promise<IBlockStruct> {

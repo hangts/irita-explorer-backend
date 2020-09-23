@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {StakingValidatorSchema} from "../schema/staking.validator.schema";
 import {StakingValidatorTaskService} from "../task/staking.validator.task.service";
-import {StakingValidatorHttp} from "../http/lcd/staking.validator.http";
+import {StakingHttp} from "../http/lcd/staking.http";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {ParametersTaskService} from "../task/parameters.task.service";
 
@@ -22,7 +22,7 @@ import {ParametersTaskService} from "../task/parameters.task.service";
       }
     ])
   ],
-  providers:[StakingValidatorTaskService,ParametersTaskService,StakingValidatorHttp],
+  providers:[StakingValidatorTaskService,ParametersTaskService,StakingHttp],
   exports:[StakingValidatorTaskService,ParametersTaskService],
 })
 

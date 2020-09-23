@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 export const ProfilerSchema = new mongoose.Schema({
-    address: String,
+    address: {type:String, required:true, unique: true},
     create_time: Number,
     update_time: Number
 })

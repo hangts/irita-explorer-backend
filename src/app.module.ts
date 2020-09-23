@@ -21,10 +21,11 @@ import { ValidatorModule } from './module/validator.module';
 
 import { IdentityTaskModule } from './module/identity.task.module';
 import { IdentityModule } from './module/identity.module';
+import { DistributionModule } from './module/distribution.module';
 import {StakingValidatorTaskModule} from "./module/staking.validator.task.module";
 import {ParametersTaskModule} from "./module/parameters.taskModule";
 import {ProfilerModule} from "./module/profiler.module";
-import {StakingValidatorModule} from "./module/staking.validator.module";
+import {StakingModule} from "./module/staking.module";
 
 console.log(cfg);
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
@@ -45,10 +46,11 @@ const params = {
         TxTaskModule,
         IdentityTaskModule,
         IdentityModule,
+        DistributionModule,
         StakingValidatorTaskModule,
         ParametersTaskModule,
         ProfilerModule,
-        StakingValidatorModule,
+        StakingModule,
     ],
     providers:<any> [
         {

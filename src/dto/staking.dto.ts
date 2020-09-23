@@ -4,11 +4,11 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 /***************Req***********************/
 
 
-export class ValCommissionRewReqDto {
-    @ApiProperty()
-    @ApiPropertyOptional()
-    address?: string
-}
+// export class ValCommissionRewReqDto {
+//     @ApiProperty()
+//     @ApiPropertyOptional()
+//     address?: string
+// }
 
 export class CommissionInfoReqDto extends PagingReqDto {
 
@@ -25,7 +25,7 @@ export class ValidatorUnBondingDelegationsReqDto extends PagingReqDto {
 }
 
 export class allValidatorReqDto extends PagingReqDto {
-    @ApiProperty()
+    @ApiProperty({description:'jailed/candidate/active'})
     status: string
 }
 
@@ -92,18 +92,18 @@ export class stakingValidatorResDto extends BaseResDto {
 }
 
 
-export class ValCommissionRewResDto extends BaseResDto {
-    operator_address: string;
-    self_bond_rewards: [];
-    val_commission: object;
+// export class ValCommissionRewResDto extends BaseResDto {
+//     operator_address: string;
+//     self_bond_rewards: [];
+//     val_commission: object;
 
-    constructor(commissionRewards) {
-        super();
-        this.operator_address = commissionRewards.operator_address || ''
-        this.self_bond_rewards = commissionRewards.self_bond_rewards || {}
-        this.val_commission = commissionRewards.operator_address || {}
-    }
-}
+//     constructor(commissionRewards) {
+//         super();
+//         this.operator_address = commissionRewards.operator_address || ''
+//         this.self_bond_rewards = commissionRewards.self_bond_rewards || {}
+//         this.val_commission = commissionRewards.val_commission || {}
+//     }
+// }
 
 export class CommissionInfoResDto extends BaseResDto {
     commission_rate: string;

@@ -23,16 +23,24 @@ export function formatDateStringToNumber(dateString) {
     return Math.floor(new Date(dateString).getTime() / 1000)
 }
 
-export function addressTransform(str, prefix) {
+export function addressTransform(str:string, prefix?:string) {
     try {
-        let bech32str = bech32.decode(str, 'utf-8')
+        let bech32str = bech32.decode(str,'utf-8');
         prefix = prefix || '';
         let result = bech32.encode(prefix, bech32str.words)
         return result;
     } catch (e) {
         console.warn('address transform failed', e)
     }
+}
 
+export function hexToBech32(hexStr:string, prefix:string = "") {
+    try {
+        let words = bech32.toWords(Buffer.from(hexStr,'hex'));
+        return bech32.encode(prefix, words);
+    }catch (e) {
+        console.warn('address transform fialed',e)
+    }
 }
 
 export function pageNation(dataArray: any[], pageSize: number = 0) {

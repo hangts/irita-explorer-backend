@@ -3,6 +3,7 @@ import {BlockController} from '../controller/block.controller';
 import {BlockService} from '../service/block.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {BlockSchema} from '../schema/block.schema';
+import { StakingValidatorSchema } from '../schema/staking.validator.schema';
 import {HttpModule} from '@nestjs/common';
 
 @Module({
@@ -12,7 +13,15 @@ import {HttpModule} from '@nestjs/common';
             schema: BlockSchema,
             collection: 'sync_block'
         }]),
-        HttpModule
+        MongooseModule.forFeature([
+            {
+                name:'StakingValidator',
+                schema:StakingValidatorSchema,
+                collection:'ex_validator'
+            }
+        ]),
+        HttpModule,
+
     ],
     providers:[BlockService],
     controllers:[BlockController],
