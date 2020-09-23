@@ -2,6 +2,7 @@ import {HttpService, Injectable} from '@nestjs/common';
 import {cfg} from '../../config/config';
 import {Logger} from '../../logger';
 import {
+    AddressBalancesLcdDto,
     commissionRewardsLcdDto, IconUriLcdDto,
     StakingValidatorDelegationLcdDto,
     StakingValidatorLcdDto, StakingValidatorParametersLcdDto,
@@ -16,7 +17,7 @@ export class StakingValidatorHttp {
     async queryValidatorListFromLcd(pageNum: number, pageSize: number) {
         const validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?pageNum=${pageNum}&pageSize=${pageSize}`
         try {
-            let stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result =>  result.data)
+            let stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)
             if (stakingValidatorData && stakingValidatorData.result) {
                 return StakingValidatorLcdDto.bundleData(stakingValidatorData.result);
             } else {
@@ -85,20 +86,6 @@ export class StakingValidatorHttp {
         }
     }
 
-    async getValidatorWithdrawAddress(valDelAddr) {
-        const getValidatorWithdrawAddressUri = `${cfg.serverCfg.lcdAddr}/distribution/delegators/${valDelAddr}/withdraw_address`
-        try {
-            const valWithdrawAddrData: any = await new HttpService().get(getValidatorWithdrawAddressUri).toPromise().then(result => result.data)
-            if (valWithdrawAddrData && valWithdrawAddrData.result) {
-                return new valWithdrawAddressLcdDto(valWithdrawAddrData.result)
-            } else {
-                Logger.warn('api-error:', 'there is no result of validator withdra address from lcd');
-            }
-        } catch (e) {
-            Logger.warn(`api-error from ${getValidatorWithdrawAddressUri}`, e)
-        }
-    }
-
     async getCommissionRewards(valAddress) {
         const getCommissionRewardsUri = `${cfg.serverCfg.lcdAddr}/distribution/validators/${valAddress}`
         try {
@@ -113,8 +100,9 @@ export class StakingValidatorHttp {
             Logger.warn(`api-error from ${getCommissionRewardsUri}`, e)
         }
     }
-    async queryValidatorDelegationsFromLcd(address){
-        const getValidatorDelegationsUri  = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/delegations`
+
+    async queryValidatorDelegationsFromLcd(address) {
+        const getValidatorDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/delegations`
         try {
             let validatorDelegationsData: any = await new HttpService().get(getValidatorDelegationsUri).toPromise().then(result => result.data)
             if (validatorDelegationsData && validatorDelegationsData.result) {
@@ -122,11 +110,12 @@ export class StakingValidatorHttp {
             } else {
                 Logger.warn('api-error:', 'there is no result of validator delegations from lcd');
             }
-        }catch (e) {
+        } catch (e) {
             Logger.warn(`api-error from ${getValidatorDelegationsUri}`, e)
         }
     }
-    async queryValidatorUnBondingDelegations(address){
+
+    async queryValidatorUnBondingDelegations(address) {
         const getValidatorUnBondingDelUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/unbonding_delegations`
         try {
             let validatorUnBondingDelegationsData: any = await new HttpService().get(getValidatorUnBondingDelUri).toPromise().then(result => result.data)
@@ -135,8 +124,24 @@ export class StakingValidatorHttp {
             } else {
                 Logger.warn('api-error:', 'there is no result of validator unBonding delegations from lcd');
             }
-        }catch (e) {
+        } catch (e) {
             Logger.warn(`api-error from ${getValidatorUnBondingDelUri}`, e)
+        }
+    }
+
+    async queryBalanceByAddress(address) {
+        const getBalancesUri = `${cfg.serverCfg.lcdAddr}/bank/balances/${address}`
+        try {
+            let addressBalancesData: any = await new HttpService().get(getBalancesUri).toPromise().then(result => result.data)
+            if (addressBalancesData && addressBalancesData.result) {
+                return AddressBalancesLcdDto.bundleData(addressBalancesData.result);
+            } else {
+                Logger.warn('api-error:', 'there is no result of validator unBonding delegations from lcd');
+            }
+
+        } catch (e) {
+            console.log(e)
+            Logger.warn(`api-error from ${getBalancesUri}`, e)
         }
     }
 }

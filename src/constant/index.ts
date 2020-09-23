@@ -1,4 +1,4 @@
-import { cfg } from '../config/config';
+import {cfg} from '../config/config';
 
 export enum TaskEnum {
     denom = 'ex_sync_denom',
@@ -101,6 +101,7 @@ export enum TxStatus {
     SUCCESS = 1,
     FAILED = 0,
 }
+
 export const IdentityLimitSize = 1000
 
 export enum LoggerLevel {
@@ -114,19 +115,34 @@ export enum LoggerLevel {
     MARK = 'MARK',
     OFF = 'OFF',
 }
+
 export const PubKeyAlgorithm = {
-    0:'UnknownPubKeyAlgorithm',
-    1:'RSA',
-    2:'DSA',
-    3:'ECDSA',
-    4:'ED25519',
-    5:'SM2',
+    0: 'UnknownPubKeyAlgorithm',
+    1: 'RSA',
+    2: 'DSA',
+    3: 'ECDSA',
+    4: 'ED25519',
+    5: 'SM2',
 }
 export const addressPrefix = {
-    iaa:'iaa',
-    iva:'iva'
+    iaa: 'iaa',
+    iva: 'iva'
 }
 export const signedBlocksWindow = 'signed_blocks_window'
 export const hubDefaultEmptyValue = '[do-not-modify]'
 export const moduleSlashing = 'slashing'
 export const iconUri = `https://keybase.io/_/api/1.0/user/lookup.json?fields=pictures&key_suffix=`
+
+export const ValidatorStatus = {
+    'jailed': 1,
+    'Candidate': 2,
+    'active': 3,
+}
+export const ValidatorNumberStatus = {
+    1: 'jailed',
+    2: 'Candidate',
+    3: 'active',
+}
+export const activeValidatorLabel = 'active'
+export const candidateValidatorLabel = 'Candidate'
+export const jailedValidatorLabel = 'jailed'

@@ -172,8 +172,8 @@ export class Block {
     last_commit: Commit;
 
     constructor(value) {
-        let {BlockHeader, data, evidence, last_commit} = value;
-        this.header = new BlockHeader(BlockHeader);
+        let {header, data, evidence, last_commit} = value;
+        this.header = new BlockHeader(header);
         this.data = data;
         this.evidence = evidence;
         this.last_commit = new Commit(last_commit);
@@ -236,7 +236,7 @@ export class StakingValidatorSlashLcdDto {
         this.start_height = value.start_height || '';
         this.index_offset = value.index_offset || '';
         this.jailed_until = value.jailed_until || '';
-        this.tombstoned = value.tombstoned || '';
+        this.tombstoned = value.tombstoned || false;
         this.missed_blocks_counter = value.missed_blocks_counter || '';
     }
 }
@@ -269,26 +269,30 @@ export class StakingValidatorDelegationLcdDto {
         return data;
     }
 }
+
 export class IThemStruct {
     id?: string;
-    pictures?:{
-        primary?:{
-            url?:string
+    pictures?: {
+        primary?: {
+            url?: string
         }
     }
 }
+
 export class IconUriLcdDto {
-        status:{
-            code: number,
-            name: string
-        };
-        them?:IThemStruct
+    status: {
+        code: number,
+        name: string
+    };
+    them?: IThemStruct
+
     constructor(value) {
         this.status = value.data || {};
         this.them = value.them || {};
     }
 
 }
+
 export class StakingValidatorParametersLcdDto {
     signed_blocks_window: string;
     min_signed_per_window: string;
@@ -335,3 +339,47 @@ export class commissionRewardsLcdDto {
     }
 }
 
+export class UnBondingDel {
+    creation_height: string;
+    completion_time: string;
+    initial_balance: string;
+    balance: string
+}
+
+export class StakingValUnBondingDelLcdDto {
+    delegator_address: string;
+    validator_address: string;
+    entries: Array<UnBondingDel>
+
+    constructor(value) {
+        this.delegator_address = value.delegator_address || '';
+        this.validator_address = value.validator_address || [];
+        this.entries = value.entries || [];
+    }
+
+    static bundleData(value: any = []): StakingValUnBondingDelLcdDto[] {
+        let data: StakingValUnBondingDelLcdDto[] = [];
+        data = value.map((v: any) => {
+            return new StakingValUnBondingDelLcdDto(v);
+        });
+        return data;
+    }
+}
+
+export class AddressBalancesLcdDto {
+    amount: string
+    denom: string
+
+    constructor(value) {
+        this.amount = value.amount || '';
+        this.denom = value.denom || '';
+    }
+
+    static bundleData(value: any = []): AddressBalancesLcdDto[] {
+        let data: AddressBalancesLcdDto[] = [];
+        data = value.map((v: any) => {
+            return new AddressBalancesLcdDto(v);
+        });
+        return data;
+    }
+}
