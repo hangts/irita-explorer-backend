@@ -1,7 +1,12 @@
 import * as mongoose from 'mongoose';
 import {Logger} from "../logger";
 import {IListStruct} from "../types";
-import {IStakingValidator} from "../types/schemaTypes/staking.validator.interface";
+import {
+    IQueryValidatorByStatus,
+    IStakingValidator,
+    IDetailByValidatorAddress
+} from "../types/schemaTypes/staking.interface";
+import {ValidatorStatus} from "../constant";
 
 export const StakingValidatorSchema = new mongoose.Schema({
     operator_address: String,
@@ -26,7 +31,7 @@ export const StakingValidatorSchema = new mongoose.Schema({
     index_offset: String,
     jailed_until: String,
     tombstoned: Boolean,
-    missed_blocks_counter: Boolean,
+    missed_blocks_counter: String,
     create_time: Number,
     update_time: Number,
 })
@@ -49,7 +54,7 @@ StakingValidatorSchema.statics = {
         await this.findOneAndUpdate({operator_address}, insertValidator, options)
     },
 
-    async deleteValidator(deleteValidator:IStakingValidator) {
+    async deleteValidator(deleteValidator: IStakingValidator) {
         const {operator_address} = deleteValidator
         await this.deleteOne({operator_address})
     },
@@ -60,6 +65,25 @@ StakingValidatorSchema.statics = {
             result.count = await this.find({}).countDocuments();
         }
         result.data = await this.find({}).select({'_id': 0, '__v': 0})
+        return result
+    },
+    async queryValidatorsByStatus(query: IQueryValidatorByStatus): Promise<IListStruct> {
+        const queryParameters: any = {};
+        const result: IListStruct = {}
+        queryParameters.status = ValidatorStatus[query.status]
+        if (query.useCount && query.useCount == true) {
+            result.count = await this.find(queryParameters).countDocuments();
+        }
+        result.data = await this.find(queryParameters)
+            .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+            .limit(Number(query.pageSize));
+        return result
+    },
+
+    async queryDetailByValidator(operator_address: string): Promise<any> {
+        let queryParameters: any = {};
+        queryParameters.operator_address = operator_address
+        let result = await this.findOne(queryParameters)
         return result
     }
 }

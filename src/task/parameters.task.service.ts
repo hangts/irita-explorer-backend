@@ -1,19 +1,19 @@
 import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose'
-import {StakingValidatorHttp} from "../http/lcd/staking.validator.http";
+import {StakingHttp} from "../http/lcd/staking.http";
 import {getTimestamp} from "../util/util";
 import {moduleSlashing} from "../constant";
 
 @Injectable()
 export class ParametersTaskService {
     constructor(@InjectModel('ParametersTask') private parametersTaskModel: Model<any>
-        , private readonly stakingValidatorHttp: StakingValidatorHttp) {
+        , private readonly stakingHttp: StakingHttp) {
         this.doTask = this.doTask.bind(this);
     }
 
     async doTask(): Promise<any> {
-        let parametersData = await this.stakingValidatorHttp.queryParametersFromSlashing(),
+        let parametersData = await this.stakingHttp.queryParametersFromSlashing(),
             needInsertData: any[] = [];
         let dbParametersData = await (this.parametersTaskModel as any).queryAllParameters()
         for (const parameterKey in parametersData) {

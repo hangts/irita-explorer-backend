@@ -5,10 +5,12 @@ import { AppModule } from './../app.module';
 import { Logger } from '../logger';
 import { 
   WithdrawAddressReqDto,
-  DelegatorRewardsReqDto } from "../dto/distribution.dto"
+  DelegatorRewardsReqDto,
+  ValCommissionRewReqDto } from "../dto/distribution.dto"
 import { 
   WithdrawAddressResDto,
-  DelegatorRewardsResDto } from "../dto/distribution.dto"
+  DelegatorRewardsResDto,
+  ValCommissionRewResDto } from "../dto/distribution.dto"
 import {ListStruct} from "../api/ApiResult";
 
 describe('DistributionController', () => {
@@ -33,13 +35,20 @@ describe('DistributionController', () => {
         });
     });
 
-    // describe('queryDelegatorRewards', () => {
-    //     it('should return Delegator Rewards', async () => {
-    //         let req:DelegatorRewardsReqDto = { delegatorAddr:'iaa1nfgkyn6ux5mvavhyk5aq8zgzushrecut267w7q' };
-    //         let data:any = await distributionService.queryDelegatorRewards(req);
-    //         expect(data).toBeDefined();
-    //     });
-    // });
+    describe('queryDelegatorRewards', () => {
+        it('should return Delegator Rewards', async () => {
+            let req:DelegatorRewardsReqDto = { delegatorAddr:'iaa1nfgkyn6ux5mvavhyk5aq8zgzushrecut267w7q' };
+            let data:any = await distributionService.queryDelegatorRewards(req);
+            expect(data).toBeDefined();
+        });
+    });
 
+    describe('getCommissionRewardsByVal', () => {
+        it('should return validator Commission Rewards', async () => {
+            let req:ValCommissionRewReqDto = { address:'iva1nfgkyn6ux5mvavhyk5aq8zgzushrecutlt5pr8' };
+            let data:any = await distributionService.getCommissionRewardsByVal(req);
+            expect(data).toBeDefined();
+        });
+    });
 });
 

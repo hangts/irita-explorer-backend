@@ -74,6 +74,7 @@ describe('TxController', () => {
             Logger.log('===>req:',req);
             let data = await txService.queryTxList(req);
             Logger.log('===>queryTxListCount:',data.data.length);
+            expect(data).toBeDefined();
         });
     });
 
@@ -162,7 +163,7 @@ describe('TxController', () => {
             let data = await txService.queryTxWithServiceName(req);
             if (data && data.data.length) {
                 data.data.forEach((item)=>{
-                    let service_name = item.msgs[0].msg.service_name || item.msgs[0].msg.ex.service_name;
+                    let service_name = item.msgs[0].msg.service_name || (item.msgs[0].msg.ex || {}).service_name;
                     expect(service_name).toBe(req.serviceName);
                 });
             }else{
@@ -223,6 +224,30 @@ describe('TxController', () => {
         it('should return an array ', async () => {
 
             let data = await txService.queryTxTypeList();
+            if (data && data.data.length) {
+                Logger.log('====>txTypesCount:',data.data.length);
+            }else{
+                expect(data).toBeDefined();
+            }
+        });
+    });
+
+    describe('queryStakingTxTypeList', () => {
+        it('should return an array ', async () => {
+
+            let data = await txService.queryStakingTxTypeList();
+            if (data && data.data.length) {
+                Logger.log('====>txTypesCount:',data.data.length);
+            }else{
+                expect(data).toBeDefined();
+            }
+        });
+    });
+
+    describe('queryDeclarationTxTypeList', () => {
+        it('should return an array ', async () => {
+
+            let data = await txService.queryDeclarationTxTypeList();
             if (data && data.data.length) {
                 Logger.log('====>txTypesCount:',data.data.length);
             }else{
@@ -295,6 +320,34 @@ describe('TxController', () => {
             };
             let data:ListStruct<TxResDto[]> = await txService.queryIdentityTx(req);
             expect(data.data).toBeDefined();
+        });
+    });
+
+    describe('queryStakingTxList', () => {
+        it('should return an array of txs', async () => {
+            let req:TxListReqDto = {};
+            req.pageNum = 1;
+            req.pageSize = 2;
+            req.useCount = true;
+            
+            Logger.log('===>req:',req);
+            let data = await txService.queryStakingTxList(req);
+            Logger.log('===>queryTxListCount:',data.data.length);
+            expect(data).toBeDefined();
+        });
+    });
+
+    describe('queryDeclarationTxList', () => {
+        it('should return an array of txs', async () => {
+            let req:TxListReqDto = {};
+            req.pageNum = 1;
+            req.pageSize = 2;
+            req.useCount = true;
+            
+            Logger.log('===>req:',req);
+            let data = await txService.queryDeclarationTxList(req);
+            Logger.log('===>queryTxListCount:',data.data.length);
+            expect(data).toBeDefined();
         });
     });
 });

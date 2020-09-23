@@ -1,10 +1,9 @@
-import { IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BaseReqDto, BaseResDto, PagingReqDto } from './base.dto';
-import { ApiError } from '../api/ApiResult';
-import { ErrorCodes } from '../api/ResultCodes';
-import { IBindTx } from '../types/tx.interface';
-import { IDenomStruct } from '../types/schemaTypes/denom.interface';
+import {IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty} from 'class-validator';
+import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
+import {BaseReqDto, BaseResDto, PagingReqDto} from './base.dto';
+import {ApiError} from '../api/ApiResult';
+import {ErrorCodes} from '../api/ResultCodes';
+import {IBindTx} from '../types/tx.interface';
 
 /************************   request dto   ***************************/
 //txs request dto
@@ -12,7 +11,7 @@ export class TxListReqDto extends PagingReqDto {
     @ApiPropertyOptional()
     type?: string;
 
-    @ApiPropertyOptional({ description: '1:success  2:fail' })
+    @ApiPropertyOptional({description: '1:success  2:fail'})
     status?: string;
 
     @ApiPropertyOptional()
@@ -37,7 +36,7 @@ export class eTxListReqDto extends PagingReqDto {
     @ApiPropertyOptional()
     types?: string;
 
-    @ApiPropertyOptional({description:'Greater than or equal to block height'})
+    @ApiPropertyOptional({description: 'Greater than or equal to block height'})
     height?: number;
 }
 
@@ -48,38 +47,38 @@ export class TxListWithHeightReqDto extends PagingReqDto {
 }
 
 //txs/addresses request dto
-export class TxListWithAddressReqDto extends PagingReqDto{
-	@ApiPropertyOptional()
+export class TxListWithAddressReqDto extends PagingReqDto {
+    @ApiPropertyOptional()
     address?: string;
 
     @ApiPropertyOptional()
     type?: string;
 
-    @ApiPropertyOptional({description:'1:success  2:fail'})
+    @ApiPropertyOptional({description: '1:success  2:fail'})
     status?: string;
 
-    static validate(value:any){
+    static validate(value: any) {
         super.validate(value);
-        if (value.status && value.status !=='1' && value.status !=='2') {
+        if (value.status && value.status !== '1' && value.status !== '2') {
             throw new ApiError(ErrorCodes.InvalidParameter, 'status must be 1 or 2');
         }
     }
 }
 
 // txs/relevance
-export class TxListWithContextIdReqDto extends PagingReqDto{
+export class TxListWithContextIdReqDto extends PagingReqDto {
     @ApiPropertyOptional()
     contextId?: string;
 
     @ApiPropertyOptional()
     type?: string;
 
-    @ApiPropertyOptional({description:'1:success  2:fail'})
+    @ApiPropertyOptional({description: '1:success  2:fail'})
     status?: string;
 
-    static validate(value:any){
+    static validate(value: any) {
         super.validate(value);
-        if (value.status && value.status !=='1' && value.status !=='2') {
+        if (value.status && value.status !== '1' && value.status !== '2') {
             throw new ApiError(ErrorCodes.InvalidParameter, 'status must be 1 or 2');
         }
     }
@@ -107,14 +106,14 @@ export class ServicesDetailReqDto extends BaseReqDto {
 }
 
 //txs/service/call-service
-export class TxListWithCallServiceReqDto extends PagingReqDto{
+export class TxListWithCallServiceReqDto extends PagingReqDto {
     @ApiProperty()
     @MinLength(1, {message: "consumerAddr is too short"})
     consumerAddr: string;
 }
 
 //txs/service/respond-service
-export class TxListWithRespondServiceReqDto extends PagingReqDto{
+export class TxListWithRespondServiceReqDto extends PagingReqDto {
     @ApiProperty()
     @MinLength(1, {message: "providerAddr is too short"})
     providerAddr: string;
@@ -130,18 +129,18 @@ export class PostTxTypesReqDto extends BaseReqDto {
 //put txs/types request dto
 export class PutTxTypesReqDto extends BaseReqDto {
     @ApiProperty()
-    @MinLength(1, { message: 'typeName is too short' })
+    @MinLength(1, {message: 'typeName is too short'})
     typeName: string;
 
     @ApiProperty()
-    @MinLength(1, { message: 'newTypeName is too short' })
+    @MinLength(1, {message: 'newTypeName is too short'})
     newTypeName: string;
 }
 
 //Delete txs/types request dto
 export class DeleteTxTypesReqDto extends BaseReqDto {
     @ApiProperty()
-    @MinLength(1, { message: 'typeName is too short' })
+    @MinLength(1, {message: 'typeName is too short'})
     typeName: string;
 }
 
@@ -223,19 +222,25 @@ export class ServiceRespondReqDto extends PagingReqDto {
     @ApiProperty()
     provider?: string;
 }
+
 export class IdentityTxReqDto extends PagingReqDto {
     @ApiProperty()
-    id:string
+    id: string
 }
+
+export class IDepositsAddress {
+    address: string
+}
+
 export class ServiceRespondResDto {
     respondHash: string;
     type: string;
-    height:number;
-    time:number;
-    consumer:string;
-    requestHash:string;
-    requestContextId:string;
-    serviceName:string;
+    height: number;
+    time: number;
+    consumer: string;
+    requestHash: string;
+    requestContextId: string;
+    serviceName: string;
     respondStatus: number;
 
     constructor(
@@ -260,6 +265,7 @@ export class ServiceRespondResDto {
         this.respondStatus = respondStatus;
     }
 }
+
 /************************   response dto   ***************************/
 //txs response dto
 export class TxResDto extends BaseResDto {
@@ -308,21 +314,21 @@ export class TxResDto extends BaseResDto {
 }
 
 //txs/service/call-service
-export class callServiceResDto extends TxResDto{
+export class callServiceResDto extends TxResDto {
     respond: TxResDto[];
 
-    constructor(txData){
+    constructor(txData) {
         super(txData);
         if (txData.respond && txData.respond.length) {
-            this.respond = (txData.respond || []).map((item)=>{
+            this.respond = (txData.respond || []).map((item) => {
                 return new TxResDto(item);
             });
         }
     }
 
-    static bundleData(value:any):callServiceResDto[]{
-        let data:callServiceResDto[] = [];
-        data = value.map((v:any)=>{
+    static bundleData(value: any): callServiceResDto[] {
+        let data: callServiceResDto[] = [];
+        data = value.map((v: any) => {
             return new callServiceResDto(v);
         });
         return data;
@@ -330,19 +336,19 @@ export class callServiceResDto extends TxResDto{
 }
 
 //txs/service/respond-service
-export class RespondServiceResDto extends TxResDto{
+export class RespondServiceResDto extends TxResDto {
     respond_times: number;
     unbinding_time: number;
 
-    constructor(txData){
+    constructor(txData) {
         super(txData);
         this.respond_times = txData.respond_times;
         this.unbinding_time = txData.unbinding_time;
     }
 
-    static bundleData(value:any):RespondServiceResDto[]{
-        let data:RespondServiceResDto[] = [];
-        data = value.map((v:any)=>{
+    static bundleData(value: any): RespondServiceResDto[] {
+        let data: RespondServiceResDto[] = [];
+        data = value.map((v: any) => {
             return new RespondServiceResDto(v);
         });
         return data;
@@ -395,6 +401,7 @@ export class ServiceBindInfoResDto {
     hash: string;
     owner: string;
     time: number;
+
     constructor(
         hash: string,
         owner: string,

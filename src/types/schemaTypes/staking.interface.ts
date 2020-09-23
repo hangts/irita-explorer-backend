@@ -1,3 +1,5 @@
+import {IQueryBase} from "../index";
+
 export interface IStakingValidator {
     operator_address:string,
     consensus_pubkey:string,
@@ -21,7 +23,7 @@ export interface IStakingValidator {
     index_offset: string,
     jailed_until: string,
     tombstoned: boolean,
-    missed_blocks_counter: boolean,
+    missed_blocks_counter: string,
     create_time: number,
     update_time: number,
 }
@@ -39,4 +41,20 @@ export interface IStakingValidatorLcdMap {
 //TODO 设置DB的map 的interface
 export interface IStakingValidatorDbMap {
 
+}
+export interface IQueryValidatorByStatus extends IQueryBase{
+    status:string
+}
+export interface IDetailByValidatorAddress{
+    address:string
+}
+export interface IStakingValidatorFromLcd {
+    operator_address:string,
+    consensus_pubkey:string,
+    status:number,
+    tokens:string,
+    description:object | null,
+    unbonding_time:string,
+    commission:object,
+    min_self_delegation:string,
 }

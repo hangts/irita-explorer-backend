@@ -1,9 +1,9 @@
 import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
-import {StakingValidatorHttp} from "../http/lcd/staking.validator.http";
+import {StakingHttp} from "../http/lcd/staking.http";
 import {Model} from "mongoose"
 import {addressTransform, formatDateStringToNumber, getTimestamp} from "../util/util";
-import {IStakingValidatorDbMap, IStakingValidatorLcdMap} from "../types/schemaTypes/staking.validator.interface";
+import {IStakingValidatorDbMap, IStakingValidatorLcdMap} from "../types/schemaTypes/staking.interface";
 import {IValidatorsStruct} from "../types/schemaTypes/validators.interface";
 import {addressPrefix, moduleSlashing} from "../constant";
 
@@ -12,14 +12,14 @@ import {addressPrefix, moduleSlashing} from "../constant";
 export class StakingValidatorTaskService {
     constructor(@InjectModel('StakingSyncValidators') private stakingSyncValidatorsModel: Model<any>,
                 @InjectModel('ParametersTask') private parametersTaskModel: Model<any>,
-                private readonly stakingValidatorHttp: StakingValidatorHttp) {
+                private readonly stakingHttp: StakingHttp) {
         this.doTask = this.doTask.bind(this);
     }
 
     async doTask(): Promise<void> {
         let pageNum = 1, pageSize = 100, allValidatorsFromLcd = []
         let validatorsFromDb = await (this.stakingSyncValidatorsModel as any).queryAllValidators();
-        let validatorListDataFromLcd = await this.stakingValidatorHttp.queryValidatorListFromLcd(pageNum, pageSize)
+        let validatorListDataFromLcd = await this.stakingHttp.queryValidatorListFromLcd(pageNum, pageSize)
         if (typeof validatorListDataFromLcd == 'undefined') {
             return
         }
@@ -29,7 +29,7 @@ export class StakingValidatorTaskService {
         //判断是否有第二页数据 如果有使用while循环请求
         while (allValidatorsFromLcd && allValidatorsFromLcd.length === pageSize) {
             pageNum++
-            let nextPageValidatorsFromLcd = await this.stakingValidatorHttp.queryValidatorListFromLcd(pageNum, pageSize);
+            let nextPageValidatorsFromLcd = await this.stakingHttp.queryValidatorListFromLcd(pageNum, pageSize);
             //将第二页及以后的数据合并
             allValidatorsFromLcd = [...allValidatorsFromLcd ,...nextPageValidatorsFromLcd]
         }
@@ -121,7 +121,7 @@ export class StakingValidatorTaskService {
 
     private async updateSlashInfo(dbValidators) {
         if (dbValidators.consensus_pubkey) {
-            let signingInfo = await this.stakingValidatorHttp.queryValidatorFormSlashing(dbValidators.consensus_pubkey)
+            let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(dbValidators.consensus_pubkey)
             let validatorObject = dbValidators
             validatorObject.index_offset = signingInfo.index_offset;
             validatorObject.jailed_until = formatDateStringToNumber(signingInfo.jailed_until);
@@ -135,7 +135,7 @@ export class StakingValidatorTaskService {
     private async updateSelfBond(dbValidators) {
         if (dbValidators.operator_address) {
             let valTranDelAddr = addressTransform(dbValidators.operator_address, addressPrefix.iaa)
-            let selfBondData = await this.stakingValidatorHttp.querySelfBondFromLcd(dbValidators.operator_address)
+            let selfBondData = await this.stakingHttp.querySelfBondFromLcd(dbValidators.operator_address)
             dbValidators.delegator_num = selfBondData.length;
             await selfBondData.forEach((item) => {
                 if (item.delegation
@@ -149,7 +149,7 @@ export class StakingValidatorTaskService {
 
     private async updateIcons(dbValidators) {
         if (dbValidators.description && dbValidators.description.identity) {
-            let validatorIconUrl = await this.stakingValidatorHttp.queryValidatorIcon(dbValidators.description.identity)
+            let validatorIconUrl = await this.stakingHttp.queryValidatorIcon(dbValidators.description.identity)
             if (validatorIconUrl.them
                 && validatorIconUrl.them.pictures
                 && validatorIconUrl.them.pictures.primary
@@ -158,7 +158,6 @@ export class StakingValidatorTaskService {
                 dbValidators.icon = validatorIconUrl.them.pictures.primary.url
             }
         }
-
     }
 
     private async updateUpTime(dbValidators) {

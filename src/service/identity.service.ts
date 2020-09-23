@@ -22,8 +22,12 @@ export class IdentityService {
     }
     // identity Info
     async queryIdentityInfoById(params:IdentityInfoReqDto): Promise<IdentityInfoResDto>{
+      let result: IdentityInfoResDto | null = null;
       const IdentityInfoData:IdentityInfoResDto = await this.identityModel.queryIdentityInfo(params)
-      return new IdentityInfoResDto(IdentityInfoData)
+      if (IdentityInfoData) {
+        result = new IdentityInfoResDto(IdentityInfoData);
+      }
+      return result;
     }
     // identity pubkey
     async queryPubkey(query:IdentityPubKeyAndCertificateReqDto): Promise<ListStruct<IdentityPubKeyResDto[]>>{

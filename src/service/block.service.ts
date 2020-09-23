@@ -52,6 +52,7 @@ export class BlockService {
         let data:any = {};
 
         let block_db = await (this.blockModel as any).findOneByHeight(height);
+        block_db = JSON.parse(JSON.stringify(block_db));
         if (block_db) {
             let block_lcd =  await BlockHttp.queryBlockFromLcd(height);
             let latestBlock = await BlockHttp.queryLatestBlockFromLcd();
@@ -73,6 +74,7 @@ export class BlockService {
                 let icaAddr = hexToBech32(block_db.proposer, addressPrefix.ica);
                 data.total_voting_power = 0;
                 validatorsets.forEach((item)=>{
+                    //TODO:hangtaishan 使用大数计算
                     data.total_voting_power += Number(item.voting_power || 0);
                     if (item.address == icaAddr) {
                         data.precommit_voting_power = item.voting_power;

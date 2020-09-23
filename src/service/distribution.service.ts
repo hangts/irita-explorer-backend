@@ -1,19 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DistributionHttp } from '../http/lcd/distribution.http';
-// import { ListStruct, Result } from '../api/ApiResult';
+
 import { 
   WithdrawAddressReqDto,
-  DelegatorRewardsReqDto } from "../dto/distribution.dto"
+  DelegatorRewardsReqDto,
+  ValCommissionRewReqDto } from "../dto/distribution.dto"
 import { 
   WithdrawAddressResDto,
-  DelegatorRewardsResDto } from "../dto/distribution.dto"
+  DelegatorRewardsResDto,
+  ValCommissionRewResDto } from "../dto/distribution.dto"
 
 @Injectable()
 export class DistributionService {
-    constructor(@InjectModel('StakingValidator') private stakingValidator: any) {
-
-    }
+    constructor(
+      @InjectModel('StakingValidator') private stakingValidator: any) {}
 
     async queryWithdrawAddress(query: WithdrawAddressReqDto): Promise<WithdrawAddressResDto | null> {
         const { delegatorAddr } = query;
@@ -46,5 +47,11 @@ export class DistributionService {
         }else{
           return null;
         }
+    }
+
+    async getCommissionRewardsByVal(query: ValCommissionRewReqDto): Promise<ValCommissionRewResDto> {
+        const validatorAddress = query.address
+        const commissionRewards = await DistributionHttp.getCommissionRewards(validatorAddress)
+        return new ValCommissionRewResDto(commissionRewards)
     }
 }

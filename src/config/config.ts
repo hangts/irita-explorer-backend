@@ -6,6 +6,7 @@ const {
     DB_USER,
     DB_PASSWD,
     DB_ADDR,
+    ICONURI,
     DB_DATABASE,
     NODE_ENV,
     DENOM_EXECUTE_TIME,
@@ -30,7 +31,8 @@ export const cfg = {
         dbName: DB_DATABASE,
     },
     serverCfg:{
-        lcdAddr:LCD_ADDR
+        lcdAddr:LCD_ADDR,
+        iconUri:ICONURI || 'https://keybase.io/_/api/1.0/user/lookup.json'
     },
     taskCfg:{
         interval:{
@@ -43,8 +45,8 @@ export const cfg = {
             faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME || '41 * * * * *',
             validators:VALIDATORS_EXECTUTE_TIME || '1 * * * * *',
             identity: IDENTITY_EXECUTE_TIME || '1 * * * * *',
-            stakingValidators: STAKING_VALIDATORS_TIME || '15 * * * * * *',
-            stakingParameters: STAKING_PARAMETERS || '* 30 * * * * *'
+            stakingValidators: STAKING_VALIDATORS_TIME || '15 * * * * *',
+            stakingParameters: STAKING_PARAMETERS || '10 * * * * *'
         },
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
     }

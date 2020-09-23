@@ -72,7 +72,6 @@ export class TasksService {
 
     // @Cron('*/5 * * * * *')
     @Cron(cfg.taskCfg.executeTime.stakingValidators)
-    //@Cron('*/5 * * * * *')
     async syncStakingValidators() {
        this.handleDoTask(TaskEnum.stakingSyncValidators,this.stakingValidatorTaskService.doTask)
     }

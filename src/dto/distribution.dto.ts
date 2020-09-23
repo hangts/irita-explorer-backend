@@ -18,6 +18,12 @@ export class DelegatorRewardsReqDto extends BaseReqDto {
     delegatorAddr: string;
 }
 
+// distribution/validators/:address reqdto
+export class ValCommissionRewReqDto {
+    @ApiProperty()
+    @ApiPropertyOptional()
+    address?: string
+}
 /************************   respond dto   ***************************/
 // distribution/delegators/{delegatorAddr}/withdraw_address request dto
 export class WithdrawAddressResDto extends BaseResDto {
@@ -60,3 +66,16 @@ export class Reward {
     }
 }
 
+// distribution/validators/:address resdto
+export class ValCommissionRewResDto extends BaseResDto {
+    operator_address: string;
+    self_bond_rewards: [];
+    val_commission: object;
+
+    constructor(commissionRewards) {
+        super();
+        this.operator_address = commissionRewards.operator_address || ''
+        this.self_bond_rewards = commissionRewards.self_bond_rewards || {}
+        this.val_commission = commissionRewards.val_commission || {}
+    }
+}

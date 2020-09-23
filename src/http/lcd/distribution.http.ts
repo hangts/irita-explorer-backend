@@ -1,7 +1,10 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { cfg } from '../../config/config';
 import { Logger } from '../../logger';
-import { WithdrawAddressDto , DelegatorRewardsDto } from '../../dto/http.dto';
+import { 
+    WithdrawAddressDto, 
+    DelegatorRewardsDto,
+    commissionRewardsLcdDto } from '../../dto/http.dto';
 
 @Injectable()
 export class DistributionHttp {
@@ -37,6 +40,21 @@ export class DistributionHttp {
         } catch (e) {
             Logger.warn(`api-error from ${url}:`, e.message);
             // cron jobs error should not throw errors;
+        }
+    }
+
+    static async getCommissionRewards(valAddress:string): Promise<commissionRewardsLcdDto> {
+        const getCommissionRewardsUri = `${cfg.serverCfg.lcdAddr}/distribution/validators/${valAddress}`
+        try {
+            const commissionRewardsData: any = await new HttpService().get(getCommissionRewardsUri).toPromise().then(result => result.data)
+            if (commissionRewardsData && commissionRewardsData.result) {
+                return new commissionRewardsLcdDto(commissionRewardsData.result)
+            } else {
+                Logger.warn('api-error:', 'there is no result of validator withdraw address from lcd');
+            }
+
+        } catch (e) {
+            Logger.warn(`api-error from ${getCommissionRewardsUri}`, e)
         }
     }
 }
