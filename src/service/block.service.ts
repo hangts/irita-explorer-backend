@@ -9,8 +9,8 @@ import {
 import { 
     BlockListResDto,
     ValidatorsetsResDto,
-    BlockStakingResDto
-     } from '../dto/block.dto';import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
+    BlockStakingResDto} from '../dto/block.dto';
+import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { BlockHttp } from '../http/lcd/block.http';
 import { Logger } from '../logger';
 import { addressPrefix } from '../constant';
