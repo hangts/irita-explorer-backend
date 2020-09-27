@@ -12,7 +12,8 @@ export class StatisticsService {
         @InjectModel('Block') private blockModel: Model<IBlock>,
         @InjectModel('Nft') private nftModel: Model<INft>,
         @InjectModel('Tx') private txModel: any,
-        @InjectModel('Validators') private validatorModel: any
+        @InjectModel('Validators') private validatorModel: any,
+        @InjectModel('Identity') private identityModel: any,
     ) {
     }
 
@@ -22,8 +23,9 @@ export class StatisticsService {
         const assetCount = await this.queryAssetCount();
         const validatorCount = await this.queryConsensusValidatorCount();
         const {txCount, serviceCount} = await this.queryTxCount();
+        const identityCount = await this.queryIdentityCount({});
 
-        return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount);
+        return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount, identityCount);
     }
 
     async queryLatestHeightAndTime(): Promise<{height:number,latestBlockTime:number} | null> {
@@ -69,6 +71,10 @@ export class StatisticsService {
 
     async queryTxCount():Promise<any>{
         return await (this.txModel as any).queryTxStatistics();
+    }
+
+    async queryIdentityCount(query:any):Promise<any>{
+        return await this.identityModel.queryIdentityCount(query);
     }
 
 
