@@ -7,6 +7,7 @@ import { NftSchema } from '../schema/nft.schema';
 import { TxSchema } from '../schema/tx.schema';
 import { ValidatorSchema } from '../schema/validators.schema';
 import { IdentitySchema } from '../schema/identity.schema';
+import { DenomSchema } from '../schema/denom.schema';
 
 
 @Module({
@@ -31,6 +32,10 @@ import { IdentitySchema } from '../schema/identity.schema';
             name: 'Identity',
             schema: IdentitySchema,
             collection: 'ex_sync_identity'
+        },{
+            name: 'Denom',
+            schema: DenomSchema,
+            collection: 'ex_sync_denom',
         }]),
     ],
     providers:[StatisticsService],
