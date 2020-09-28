@@ -37,7 +37,7 @@ export const TxSchema = new mongoose.Schema({
 //	csrb 浏览器交易记录过滤正则表达式
 function filterExTxTypeRegExp(): object {
     let RegExpStr:string = Cache.supportTypes.join('|');
-    console.log('supportTypes:',RegExpStr);
+    // console.log('supportTypes:',RegExpStr);
     return new RegExp(RegExpStr || '//');
 }
 
@@ -335,7 +335,7 @@ TxSchema.statics.queryTxWithHash = async function(hash: string): Promise<ITxStru
 
 //  /statistics
 TxSchema.statics.queryTxStatistics = async function(): Promise<{ txCount: number, serviceCount: number }> {
-    let txCount = await this.find().countDocuments();
+    let txCount = await this.find({ 'msgs.type' : filterExTxTypeRegExp() }).countDocuments();
     let serviceCount = await this.find({ type: TxType.define_service, status: TxStatus.SUCCESS }).countDocuments();
     return {
         txCount,
