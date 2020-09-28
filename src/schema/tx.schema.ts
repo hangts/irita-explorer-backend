@@ -263,7 +263,7 @@ TxSchema.statics.queryTxWithServiceName = async function(query: ITxsWithServiceN
 
 //  txs/services/detail/{serviceName}
 TxSchema.statics.queryTxDetailWithServiceName = async function(serviceName: string): Promise<ITxStruct> {
-    return await this.findOne({ 'msgs.msg.name': serviceName, type: TxType.define_service });
+    return await this.findOne({ 'msgs.msg.name': serviceName, 'msgs.type': TxType.define_service });
 };
 
 // ==> txs/services/call-service
@@ -271,7 +271,7 @@ TxSchema.statics.queryCallServiceWithConsumerAddr = async function(consumerAddr:
     let result: IListStruct = {};
     let queryParameters: any = {
         'msgs.msg.consumer': consumerAddr,
-        type: TxType.call_service,
+        'msgs.type': TxType.call_service,
         status: TxStatus.SUCCESS,
     };
     result.data = await this.find(queryParameters)
@@ -286,7 +286,7 @@ TxSchema.statics.queryCallServiceWithConsumerAddr = async function(consumerAddr:
 
 // ==> txs/services/call-service
 TxSchema.statics.queryRespondServiceWithContextId = async function(ContextId: string): Promise<ITxStruct[]> {
-    return await this.find({ 'msgs.msg.ex.request_context_id': ContextId, type: TxType.respond_service });
+    return await this.find({ 'msgs.msg.ex.request_context_id': ContextId, 'msgs.type': TxType.respond_service });
 };
 
 // ==> txs/services/respond-service
@@ -294,7 +294,7 @@ TxSchema.statics.queryBindServiceWithProviderAddr = async function(ProviderAddr:
     let result: IListStruct = {};
     let queryParameters: any = {
         'msgs.msg.provider': ProviderAddr,
-        type: TxType.bind_service,
+        'msgs.type': TxType.bind_service,
         status: TxStatus.SUCCESS,
     };
     result.data = await this.find(queryParameters)
@@ -312,7 +312,7 @@ TxSchema.statics.queryRespondCountWithServceName = async function(servceName: st
     return await this.find({
         'msgs.msg.ex.service_name': servceName,
         'msgs.msg.provider': providerAddr,
-        type: TxType.respond_service,
+        'msgs.type': TxType.respond_service,
     }).countDocuments();
 };
 
@@ -321,7 +321,7 @@ TxSchema.statics.querydisableServiceBindingWithServceName = async function(servc
     return await this.find({
         'msgs.msg.service_name': servceName,
         'msgs.msg.provider': providerAddr,
-        type: TxType.disable_service_binding,
+        'msgs.type': TxType.disable_service_binding,
     })
         .sort({ time: -1 })
         .limit(1);
@@ -336,7 +336,7 @@ TxSchema.statics.queryTxWithHash = async function(hash: string): Promise<ITxStru
 //  /statistics
 TxSchema.statics.queryTxStatistics = async function(): Promise<{ txCount: number, serviceCount: number }> {
     let txCount = await this.find({ 'msgs.type' : filterExTxTypeRegExp() }).countDocuments();
-    let serviceCount = await this.find({ type: TxType.define_service, status: TxStatus.SUCCESS }).countDocuments();
+    let serviceCount = await this.find({ 'msgs.type': TxType.define_service, status: TxStatus.SUCCESS }).countDocuments();
     return {
         txCount,
         serviceCount,
@@ -361,7 +361,7 @@ TxSchema.statics.findCallServiceTxWithReqContextIds = async function(reqContextI
     }
     ;
     let query = {
-        type: TxType.call_service,
+        'msgs.type': TxType.call_service,
         'events.attributes.key': 'request_context_id',
         'events.attributes.value': { $in: reqContextIds },
     };
@@ -416,7 +416,7 @@ TxSchema.statics.findAllServiceTx = async function(pageSize?: number): Promise<I
 //用request_context_id查询call_service的service_name
 TxSchema.statics.queryServiceName = async function(requestContextId: string): Promise<string> {
     let queryParameters: any = {
-        'type': TxType.call_service,
+        'msgs.type': TxType.call_service,
         'events.attributes.key': 'request_context_id',
         'events.attributes.value': requestContextId.toUpperCase(),
         'status': TxStatus.SUCCESS,
@@ -452,7 +452,7 @@ TxSchema.statics.addExFieldForServiceTx = async function(ex: IExFieldQuery): Pro
 //根据serviceName 查询define_service tx
 TxSchema.statics.queryDefineServiceTxHashByServiceName = async function(serviceName: string): Promise<ITxStruct> {
     let queryParameters: any = {
-        type: TxType.define_service,
+        'msgs.type': TxType.define_service,
         'msgs.msg.name': serviceName,
     };
     return await this.findOne(queryParameters, { 'tx_hash': 1 });
@@ -467,7 +467,7 @@ TxSchema.statics.findServiceAllList = async function(
 ): Promise<ITxStruct> {
 
     const queryParameters: any = {
-        type: TxType.define_service,
+        'msgs.type': TxType.define_service,
         status: TxStatus.SUCCESS,
     };
     if (nameOrDescription) {
@@ -493,7 +493,7 @@ TxSchema.statics.findBindServiceTxList = async function(
     pageSize?: number,
 ): Promise<ITxStruct> {
     const queryParameters: any = {
-        type: TxType.bind_service,
+        'msgs.type': TxType.bind_service,
         status: TxStatus.SUCCESS,
         'msgs.msg.service_name': serviceName,
     };
@@ -511,7 +511,7 @@ TxSchema.statics.findBindServiceTxList = async function(
 //查询某个provider在某个service下所有的响应次数
 TxSchema.statics.findProviderRespondTimesForService = async function(serviceName: string, provider: string): Promise<number> {
     const queryParameters: any = {
-        type: TxType.respond_service,
+        'msgs.type': TxType.respond_service,
         'msgs.msg.ex.service_name': serviceName,
         'msgs.msg.provider': provider,
     };
@@ -520,7 +520,7 @@ TxSchema.statics.findProviderRespondTimesForService = async function(serviceName
 
 TxSchema.statics.findAllServiceCount = async function(nameOrDescription?: string): Promise<number> {
     const queryParameters: any = {
-        type: TxType.define_service,
+        'msgs.type': TxType.define_service,
         status: TxStatus.SUCCESS,
     };
     if (nameOrDescription) {
@@ -535,7 +535,7 @@ TxSchema.statics.findAllServiceCount = async function(nameOrDescription?: string
 
 TxSchema.statics.findServiceProviderCount = async function(serviceName): Promise<number> {
     const queryParameters: any = {
-        type: TxType.bind_service,
+        'msgs.type': TxType.bind_service,
         status: TxStatus.SUCCESS,
         'msgs.msg.service_name': serviceName,
     };
@@ -553,7 +553,7 @@ TxSchema.statics.findServiceTx = async function(
         'msgs.msg.ex.service_name': serviceName,
     };
     if (type) {
-        queryParameters.type = type;
+        queryParameters['msgs.type'] = type;
     }
     switch (status) {
         case 0:
@@ -576,7 +576,7 @@ TxSchema.statics.findServiceTxCount = async function(serviceName: string, type: 
         'msgs.msg.ex.service_name': serviceName,
     };
     if (type) {
-        queryParameters.type = type;
+        queryParameters['msgs.type'] = type;
     }
 
     switch (status) {
@@ -596,7 +596,7 @@ TxSchema.statics.findBindTx = async function(serviceName: string, provider: stri
     const queryParameters: any = {
         'msgs.msg.service_name': serviceName,
         'msgs.msg.provider': provider,
-        type: TxType.bind_service,
+        'msgs.type': TxType.bind_service,
         status: TxStatus.SUCCESS,
     };
     return await this.findOne(queryParameters);
@@ -605,7 +605,7 @@ TxSchema.statics.findBindTx = async function(serviceName: string, provider: stri
 TxSchema.statics.findServiceOwner = async function(serviceName: string): Promise<ITxStruct | null> {
     const queryParameters: any = {
         'msgs.msg.name': serviceName,
-        type: TxType.define_service,
+        'msgs.type': TxType.define_service,
         status: TxStatus.SUCCESS,
     };
     return await this.findOne(queryParameters);
@@ -614,7 +614,7 @@ TxSchema.statics.findServiceOwner = async function(serviceName: string): Promise
 
 TxSchema.statics.queryServiceRespondTx = async function(serviceName: string, provider: string, pageNum: number, pageSize: number): Promise<ITxStruct[]> {
     const queryParameters: any = {
-        type: TxType.respond_service,
+        'msgs.type': TxType.respond_service,
     };
     if (serviceName && serviceName.length) {
         queryParameters['msgs.msg.ex.service_name'] = serviceName;
@@ -631,7 +631,7 @@ TxSchema.statics.queryServiceRespondTx = async function(serviceName: string, pro
 TxSchema.statics.findRespondServiceCount = async function(serviceName: string, provider: string): Promise<ITxStruct[]> {
     const queryParameters: any = {
         'msgs.msg.ex.service_name': serviceName,
-        type: TxType.respond_service,
+        'msgs.type': TxType.respond_service,
         status: TxStatus.SUCCESS,
     };
     if (provider) {
@@ -646,7 +646,7 @@ TxSchema.statics.queryDenomTx = async function(
     denomNameOrId?: string,
 ): Promise<ITxStruct[]> {
     const params = {
-        type:TxType.issue_denom,
+        'msgs.type': TxType.issue_denom,
         status: TxStatus.SUCCESS
     };
     if (denomNameOrId) {
@@ -663,7 +663,7 @@ TxSchema.statics.queryDenomTx = async function(
 
 TxSchema.statics.queryDenomTxCount = async function (denomNameOrId?: string,):Promise<ITxStruct[]>{
     const params = {
-        type:TxType.issue_denom,
+        'msgs.type':TxType.issue_denom,
         status: TxStatus.SUCCESS
     };
     if (denomNameOrId) {
@@ -680,7 +680,7 @@ TxSchema.statics.queryTxByDenom = async function(
     denom: string,
 ): Promise<ITxStruct | null> {
     const params = {
-        type:TxType.issue_denom,
+        'msgs.type':TxType.issue_denom,
         status: TxStatus.SUCCESS,
         'msgs.msg.id': denom,
     };
