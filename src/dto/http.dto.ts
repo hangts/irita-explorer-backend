@@ -35,12 +35,14 @@ export class DenomDto {
 export class Nft {
     id: string;
     name: string;
+    uri: string;
     data: string;
     owner: string;
 
     constructor(value) {
         this.id = value.id || '';
         this.name = value.name || '';
+        this.uri = value.uri || '';
         this.data = value.data || '';
         this.owner = value.owner || '';
     }
