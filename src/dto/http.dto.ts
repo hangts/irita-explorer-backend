@@ -12,11 +12,13 @@ import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 // /nft/nfts/denoms response dto
 export class DenomDto {
     id: string;
+    name: string;
     schema:string;
     creator:string;
 
     constructor(value) {
         this.id = value.id || '';
+        this.name = value.name || '';
         this.schema = value.schema || '';
         this.creator = value.creator || '';
     }
