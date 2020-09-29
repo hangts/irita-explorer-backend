@@ -39,6 +39,16 @@ export class AccountAddrReqDto {
     address: string
 }
 
+export class DelegatorsDelegationsReqDto  extends PagingReqDto {
+    @ApiProperty()
+    delegatorAddr: string
+}
+
+export class DelegatorsUndelegationsReqDto  extends PagingReqDto {
+    @ApiProperty()
+    delegatorAddr: string
+}
+
 /***************Res*************************/
 
 export class stakingValidatorResDto extends BaseResDto {
@@ -253,5 +263,82 @@ export class AccountAddrResDto {
         this.moniker = account.moniker || ''
         this.status = account.status || ''
         this.operator_address = account.operator_address || ''
+    }
+}
+
+//  /staking/delegators/{delegatorAddr}/delegations
+
+// export class DelegatorsDelegationsResDto {
+//     address: string;
+//     moniker: string;
+//     amount: {
+//         denom: string;
+//         amount: string
+//     };
+//     shares: string;
+//     height: string;
+
+//     constructor(delegations) {
+//         this.address = delegations.address || ''
+//         this.moniker = delegations.moniker || ''
+//         this.amount = delegations.amount || {}
+//         this.shares = delegations.shares || ''
+//         this.height = delegations.height || ''
+//     }
+// }
+
+export class DelegatorsDelegationsResDto extends BaseResDto {
+    address: string;
+    moniker: string;
+    amount: {
+        denom: string;
+        amount: string|number
+    };
+    shares: string;
+    height: string;
+
+    constructor(delegations) {
+        super();
+        this.address = delegations.address || ''
+        this.moniker = delegations.moniker || ''
+        this.amount = delegations.amount || {}
+        this.shares = delegations.shares || ''
+        this.height = delegations.height || ''
+    }
+
+    static bundleData(value: any): DelegatorsDelegationsResDto[] {
+        let data: DelegatorsDelegationsResDto[] = [];
+        data = value.map((v: any) => {
+            return new DelegatorsDelegationsResDto(v);
+        });
+        return data;
+    }
+}
+
+export class DelegatorsUndelegationsResDto extends BaseResDto {
+    address: string;
+    moniker: string;
+    amount: {
+        denom: string;
+        amount: string|number
+    };
+    height: string;
+    end_time: string;
+
+    constructor(delegations) {
+        super();
+        this.address = delegations.address || ''
+        this.moniker = delegations.moniker || ''
+        this.amount = delegations.amount || {}
+        this.height = delegations.height || ''
+        this.end_time = delegations.end_time || ''
+    }
+
+    static bundleData(value: any): DelegatorsDelegationsResDto[] {
+        let data: DelegatorsDelegationsResDto[] = [];
+        data = value.map((v: any) => {
+            return new DelegatorsDelegationsResDto(v);
+        });
+        return data;
     }
 }

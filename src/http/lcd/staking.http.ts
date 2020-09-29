@@ -6,7 +6,9 @@ import {
     IconUriLcdDto,
     StakingValidatorDelegationLcdDto,
     StakingValidatorLcdDto, StakingValidatorParametersLcdDto,
-    StakingValidatorSlashLcdDto, StakingValUnBondingDelLcdDto
+    StakingValidatorSlashLcdDto, StakingValUnBondingDelLcdDto,
+    DelegatorsDelegationLcdDto,
+    DelegatorsUndelegationLcdDto
 } from "../../dto/http.dto";
 
 
@@ -16,7 +18,7 @@ export class StakingHttp {
     async queryValidatorListFromLcd(pageNum: number, pageSize: number) {
         const validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?pageNum=${pageNum}&pageSize=${pageSize}`
         try {
-            let stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)
+            const stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)
             if (stakingValidatorData && stakingValidatorData.result) {
                 return StakingValidatorLcdDto.bundleData(stakingValidatorData.result);
             } else {
@@ -88,7 +90,7 @@ export class StakingHttp {
     async queryValidatorDelegationsFromLcd(address) {
         const getValidatorDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/delegations`
         try {
-            let validatorDelegationsData: any = await new HttpService().get(getValidatorDelegationsUri).toPromise().then(result => result.data)
+            const validatorDelegationsData: any = await new HttpService().get(getValidatorDelegationsUri).toPromise().then(result => result.data)
             if (validatorDelegationsData && validatorDelegationsData.result) {
                 return StakingValidatorDelegationLcdDto.bundleData(validatorDelegationsData.result);
             } else {
@@ -102,7 +104,7 @@ export class StakingHttp {
     async queryValidatorUnBondingDelegations(address) {
         const getValidatorUnBondingDelUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/unbonding_delegations`
         try {
-            let validatorUnBondingDelegationsData: any = await new HttpService().get(getValidatorUnBondingDelUri).toPromise().then(result => result.data)
+            const validatorUnBondingDelegationsData: any = await new HttpService().get(getValidatorUnBondingDelUri).toPromise().then(result => result.data)
             if (validatorUnBondingDelegationsData && validatorUnBondingDelegationsData.result) {
                 return StakingValUnBondingDelLcdDto.bundleData(validatorUnBondingDelegationsData.result);
             } else {
@@ -116,7 +118,7 @@ export class StakingHttp {
     async queryBalanceByAddress(address) {
         const getBalancesUri = `${cfg.serverCfg.lcdAddr}/bank/balances/${address}`
         try {
-            let addressBalancesData: any = await new HttpService().get(getBalancesUri).toPromise().then(result => result.data)
+            const addressBalancesData: any = await new HttpService().get(getBalancesUri).toPromise().then(result => result.data)
             if (addressBalancesData && addressBalancesData.result) {
                 return AddressBalancesLcdDto.bundleData(addressBalancesData.result);
             } else {
@@ -126,6 +128,34 @@ export class StakingHttp {
         } catch (e) {
             console.log(e)
             Logger.warn(`api-error from ${getBalancesUri}`, e)
+        }
+    }
+
+    async queryDelegatorsDelegationsFromLcd(address) {
+        const getDelegatorsDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/delegators/${address}/delegations`
+        try {
+            const delegatorsDelegationsData: any = await new HttpService().get(getDelegatorsDelegationsUri).toPromise().then(result => result.data)
+            if (delegatorsDelegationsData && delegatorsDelegationsData.result) {
+                return new DelegatorsDelegationLcdDto(delegatorsDelegationsData);
+            } else {
+                Logger.warn('api-error:', 'there is no result of delegators delegations from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${getDelegatorsDelegationsUri}`, e)
+        }
+    }
+
+    async queryDelegatorsUndelegationsFromLcd(address) {
+        const getDelegatorsUndelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/delegators/${address}/unbonding_delegations`
+        try {
+            const delegatorsUndelegationsData: any = await new HttpService().get(getDelegatorsUndelegationsUri).toPromise().then(result => result.data)
+            if (delegatorsUndelegationsData && delegatorsUndelegationsData.result) {
+                return new DelegatorsUndelegationLcdDto(delegatorsUndelegationsData);
+            } else {
+                Logger.warn('api-error:', 'there is no result of delegators delegations from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${getDelegatorsUndelegationsUri}`, e)
         }
     }
 }
