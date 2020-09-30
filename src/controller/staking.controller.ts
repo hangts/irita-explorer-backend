@@ -8,8 +8,10 @@ import {
     // ValCommissionRewResDto,
     CommissionInfoResDto,
     ValidatorDelegationsReqDto,
+    ValidatorDelegationsQueryReqDto,
     ValidatorDelegationsResDto,
     ValidatorUnBondingDelegationsReqDto,
+    ValidatorUnBondingDelegationsQueryReqDto,
     ValidatorUnBondingDelegationsResDto,
     allValidatorReqDto,
     stakingValidatorResDto,
@@ -19,8 +21,10 @@ import {
     AccountAddrResDto,
     DelegatorsDelegationsReqDto,
     DelegatorsDelegationsResDto,
+    DelegatorsDelegationsParamReqDto,
     DelegatorsUndelegationsReqDto,
-    DelegatorsUndelegationsResDto
+    DelegatorsUndelegationsResDto,
+    DelegatorsUndelegationsParamReqDto
 } from "../dto/staking.dto";
 
 @ApiTags('Staking')
@@ -36,14 +40,14 @@ export class StakingController {
     }
 
     @Get('/validators/:address/delegations')
-    async getValidatorDelegations(@Param()q: ValidatorDelegationsReqDto): Promise<Result<ListStruct<ValidatorDelegationsResDto>>> {
-        const validatorDelegations = await this.stakingService.getValidatorDelegationList(q)
+    async getValidatorDelegations(@Param()p: ValidatorDelegationsReqDto,@Query()q: ValidatorDelegationsQueryReqDto): Promise<Result<ListStruct<ValidatorDelegationsResDto>>> {
+        const validatorDelegations = await this.stakingService.getValidatorDelegationList(p,q)
         return new Result<ListStruct<ValidatorDelegationsResDto>>(validatorDelegations)
     }
 
     @Get('/validators/:address/unbonding-delegations')
-    async getValidatorUnBondingDelegations(@Param()q: ValidatorUnBondingDelegationsReqDto): Promise<Result<ListStruct<ValidatorUnBondingDelegationsResDto>>> {
-        const validatorUnBondingDelegations = await this.stakingService.getValidatorUnBondingDelegations(q)
+    async getValidatorUnBondingDelegations(@Param()p: ValidatorUnBondingDelegationsReqDto,@Query()q: ValidatorUnBondingDelegationsQueryReqDto): Promise<Result<ListStruct<ValidatorUnBondingDelegationsResDto>>> {
+        const validatorUnBondingDelegations = await this.stakingService.getValidatorUnBondingDelegations(p,q)
         return new Result<ListStruct<ValidatorUnBondingDelegationsResDto>>(validatorUnBondingDelegations)
     }
 
@@ -72,14 +76,14 @@ export class StakingController {
     // }
     
     @Get('/delegators/:delegatorAddr/delegations')
-    async getDelegatorsDelegations(@Param()q: DelegatorsDelegationsReqDto): Promise<Result<ListStruct<DelegatorsDelegationsResDto>>> {
-        const delegatorsDelegations = await this.stakingService.getDelegatorsDelegations(q)
+    async getDelegatorsDelegations(@Param()p: DelegatorsDelegationsParamReqDto,@Query()q: DelegatorsDelegationsReqDto): Promise<Result<ListStruct<DelegatorsDelegationsResDto>>> {
+        const delegatorsDelegations = await this.stakingService.getDelegatorsDelegations(p,q)
         return new Result<ListStruct<DelegatorsDelegationsResDto>>(delegatorsDelegations)
     }
 
     @Get('/delegators/:delegatorAddr/unbonding_delegations')
-    async getDelegatorsUndelegations(@Param()q: DelegatorsUndelegationsReqDto): Promise<Result<ListStruct<DelegatorsUndelegationsResDto>>> {
-        const delegatorsUndelegations = await this.stakingService.getDelegatorsUndelegations(q)
+    async getDelegatorsUndelegations(@Param()p: DelegatorsUndelegationsParamReqDto,@Query()q: DelegatorsUndelegationsReqDto): Promise<Result<ListStruct<DelegatorsUndelegationsResDto>>> {
+        const delegatorsUndelegations = await this.stakingService.getDelegatorsUndelegations(p,q)
         return new Result<ListStruct<DelegatorsUndelegationsResDto>>(delegatorsUndelegations)
     }
 }

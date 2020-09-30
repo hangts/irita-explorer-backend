@@ -5,6 +5,7 @@ import {
     CommissionInfoReqDto,
     ValidatorDelegationsReqDto,
     ValidatorUnBondingDelegationsReqDto,
+    ValidatorUnBondingDelegationsQueryReqDto,
     allValidatorReqDto,
     ValidatorDetailAddrReqDto,
     AccountAddrReqDto } from '../dto/staking.dto';
@@ -22,61 +23,65 @@ describe('stakingValidatorController', () => {
 
     describe('getAllValCommission', () => {
         it('should return an array', async () => {
-            let req:CommissionInfoReqDto = {
+            const req:CommissionInfoReqDto = {
                 pageNum:1,
                 pageSize:10,
                 useCount:true
             };
-            let data:any = await stakingService.getAllValCommission(req);
+            const data:any = await stakingService.getAllValCommission(req);
             expect(data).toBeDefined();
         });
     });
 
     describe('getValidatorDelegationList', () => {
         it('should return Validator Delegation array', async () => {
-            let req:ValidatorDelegationsReqDto = {
+            const req:ValidatorDelegationsReqDto = {
                 address:'iva1nfgkyn6ux5mvavhyk5aq8zgzushrecutlt5pr8',
-                pageNum:1,
-                pageSize:10,
-                useCount:true
             };
-            let data:any = await stakingService.getValidatorDelegationList(req);
+            const query:ValidatorUnBondingDelegationsQueryReqDto = {
+                pageNum: 1,
+                pageSize: 10,
+                useCount: true
+            };
+            const data:any = await stakingService.getValidatorDelegationList(req,query);
             expect(data).toBeDefined();
         });
     });
 
     describe('getValidatorUnBondingDelegations', () => {
         it('should return Validator UnBonding Delegation array', async () => {
-            let req:ValidatorUnBondingDelegationsReqDto = {
+            const req:ValidatorUnBondingDelegationsReqDto = {
                 address:'iva1nfgkyn6ux5mvavhyk5aq8zgzushrecutlt5pr8',
-                pageNum:1,
-                pageSize:10,
-                useCount:true
             };
-            let data:any = await stakingService.getValidatorUnBondingDelegations(req);
+            const query:ValidatorUnBondingDelegationsQueryReqDto = {
+                pageNum: 1,
+                pageSize: 10,
+                useCount: true
+            };
+            const data:any = await stakingService.getValidatorUnBondingDelegations(req,query);
             expect(data).toBeDefined();
         });
     });
     
     describe('getValidatorsByStatus', () => {
         it('should return Validator array', async () => {
-            let req:allValidatorReqDto = {
+            const req:allValidatorReqDto = {
                 status:'active',
                 pageNum:1,
                 pageSize:10,
                 useCount:true
             };
-            let data:any = await stakingService.getValidatorsByStatus(req);
+            const data:any = await stakingService.getValidatorsByStatus(req);
             expect(data).toBeDefined();
         });
     });
 
     describe('getValidatorDetail', () => {
         it('should return Validator array', async () => {
-            let req:ValidatorDetailAddrReqDto = {
+            const req:ValidatorDetailAddrReqDto = {
                 address:'iva1nfgkyn6ux5mvavhyk5aq8zgzushrecutlt5pr8',
             };
-            let data:any = await stakingService.getValidatorDetail(req);
+            const data:any = await stakingService.getValidatorDetail(req);
             if (data) {
                 expect(data.operator_addr).toBe(req.address);
             }else{
@@ -88,10 +93,10 @@ describe('stakingValidatorController', () => {
 
     describe('getAddressAccount', () => {
         it('should return Validator array', async () => {
-            let req:AccountAddrReqDto = {
+            const req:AccountAddrReqDto = {
                 address:'iaa1nfgkyn6ux5mvavhyk5aq8zgzushrecut267w7q',
             };
-            let data:any = await stakingService.getAddressAccount(req);
+            const data:any = await stakingService.getAddressAccount(req);
             if (data) {
                 expect(data.address).toBe(req.address);
             }else{

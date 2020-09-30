@@ -9,11 +9,12 @@ import {
     allValidatorReqDto,
     CommissionInfoReqDto,
     CommissionInfoResDto, stakingValidatorResDto,
-    ValidatorDelegationsReqDto,
+    ValidatorDelegationsReqDto,ValidatorDelegationsQueryReqDto,
     ValidatorDelegationsResDto, ValidatorDetailResDtO,
-    ValidatorUnBondingDelegationsReqDto, ValidatorUnBondingDelegationsResDto,
+    ValidatorUnBondingDelegationsReqDto, ValidatorUnBondingDelegationsResDto,ValidatorUnBondingDelegationsQueryReqDto,
     DelegatorsDelegationsReqDto,DelegatorsDelegationsResDto,
-    DelegatorsUndelegationsReqDto,DelegatorsUndelegationsResDto
+    DelegatorsUndelegationsReqDto, DelegatorsUndelegationsResDto,
+    DelegatorsDelegationsParamReqDto,DelegatorsUndelegationsParamReqDto
 } from "../dto/staking.dto";
 import {ListStruct} from "../api/ApiResult";
 import { BlockHttp } from "../http/lcd/block.http";
@@ -62,8 +63,8 @@ export default class StakingService {
         return allValCommissionInfo
     }
 
-    async getValidatorDelegationList(q: ValidatorDelegationsReqDto): Promise<ListStruct<ValidatorDelegationsResDto>> {
-        const validatorAddr = q.address
+    async getValidatorDelegationList(p: ValidatorDelegationsReqDto,q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorDelegationsResDto>> {
+        const validatorAddr = p.address
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const validatorDelegationsFromLcd = await this.stakingHttp.queryValidatorDelegationsFromLcd(validatorAddr)
         const allShares: number[] = []
@@ -98,8 +99,8 @@ export default class StakingService {
         return new ListStruct(result.data, q.pageNum, q.pageSize, count)
     }
 
-    async getValidatorUnBondingDelegations(q: ValidatorUnBondingDelegationsReqDto): Promise<ListStruct<ValidatorUnBondingDelegationsResDto>> {
-        const validatorAddr = q.address
+    async getValidatorUnBondingDelegations(p: ValidatorUnBondingDelegationsReqDto,q: ValidatorUnBondingDelegationsQueryReqDto): Promise<ListStruct<ValidatorUnBondingDelegationsResDto>> {
+        const validatorAddr = p.address
         const allValidatorsMoniker = await this.getAllValidatorMonikerMap()
         const valUnBondingDelegationsFromLcd = await this.stakingHttp.queryValidatorUnBondingDelegations(validatorAddr)
         const resultData = valUnBondingDelegationsFromLcd.map(item => {
@@ -203,8 +204,9 @@ export default class StakingService {
         return new AccountAddrResDto(result)
     }
 
-    async getDelegatorsDelegations(q: DelegatorsDelegationsReqDto): Promise<ListStruct<DelegatorsDelegationsResDto>> {
-        const { delegatorAddr, pageNum, pageSize } = q 
+    async getDelegatorsDelegations(p:DelegatorsDelegationsParamReqDto,q: DelegatorsDelegationsReqDto): Promise<ListStruct<DelegatorsDelegationsResDto>> {
+        const { pageNum, pageSize } = q 
+        const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsDelegationsFromLcd(delegatorAddr)
         const dataLcd = delegatorsDelegationsFromLcd.result
         const count = dataLcd.length
@@ -247,8 +249,9 @@ export default class StakingService {
         return new ListStruct(result.data, pageNum, pageSize, result.count)
     }
 
-    async getDelegatorsUndelegations(q: DelegatorsUndelegationsReqDto): Promise<ListStruct<DelegatorsUndelegationsResDto>> {
-        const { delegatorAddr, pageNum, pageSize } = q 
+    async getDelegatorsUndelegations(p:DelegatorsUndelegationsParamReqDto,q: DelegatorsUndelegationsReqDto): Promise<ListStruct<DelegatorsUndelegationsResDto>> {
+        const { pageNum, pageSize } = q 
+        const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(delegatorAddr)
         const dataLcd = delegatorsDelegationsFromLcd.result
         const count = dataLcd.length

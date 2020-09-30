@@ -14,15 +14,22 @@ export class CommissionInfoReqDto extends PagingReqDto {
 
 }
 
-export class ValidatorDelegationsReqDto extends PagingReqDto {
+export class ValidatorDelegationsReqDto {
+    @ApiProperty()
+    address: string
+}
+export class ValidatorDelegationsQueryReqDto extends PagingReqDto {
+}
+
+
+export class ValidatorUnBondingDelegationsReqDto {
     @ApiProperty()
     address: string
 }
 
-export class ValidatorUnBondingDelegationsReqDto extends PagingReqDto {
-    @ApiProperty()
-    address: string
+export class ValidatorUnBondingDelegationsQueryReqDto extends PagingReqDto {
 }
+
 
 export class allValidatorReqDto extends PagingReqDto {
     @ApiProperty({description:'jailed/candidate/active'})
@@ -40,11 +47,17 @@ export class AccountAddrReqDto {
 }
 
 export class DelegatorsDelegationsReqDto  extends PagingReqDto {
+}
+
+export class DelegatorsDelegationsParamReqDto {
     @ApiProperty()
     delegatorAddr: string
 }
 
 export class DelegatorsUndelegationsReqDto  extends PagingReqDto {
+}
+
+export class DelegatorsUndelegationsParamReqDto {
     @ApiProperty()
     delegatorAddr: string
 }
