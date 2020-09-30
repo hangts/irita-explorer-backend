@@ -12,8 +12,9 @@ async function bootstrap() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.enableCors();
-    app.use(LoggerMiddleware);
-    app.useGlobalInterceptors(new LoggerInterceptor());
+    // 注释了打印 
+    // app.use(LoggerMiddleware);
+    // app.useGlobalInterceptors(new LoggerInterceptor());
     setUpSwagger(app);
     await app.listen(3000);
 }
