@@ -37,6 +37,7 @@ export const TxSchema = new mongoose.Schema({
     msgs: Array,
     signers: Array,
     addrs: Array,
+    fee: Object
 }, {versionKey: false});
 
 //	csrb 浏览器交易记录过滤正则表达式

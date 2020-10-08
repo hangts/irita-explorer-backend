@@ -6,7 +6,9 @@ import {
     IconUriLcdDto,
     StakingValidatorDelegationLcdDto,
     StakingValidatorLcdDto, StakingValidatorParametersLcdDto,
-    StakingValidatorSlashLcdDto, StakingValUnBondingDelLcdDto
+    StakingValidatorSlashLcdDto, StakingValUnBondingDelLcdDto,
+    DelegatorsDelegationLcdDto,
+    DelegatorsUndelegationLcdDto
 } from "../../dto/http.dto";
 
 
@@ -126,6 +128,34 @@ export class StakingHttp {
         } catch (e) {
             console.log(e)
             Logger.warn(`api-error from ${getBalancesUri}`, e)
+        }
+    }
+
+    async queryDelegatorsDelegationsFromLcd(address) {
+        const getDelegatorsDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/delegators/${address}/delegations`
+        try {
+            const delegatorsDelegationsData: any = await new HttpService().get(getDelegatorsDelegationsUri).toPromise().then(result => result.data)
+            if (delegatorsDelegationsData && delegatorsDelegationsData.result) {
+                return new DelegatorsDelegationLcdDto(delegatorsDelegationsData);
+            } else {
+                Logger.warn('api-error:', 'there is no result of delegators delegations from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${getDelegatorsDelegationsUri}`, e)
+        }
+    }
+
+    async queryDelegatorsUndelegationsFromLcd(address) {
+        const getDelegatorsUndelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/delegators/${address}/unbonding_delegations`
+        try {
+            const delegatorsUndelegationsData: any = await new HttpService().get(getDelegatorsUndelegationsUri).toPromise().then(result => result.data)
+            if (delegatorsUndelegationsData && delegatorsUndelegationsData.result) {
+                return new DelegatorsUndelegationLcdDto(delegatorsUndelegationsData);
+            } else {
+                Logger.warn('api-error:', 'there is no result of delegators delegations from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${getDelegatorsUndelegationsUri}`, e)
         }
     }
 }

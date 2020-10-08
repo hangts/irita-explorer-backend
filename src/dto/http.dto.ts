@@ -451,3 +451,70 @@ export class AddressBalancesLcdDto {
         return data;
     }
 }
+
+export class DelegatorsDelegationLcdDto {
+    height: string;
+    result: DelegatorsResult[];
+    constructor(value) {
+        this.height = value.height || '',
+        this.result = DelegatorsResult.bundleData(value.result)
+    }
+}
+
+export class DelegatorsResult {
+    delegation: {
+        delegator_address: string;
+        validator_address: string;
+        shares:string
+    };
+    balance: {
+        denom: string;
+        amount: string
+    };
+
+    constructor(value) {
+        this.delegation = value.delegation || {},
+        this.balance = value.balance || {}
+    }
+
+    static bundleData(value: any = []): DelegatorsResult[] {
+        let data: DelegatorsResult[] = [];
+        data = value.map((v: any) => {
+            return new DelegatorsResult(v);
+        });
+        return data;
+    }
+}
+
+export class DelegatorsUndelegationLcdDto {
+    height: string;
+    result: UndelegatorsResult[];
+    constructor(value) {
+        this.height = value.height || '',
+        this.result = UndelegatorsResult.bundleData(value.result)
+    }
+}
+
+export class UndelegatorsResult {
+    delegator_address: string;
+    validator_address: string;
+    entries: {
+        creation_height: string;
+        completion_time: string;
+        initial_balance: string;
+        balance: string
+    };
+    constructor(value) {
+        this.delegator_address = value.delegator_address || '',
+        this.validator_address = value.validator_address || ''
+        this.entries = value.entries || {}
+    }
+
+    static bundleData(value: any = []): UndelegatorsResult[] {
+        let data: UndelegatorsResult[] = [];
+        data = value.map((v: any) => {
+            return new UndelegatorsResult(v);
+        });
+        return data;
+    }
+} 
