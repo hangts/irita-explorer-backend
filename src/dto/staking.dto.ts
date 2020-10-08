@@ -325,10 +325,10 @@ export class DelegatorsUndelegationsResDto extends BaseResDto {
         this.end_time = delegations.end_time || ''
     }
 
-    static bundleData(value: any): DelegatorsDelegationsResDto[] {
-        let data: DelegatorsDelegationsResDto[] = [];
+    static bundleData(value: any): DelegatorsUndelegationsResDto[] {
+        let data: DelegatorsUndelegationsResDto[] = [];
         data = value.map((v: any) => {
-            return new DelegatorsDelegationsResDto(v);
+            return new DelegatorsUndelegationsResDto(v);
         });
         return data;
     }

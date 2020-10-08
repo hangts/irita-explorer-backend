@@ -255,6 +255,7 @@ export default class StakingService {
         const { pageNum, pageSize } = q 
         const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(delegatorAddr)
+        console.log(delegatorsDelegationsFromLcd.result[0].entries,111111111111111111111111)
         const dataLcd = delegatorsDelegationsFromLcd.result
         const count = dataLcd.length
         const data = dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize);
@@ -267,7 +268,7 @@ export default class StakingService {
                 }
             });
             const denom:string = cfg.unit.minUnit
-            const amount:string|number = (Number(item.entries.balance) /(1000000)).toFixed(2) // TODO:duanjie 大数字转换需优化
+            const amount:string|number = item.entries[0].balance
             return {
                 address: item.validator_address || '',
                 moniker: moniker || '',
@@ -275,17 +276,17 @@ export default class StakingService {
                     denom: denom || '',
                     amount: amount || ''
                 },
-                height: item.entries.creation_height || '',
-                end_time: item.entries.completion_time
+                height: item.entries[0].creation_height || '',
+                end_time: item.entries[0].completion_time || ''
             }
         })
         const result: any = {}
         result.count = count
         if (resultData.length < pageSize) {
-            result.data = DelegatorsDelegationsResDto.bundleData(resultData)
+            result.data = DelegatorsUndelegationsResDto.bundleData(resultData)
         } else {
             const pageNationData = pageNation(resultData, pageSize)
-            result.data = DelegatorsDelegationsResDto.bundleData(pageNationData[pageNum - 1])
+            result.data = DelegatorsUndelegationsResDto.bundleData(pageNationData[pageNum - 1])
         } 
         return new ListStruct(result.data, pageNum, pageSize, result.count)
     }
