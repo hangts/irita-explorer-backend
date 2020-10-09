@@ -17,7 +17,7 @@ import {HttpModule} from '@nestjs/common';
             {
                 name:'StakingValidator',
                 schema:StakingValidatorSchema,
-                collection:'ex_validator'
+                collection:'ex_staking_validator'
             }
         ]),
         HttpModule,

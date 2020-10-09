@@ -2,9 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {StakingHttp} from "../http/lcd/staking.http";
 import {Model} from "mongoose"
-import {addressTransform, formatDateStringToNumber, getTimestamp} from "../util/util";
-import {IStakingValidatorDbMap, IStakingValidatorLcdMap} from "../types/schemaTypes/staking.interface";
-import {IValidatorsStruct} from "../types/schemaTypes/validators.interface";
+import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp} from "../util/util";
 import {addressPrefix, moduleSlashing} from "../constant";
 
 @Injectable()
@@ -68,7 +66,8 @@ export class StakingValidatorTaskService {
                 allValidatorsFromLcd[i].voting_power = Number(allValidatorsFromLcd[i].tokens)
             }
             allValidatorsFromLcd[i].jailed = allValidatorsFromLcd[i].jailed || false
-
+            const BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
+            allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
             await this.updateSlashInfo(allValidatorsFromLcd[i])
             await this.updateSelfBond(allValidatorsFromLcd[i])
             await this.updateIcons(allValidatorsFromLcd[i])
