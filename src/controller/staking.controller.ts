@@ -69,12 +69,6 @@ export class StakingController {
         return new Result<AccountAddrResDto>(addressAccount)
     }
 
-    // @Get("delegators/:delegatorAddr/rewards")
-    // async queryDelegatorRewards(@Param() query: DelegatorRewardsReqDto): Promise<Result<DelegatorRewardsResDto>> {
-    //     const data: DelegatorRewardsResDto = await this.distributionService.queryDelegatorRewards(query);
-    //     return new Result<DelegatorRewardsResDto>(data);
-    // }
-    
     @Get('/delegators/:delegatorAddr/delegations')
     async getDelegatorsDelegations(@Param()p: DelegatorsDelegationsParamReqDto,@Query()q: DelegatorsDelegationsReqDto): Promise<Result<ListStruct<DelegatorsDelegationsResDto>>> {
         const delegatorsDelegations = await this.stakingService.getDelegatorsDelegations(p,q)

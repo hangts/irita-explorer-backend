@@ -114,7 +114,7 @@ export class Signatures {
         this.validator_address = validator_address || '';
         this.timestamp = timestamp || '';
         this.signature = signature || '';
-    }    
+    }
     static bundleData(value: any = []): Signatures[] {
         let data: Signatures[] = [];
         data = value.map((v: any) => {
@@ -451,17 +451,6 @@ export class AddressBalancesLcdDto {
         return data;
     }
 }
-
-// /staking/delegators/{delegatorAddr}/delegations 
-
-// export class DelegatorsDelegationLcdDto {
-//     height: string;
-//     result: any;
-//     constructor(value) {
-//         this.height = value.height || '',
-//         this.result = value.result || []
-//     }
-// }
 
 export class DelegatorsDelegationLcdDto {
     height: string;

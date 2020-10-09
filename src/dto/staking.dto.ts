@@ -18,9 +18,9 @@ export class ValidatorDelegationsReqDto {
     @ApiProperty()
     address: string
 }
+
 export class ValidatorDelegationsQueryReqDto extends PagingReqDto {
 }
-
 
 export class ValidatorUnBondingDelegationsReqDto {
     @ApiProperty()
@@ -29,7 +29,6 @@ export class ValidatorUnBondingDelegationsReqDto {
 
 export class ValidatorUnBondingDelegationsQueryReqDto extends PagingReqDto {
 }
-
 
 export class allValidatorReqDto extends PagingReqDto {
     @ApiProperty({description:'jailed/candidate/active'})
@@ -46,7 +45,7 @@ export class AccountAddrReqDto {
     address: string
 }
 
-export class DelegatorsDelegationsReqDto  extends PagingReqDto {
+export class DelegatorsDelegationsReqDto extends PagingReqDto {
 }
 
 export class DelegatorsDelegationsParamReqDto {
@@ -54,7 +53,7 @@ export class DelegatorsDelegationsParamReqDto {
     delegatorAddr: string
 }
 
-export class DelegatorsUndelegationsReqDto  extends PagingReqDto {
+export class DelegatorsUndelegationsReqDto extends PagingReqDto {
 }
 
 export class DelegatorsUndelegationsParamReqDto {
@@ -279,27 +278,6 @@ export class AccountAddrResDto {
     }
 }
 
-//  /staking/delegators/{delegatorAddr}/delegations
-
-// export class DelegatorsDelegationsResDto {
-//     address: string;
-//     moniker: string;
-//     amount: {
-//         denom: string;
-//         amount: string
-//     };
-//     shares: string;
-//     height: string;
-
-//     constructor(delegations) {
-//         this.address = delegations.address || ''
-//         this.moniker = delegations.moniker || ''
-//         this.amount = delegations.amount || {}
-//         this.shares = delegations.shares || ''
-//         this.height = delegations.height || ''
-//     }
-// }
-
 export class DelegatorsDelegationsResDto extends BaseResDto {
     address: string;
     moniker: string;
@@ -347,10 +325,10 @@ export class DelegatorsUndelegationsResDto extends BaseResDto {
         this.end_time = delegations.end_time || ''
     }
 
-    static bundleData(value: any): DelegatorsDelegationsResDto[] {
-        let data: DelegatorsDelegationsResDto[] = [];
+    static bundleData(value: any): DelegatorsUndelegationsResDto[] {
+        let data: DelegatorsUndelegationsResDto[] = [];
         data = value.map((v: any) => {
-            return new DelegatorsDelegationsResDto(v);
+            return new DelegatorsUndelegationsResDto(v);
         });
         return data;
     }

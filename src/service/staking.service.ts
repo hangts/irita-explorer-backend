@@ -17,7 +17,7 @@ import {
     DelegatorsDelegationsParamReqDto,DelegatorsUndelegationsParamReqDto
 } from "../dto/staking.dto";
 import {ListStruct} from "../api/ApiResult";
-import { BlockHttp } from "../http/lcd/block.http";
+import {BlockHttp} from "../http/lcd/block.http";
 import { cfg } from '../config/config';
 
 @Injectable()
@@ -32,7 +32,7 @@ export default class StakingService {
 
     async getAllValidatorMonikerMap() {
         const allValidators = await (this.stakingValidatorsModel as any).queryAllValidators()
-        const allValidatorsMonikerMap = new Map()
+        let allValidatorsMonikerMap = new Map()
         allValidators.forEach(item => {
             allValidatorsMonikerMap.set(item.operator_address, item)
         })
@@ -41,13 +41,13 @@ export default class StakingService {
 
     async getTotalVotingPower() {
         const allValidators = await (this.stakingValidatorsModel as any).queryAllValidators()
-        const allValidatorVotingPower: number[] = []
+        let allValidatorVotingPower: number[] = []
         await allValidators.forEach(item => {
             if (item.status === ValidatorStatus[activeValidatorLabel] && item.jailed === false) {
                 allValidatorVotingPower.push(Number(item.voting_power))
             }
         })
-        let totalVotingPower = 0
+        let totalVotingPower: number = 0
         if (allValidatorVotingPower.length > 0) {
             totalVotingPower = await allValidatorVotingPower.reduce((total: number, item: number) => {
                 return item + total
@@ -72,10 +72,10 @@ export default class StakingService {
             //TODO:zhangjinbiao 使用位移进行大数字的计算
             allShares.push(Number(item.delegation.shares))
         })
-        const totalShares = allShares.reduce((total: number, item: number) => {
+        let totalShares = allShares.reduce((total: number, item: number) => {
             return item + total
         })
-        const resultData = validatorDelegationsFromLcd.map(item => {
+        let resultData = validatorDelegationsFromLcd.map(item => {
             return {
                 moniker: allValidatorsMap.get(item.delegation.validator_address).description.moniker || '',
                 address: item.delegation.delegator_address || '',
@@ -86,14 +86,14 @@ export default class StakingService {
 
         })
         const count = resultData.length
-        const result: any = {}
+        let result: any = {}
         if (q.useCount) {
             result.count = count
         }
         if (resultData.length < q.pageSize) {
             result.data = ValidatorDelegationsResDto.bundleData(resultData)
         } else {
-            const pageNationData = pageNation(resultData, q.pageSize)
+            let pageNationData = pageNation(resultData, q.pageSize)
             result.data = ValidatorDelegationsResDto.bundleData(pageNationData[q.pageNum - 1])
         }
         return new ListStruct(result.data, q.pageNum, q.pageSize, count)
@@ -103,7 +103,7 @@ export default class StakingService {
         const validatorAddr = p.address
         const allValidatorsMoniker = await this.getAllValidatorMonikerMap()
         const valUnBondingDelegationsFromLcd = await this.stakingHttp.queryValidatorUnBondingDelegations(validatorAddr)
-        const resultData = valUnBondingDelegationsFromLcd.map(item => {
+        let resultData = valUnBondingDelegationsFromLcd.map(item => {
             return {
                 moniker: allValidatorsMoniker.get(item.validator_address).description.moniker || '',
                 address: item.delegator_address || '',
@@ -111,19 +111,21 @@ export default class StakingService {
                 block: item.entries[0].creation_height || '',
                 until: item.entries[0].completion_time || '',
             }
+
         })
         const count = resultData.length
-        const result: any = {}
+        let result: any = {}
         if (q.useCount) {
             result.count = count
         }
         if (resultData.length < q.pageSize) {
             result.data = ValidatorUnBondingDelegationsResDto.bundleData(resultData)
         } else {
-            const pageNationData = pageNation(resultData, q.pageSize)
+            let pageNationData = pageNation(resultData, q.pageSize)
             result.data = ValidatorUnBondingDelegationsResDto.bundleData(pageNationData[q.pageNum - 1])
         }
         return new ListStruct(result.data, q.pageNum, q.pageSize, count)
+
     }
 
     async getValidatorsByStatus(q: allValidatorReqDto): Promise<ListStruct<stakingValidatorResDto>> {
@@ -132,7 +134,7 @@ export default class StakingService {
         validatorList.data.forEach(item => {
             item.voting_rate = item.voting_power / totalVotingPower
         })
-        const result: any = {}
+        let result: any = {}
         result.data = stakingValidatorResDto.bundleData(validatorList.data)
         result.count = validatorList.count
         return new ListStruct(result.data, q.pageNum, q.pageSize, result.count)
@@ -142,7 +144,7 @@ export default class StakingService {
 
         const validatorAddress = q.address
         let result: any = null;
-        const validatorDetail = await (this.stakingValidatorsModel as any).queryDetailByValidator(validatorAddress);
+        let validatorDetail = await (this.stakingValidatorsModel as any).queryDetailByValidator(validatorAddress);
         if (validatorDetail) {
             const moduleName = moduleSlashing
             const signedBlocksWindow = await (this.parametersModel as any).querySignedBlocksWindow(moduleName)
@@ -176,13 +178,13 @@ export default class StakingService {
         const deposits = await (this.txModel as any).queryDepositsByAddress(address)
 
 
-        const profilerAddressMap = new Map()
+        let profilerAddressMap = new Map()
         if (allProfilerAddress && allProfilerAddress.length > 0) {
             allProfilerAddress.forEach(item => {
                 profilerAddressMap.set(item.address, item)
             })
         }
-        const result: any = {}
+        let result: any = {}
         result.amount = balancesArray
         //TODO:zhangjinbiao 奖励地址需要加上
         result.withdrawAddress = ''
@@ -205,7 +207,7 @@ export default class StakingService {
     }
 
     async getDelegatorsDelegations(p:DelegatorsDelegationsParamReqDto,q: DelegatorsDelegationsReqDto): Promise<ListStruct<DelegatorsDelegationsResDto>> {
-        const { pageNum, pageSize } = q 
+        const { pageNum, pageSize } = q
         const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsDelegationsFromLcd(delegatorAddr)
         const dataLcd = delegatorsDelegationsFromLcd.result
@@ -245,14 +247,15 @@ export default class StakingService {
         } else {
             const pageNationData = pageNation(resultData, pageSize)
             result.data = DelegatorsDelegationsResDto.bundleData(pageNationData[pageNum - 1])
-        } 
+        }
         return new ListStruct(result.data, pageNum, pageSize, result.count)
     }
 
     async getDelegatorsUndelegations(p:DelegatorsUndelegationsParamReqDto,q: DelegatorsUndelegationsReqDto): Promise<ListStruct<DelegatorsUndelegationsResDto>> {
-        const { pageNum, pageSize } = q 
+        const { pageNum, pageSize } = q
         const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(delegatorAddr)
+        console.log(delegatorsDelegationsFromLcd.result[0].entries,111111111111111111111111)
         const dataLcd = delegatorsDelegationsFromLcd.result
         const count = dataLcd.length
         const data = dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize);
@@ -265,7 +268,7 @@ export default class StakingService {
                 }
             });
             const denom:string = cfg.unit.minUnit
-            const amount:string|number = (Number(item.entries.balance) /(1000000)).toFixed(2) // TODO:duanjie 大数字转换需优化
+            const amount:string|number = item.entries[0].balance
             return {
                 address: item.validator_address || '',
                 moniker: moniker || '',
@@ -273,18 +276,18 @@ export default class StakingService {
                     denom: denom || '',
                     amount: amount || ''
                 },
-                height: item.entries.creation_height || '',
-                end_time: item.entries.completion_time
+                height: item.entries[0].creation_height || '',
+                end_time: item.entries[0].completion_time || ''
             }
         })
         const result: any = {}
         result.count = count
         if (resultData.length < pageSize) {
-            result.data = DelegatorsDelegationsResDto.bundleData(resultData)
+            result.data = DelegatorsUndelegationsResDto.bundleData(resultData)
         } else {
             const pageNationData = pageNation(resultData, pageSize)
-            result.data = DelegatorsDelegationsResDto.bundleData(pageNationData[pageNum - 1])
-        } 
+            result.data = DelegatorsUndelegationsResDto.bundleData(pageNationData[pageNum - 1])
+        }
         return new ListStruct(result.data, pageNum, pageSize, result.count)
     }
 }
