@@ -80,9 +80,7 @@ TxSchema.statics.queryTxList = async function (query: ITxsQuery): Promise<IListS
         }
     }
     if (query.address && query.address.length) {
-        queryParameters = {
-            addrs: { $elemMatch: { $eq: query.address } },
-        };
+        queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
     }
     if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
         queryParameters.time = {};
@@ -124,9 +122,7 @@ TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<
         }
     }
     if (query.address && query.address.length) {
-        queryParameters = {
-            addrs: { $elemMatch: { $eq: query.address } },
-        };
+        queryParameters['addrs'] = { $elemMatch: { $eq: query.address }};
     }
     if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
         queryParameters.time = {};
