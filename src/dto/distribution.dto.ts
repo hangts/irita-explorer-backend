@@ -54,7 +54,7 @@ export class Reward {
         let { validator_address, reward, moniker } = value;
         this.validator_address = validator_address || '';
         this.moniker = moniker || '';
-        this.reward = Coin.bundleData(reward);
+        this.reward = reward && Coin.bundleData(reward);
     }
 
     static bundleData(value: any = []): Reward[] {
