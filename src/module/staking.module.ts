@@ -7,6 +7,7 @@ import {ProfilerSchema} from "../schema/profiler.schema";
 import {StakingController} from "../controller/staking.controller";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {TxSchema} from "../schema/tx.schema";
+import {DistributionHttp} from "../http/lcd/distribution.http";
 
 @Module({
     imports: [
@@ -33,7 +34,7 @@ import {TxSchema} from "../schema/tx.schema";
             }
         ])
     ],
-    providers: [StakingService, StakingHttp],
+    providers: [StakingService, StakingHttp,DistributionHttp],
     controllers: [StakingController],
 })
 export class StakingModule {

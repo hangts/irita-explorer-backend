@@ -19,6 +19,7 @@ import {
 import {ListStruct} from "../api/ApiResult";
 import {BlockHttp} from "../http/lcd/block.http";
 import { cfg } from '../config/config';
+import {DistributionHttp} from "../http/lcd/distribution.http";
 
 @Injectable()
 export default class StakingService {
@@ -171,12 +172,11 @@ export default class StakingService {
         const address = addressTransform(q.address, addressPrefix.iaa)
         const operatorAddress = addressTransform(q.address, addressPrefix.iva)
         const balancesArray = await this.stakingHttp.queryBalanceByAddress(address)
-        //TODO:zhangjinbiao 奖励地址需要加上
+        const withdrawAddress =  await DistributionHttp.queryWithdrawAddressByDelegator(address)
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const allProfilerAddress = await (this.profilerModel as any).queryProfileAddress()
         const validator = allValidatorsMap.get(operatorAddress)
         const deposits = await (this.txModel as any).queryDepositsByAddress(address)
-
 
         let profilerAddressMap = new Map()
         if (allProfilerAddress && allProfilerAddress.length > 0) {
@@ -186,11 +186,10 @@ export default class StakingService {
         }
         let result: any = {}
         result.amount = balancesArray
-        //TODO:zhangjinbiao 奖励地址需要加上
-        result.withdrawAddress = ''
+        result.withdrawAddress = withdrawAddress
         result.address = address
         result.moniker = validator.description.moniker
-        result.operator_address = allValidatorsMap.has(address) ? validator.operator_address : '--'
+        result.operator_address = allValidatorsMap.has(operatorAddress) ? validator.operator_address : '--'
         result.isProfiler = profilerAddressMap.size > 0 ? profilerAddressMap.has(address) : false
         if (allValidatorsMap.has(operatorAddress) && !validator.jailed) {
             result.status = ValidatorNumberStatus[validator.status]
