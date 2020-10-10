@@ -1,7 +1,7 @@
 import os from 'os'
 
-let bech32 = require('bech32')
-
+let Bech32 = require('Bech32')
+let Sha256 = require("sha256")
 export function getIpAddress() {
     const interfaces = os.networkInterfaces();
     for (const devName in interfaces) {
@@ -25,9 +25,9 @@ export function formatDateStringToNumber(dateString) {
 
 export function addressTransform(str:string, prefix?:string) {
     try {
-        let bech32str = bech32.decode(str,'utf-8');
+        let Bech32str = Bech32.decode(str,'utf-8');
         prefix = prefix || '';
-        let result = bech32.encode(prefix, bech32str.words)
+        let result = Bech32.encode(prefix, Bech32str.words)
         return result;
     } catch (e) {
         console.warn('address transform failed', e)
@@ -36,8 +36,8 @@ export function addressTransform(str:string, prefix?:string) {
 
 export function hexToBech32(hexStr:string, prefix:string = "") {
     try {
-        let words = bech32.toWords(Buffer.from(hexStr,'hex'));
-        return bech32.encode(prefix, words);
+        let words = Bech32.toWords(Buffer.from(hexStr,'hex'));
+        return Bech32.encode(prefix, words);
     }catch (e) {
         console.warn('address transform fialed',e)
     }
@@ -54,4 +54,17 @@ export function pageNation(dataArray: any[], pageSize: number = 0) {
         newArray = dataArray
     }
     return newArray
+}
+export function getAddress(publicKey) {
+    let words = Bech32.decode(publicKey).words;
+    words =  Bech32.fromWords(words);
+    if (words.length > 33){
+        //去掉amino编码前缀
+        words = words.slice(5)
+    }
+    let addr = Sha256(Buffer.from(words));
+    if (addr && addr.length > 40) {
+        addr = addr.substr(0,40);
+    }
+    return addr;
 }

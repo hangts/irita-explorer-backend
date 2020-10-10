@@ -51,7 +51,7 @@ export class NftCollectionDto {
     nfts: Nft[];
 
     constructor(value) {
-        let {denom, nfts} = value;
+        const {denom, nfts} = value;
         this.denom = new DenomDto(denom);
         this.nfts = (nfts || []).map(item=>{
             return new Nft(item);
@@ -96,7 +96,7 @@ export class BlockId {
     hash: string;
     parts: { total:number, hash:string};
     constructor(value) {
-        let { hash, parts } = value;
+        const { hash, parts } = value;
         this.hash = hash || '';
         this.parts = parts;
     }
@@ -109,12 +109,12 @@ export class Signatures {
     signature: string;
 
     constructor(value) {
-        let { block_id_flag, validator_address, timestamp, signature } = value;
+        const { block_id_flag, validator_address, timestamp, signature } = value;
         this.block_id_flag = block_id_flag || '';
         this.validator_address = validator_address || '';
         this.timestamp = timestamp || '';
         this.signature = signature || '';
-    }    
+    }
     static bundleData(value: any = []): Signatures[] {
         let data: Signatures[] = [];
         data = value.map((v: any) => {
@@ -164,7 +164,7 @@ export class Commit {
     block_id: BlockId;
     signatures: Signatures[];
     constructor(value) {
-        let { height, round, block_id, signatures } = value;
+        const { height, round, block_id, signatures } = value;
         this.height = Number(height);
         this.round = round;
         this.block_id = new BlockId(block_id);
@@ -179,7 +179,7 @@ export class Block {
     last_commit: Commit;
 
     constructor(value) {
-        let { header, data, evidence, last_commit } = value;
+        const { header, data, evidence, last_commit } = value;
         this.header = new BlockHeader(header);
         this.data =  data;
         this.evidence =  evidence;
@@ -191,7 +191,7 @@ export class BlockDto {
     block_id: BlockId;
     block: Block;
     constructor(value) {
-        let { block_id,  block } = value;
+        const { block_id,  block } = value;
         this.block_id = new BlockId(block_id);
         this.block = new Block(block);
     }
@@ -210,7 +210,7 @@ export class DelegatorRewardsDto {
     rewards: Reward[];
     total: Coin[];
     constructor(value) {
-        let { rewards, total } = value;
+        const { rewards, total } = value;
         this.rewards = Reward.bundleData(rewards);
         this.total = Coin.bundleData(total);
     }
@@ -220,9 +220,9 @@ export class Reward {
     validator_address:string;
     reward:Coin[];
     constructor(value) {
-        let { validator_address, reward } = value;
+        const { validator_address, reward } = value;
         this.validator_address = validator_address || '';
-        this.reward = Coin.bundleData(reward);
+        this.reward = reward ? Coin.bundleData(reward) : [];
     }
 
     static bundleData(value: any = []): Reward[] {
@@ -325,7 +325,7 @@ export class Validatorset {
     proposer_priority:string;
     voting_power:string;
     constructor(value) {
-        let { address, pub_key, proposer_priority, voting_power } = value;
+        const { address, pub_key, proposer_priority, voting_power } = value;
         this.address = address || '';
         this.pub_key = pub_key || '';
         this.proposer_priority = proposer_priority || '';
@@ -447,6 +447,73 @@ export class AddressBalancesLcdDto {
         let data: AddressBalancesLcdDto[] = [];
         data = value.map((v: any) => {
             return new AddressBalancesLcdDto(v);
+        });
+        return data;
+    }
+}
+
+export class DelegatorsDelegationLcdDto {
+    height: string;
+    result: DelegatorsResult[];
+    constructor(value) {
+        this.height = value.height || '',
+        this.result = DelegatorsResult.bundleData(value.result)
+    }
+}
+
+export class DelegatorsResult {
+    delegation: {
+        delegator_address: string;
+        validator_address: string;
+        shares:string
+    };
+    balance: {
+        denom: string;
+        amount: string
+    };
+
+    constructor(value) {
+        this.delegation = value.delegation || {},
+        this.balance = value.balance || {}
+    }
+
+    static bundleData(value: any = []): DelegatorsResult[] {
+        let data: DelegatorsResult[] = [];
+        data = value.map((v: any) => {
+            return new DelegatorsResult(v);
+        });
+        return data;
+    }
+}
+
+export class DelegatorsUndelegationLcdDto {
+    height: string;
+    result: UndelegatorsResult[];
+    constructor(value) {
+        this.height = value.height || '',
+        this.result = UndelegatorsResult.bundleData(value.result)
+    }
+}
+
+export class UndelegatorsResult {
+    delegator_address: string;
+    validator_address: string;
+    entries: {
+        creation_height: string;
+        completion_time: string;
+        initial_balance: string;
+        balance: string
+    };
+    constructor(value) {
+        this.delegator_address = value.delegator_address || '',
+        this.validator_address = value.validator_address || ''
+        this.entries = value.entries || {}
+    }
+
+    static bundleData(value: any = []): UndelegatorsResult[] {
+        let data: UndelegatorsResult[] = [];
+        data = value.map((v: any) => {
+            return new UndelegatorsResult(v);
         });
         return data;
     }

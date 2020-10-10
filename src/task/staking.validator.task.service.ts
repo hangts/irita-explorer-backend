@@ -2,9 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {StakingHttp} from "../http/lcd/staking.http";
 import {Model} from "mongoose"
-import {addressTransform, formatDateStringToNumber, getTimestamp} from "../util/util";
-import {IStakingValidatorDbMap, IStakingValidatorLcdMap} from "../types/schemaTypes/staking.interface";
-import {IValidatorsStruct} from "../types/schemaTypes/validators.interface";
+import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp} from "../util/util";
 import {addressPrefix, moduleSlashing} from "../constant";
 
 @Injectable()
@@ -18,8 +16,8 @@ export class StakingValidatorTaskService {
 
     async doTask(): Promise<void> {
         let pageNum = 1, pageSize = 100, allValidatorsFromLcd = []
-        let validatorsFromDb = await (this.stakingSyncValidatorsModel as any).queryAllValidators();
-        let validatorListDataFromLcd = await this.stakingHttp.queryValidatorListFromLcd(pageNum, pageSize)
+        const validatorsFromDb = await (this.stakingSyncValidatorsModel as any).queryAllValidators();
+        const validatorListDataFromLcd = await this.stakingHttp.queryValidatorListFromLcd(pageNum, pageSize)
         if (typeof validatorListDataFromLcd == 'undefined') {
             return
         }
@@ -29,7 +27,7 @@ export class StakingValidatorTaskService {
         //判断是否有第二页数据 如果有使用while循环请求
         while (allValidatorsFromLcd && allValidatorsFromLcd.length === pageSize) {
             pageNum++
-            let nextPageValidatorsFromLcd = await this.stakingHttp.queryValidatorListFromLcd(pageNum, pageSize);
+            const nextPageValidatorsFromLcd = await this.stakingHttp.queryValidatorListFromLcd(pageNum, pageSize);
             //将第二页及以后的数据合并
             allValidatorsFromLcd = [...allValidatorsFromLcd ,...nextPageValidatorsFromLcd]
         }
@@ -39,8 +37,8 @@ export class StakingValidatorTaskService {
         }
 
         //设置map
-        let validatorsFromDbMap = new Map()
-        let allValidatorsFromLcdMap = new Map()
+        const validatorsFromDbMap = new Map()
+        const allValidatorsFromLcdMap = new Map()
 
         validatorListDataFromLcd.forEach(item => {
             allValidatorsFromLcdMap.set(item.operator_address, item)
@@ -50,8 +48,8 @@ export class StakingValidatorTaskService {
                 validatorsFromDbMap.set(item.operator_address, item)
             })
         }
-        let needInsertOrValidators = await StakingValidatorTaskService.getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
-        let needDeleteValidators = await StakingValidatorTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
+        const needInsertOrValidators = await StakingValidatorTaskService.getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
+        const needDeleteValidators = await StakingValidatorTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
         await this.insertAndUpdateValidators(needInsertOrValidators)
         await this.deleteValidators(needDeleteValidators)
     }
@@ -68,7 +66,8 @@ export class StakingValidatorTaskService {
                 allValidatorsFromLcd[i].voting_power = Number(allValidatorsFromLcd[i].tokens)
             }
             allValidatorsFromLcd[i].jailed = allValidatorsFromLcd[i].jailed || false
-
+            const BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
+            allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
             await this.updateSlashInfo(allValidatorsFromLcd[i])
             await this.updateSelfBond(allValidatorsFromLcd[i])
             await this.updateIcons(allValidatorsFromLcd[i])
@@ -78,8 +77,8 @@ export class StakingValidatorTaskService {
 
     static getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap) {
         if (validatorsFromDbMap.size !== 0) {
-            let needDeleteValidatorDbMap = new Map()
-            for (let key of validatorsFromDbMap.keys()) {
+            const needDeleteValidatorDbMap = new Map()
+            for (const key of validatorsFromDbMap.keys()) {
                 if (!allValidatorsFromLcdMap.has(key)) {
                     needDeleteValidatorDbMap.set(validatorsFromDbMap.get(key).operator_address, validatorsFromDbMap.get(key))
                 }
@@ -91,9 +90,9 @@ export class StakingValidatorTaskService {
     //获取需要插入及更新的validators
     static async getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap) {
         //数据库中没有数据的情况
-        let needInsertOrUpdate = new Map()
-        for (let key of allValidatorsFromLcdMap.keys()) {
-            let validator = allValidatorsFromLcdMap.get(key)
+        const needInsertOrUpdate = new Map()
+        for (const key of allValidatorsFromLcdMap.keys()) {
+            const validator = allValidatorsFromLcdMap.get(key)
             validator.update_time = getTimestamp()
             if (!validatorsFromDbMap.has(key)) {
                 validator.create_time = getTimestamp()
@@ -121,8 +120,8 @@ export class StakingValidatorTaskService {
 
     private async updateSlashInfo(dbValidators) {
         if (dbValidators.consensus_pubkey) {
-            let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(dbValidators.consensus_pubkey)
-            let validatorObject = dbValidators
+            const signingInfo = await this.stakingHttp.queryValidatorFormSlashing(dbValidators.consensus_pubkey)
+            const validatorObject = dbValidators
             validatorObject.index_offset = signingInfo.index_offset;
             validatorObject.jailed_until = formatDateStringToNumber(signingInfo.jailed_until);
             validatorObject.start_height = signingInfo.start_height;
@@ -134,8 +133,8 @@ export class StakingValidatorTaskService {
 
     private async updateSelfBond(dbValidators) {
         if (dbValidators.operator_address) {
-            let valTranDelAddr = addressTransform(dbValidators.operator_address, addressPrefix.iaa)
-            let selfBondData = await this.stakingHttp.querySelfBondFromLcd(dbValidators.operator_address)
+            const valTranDelAddr = addressTransform(dbValidators.operator_address, addressPrefix.iaa)
+            const selfBondData = await this.stakingHttp.querySelfBondFromLcd(dbValidators.operator_address)
             dbValidators.delegator_num = selfBondData.length;
             await selfBondData.forEach((item) => {
                 if (item.delegation
@@ -149,7 +148,7 @@ export class StakingValidatorTaskService {
 
     private async updateIcons(dbValidators) {
         if (dbValidators.description && dbValidators.description.identity) {
-            let validatorIconUrl = await this.stakingHttp.queryValidatorIcon(dbValidators.description.identity)
+            const validatorIconUrl = await this.stakingHttp.queryValidatorIcon(dbValidators.description.identity)
             if (validatorIconUrl.them
                 && validatorIconUrl.them.pictures
                 && validatorIconUrl.them.pictures.primary
@@ -165,8 +164,8 @@ export class StakingValidatorTaskService {
         const signedBlocksWindow = await (this.parametersTaskModel as any).querySignedBlocksWindow(moduleName)
         const currentHeight = Number(dbValidators.current_height) || 0
         const startHeight = Number(dbValidators.start_height) || 0
-        let diffCurrentStart = currentHeight - startHeight + 1
-        let missedBlockCount = Number(dbValidators.missed_blocks_counter) || 0
+        const diffCurrentStart = currentHeight - startHeight + 1
+        const missedBlockCount = Number(dbValidators.missed_blocks_counter) || 0
         dbValidators.uptime = 1 - missedBlockCount / Math.min(diffCurrentStart, signedBlocksWindow.cur_value)
 
     }

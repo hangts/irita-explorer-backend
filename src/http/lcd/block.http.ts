@@ -15,7 +15,7 @@ export class BlockHttp {
             });
         } catch (e) {
             Logger.warn(`api-error from ${url}:`, e.message);
-            throw new ApiError(ErrorCodes.failed, e.message);
+            // throw new ApiError(ErrorCodes.failed, e.message);
         }
     }
 
@@ -28,7 +28,7 @@ export class BlockHttp {
             }
         } catch (e) {
             Logger.warn(`api-error from ${url}:`, e.message);
-            throw new ApiError(ErrorCodes.failed, e.message);
+            // throw new ApiError(ErrorCodes.failed, e.message);
         }
     }
 

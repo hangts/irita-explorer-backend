@@ -1,10 +1,11 @@
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../app.module';
 import StakingService from "./staking.service";
-import { 
+import {
     CommissionInfoReqDto,
     ValidatorDelegationsReqDto,
     ValidatorUnBondingDelegationsReqDto,
+    ValidatorUnBondingDelegationsQueryReqDto,
     allValidatorReqDto,
     ValidatorDetailAddrReqDto,
     AccountAddrReqDto } from '../dto/staking.dto';
@@ -36,11 +37,13 @@ describe('stakingValidatorController', () => {
         it('should return Validator Delegation array', async () => {
             let req:ValidatorDelegationsReqDto = {
                 address:'iva1nfgkyn6ux5mvavhyk5aq8zgzushrecutlt5pr8',
-                pageNum:1,
-                pageSize:10,
-                useCount:true
             };
-            let data:any = await stakingService.getValidatorDelegationList(req);
+            let query:ValidatorUnBondingDelegationsQueryReqDto = {
+                pageNum: 1,
+                pageSize: 10,
+                useCount: true
+            };
+            let data:any = await stakingService.getValidatorDelegationList(req,query);
             expect(data).toBeDefined();
         });
     });
@@ -49,15 +52,17 @@ describe('stakingValidatorController', () => {
         it('should return Validator UnBonding Delegation array', async () => {
             let req:ValidatorUnBondingDelegationsReqDto = {
                 address:'iva1nfgkyn6ux5mvavhyk5aq8zgzushrecutlt5pr8',
-                pageNum:1,
-                pageSize:10,
-                useCount:true
             };
-            let data:any = await stakingService.getValidatorUnBondingDelegations(req);
+            let query:ValidatorUnBondingDelegationsQueryReqDto = {
+                pageNum: 1,
+                pageSize: 10,
+                useCount: true
+            };
+            let data:any = await stakingService.getValidatorUnBondingDelegations(req,query);
             expect(data).toBeDefined();
         });
     });
-    
+
     describe('getValidatorsByStatus', () => {
         it('should return Validator array', async () => {
             let req:allValidatorReqDto = {
@@ -82,7 +87,7 @@ describe('stakingValidatorController', () => {
             }else{
                 expect(data).toBeDefined();
             }
-            
+
         });
     });
 
@@ -97,7 +102,7 @@ describe('stakingValidatorController', () => {
             }else{
                 expect(data).toBeDefined();
             }
-            
+
         });
     });
 })

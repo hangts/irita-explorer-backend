@@ -14,14 +14,20 @@ export class CommissionInfoReqDto extends PagingReqDto {
 
 }
 
-export class ValidatorDelegationsReqDto extends PagingReqDto {
+export class ValidatorDelegationsReqDto {
     @ApiProperty()
     address: string
 }
 
-export class ValidatorUnBondingDelegationsReqDto extends PagingReqDto {
+export class ValidatorDelegationsQueryReqDto extends PagingReqDto {
+}
+
+export class ValidatorUnBondingDelegationsReqDto {
     @ApiProperty()
     address: string
+}
+
+export class ValidatorUnBondingDelegationsQueryReqDto extends PagingReqDto {
 }
 
 export class allValidatorReqDto extends PagingReqDto {
@@ -39,7 +45,36 @@ export class AccountAddrReqDto {
     address: string
 }
 
+export class DelegatorsDelegationsReqDto extends PagingReqDto {
+}
+
+export class DelegatorsDelegationsParamReqDto {
+    @ApiProperty()
+    delegatorAddr: string
+}
+
+export class DelegatorsUndelegationsReqDto extends PagingReqDto {
+}
+
+export class DelegatorsUndelegationsParamReqDto {
+    @ApiProperty()
+    delegatorAddr: string
+}
+
 /***************Res*************************/
+export class ConfigResDto extends BaseResDto {
+    maxUnit: string;
+    minUnit: string;
+    conversionRatio: number;
+
+    constructor(value) {
+        super();
+        let { maxUnit, minUnit, conversionRatio } = value;
+        this.maxUnit = maxUnit;
+        this.minUnit = minUnit;
+        this.conversionRatio = conversionRatio;
+    }
+}
 
 export class stakingValidatorResDto extends BaseResDto {
     operator_address: string;
@@ -179,7 +214,7 @@ export class ValidatorUnBondingDelegationsResDto extends BaseResDto {
 
 }
 
-export class ValidatorDetailResDtO {
+export class ValidatorDetailResDto {
     total_power: number;
     self_power: number;
     status: string;
@@ -217,7 +252,7 @@ export class ValidatorDetailResDtO {
         this.commission_update = validatorDetail.commission.update_time || 0
         this.commission_max_rate = validatorDetail.commission.commission_rates.max_rate || ''
         this.commission_max_change_rate = validatorDetail.commission.commission_rates.max_change_rate || ''
-        this.bond_height = validatorDetail.start_height || ''
+        this.bond_height = validatorDetail.start_height || '0'
         this.unbonding_height = validatorDetail.unbonding_height || ''
         this.jailed_until = validatorDetail.jailed_until || ''
         this.missed_blocks_count = validatorDetail.missed_blocks_count || '0'
@@ -253,5 +288,61 @@ export class AccountAddrResDto {
         this.moniker = account.moniker || ''
         this.status = account.status || ''
         this.operator_address = account.operator_address || ''
+    }
+}
+
+export class DelegatorsDelegationsResDto extends BaseResDto {
+    address: string;
+    moniker: string;
+    amount: {
+        denom: string;
+        amount: string|number
+    };
+    shares: string;
+    height: string;
+
+    constructor(delegations) {
+        super();
+        this.address = delegations.address || ''
+        this.moniker = delegations.moniker || ''
+        this.amount = delegations.amount || {}
+        this.shares = delegations.shares || ''
+        this.height = delegations.height || ''
+    }
+
+    static bundleData(value: any): DelegatorsDelegationsResDto[] {
+        let data: DelegatorsDelegationsResDto[] = [];
+        data = value.map((v: any) => {
+            return new DelegatorsDelegationsResDto(v);
+        });
+        return data;
+    }
+}
+
+export class DelegatorsUndelegationsResDto extends BaseResDto {
+    address: string;
+    moniker: string;
+    amount: {
+        denom: string;
+        amount: string|number
+    };
+    height: string;
+    end_time: string;
+
+    constructor(delegations) {
+        super();
+        this.address = delegations.address || ''
+        this.moniker = delegations.moniker || ''
+        this.amount = delegations.amount || {}
+        this.height = delegations.height || ''
+        this.end_time = delegations.end_time || ''
+    }
+
+    static bundleData(value: any): DelegatorsUndelegationsResDto[] {
+        let data: DelegatorsUndelegationsResDto[] = [];
+        data = value.map((v: any) => {
+            return new DelegatorsUndelegationsResDto(v);
+        });
+        return data;
     }
 }
