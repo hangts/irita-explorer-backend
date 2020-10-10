@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../app.module';
 import StakingService from "./staking.service";
-import { 
+import {
     CommissionInfoReqDto,
     ValidatorDelegationsReqDto,
     ValidatorUnBondingDelegationsReqDto,
@@ -62,7 +62,7 @@ describe('stakingValidatorController', () => {
             expect(data).toBeDefined();
         });
     });
-    
+
     describe('getValidatorsByStatus', () => {
         it('should return Validator array', async () => {
             let req:allValidatorReqDto = {
@@ -87,7 +87,7 @@ describe('stakingValidatorController', () => {
             }else{
                 expect(data).toBeDefined();
             }
-            
+
         });
     });
 
@@ -102,7 +102,7 @@ describe('stakingValidatorController', () => {
             }else{
                 expect(data).toBeDefined();
             }
-            
+
         });
     });
 })

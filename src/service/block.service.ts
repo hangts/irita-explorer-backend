@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { 
-    BlockListReqDto, 
+import {
+    BlockListReqDto,
     BlockDetailReqDto,
     ValidatorsetsReqDto } from '../dto/block.dto';
-import { 
+import {
     BlockListResDto,
     ValidatorsetsResDto,
     BlockStakingResDto} from '../dto/block.dto';
@@ -14,7 +14,7 @@ import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { BlockHttp } from '../http/lcd/block.http';
 import { Logger } from '../logger';
 import { addressPrefix } from '../constant';
-import { hexToBech32 } from '../util/util';
+import {getAddress, hexToBech32} from '../util/util';
 @Injectable()
 export class BlockService {
 
@@ -107,10 +107,11 @@ export class BlockService {
             if (validators.length) {
                 let validatorMap = {};
                 validators.forEach((v)=>{
-                    validatorMap[v.consensus_pubkey] = v;
+                    validatorMap[v.proposer_addr] = v;
                 });
                 data.forEach((item)=>{
-                    let validator = validatorMap[item.pub_key];
+                    const proposer_addr = item.pub_key ? getAddress(item.pub_key).toLocaleUpperCase() : null
+                    let validator = validatorMap[proposer_addr];
                     if (validator) {
                         (item as any).moniker = (validator.description || {}).moniker || '';
                         (item as any).operator_address = validator.operator_address || '';
@@ -119,7 +120,7 @@ export class BlockService {
                 })
             }
         }
-        return new ListStruct(ValidatorsetsResDto.bundleData(data_lcd), pageNum, pageSize, data_lcd.length);
+        return new ListStruct(ValidatorsetsResDto.bundleData(data), pageNum, pageSize, data.length);
     }
 
     async queryLatestBlock(): Promise<IBlockStruct> {

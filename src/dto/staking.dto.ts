@@ -239,7 +239,7 @@ export class ValidatorDetailResDtO {
         this.commission_update = validatorDetail.commission.update_time || 0
         this.commission_max_rate = validatorDetail.commission.commission_rates.max_rate || ''
         this.commission_max_change_rate = validatorDetail.commission.commission_rates.max_change_rate || ''
-        this.bond_height = validatorDetail.start_height || ''
+        this.bond_height = validatorDetail.start_height || '0'
         this.unbonding_height = validatorDetail.unbonding_height || ''
         this.jailed_until = validatorDetail.jailed_until || ''
         this.missed_blocks_count = validatorDetail.missed_blocks_count || '0'
@@ -332,4 +332,4 @@ export class DelegatorsUndelegationsResDto extends BaseResDto {
         });
         return data;
     }
-} 
+}
