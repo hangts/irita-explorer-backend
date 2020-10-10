@@ -267,7 +267,7 @@ export class TxService {
                 bindTime: item.time,
             };
         });
-        console.log(query, bindServiceTxList);
+        // console.log(query, bindServiceTxList);
         //查出每个provider在当前绑定的serviceName下所有的绑定次数
         for (let bindTx of bindTxList) {
             bindTx.respondTimes = await (this.txModel as any).findProviderRespondTimesForService(serviceName, bindTx.provider);

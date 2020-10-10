@@ -155,7 +155,7 @@ TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Prom
     if (query.type && query.type.length) {
         queryParameters['msgs.type'] = query.type;
     } else {
-        queryParameters['msgs.type'] = {'$in':declarationTypes()};
+        queryParameters['msgs.type'] = { '$in': declarationTypes() };
     }
     if (query.status && query.status.length) {
         switch (query.status) {
