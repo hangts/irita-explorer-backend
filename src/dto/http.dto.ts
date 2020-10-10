@@ -222,7 +222,7 @@ export class Reward {
     constructor(value) {
         const { validator_address, reward } = value;
         this.validator_address = validator_address || '';
-        this.reward = Coin.bundleData(reward);
+        this.reward = reward ? Coin.bundleData(reward) : [];
     }
 
     static bundleData(value: any = []): Reward[] {

@@ -8,7 +8,7 @@ import {
     ITxsWithServiceNameQuery,
     IExFieldQuery, IIdentityTx,
 } from '../types/schemaTypes/tx.interface';
-import { 
+import {
     stakingTypes,
     serviceTypes,
     declarationTypes } from '../helper/txTypes.helper';
@@ -126,6 +126,7 @@ TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<
     }
     if (query.address && query.address.length) {
         queryParameters = {
+            ...queryParameters,
             addrs: { $elemMatch: { $eq: query.address } },
         };
     }
@@ -148,7 +149,7 @@ TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<
     return result;
 };
 
-//  txs/declaration 
+//  txs/declaration
 TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Promise<IListStruct> {
     const result: IListStruct = {};
     let queryParameters: any = {};
@@ -169,6 +170,7 @@ TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Prom
     }
     if (query.address && query.address.length) {
         queryParameters = {
+            ...queryParameters,
             addrs: { $elemMatch: { $eq: query.address } },
         };
     }
