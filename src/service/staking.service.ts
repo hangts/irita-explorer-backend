@@ -188,7 +188,7 @@ export default class StakingService {
         result.amount = balancesArray
         result.withdrawAddress = withdrawAddress.address
         result.address = address
-        result.moniker = validator.description.moniker
+        result.moniker =  validator && validator.description ? validator.description.moniker :'--'
         result.operator_address = allValidatorsMap.has(operatorAddress) ? validator.operator_address : '--'
         result.isProfiler = profilerAddressMap.size > 0 ? profilerAddressMap.has(address) : false
         if (allValidatorsMap.has(operatorAddress) && !validator.jailed) {
