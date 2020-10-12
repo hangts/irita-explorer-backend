@@ -70,12 +70,13 @@ StakingValidatorSchema.statics = {
     async queryValidatorsByStatus(query: IQueryValidatorByStatus): Promise<IListStruct> {
         const queryParameters: any = {};
         const result: IListStruct = {}
+
         if(query.status === jailedValidatorLabel){
             queryParameters.jailed = true
-        }else if(queryParameters.status === activeValidatorLabel){
+        }else if(query.status === activeValidatorLabel){
             queryParameters.jailed = false
             queryParameters.status = ValidatorStatus['bonded']
-        }else if(queryParameters.status === candidateValidatorLabel){
+        }else if(query.status === candidateValidatorLabel){
             queryParameters.jailed = false
             queryParameters.status ={'$in':[ ValidatorStatus['Unbonded'], ValidatorStatus['Unbonding']]}
         }
