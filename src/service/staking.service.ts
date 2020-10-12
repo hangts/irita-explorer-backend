@@ -23,7 +23,7 @@ import {
     ValidatorUnBondingDelegationsReqDto, ValidatorUnBondingDelegationsResDto,ValidatorUnBondingDelegationsQueryReqDto,
     DelegatorsDelegationsReqDto,DelegatorsDelegationsResDto,
     DelegatorsUndelegationsReqDto, DelegatorsUndelegationsResDto,
-    DelegatorsDelegationsParamReqDto,DelegatorsUndelegationsParamReqDto
+    DelegatorsDelegationsParamReqDto, DelegatorsUndelegationsParamReqDto,
 } from "../dto/staking.dto";
 import {ListStruct} from "../api/ApiResult";
 import {BlockHttp} from "../http/lcd/block.http";
@@ -187,7 +187,7 @@ export default class StakingService {
             validatorDetail.tokens = Number(validatorDetail.tokens)
             validatorDetail.bonded_stake = (Number(validatorDetail.self_bond.amount) * (Number(validatorDetail.tokens) / Number(validatorDetail.delegator_shares))).toString()
             validatorDetail.owner_addr = addressTransform(validatorDetail.operator_address, addressPrefix.iaa)
-            result = new ValidatorDetailResDtO(validatorDetail)
+            result = new ValidatorDetailResDto(validatorDetail)
         }
         return result;
     }
