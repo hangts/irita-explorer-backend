@@ -239,6 +239,9 @@ export default class StakingService {
             } else if (item.balance.denom == cfg.unit.maxUnit) {
                 denom = cfg.unit.maxUnit,
                 amount = item.balance.amount
+            } else {
+                denom = item.balance.denom,
+                amount = item.balance.amount
             }
             return {
                 address: item.delegation.validator_address || '',
