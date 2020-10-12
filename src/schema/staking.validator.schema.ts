@@ -6,7 +6,7 @@ import {
     IStakingValidator,
     IDetailByValidatorAddress
 } from "../types/schemaTypes/staking.interface";
-import {ValidatorStatus} from "../constant";
+import {activeValidatorLabel, candidateValidatorLabel, jailedValidatorLabel, ValidatorStatus} from "../constant";
 
 export const StakingValidatorSchema = new mongoose.Schema({
     operator_address: String,
@@ -58,7 +58,7 @@ StakingValidatorSchema.statics = {
         const {operator_address} = deleteValidator
         await this.deleteOne({operator_address})
     },
-    
+
     async queryAllValCommission(query): Promise<IListStruct> {
         const result: IListStruct = {}
         if (query.useCount && query.useCount == true) {
@@ -70,7 +70,15 @@ StakingValidatorSchema.statics = {
     async queryValidatorsByStatus(query: IQueryValidatorByStatus): Promise<IListStruct> {
         const queryParameters: any = {};
         const result: IListStruct = {}
-        queryParameters.status = ValidatorStatus[query.status]
+        if(query.status === jailedValidatorLabel){
+            queryParameters.jailed = true
+        }else if(queryParameters.status === activeValidatorLabel){
+            queryParameters.jailed = false
+            queryParameters.status = ValidatorStatus['bonded']
+        }else if(queryParameters.status === candidateValidatorLabel){
+            queryParameters.jailed = false
+            queryParameters.status ={'$in':[ ValidatorStatus['Unbonded'], ValidatorStatus['Unbonding']]}
+        }
         if (query.useCount && query.useCount == true) {
             result.count = await this.find(queryParameters).countDocuments();
         }

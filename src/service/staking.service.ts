@@ -3,7 +3,14 @@ import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
 import {StakingHttp} from "../http/lcd/staking.http";
 import {addressTransform, pageNation} from "../util/util";
-import {activeValidatorLabel, addressPrefix, moduleSlashing, ValidatorNumberStatus, ValidatorStatus} from "../constant";
+import {
+    activeValidatorLabel,
+    addressPrefix,
+    jailedValidatorLabel,
+    moduleSlashing,
+    ValidatorNumberStatus,
+    ValidatorStatus
+} from "../constant";
 import {
     AccountAddrReqDto, 
     AccountAddrResDto,
@@ -170,12 +177,17 @@ export default class StakingService {
             } else {
                 validatorDetail.stats_blocks_window = (Number(latestBlockHeight) - Number(startHeight));
             }
-            validatorDetail.valStatus = ValidatorNumberStatus[validatorDetail.status];
-            validatorDetail.total_power = await this.getTotalVotingPower();
-            validatorDetail.tokens = Number(validatorDetail.tokens);
-            validatorDetail.bonded_stake = (Number(validatorDetail.self_bond.amount) * (Number(validatorDetail.tokens) / Number(validatorDetail.delegator_shares))).toString();
-            validatorDetail.owner_addr = addressTransform(validatorDetail.operator_address, addressPrefix.iaa);
-            result = new ValidatorDetailResDto(validatorDetail);
+            if(validatorDetail.jailed){
+                validatorDetail.valStatus = ValidatorNumberStatus[validatorDetail.status]
+            }else {
+                validatorDetail.valStatus = jailedValidatorLabel
+            }
+
+            validatorDetail.total_power = await this.getTotalVotingPower()
+            validatorDetail.tokens = Number(validatorDetail.tokens)
+            validatorDetail.bonded_stake = (Number(validatorDetail.self_bond.amount) * (Number(validatorDetail.tokens) / Number(validatorDetail.delegator_shares))).toString()
+            validatorDetail.owner_addr = addressTransform(validatorDetail.operator_address, addressPrefix.iaa)
+            result = new ValidatorDetailResDtO(validatorDetail)
         }
         return result;
     }
@@ -206,7 +218,7 @@ export default class StakingService {
         if (allValidatorsMap.has(operatorAddress) && !validator.jailed) {
             result.status = ValidatorNumberStatus[validator.status]
         } else {
-            result.status = ''
+            result.status = jailedValidatorLabel
         }
         if (deposits && deposits.data && deposits.data.length > 0) {
             //TODO:zhangjinbiao 处理查询出来与Gov相关的交易列表计算总的amount
