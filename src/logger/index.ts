@@ -19,8 +19,8 @@ export class ContextTrace {
 
 Log4js.addLayout('csrb-nest', (logConfig: any) => {
     return (logEvent: Log4js.LoggingEvent): string => {
-        let moduleName = '';
-        let position = '';
+        let moduleName: string = '';
+        let position: string = '';
         
         const messageList: string[] = [];
         logEvent.data.forEach((value: any) => {
@@ -40,10 +40,10 @@ Log4js.addLayout('csrb-nest', (logConfig: any) => {
         
         const messageOutput: string = messageList.join(' ');
         const positionOutput: string = position ? ` [${position}]` : '';
-        const typeOutput = `[${logConfig.type}] ${logEvent.pid.toString()}   - `;
-        const dateOutput = `${moment(logEvent.startTime).format('YYYY-MM-DD HH:mm:ss')}`;
+        const typeOutput: string = `[${logConfig.type}] ${logEvent.pid.toString()}   - `;
+        const dateOutput: string = `${moment(logEvent.startTime).format('YYYY-MM-DD HH:mm:ss')}`;
         const moduleOutput: string = moduleName ? `[${moduleName}] ` : '[LoggerService] ';
-        let levelOutput = `[${logEvent.level}] ${messageOutput}`;
+        let levelOutput: string = `[${logEvent.level}] ${messageOutput}`;
 
         switch (logEvent.level.toString()) {
             case LoggerLevel.DEBUG:
@@ -71,7 +71,7 @@ Log4js.addLayout('csrb-nest', (logConfig: any) => {
 
 Log4js.configure(log4Config);
 
-const logger_console = Log4js.getLogger('console');
+let logger_console = Log4js.getLogger('console');
 logger_console.level = LoggerLevel.TRACE;
 
 let logger_common = Log4js.getLogger('common');
@@ -85,34 +85,34 @@ if (cfg.env == ENV.development || cfg.disableLog) {
     logger_http = logger_console;
 }
 
-// 注释了很多打印
+
 export class Logger {
     static trace(...args) {
-       // logger_common.trace(Logger.getStackTrace(), ...args);
+       logger_common.trace(Logger.getStackTrace(), ...args);
     }
     static debug(...args) {
-      //  logger_common.debug(Logger.getStackTrace(), ...args);
+       logger_common.debug(Logger.getStackTrace(), ...args);
     }
     static log(...args) {
-      //  logger_common.log(Logger.getStackTrace(), ...args);
+       logger_common.log(Logger.getStackTrace(), ...args);
     }
     static info(...args) {
-      //  logger_common.info(Logger.getStackTrace(), ...args);
+       logger_common.info(Logger.getStackTrace(), ...args);
     }
     static warn(...args) {
-       // logger_common.warn(Logger.getStackTrace(), ...args);
+       logger_common.warn(Logger.getStackTrace(), ...args);
     }
     static error(...args) {
-       // logger_common.error(Logger.getStackTrace(), ...args);
+       logger_common.error(Logger.getStackTrace(), ...args);
     }
     static fatal(...args) {
-      //  logger_common.fatal(Logger.getStackTrace(), ...args);
+       logger_common.fatal(Logger.getStackTrace(), ...args);
     }
     static access(...args) {
-      //  logger_http.info(Logger.getStackTrace(), ...args);
+       logger_http.info(Logger.getStackTrace(), ...args);
     }
 
-    static getStackTrace(deep = 2): string {
+    static getStackTrace(deep: number = 2): string {
         const stackList: StackTrace.StackFrame[] = StackTrace.getSync();
         const stackInfo: StackTrace.StackFrame = stackList[deep];
         const lineNumber: number = stackInfo.lineNumber;

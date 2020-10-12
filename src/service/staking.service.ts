@@ -177,12 +177,11 @@ export default class StakingService {
             } else {
                 validatorDetail.stats_blocks_window = (Number(latestBlockHeight) - Number(startHeight));
             }
-            if(validatorDetail.jailed){
+            if(!validatorDetail.jailed){
                 validatorDetail.valStatus = ValidatorNumberStatus[validatorDetail.status]
             }else {
                 validatorDetail.valStatus = jailedValidatorLabel
             }
-
             validatorDetail.total_power = await this.getTotalVotingPower()
             validatorDetail.tokens = Number(validatorDetail.tokens)
             validatorDetail.bonded_stake = (Number(validatorDetail.self_bond.amount) * (Number(validatorDetail.tokens) / Number(validatorDetail.delegator_shares))).toString()

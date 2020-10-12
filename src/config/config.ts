@@ -54,8 +54,8 @@ export const cfg = {
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
     },
     unit: {
-        maxUnit: MAXUNIT || 'iris',
-        minUnit: MINUNIT || 'uiris',
+        maxUnit: MAXUNIT || 'bif',
+        minUnit: MINUNIT || 'ubif',
         conversionRatio: CONVERSIONRATIO || 1000000
     }
 };
