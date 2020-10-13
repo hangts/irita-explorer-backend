@@ -18,7 +18,7 @@ export class StakingHttp {
     async queryValidatorListFromLcd(pageNum: number, pageSize: number) {
         const validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?pageNum=${pageNum}&pageSize=${pageSize}`
         try {
-            const stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)
+            let stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)
             if (stakingValidatorData && stakingValidatorData.result) {
                 return StakingValidatorLcdDto.bundleData(stakingValidatorData.result);
             } else {
@@ -90,7 +90,7 @@ export class StakingHttp {
     async queryValidatorDelegationsFromLcd(address) {
         const getValidatorDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/delegations`
         try {
-            const validatorDelegationsData: any = await new HttpService().get(getValidatorDelegationsUri).toPromise().then(result => result.data)
+            let validatorDelegationsData: any = await new HttpService().get(getValidatorDelegationsUri).toPromise().then(result => result.data)
             if (validatorDelegationsData && validatorDelegationsData.result) {
                 return StakingValidatorDelegationLcdDto.bundleData(validatorDelegationsData.result);
             } else {
@@ -104,7 +104,7 @@ export class StakingHttp {
     async queryValidatorUnBondingDelegations(address) {
         const getValidatorUnBondingDelUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/unbonding_delegations`
         try {
-            const validatorUnBondingDelegationsData: any = await new HttpService().get(getValidatorUnBondingDelUri).toPromise().then(result => result.data)
+            let validatorUnBondingDelegationsData: any = await new HttpService().get(getValidatorUnBondingDelUri).toPromise().then(result => result.data)
             if (validatorUnBondingDelegationsData && validatorUnBondingDelegationsData.result) {
                 return StakingValUnBondingDelLcdDto.bundleData(validatorUnBondingDelegationsData.result);
             } else {
@@ -118,7 +118,7 @@ export class StakingHttp {
     async queryBalanceByAddress(address) {
         const getBalancesUri = `${cfg.serverCfg.lcdAddr}/bank/balances/${address}`
         try {
-            const addressBalancesData: any = await new HttpService().get(getBalancesUri).toPromise().then(result => result.data)
+            let addressBalancesData: any = await new HttpService().get(getBalancesUri).toPromise().then(result => result.data)
             if (addressBalancesData && addressBalancesData.result) {
                 return AddressBalancesLcdDto.bundleData(addressBalancesData.result);
             } else {

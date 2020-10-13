@@ -3,9 +3,16 @@ import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
 import {StakingHttp} from "../http/lcd/staking.http";
 import {addressTransform, pageNation} from "../util/util";
-import {activeValidatorLabel, addressPrefix, moduleSlashing, ValidatorNumberStatus, ValidatorStatus} from "../constant";
 import {
-    AccountAddrReqDto, 
+    activeValidatorLabel,
+    addressPrefix,
+    jailedValidatorLabel,
+    moduleSlashing,
+    ValidatorNumberStatus,
+    ValidatorStatus
+} from "../constant";
+import {
+    AccountAddrReqDto,
     AccountAddrResDto,
     ConfigResDto,
     allValidatorReqDto,
@@ -16,7 +23,7 @@ import {
     ValidatorUnBondingDelegationsReqDto, ValidatorUnBondingDelegationsResDto,ValidatorUnBondingDelegationsQueryReqDto,
     DelegatorsDelegationsReqDto,DelegatorsDelegationsResDto,
     DelegatorsUndelegationsReqDto, DelegatorsUndelegationsResDto,
-    DelegatorsDelegationsParamReqDto,DelegatorsUndelegationsParamReqDto
+    DelegatorsDelegationsParamReqDto, DelegatorsUndelegationsParamReqDto,
 } from "../dto/staking.dto";
 import {ListStruct} from "../api/ApiResult";
 import {BlockHttp} from "../http/lcd/block.http";
@@ -76,7 +83,9 @@ export default class StakingService {
         const allShares: number[] = [];
         (validatorDelegationsFromLcd || []).forEach(item => {
             //TODO:zhangjinbiao 使用位移进行大数字的计算
-            allShares.push(Number(item.delegation.shares))
+            if(item){
+                allShares.push(Number(item.delegation.shares))
+            }
         })
 
         let totalShares;
@@ -86,7 +95,6 @@ export default class StakingService {
                 return item + total
             })
         }
-        
         let resultData = (validatorDelegationsFromLcd || []).map(item => {
             return {
                 moniker: allValidatorsMap.get(item.delegation.validator_address).description.moniker || '',
@@ -95,7 +103,6 @@ export default class StakingService {
                 self_shares: item.delegation.shares || '',
                 total_shares: totalShares || '',
             }
-
         })
         const count = resultData.length
         let result: any = {}
@@ -142,7 +149,6 @@ export default class StakingService {
 
     async getValidatorsByStatus(q: allValidatorReqDto): Promise<ListStruct<stakingValidatorResDto>> {
         const validatorList = await (this.stakingValidatorsModel as any).queryValidatorsByStatus(q)
-        console.log('validatorList:',validatorList);
         const totalVotingPower = await this.getTotalVotingPower()
         validatorList.data.forEach(item => {
             item.voting_rate = item.voting_power / totalVotingPower
@@ -170,12 +176,16 @@ export default class StakingService {
             } else {
                 validatorDetail.stats_blocks_window = (Number(latestBlockHeight) - Number(startHeight));
             }
-            validatorDetail.valStatus = ValidatorNumberStatus[validatorDetail.status];
-            validatorDetail.total_power = await this.getTotalVotingPower();
-            validatorDetail.tokens = Number(validatorDetail.tokens);
-            validatorDetail.bonded_stake = (Number(validatorDetail.self_bond.amount) * (Number(validatorDetail.tokens) / Number(validatorDetail.delegator_shares))).toString();
-            validatorDetail.owner_addr = addressTransform(validatorDetail.operator_address, addressPrefix.iaa);
-            result = new ValidatorDetailResDto(validatorDetail);
+            if(!validatorDetail.jailed){
+                validatorDetail.valStatus = ValidatorNumberStatus[validatorDetail.status]
+            }else {
+                validatorDetail.valStatus = jailedValidatorLabel
+            }
+            validatorDetail.total_power = await this.getTotalVotingPower()
+            validatorDetail.tokens = Number(validatorDetail.tokens)
+            validatorDetail.bonded_stake = (Number(validatorDetail.self_bond.amount) * (Number(validatorDetail.tokens) / Number(validatorDetail.delegator_shares))).toString()
+            validatorDetail.owner_addr = addressTransform(validatorDetail.operator_address, addressPrefix.iaa)
+            result = new ValidatorDetailResDto(validatorDetail)
         }
         return result;
     }
@@ -197,16 +207,16 @@ export default class StakingService {
             })
         }
         let result: any = {}
-        result.amount = balancesArray
+        result.amount = balancesArray || []
         result.withdrawAddress = withdrawAddress.address
         result.address = address
-        result.moniker =  validator && validator.description ? validator.description.moniker :'--'
-        result.operator_address = allValidatorsMap.has(operatorAddress) ? validator.operator_address : '--'
+        result.moniker =  validator && validator.description ? validator.description.moniker :''
+        result.operator_address = allValidatorsMap.has(operatorAddress) ? validator.operator_address : ''
         result.isProfiler = profilerAddressMap.size > 0 ? profilerAddressMap.has(address) : false
         if (allValidatorsMap.has(operatorAddress) && !validator.jailed) {
             result.status = ValidatorNumberStatus[validator.status]
         } else {
-            result.status = ''
+            result.status = jailedValidatorLabel
         }
         if (deposits && deposits.data && deposits.data.length > 0) {
             //TODO:zhangjinbiao 处理查询出来与Gov相关的交易列表计算总的amount
@@ -221,44 +231,22 @@ export default class StakingService {
         const { pageNum, pageSize } = q
         const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsDelegationsFromLcd(delegatorAddr)
-        const dataLcd = delegatorsDelegationsFromLcd.result
-        const count = dataLcd.length
-        const data = dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize);
-        const allValidators = await (this.stakingValidatorsModel as any).queryAllValidators(delegatorAddr)
+        const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : []
+        const count = dataLcd ? dataLcd.length : 0;
+        const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : []
+        const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const resultData = data.map(item => {
-            let moniker: string
-            allValidators.forEach(v => {
-                if (v.operator_address == item.delegation.validator_address) {
-                    moniker = v.description.moniker
-                }
-            });
-            let denom: string, amount: string|number
-            if (item.balance.denom == cfg.unit.minUnit) {
-                denom = cfg.unit.maxUnit
-                amount = (Number(item.balance.amount) /(1000000)).toFixed(2) // TODO:duanjie 大数字转换需优化
-            } else if (item.balance.denom == cfg.unit.maxUnit) {
-                denom = cfg.unit.maxUnit,
-                amount = item.balance.amount
-            }
             return {
                 address: item.delegation.validator_address || '',
-                moniker: moniker || '',
-                amount: {
-                    denom: denom || '',
-                    amount: amount || ''
-                },
+                moniker: allValidatorsMap.get(item.delegation.validator_address).description.moniker || '',
+                amount: item.balance || '',
                 shares: item.delegation.shares,
-                height: delegatorsDelegationsFromLcd.height || '',
+                //height: delegatorsDelegationsFromLcd.height || '',
             }
         })
         const result: any = {}
         result.count = count
-        if (resultData.length < pageSize) {
-            result.data = DelegatorsDelegationsResDto.bundleData(resultData)
-        } else {
-            const pageNationData = pageNation(resultData, pageSize)
-            result.data = DelegatorsDelegationsResDto.bundleData(pageNationData[pageNum - 1])
-        }
+        result.data = DelegatorsDelegationsResDto.bundleData(resultData)
         return new ListStruct(result.data, pageNum, pageSize, result.count)
     }
 
@@ -266,39 +254,28 @@ export default class StakingService {
         const { pageNum, pageSize } = q
         const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(delegatorAddr)
-        // console.log(delegatorsDelegationsFromLcd.result[0].entries,111111111111111111111111)
-        const dataLcd = delegatorsDelegationsFromLcd.result
-        const count = dataLcd.length
-        const data = dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize);
-        const allValidators = await (this.stakingValidatorsModel as any).queryAllValidators(delegatorAddr)
+        const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : []
+        const count =dataLcd ? dataLcd.length : 0
+        const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : []
+        const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const resultData = data.map(item => {
-            let moniker: string
-            allValidators.forEach(v => {
-                if (v.operator_address == item.validator_address) {
-                    moniker = v.description.moniker
-                }
-            });
             const denom:string = cfg.unit.minUnit
-            const amount:string|number = item.entries[0].balance
+            let entries:any = item && item.entries || []
+            const amount =  entries && entries.length > 0 ? entries[0].balance : ''
             return {
                 address: item.validator_address || '',
-                moniker: moniker || '',
+                moniker: allValidatorsMap.get(item.validator_address).description.moniker || '',
                 amount: {
                     denom: denom || '',
                     amount: amount || ''
                 },
-                height: item.entries[0].creation_height || '',
-                end_time: item.entries[0].completion_time || ''
+                height:  entries && entries.length > 0 ? entries[0].creation_height : '',
+                end_time: entries && entries.length > 0 ? entries[0].completion_time : ''
             }
         })
         const result: any = {}
         result.count = count
-        if (resultData.length < pageSize) {
-            result.data = DelegatorsUndelegationsResDto.bundleData(resultData)
-        } else {
-            const pageNationData = pageNation(resultData, pageSize)
-            result.data = DelegatorsUndelegationsResDto.bundleData(pageNationData[pageNum - 1])
-        }
+        result.data = DelegatorsUndelegationsResDto.bundleData(resultData)
         return new ListStruct(result.data, pageNum, pageSize, result.count)
     }
 }

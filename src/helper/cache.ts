@@ -1,3 +1,3 @@
-const cache:any = {};
+let cache:any = {};
 cache.supportTypes = [];
 export default cache;

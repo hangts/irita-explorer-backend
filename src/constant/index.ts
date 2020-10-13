@@ -134,12 +134,12 @@ export const hubDefaultEmptyValue = '[do-not-modify]'
 export const moduleSlashing = 'slashing'
 
 export const ValidatorStatus = {
-    'jailed': 1,
-    'candidate': 2,
-    'active': 3,
+    'Unbonded': 1,
+    'Unbonding': 2,
+    'bonded': 3,
 }
 export const ValidatorNumberStatus = {
-    1: 'jailed',
+    1: 'candidate',
     2: 'candidate',
     3: 'active',
 }
