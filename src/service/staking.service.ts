@@ -211,8 +211,8 @@ export default class StakingService {
         result.amount = balancesArray
         result.withdrawAddress = withdrawAddress.address
         result.address = address
-        result.moniker =  validator && validator.description ? validator.description.moniker :'--'
-        result.operator_address = allValidatorsMap.has(operatorAddress) ? validator.operator_address : '--'
+        result.moniker =  validator && validator.description ? validator.description.moniker :''
+        result.operator_address = allValidatorsMap.has(operatorAddress) ? validator.operator_address : ''
         result.isProfiler = profilerAddressMap.size > 0 ? profilerAddressMap.has(address) : false
         if (allValidatorsMap.has(operatorAddress) && !validator.jailed) {
             result.status = ValidatorNumberStatus[validator.status]
@@ -232,6 +232,9 @@ export default class StakingService {
         const { pageNum, pageSize } = q
         const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsDelegationsFromLcd(delegatorAddr)
+        if (delegatorsDelegationsFromLcd) {
+            
+        }
         const dataLcd = delegatorsDelegationsFromLcd.result
         const count = dataLcd.length
         const data = dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize);

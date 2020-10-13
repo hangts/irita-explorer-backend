@@ -12,14 +12,11 @@ import {HttpModule} from '@nestjs/common';
             name: 'Block',
             schema: BlockSchema,
             collection: 'sync_block'
+        },{
+            name:'StakingValidator',
+            schema:StakingValidatorSchema,
+            collection:'ex_staking_validator'
         }]),
-        MongooseModule.forFeature([
-            {
-                name:'StakingValidator',
-                schema:StakingValidatorSchema,
-                collection:'ex_staking_validator'
-            }
-        ]),
         HttpModule,
 
     ],
