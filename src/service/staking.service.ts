@@ -246,12 +246,7 @@ export default class StakingService {
         })
         const result: any = {}
         result.count = count
-        if (resultData.length < pageSize) {
-            result.data = DelegatorsDelegationsResDto.bundleData(resultData)
-        } else {
-            const pageNationData = pageNation(resultData, pageSize)
-            result.data = DelegatorsDelegationsResDto.bundleData(pageNationData[pageNum - 1])
-        }
+        result.data = DelegatorsDelegationsResDto.bundleData(resultData)
         return new ListStruct(result.data, pageNum, pageSize, result.count)
     }
 
@@ -280,12 +275,7 @@ export default class StakingService {
         })
         const result: any = {}
         result.count = count
-        if (resultData.length < pageSize) {
-            result.data = DelegatorsUndelegationsResDto.bundleData(resultData)
-        } else {
-            const pageNationData = pageNation(resultData, pageSize)
-            result.data = DelegatorsUndelegationsResDto.bundleData(pageNationData[pageNum - 1])
-        }
+        result.data = DelegatorsUndelegationsResDto.bundleData(resultData)
         return new ListStruct(result.data, pageNum, pageSize, result.count)
     }
 }
