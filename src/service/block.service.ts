@@ -100,7 +100,7 @@ export class BlockService {
     async queryValidatorset(query: ValidatorsetsReqDto): Promise<ListStruct<ValidatorsetsResDto[]>> {
         const { height, pageNum, pageSize, useCount } = query;
         let data_lcd = await BlockHttp.queryValidatorsets(height);
-        let data = data_lcd.slice((pageNum - 1) * pageSize, pageNum * pageSize);
+        let data = (data_lcd || []).slice((pageNum - 1) * pageSize, pageNum * pageSize);
         if (data && data.length) {
             let block = await (this.blockModel as any).findOneByHeight(Number(height));
             let validators = await this.stakingValidatorModel.queryAllValidators();

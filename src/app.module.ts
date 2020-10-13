@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { IritaModule } from './module/irita.module';
 import { DenomModule } from './module/denom.module';
 import { NftModule } from './module/nft.module';
 import { BlockModule } from './module/block.module';
@@ -33,6 +34,7 @@ const params = {
     imports: [
         MongooseModule.forRoot(url),
         ScheduleModule.forRoot(),
+        IritaModule,
         DenomModule,
         NftModule,
         BlockModule,
