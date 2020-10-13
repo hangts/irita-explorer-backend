@@ -231,9 +231,9 @@ export default class StakingService {
         const { pageNum, pageSize } = q
         const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsDelegationsFromLcd(delegatorAddr)
-        const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : null
+        const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : []
         const count = dataLcd ? dataLcd.length : 0;
-        const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : null;
+        const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : []
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const resultData = data.map(item => {
             return {
@@ -254,9 +254,9 @@ export default class StakingService {
         const { pageNum, pageSize } = q
         const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(delegatorAddr)
-        const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : null
+        const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : []
         const count =dataLcd ? dataLcd.length : 0
-        const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : null;
+        const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : []
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const resultData = data.map(item => {
             const denom:string = cfg.unit.minUnit
