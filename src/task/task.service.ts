@@ -13,6 +13,7 @@ import { Logger } from '../logger';
 import { IdentityTaskService } from './idnetity.task.service';
 import {StakingValidatorTaskService} from "./staking.validator.task.service";
 import {ParametersTaskService} from "./parameters.task.service";
+import {TokenScaleTaskService} from "./token.scale.task.service";
 
 @Injectable()
 export class TasksService {
@@ -26,6 +27,7 @@ export class TasksService {
         private readonly identityTaskService: IdentityTaskService,
         private readonly stakingValidatorTaskService: StakingValidatorTaskService,
         private readonly parametersTaskService: ParametersTaskService,
+        private readonly tokenScaleTaskService:TokenScaleTaskService
     ) {
         this[`${TaskEnum.denom}_timer`] = null;
         this[`${TaskEnum.nft}_timer`] = null;
@@ -69,7 +71,10 @@ export class TasksService {
     async syncIdentity() {
         this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)
     }
-
+    @Cron(cfg.taskCfg.executeTime.tokenScale)
+    async syncTokenScale() {
+        this.handleDoTask(TaskEnum.tokenScale,this.tokenScaleTaskService.doTask)
+    }
     // @Cron('*/5 * * * * *')
     @Cron(cfg.taskCfg.executeTime.stakingValidators)
     async syncStakingValidators() {

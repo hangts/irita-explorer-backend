@@ -7,7 +7,8 @@ export enum TaskEnum {
     validators = 'sync_validators',
     identity = 'sync_identity',
     stakingSyncValidators = 'staking_sync_validators',
-    stakingSyncParameters = 'staking_sync_parameters'
+    stakingSyncParameters = 'staking_sync_parameters',
+    tokenScale = 'token_scale'
 }
 
 
@@ -132,6 +133,9 @@ export const addressPrefix = {
 export const signedBlocksWindow = 'signed_blocks_window'
 export const hubDefaultEmptyValue = '[do-not-modify]'
 export const moduleSlashing = 'slashing'
+export const moduleStaking = 'staking'
+export const moduleStakingBondDenom = 'bond_denom'
+
 
 export const ValidatorStatus = {
     'Unbonded': 1,

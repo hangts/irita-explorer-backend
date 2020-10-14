@@ -1,12 +1,19 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import {TokenScaleSchema} from "../schema/token.scale.schema";
+import {TokenScaleTaskService} from "../task/token.scale.task.service";
+import {TokenScaleHttp} from "../http/lcd/token.scale.http";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {ParametersTaskService} from "../task/parameters.task.service";
 import {StakingHttp} from "../http/lcd/staking.http";
-import {TokenScaleHttp} from "../http/lcd/token.scale.http";
 @Module({
     imports:[
         MongooseModule.forFeature([
+            {
+                name:'TokenScale',
+                schema: TokenScaleSchema,
+                collection:'ex_token_scale'
+            },
             {
                 name:'ParametersTask',
                 schema: ParametersSchema,
@@ -14,9 +21,7 @@ import {TokenScaleHttp} from "../http/lcd/token.scale.http";
             }
         ])
     ],
-    providers:[ParametersTaskService,StakingHttp,TokenScaleHttp],
-    exports:[ParametersTaskService,StakingHttp],
+    providers:[TokenScaleTaskService,StakingHttp,TokenScaleHttp,ParametersTaskService],
+    exports: [TokenScaleTaskService,]
 })
-export class ParametersTaskModule {
-
-}
+export class TokenScaleModule{}
