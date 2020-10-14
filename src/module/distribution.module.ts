@@ -10,7 +10,7 @@ import { DistributionController }  from "../controller/distribution.controller"
             {
                 name:'StakingValidator',
                 schema:StakingValidatorSchema,
-                collection:'ex_validator'
+                collection:'ex_staking_validator'
             }
         ])
     ],

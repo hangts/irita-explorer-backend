@@ -8,7 +8,7 @@ import {
     ITxsWithServiceNameQuery,
     IExFieldQuery, IIdentityTx,
 } from '../types/schemaTypes/tx.interface';
-import { 
+import {
     stakingTypes,
     serviceTypes,
     declarationTypes } from '../helper/txTypes.helper';
@@ -37,6 +37,7 @@ export const TxSchema = new mongoose.Schema({
     msgs: Array,
     signers: Array,
     addrs: Array,
+    fee: Object
 }, {versionKey: false});
 
 //	csrb 浏览器交易记录过滤正则表达式
@@ -80,8 +81,8 @@ TxSchema.statics.queryTxList = async function (query: ITxsQuery): Promise<IListS
         }
     }
     if (query.address && query.address.length) {
-        queryParameters = {
-            addrs: { $elemMatch: { $eq: query.address } },
+        queryParameters = {	        
+            addrs: { $elemMatch: { $eq: query.address } },	
         };
     }
     if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
@@ -125,7 +126,7 @@ TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<
     }
     if (query.address && query.address.length) {
         queryParameters = {
-            addrs: { $elemMatch: { $eq: query.address } },
+            addrs: { $elemMatch: { $eq: query.address } },	
         };
     }
     if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
@@ -147,14 +148,14 @@ TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<
     return result;
 };
 
-//  txs/declaration 
+//  txs/declaration
 TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Promise<IListStruct> {
     let result: IListStruct = {};
     let queryParameters: any = {};
     if (query.type && query.type.length) {
         queryParameters['msgs.type'] = query.type;
     } else {
-        queryParameters['msgs.type'] = {'$in':declarationTypes()};
+        queryParameters['msgs.type'] = { '$in': declarationTypes() };
     }
     if (query.status && query.status.length) {
         switch (query.status) {
@@ -168,6 +169,7 @@ TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Prom
     }
     if (query.address && query.address.length) {
         queryParameters = {
+            ...queryParameters,
             addrs: { $elemMatch: { $eq: query.address } },
         };
     }
@@ -511,7 +513,7 @@ TxSchema.statics.findAllServiceTx = async function (pageSize?: number): Promise<
 
 //用request_context_id查询call_service的service_name
 TxSchema.statics.queryServiceName = async function (requestContextId: string): Promise<string> {
-    let queryParameters: any = {
+    const queryParameters: any = {
         'type': TxType.call_service,
         'events.attributes.key': 'request_context_id',
         'events.attributes.value': requestContextId.toUpperCase(),

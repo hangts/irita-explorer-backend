@@ -31,12 +31,11 @@ export class DistributionHttp {
         const url: string = `${cfg.serverCfg.lcdAddr}/distribution/delegators/${delegatorAddr}/rewards`;
         try {
             const data: any = await new HttpService().get(url).toPromise().then(res => res.data);
-            if(data && data.result){
+            if (data && data.result) {
                 return new DelegatorRewardsDto(data.result);
             }else{
                 Logger.warn('api-error:', 'there is no result of nft from lcd');
             }
-
         } catch (e) {
             Logger.warn(`api-error from ${url}:`, e.message);
             // cron jobs error should not throw errors;

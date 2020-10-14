@@ -2,9 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {StakingHttp} from "../http/lcd/staking.http";
 import {Model} from "mongoose"
-import {addressTransform, formatDateStringToNumber, getTimestamp} from "../util/util";
-import {IStakingValidatorDbMap, IStakingValidatorLcdMap} from "../types/schemaTypes/staking.interface";
-import {IValidatorsStruct} from "../types/schemaTypes/validators.interface";
+import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp} from "../util/util";
 import {addressPrefix, moduleSlashing} from "../constant";
 
 @Injectable()
@@ -68,7 +66,8 @@ export class StakingValidatorTaskService {
                 allValidatorsFromLcd[i].voting_power = Number(allValidatorsFromLcd[i].tokens)
             }
             allValidatorsFromLcd[i].jailed = allValidatorsFromLcd[i].jailed || false
-
+            const BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
+            allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
             await this.updateSlashInfo(allValidatorsFromLcd[i])
             await this.updateSelfBond(allValidatorsFromLcd[i])
             await this.updateIcons(allValidatorsFromLcd[i])
@@ -123,11 +122,11 @@ export class StakingValidatorTaskService {
         if (dbValidators.consensus_pubkey) {
             let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(dbValidators.consensus_pubkey)
             let validatorObject = dbValidators
-            validatorObject.index_offset = signingInfo.index_offset;
-            validatorObject.jailed_until = formatDateStringToNumber(signingInfo.jailed_until);
-            validatorObject.start_height = signingInfo.start_height;
-            validatorObject.missed_blocks_counter = signingInfo.missed_blocks_counter;
-            validatorObject.tombstoned = signingInfo.tombstoned;
+            validatorObject.index_offset = signingInfo.index_offset || 0;
+            validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
+            validatorObject.start_height = signingInfo.start_height || 0;
+            validatorObject.missed_blocks_counter = signingInfo.missed_blocks_counter || 0;
+            validatorObject.tombstoned = signingInfo.tombstoned || '';
         }
 
     }

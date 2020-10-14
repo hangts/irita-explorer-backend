@@ -3,18 +3,32 @@ import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
 import {StakingHttp} from "../http/lcd/staking.http";
 import {addressTransform, pageNation} from "../util/util";
-import {activeValidatorLabel, addressPrefix, moduleSlashing, ValidatorNumberStatus, ValidatorStatus} from "../constant";
 import {
-    AccountAddrReqDto, AccountAddrResDto,
+    activeValidatorLabel,
+    addressPrefix,
+    jailedValidatorLabel,
+    moduleSlashing,
+    ValidatorNumberStatus,
+    ValidatorStatus
+} from "../constant";
+import {
+    AccountAddrReqDto,
+    AccountAddrResDto,
+    ConfigResDto,
     allValidatorReqDto,
     CommissionInfoReqDto,
     CommissionInfoResDto, stakingValidatorResDto,
-    ValidatorDelegationsReqDto,
-    ValidatorDelegationsResDto, ValidatorDetailResDtO,
-    ValidatorUnBondingDelegationsReqDto, ValidatorUnBondingDelegationsResDto,
+    ValidatorDelegationsReqDto,ValidatorDelegationsQueryReqDto,
+    ValidatorDelegationsResDto, ValidatorDetailResDto,
+    ValidatorUnBondingDelegationsReqDto, ValidatorUnBondingDelegationsResDto,ValidatorUnBondingDelegationsQueryReqDto,
+    DelegatorsDelegationsReqDto,DelegatorsDelegationsResDto,
+    DelegatorsUndelegationsReqDto, DelegatorsUndelegationsResDto,
+    DelegatorsDelegationsParamReqDto, DelegatorsUndelegationsParamReqDto,
 } from "../dto/staking.dto";
 import {ListStruct} from "../api/ApiResult";
 import {BlockHttp} from "../http/lcd/block.http";
+import { cfg } from '../config/config';
+import {DistributionHttp} from "../http/lcd/distribution.http";
 
 @Injectable()
 export default class StakingService {
@@ -24,6 +38,9 @@ export default class StakingService {
                 @InjectModel('Tx') private txModel: Model<any>,
                 private readonly stakingHttp: StakingHttp,
     ) {
+    }
+    async getConfig(){
+        return new ConfigResDto(cfg.unit);
     }
 
     async getAllValidatorMonikerMap() {
@@ -59,19 +76,26 @@ export default class StakingService {
         return allValCommissionInfo
     }
 
-    async getValidatorDelegationList(q: ValidatorDelegationsReqDto): Promise<ListStruct<ValidatorDelegationsResDto>> {
-        const validatorAddr = q.address
+    async getValidatorDelegationList(p: ValidatorDelegationsReqDto,q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorDelegationsResDto>> {
+        const validatorAddr = p.address
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const validatorDelegationsFromLcd = await this.stakingHttp.queryValidatorDelegationsFromLcd(validatorAddr)
-        const allShares: number[] = []
-        validatorDelegationsFromLcd.forEach(item => {
+        const allShares: number[] = [];
+        (validatorDelegationsFromLcd || []).forEach(item => {
             //TODO:zhangjinbiao 使用位移进行大数字的计算
-            allShares.push(Number(item.delegation.shares))
+            if(item){
+                allShares.push(Number(item.delegation.shares))
+            }
         })
-        let totalShares = allShares.reduce((total: number, item: number) => {
-            return item + total
-        })
-        let resultData = validatorDelegationsFromLcd.map(item => {
+
+        let totalShares;
+
+        if (allShares && allShares.length) {
+            allShares.reduce((total: number, item: number) => {
+                return item + total
+            })
+        }
+        let resultData = (validatorDelegationsFromLcd || []).map(item => {
             return {
                 moniker: allValidatorsMap.get(item.delegation.validator_address).description.moniker || '',
                 address: item.delegation.delegator_address || '',
@@ -79,7 +103,6 @@ export default class StakingService {
                 self_shares: item.delegation.shares || '',
                 total_shares: totalShares || '',
             }
-
         })
         const count = resultData.length
         let result: any = {}
@@ -95,11 +118,11 @@ export default class StakingService {
         return new ListStruct(result.data, q.pageNum, q.pageSize, count)
     }
 
-    async getValidatorUnBondingDelegations(q: ValidatorUnBondingDelegationsReqDto): Promise<ListStruct<ValidatorUnBondingDelegationsResDto>> {
-        const validatorAddr = q.address
+    async getValidatorUnBondingDelegations(p: ValidatorUnBondingDelegationsReqDto,q: ValidatorUnBondingDelegationsQueryReqDto): Promise<ListStruct<ValidatorUnBondingDelegationsResDto>> {
+        const validatorAddr = p.address
         const allValidatorsMoniker = await this.getAllValidatorMonikerMap()
         const valUnBondingDelegationsFromLcd = await this.stakingHttp.queryValidatorUnBondingDelegations(validatorAddr)
-        let resultData = valUnBondingDelegationsFromLcd.map(item => {
+        let resultData = (valUnBondingDelegationsFromLcd || []).map(item => {
             return {
                 moniker: allValidatorsMoniker.get(item.validator_address).description.moniker || '',
                 address: item.delegator_address || '',
@@ -136,43 +159,46 @@ export default class StakingService {
         return new ListStruct(result.data, q.pageNum, q.pageSize, result.count)
     }
 
-    async getValidatorDetail(q: ValidatorDelegationsReqDto): Promise<ValidatorDetailResDtO> {
+    async getValidatorDetail(q: ValidatorDelegationsReqDto): Promise<ValidatorDetailResDto> {
 
         const validatorAddress = q.address
         let result: any = null;
         let validatorDetail = await (this.stakingValidatorsModel as any).queryDetailByValidator(validatorAddress);
         if (validatorDetail) {
-            const moduleName = moduleSlashing
-            const signedBlocksWindow = await (this.parametersModel as any).querySignedBlocksWindow(moduleName)
-            const latestBlock = await BlockHttp.queryLatestBlockFromLcd()
-            const signedBlocksWindowCurVal = signedBlocksWindow.cur_value || undefined
-            const latestBlockHeight = latestBlock.block.header.height || 0
-            const startHeight = validatorDetail.start_height || 0
+            const moduleName = moduleSlashing;
+            const signedBlocksWindow = await (this.parametersModel as any).querySignedBlocksWindow(moduleName);
+            const latestBlock = await BlockHttp.queryLatestBlockFromLcd();
+            const signedBlocksWindowCurVal = signedBlocksWindow.cur_value || undefined;
+            const latestBlockHeight = latestBlock ? latestBlock.block.header.height : 0;
+            const startHeight = validatorDetail.start_height || 0;
             if (Number(signedBlocksWindowCurVal) < (Number(latestBlockHeight) - Number(startHeight))) {
-                validatorDetail.stats_blocks_window = signedBlocksWindowCurVal
+                validatorDetail.stats_blocks_window = signedBlocksWindowCurVal;
             } else {
-                validatorDetail.stats_blocks_window = (Number(latestBlockHeight) - Number(startHeight))
+                validatorDetail.stats_blocks_window = (Number(latestBlockHeight) - Number(startHeight));
             }
-            validatorDetail.valStatus = ValidatorNumberStatus[validatorDetail.status]
+            if(!validatorDetail.jailed){
+                validatorDetail.valStatus = ValidatorNumberStatus[validatorDetail.status]
+            }else {
+                validatorDetail.valStatus = jailedValidatorLabel
+            }
             validatorDetail.total_power = await this.getTotalVotingPower()
             validatorDetail.tokens = Number(validatorDetail.tokens)
             validatorDetail.bonded_stake = (Number(validatorDetail.self_bond.amount) * (Number(validatorDetail.tokens) / Number(validatorDetail.delegator_shares))).toString()
             validatorDetail.owner_addr = addressTransform(validatorDetail.operator_address, addressPrefix.iaa)
-            result = new ValidatorDetailResDtO(validatorDetail)
+            result = new ValidatorDetailResDto(validatorDetail)
         }
-        return result
+        return result;
     }
 
     async getAddressAccount(q: AccountAddrReqDto): Promise<AccountAddrResDto> {
         const address = addressTransform(q.address, addressPrefix.iaa)
         const operatorAddress = addressTransform(q.address, addressPrefix.iva)
         const balancesArray = await this.stakingHttp.queryBalanceByAddress(address)
-        //TODO:zhangjinbiao 奖励地址需要加上
+        const withdrawAddress =  await DistributionHttp.queryWithdrawAddressByDelegator(address)
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const allProfilerAddress = await (this.profilerModel as any).queryProfileAddress()
         const validator = allValidatorsMap.get(operatorAddress)
         const deposits = await (this.txModel as any).queryDepositsByAddress(address)
-
 
         let profilerAddressMap = new Map()
         if (allProfilerAddress && allProfilerAddress.length > 0) {
@@ -181,17 +207,16 @@ export default class StakingService {
             })
         }
         let result: any = {}
-        result.amount = balancesArray
-        //TODO:zhangjinbiao 奖励地址需要加上
-        result.withdrawAddress = ''
+        result.amount = balancesArray || []
+        result.withdrawAddress = withdrawAddress.address
         result.address = address
-        result.moniker = validator.description.moniker
-        result.operator_address = allValidatorsMap.has(address) ? validator.operator_address : '--'
+        result.moniker =  validator && validator.description ? validator.description.moniker :''
+        result.operator_address = allValidatorsMap.has(operatorAddress) ? validator.operator_address : ''
         result.isProfiler = profilerAddressMap.size > 0 ? profilerAddressMap.has(address) : false
         if (allValidatorsMap.has(operatorAddress) && !validator.jailed) {
             result.status = ValidatorNumberStatus[validator.status]
         } else {
-            result.status = ''
+            result.status = jailedValidatorLabel
         }
         if (deposits && deposits.data && deposits.data.length > 0) {
             //TODO:zhangjinbiao 处理查询出来与Gov相关的交易列表计算总的amount
@@ -200,5 +225,57 @@ export default class StakingService {
             result.deposits = {}
         }
         return new AccountAddrResDto(result)
+    }
+
+    async getDelegatorsDelegations(p:DelegatorsDelegationsParamReqDto,q: DelegatorsDelegationsReqDto): Promise<ListStruct<DelegatorsDelegationsResDto>> {
+        const { pageNum, pageSize } = q
+        const { delegatorAddr } = p
+        const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsDelegationsFromLcd(delegatorAddr)
+        const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : []
+        const count = dataLcd ? dataLcd.length : 0;
+        const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : []
+        const allValidatorsMap = await this.getAllValidatorMonikerMap()
+        const resultData = data.map(item => {
+            return {
+                address: item.delegation.validator_address || '',
+                moniker: allValidatorsMap.get(item.delegation.validator_address).description.moniker || '',
+                amount: item.balance || '',
+                shares: item.delegation.shares,
+                //height: delegatorsDelegationsFromLcd.height || '',
+            }
+        })
+        const result: any = {}
+        result.count = count
+        result.data = DelegatorsDelegationsResDto.bundleData(resultData)
+        return new ListStruct(result.data, pageNum, pageSize, result.count)
+    }
+
+    async getDelegatorsUndelegations(p:DelegatorsUndelegationsParamReqDto,q: DelegatorsUndelegationsReqDto): Promise<ListStruct<DelegatorsUndelegationsResDto>> {
+        const { pageNum, pageSize } = q
+        const { delegatorAddr } = p
+        const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(delegatorAddr)
+        const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : []
+        const count =dataLcd ? dataLcd.length : 0
+        const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : []
+        const allValidatorsMap = await this.getAllValidatorMonikerMap()
+        const resultData = data.map(item => {
+            const denom:string = cfg.unit.minUnit
+            let entries:any = item && item.entries || []
+            const amount =  entries && entries.length > 0 ? entries[0].balance : ''
+            return {
+                address: item.validator_address || '',
+                moniker: allValidatorsMap.get(item.validator_address).description.moniker || '',
+                amount: {
+                    denom: denom || '',
+                    amount: amount || ''
+                },
+                height:  entries && entries.length > 0 ? entries[0].creation_height : '',
+                end_time: entries && entries.length > 0 ? entries[0].completion_time : ''
+            }
+        })
+        const result: any = {}
+        result.count = count
+        result.data = DelegatorsUndelegationsResDto.bundleData(resultData)
+        return new ListStruct(result.data, pageNum, pageSize, result.count)
     }
 }
