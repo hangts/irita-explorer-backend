@@ -1,6 +1,6 @@
 import os from 'os'
 
-let Bech32 = require('Bech32')
+let Bech32 = require('bech32')
 let Sha256 = require("sha256")
 export function getIpAddress() {
     const interfaces = os.networkInterfaces();
