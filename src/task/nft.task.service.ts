@@ -59,7 +59,7 @@ export class NftTaskService {
         if (shouldInsertMap && shouldInsertMap.size > 0) {
             let insertNftList: INftStruct[] = Array.from(shouldInsertMap.values()).map((nft) => {
                 const { owner, uri, data, id, name } = nft;
-                const str: string = `${owner}${uri ? uri : ''}${data ? data : ''}`,
+                const str: string = `${name}${owner}${uri ? uri : ''}${data ? data : ''}`,
                     hash = md5(str);
                 return {
                     denom_id: denomId,

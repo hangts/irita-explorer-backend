@@ -6,6 +6,9 @@ import {BlockSchema} from '../schema/block.schema';
 import { NftSchema } from '../schema/nft.schema';
 import { TxSchema } from '../schema/tx.schema';
 import { ValidatorSchema } from '../schema/validators.schema';
+import { IdentitySchema } from '../schema/identity.schema';
+import { DenomSchema } from '../schema/denom.schema';
+
 
 @Module({
     imports:[
@@ -25,6 +28,14 @@ import { ValidatorSchema } from '../schema/validators.schema';
             name: 'Validators',
             schema: ValidatorSchema,
             collection: 'ex_sync_validator'
+        },{
+            name: 'Identity',
+            schema: IdentitySchema,
+            collection: 'ex_sync_identity'
+        },{
+            name: 'Denom',
+            schema: DenomSchema,
+            collection: 'ex_sync_denom',
         }]),
     ],
     providers:[StatisticsService],

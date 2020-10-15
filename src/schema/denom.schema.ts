@@ -49,6 +49,9 @@ DenomSchema.statics = {
         }
         return this.countDocuments(params);
     },
+    async queryAllCount(){
+        return this.countDocuments({});
+    },
     async findOneByDenomId(denomId:string): Promise<IDenomStruct> {
         return await this.findOne({denom_id:denomId});
     },

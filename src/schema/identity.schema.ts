@@ -39,6 +39,10 @@ IdentitySchema.statics = {
     return result;
   },
 
+  async queryIdentityCount(query:any){
+    return await this.find(query || {}).countDocuments();
+  },
+
   async queryHeight() {
       const height = await this.findOne({}).sort({'update_block_height': -1})
       const blockHeight = height ? height.update_block_height : 0
