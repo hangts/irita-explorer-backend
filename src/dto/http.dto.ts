@@ -13,10 +13,12 @@ import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 // /nft/nfts/denoms response dto
 export class DenomDto {
     id: string;
+    name: string;
     schema:string;
     creator:string;
     constructor(value) {
         this.id = value.id || '';
+        this.name = value.name || '';
         this.schema = value.schema || '';
         this.creator = value.creator || '';
     }
@@ -35,12 +37,14 @@ export class DenomDto {
 export class Nft {
     id: string;
     name: string;
+    uri: string;
     data: string;
     owner: string;
 
     constructor(value) {
         this.id = value.id || '';
         this.name = value.name || '';
+        this.uri = value.uri || '';
         this.data = value.data || '';
         this.owner = value.owner || '';
     }
