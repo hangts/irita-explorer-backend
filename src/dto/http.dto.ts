@@ -233,8 +233,51 @@ export class Reward {
         return data;
     }
 }
+export class TokenScaleLcdDto {
+    '@type':string;
+    symbol: string;
+    name:string;
+    scale:number;
+    min_unit:string;
+    initial_supply: string;
+    max_supply: string;
+    mintable:boolean;
+    owner:string;
+    constructor(value) {
+        this['@type'] = value['@type'] || '';
+        this.symbol = value.symbol || '';
+        this.name = value.name || '';
+        this.scale = value.scale || 0;
+        this.min_unit = value.min_unit || '';
+        this.initial_supply = value.initial_supply || '';
+        this.max_supply = value.max_supply || '';
+        this.mintable = value.mintable || true;
+        this.owner = value.owner || '';
+    }
 
+    static bundleData(value: any = []): TokenScaleLcdDto[] {
+        let data: TokenScaleLcdDto[] = [];
+        data = value.map((v: any) => {
+            return new TokenScaleLcdDto(v);
+        });
+        return data;
+    }
+}
+export class TokenScaleStakingLcdToken {
+        unbonding_time:string;
+        max_validators:number;
+        max_entries:number;
+        historical_entries:number;
+        bond_denom:string
+    constructor(value) {
+        this.unbonding_time = value.unbonding_time || '';
+        this.max_validators = value.max_validators || 0;
+        this.max_entries = value.max_entries || 0;
+        this.historical_entries = value.historical_entries || 0;
+        this.bond_denom = value.bond_denom || '';
 
+    }
+}
 // staking/validators
 export class StakingValidatorLcdDto {
     operator_address: string;

@@ -122,11 +122,11 @@ export class StakingValidatorTaskService {
         if (dbValidators.consensus_pubkey) {
             let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(dbValidators.consensus_pubkey)
             let validatorObject = dbValidators
-            validatorObject.index_offset = signingInfo.index_offset || 0;
-            validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
-            validatorObject.start_height = signingInfo.start_height || 0;
-            validatorObject.missed_blocks_counter = signingInfo.missed_blocks_counter || 0;
-            validatorObject.tombstoned = signingInfo.tombstoned || '';
+           validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
+           validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
+           validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
+           validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
+           validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
         }
 
     }
