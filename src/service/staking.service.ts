@@ -14,7 +14,6 @@ import {
 import {
     AccountAddrReqDto,
     AccountAddrResDto,
-    ConfigResDto,
     allValidatorReqDto,
     CommissionInfoReqDto,
     CommissionInfoResDto, stakingValidatorResDto,
@@ -36,11 +35,9 @@ export default class StakingService {
                 @InjectModel('StakingSyncValidators') private stakingValidatorsModel: Model<any>,
                 @InjectModel('Parameters') private parametersModel: Model<any>,
                 @InjectModel('Tx') private txModel: Model<any>,
+                @InjectModel('TokenScale') private tokenScaleModel: any,
                 private readonly stakingHttp: StakingHttp,
     ) {
-    }
-    async getConfig(){
-        return new ConfigResDto(cfg.unit);
     }
 
     async getAllValidatorMonikerMap() {
@@ -252,11 +249,12 @@ export default class StakingService {
         const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(delegatorAddr)
         const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : []
+        const aminToken = await this.tokenScaleModel.queryMainToken();
         const count =dataLcd ? dataLcd.length : 0
         const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : []
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const resultData = data.map(item => {
-            const denom:string = cfg.unit.minUnit
+            const denom:string = (aminToken || {}).min_unit || '';
             let entries:any = item && item.entries || []
             const amount =  entries && entries.length > 0 ? entries[0].balance : ''
             let validator = allValidatorsMap.get(item.validator_address);

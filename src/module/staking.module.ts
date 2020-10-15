@@ -8,6 +8,7 @@ import {StakingController} from "../controller/staking.controller";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {TxSchema} from "../schema/tx.schema";
 import {DistributionHttp} from "../http/lcd/distribution.http";
+import {TokenScaleSchema} from "../schema/token.scale.schema";
 
 @Module({
     imports: [
@@ -31,7 +32,12 @@ import {DistributionHttp} from "../http/lcd/distribution.http";
                 name: 'Tx',
                 schema: TxSchema,
                 collection: 'sync_tx'
-            }
+            },
+            {
+                name: 'TokenScale',
+                schema: TokenScaleSchema,
+                collection: 'ex_token_scale'
+            },
         ])
     ],
     providers: [StakingService, StakingHttp,DistributionHttp],

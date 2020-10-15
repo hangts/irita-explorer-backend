@@ -7,7 +7,6 @@ import {
     CommissionInfoReqDto,
     // ValCommissionRewResDto,
     CommissionInfoResDto,
-    ConfigResDto,
     ValidatorDelegationsReqDto,
     ValidatorDelegationsQueryReqDto,
     ValidatorDelegationsResDto,
@@ -32,12 +31,6 @@ import {
 @Controller('staking')
 export class StakingController {
     constructor(private readonly stakingService: StakingService) {
-    }
-
-    @Get('/config')
-    async getConfig(): Promise<Result<ConfigResDto>> {
-        const config = await this.stakingService.getConfig();
-        return new Result<ConfigResDto>(config);
     }
 
     @Get('/commission_info')

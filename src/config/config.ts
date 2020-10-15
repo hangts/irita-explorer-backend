@@ -20,9 +20,7 @@ const {
     DisableLog,
     STAKING_VALIDATORS_TIME,
     STAKING_PARAMETERS,
-    MAXUNIT,
-    MINUNIT,
-    CONVERSIONRATIO
+    TOKEN_SCALE,
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -49,14 +47,10 @@ export const cfg = {
             validators:VALIDATORS_EXECTUTE_TIME || '1 * * * * *',
             identity: IDENTITY_EXECUTE_TIME || '1 * * * * *',
             stakingValidators: STAKING_VALIDATORS_TIME || '15 * * * * *',
-            stakingParameters: STAKING_PARAMETERS || '10 * * * * *'
+            stakingParameters: STAKING_PARAMETERS || '10 * * * * *',
+            tokenScale: TOKEN_SCALE || '5 * * * * *',
         },
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
     },
-    unit: {
-        maxUnit: MAXUNIT || 'iris',
-        minUnit: MINUNIT || 'uiris',
-        conversionRatio: CONVERSIONRATIO || 1000000
-    }
 };
 
