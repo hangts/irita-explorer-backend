@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import {signedBlocksWindow} from "../constant";
+import {moduleStakingBondDenom, signedBlocksWindow} from "../constant";
 import {IParameters} from "../types/schemaTypes/parameters.interface";
 
 export const ParametersSchema = new mongoose.Schema({
@@ -29,5 +29,8 @@ ParametersSchema.statics = {
 
     async querySignedBlocksWindow(moduleName:string){
         return await this.findOne({module:moduleName,key:signedBlocksWindow}).select({'_id':0,'__v':0})
+    },
+    async queryStakingToken(moduleName:string){
+        return await this.findOne({module:moduleName,key:moduleStakingBondDenom}).select({'_id':0,'__v':0})
     }
 }

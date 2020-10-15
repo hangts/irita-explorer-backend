@@ -3,7 +3,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { IritaService } from '../service/irita.service';
 import { Result } from '../api/ApiResult';
 // import {} from '../dto/txs.dto';
-import { NetworkResDto } from '../dto/irita.dto';
 
 @ApiTags('/')
 @Controller('/')
@@ -13,7 +12,7 @@ export class IritaController {
 
     @Get('config')
     async queryConfig(): Promise<Result<any>> {
-        const data: NetworkResDto[] = await this.iritaService.queryConfig();
+        const data:any = await this.iritaService.queryConfig();
         return new Result<any>(data);
     }
 }

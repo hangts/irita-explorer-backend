@@ -3,12 +3,14 @@ import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose'
 import {StakingHttp} from "../http/lcd/staking.http";
 import {getTimestamp} from "../util/util";
-import {moduleSlashing} from "../constant";
+import {moduleSlashing, moduleStaking, moduleStakingBondDenom} from "../constant";
+import {TokenScaleHttp} from "../http/lcd/token.scale.http";
 
 @Injectable()
 export class ParametersTaskService {
     constructor(@InjectModel('ParametersTask') private parametersTaskModel: Model<any>
-        , private readonly stakingHttp: StakingHttp) {
+        , private readonly stakingHttp: StakingHttp,
+                private readonly tokenScaleHttp: TokenScaleHttp) {
         this.doTask = this.doTask.bind(this);
     }
 
@@ -16,6 +18,7 @@ export class ParametersTaskService {
         let parametersData = await this.stakingHttp.queryParametersFromSlashing(),
             needInsertData: any[] = [];
         let dbParametersData = await (this.parametersTaskModel as any).queryAllParameters()
+        const stakingTokenScaleData = await this.tokenScaleHttp.getStakingTokenScale()
         for (const parameterKey in parametersData) {
             const dbData = {
                 module: moduleSlashing,
@@ -25,6 +28,16 @@ export class ParametersTaskService {
                 update_time: ''
             }
             await needInsertData.push(dbData)
+        }
+        for (const stakingToken in stakingTokenScaleData) {
+            const stakingData = {
+                module: moduleStaking,
+                key: moduleStakingBondDenom,
+                cur_value: stakingTokenScaleData[moduleStakingBondDenom],
+                create_time: '',
+                update_time: ''
+            }
+            await needInsertData.push(stakingData)
         }
         if (dbParametersData.length === 0) {
             needInsertData.forEach(item => {
