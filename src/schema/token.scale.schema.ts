@@ -24,5 +24,8 @@ TokenScaleSchema.statics = {
     },
     async queryAllTokens() {
         return await this.find({})
+    },
+    async queryMainToken() {
+        return await this.findOne({is_main_token:true});
     }
 }

@@ -14,7 +14,6 @@ import {
 import {
     AccountAddrReqDto,
     AccountAddrResDto,
-    ConfigResDto,
     allValidatorReqDto,
     CommissionInfoReqDto,
     CommissionInfoResDto, stakingValidatorResDto,
@@ -36,11 +35,9 @@ export default class StakingService {
                 @InjectModel('StakingSyncValidators') private stakingValidatorsModel: Model<any>,
                 @InjectModel('Parameters') private parametersModel: Model<any>,
                 @InjectModel('Tx') private txModel: Model<any>,
+                @InjectModel('TokenScale') private tokenScaleModel: any,
                 private readonly stakingHttp: StakingHttp,
     ) {
-    }
-    async getConfig(){
-        return new ConfigResDto(cfg.unit);
     }
 
     async getAllValidatorMonikerMap() {
@@ -54,18 +51,12 @@ export default class StakingService {
 
     async getTotalVotingPower() {
         const allValidators = await (this.stakingValidatorsModel as any).queryAllValidators()
-        let allValidatorVotingPower: number[] = []
-        await allValidators.forEach(item => {
-            if (item.status === ValidatorStatus[activeValidatorLabel] && item.jailed === false) {
-                allValidatorVotingPower.push(Number(item.voting_power))
+        let totalVotingPower: number = 0;
+        allValidators.forEach(item => {
+            if (item.status === ValidatorStatus['bonded'] && item.jailed === false) {
+                totalVotingPower += Number(item.voting_power);
             }
         })
-        let totalVotingPower: number = 0
-        if (allValidatorVotingPower.length > 0) {
-            totalVotingPower = await allValidatorVotingPower.reduce((total: number, item: number) => {
-                return item + total
-            })
-        }
         return totalVotingPower
     }
 
@@ -96,8 +87,9 @@ export default class StakingService {
             })
         }
         let resultData = (validatorDelegationsFromLcd || []).map(item => {
+            let validator = allValidatorsMap.get(item.delegation.validator_address);
             return {
-                moniker: allValidatorsMap.get(item.delegation.validator_address).description.moniker || '',
+                moniker: validator ? validator.description.moniker : '',
                 address: item.delegation.delegator_address || '',
                 amount: item.balance || '',
                 self_shares: item.delegation.shares || '',
@@ -123,8 +115,9 @@ export default class StakingService {
         const allValidatorsMoniker = await this.getAllValidatorMonikerMap()
         const valUnBondingDelegationsFromLcd = await this.stakingHttp.queryValidatorUnBondingDelegations(validatorAddr)
         let resultData = (valUnBondingDelegationsFromLcd || []).map(item => {
+            let validator = allValidatorsMoniker.get(item.validator_address);
             return {
-                moniker: allValidatorsMoniker.get(item.validator_address).description.moniker || '',
+                moniker: validator ? validator.description.moniker : '',
                 address: item.delegator_address || '',
                 amount: item.entries[0].balance || '',
                 block: item.entries[0].creation_height || '',
@@ -236,9 +229,10 @@ export default class StakingService {
         const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : []
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const resultData = data.map(item => {
+            let validator = allValidatorsMap.get(item.delegation.validator_address);
             return {
                 address: item.delegation.validator_address || '',
-                moniker: allValidatorsMap.get(item.delegation.validator_address).description.moniker || '',
+                moniker: validator ? validator.description.moniker : '',
                 amount: item.balance || '',
                 shares: item.delegation.shares,
                 //height: delegatorsDelegationsFromLcd.height || '',
@@ -255,16 +249,18 @@ export default class StakingService {
         const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(delegatorAddr)
         const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : []
+        const aminToken = await this.tokenScaleModel.queryMainToken();
         const count =dataLcd ? dataLcd.length : 0
         const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : []
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const resultData = data.map(item => {
-            const denom:string = cfg.unit.minUnit
+            const denom:string = (aminToken || {}).min_unit || '';
             let entries:any = item && item.entries || []
             const amount =  entries && entries.length > 0 ? entries[0].balance : ''
+            let validator = allValidatorsMap.get(item.validator_address);
             return {
                 address: item.validator_address || '',
-                moniker: allValidatorsMap.get(item.validator_address).description.moniker || '',
+                moniker: validator ? validator.description.moniker : '',
                 amount: {
                     denom: denom || '',
                     amount: amount || ''

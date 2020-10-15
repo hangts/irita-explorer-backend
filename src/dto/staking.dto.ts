@@ -62,19 +62,6 @@ export class DelegatorsUndelegationsParamReqDto {
 }
 
 /***************Res*************************/
-export class ConfigResDto extends BaseResDto {
-    maxUnit: string;
-    minUnit: string;
-    conversionRatio: number;
-
-    constructor(value) {
-        super();
-        let { maxUnit, minUnit, conversionRatio } = value;
-        this.maxUnit = maxUnit;
-        this.minUnit = minUnit;
-        this.conversionRatio = conversionRatio;
-    }
-}
 
 export class stakingValidatorResDto extends BaseResDto {
     operator_address: string;
