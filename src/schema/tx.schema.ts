@@ -829,3 +829,14 @@ TxSchema.statics.queryTxListByIdentity = async function (query:IIdentityTx){
     return result;
 }
 
+TxSchema.statics.queryDepositsByAddress = async function (address: IDepositsAddress) {
+    let parameters: any = {
+        'msgs.type': /deposit|submit_proposal/,
+        $or: [{'msgs.msg.depositor': address},
+            {'msgs.msg.proposer': address}],
+        status: 1
+    }
+    let result: any = {}
+    result.data = await this.find(parameters)
+    return result
+}
