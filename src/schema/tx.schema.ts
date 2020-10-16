@@ -829,7 +829,7 @@ TxSchema.statics.queryTxListByIdentity = async function (query:IIdentityTx){
     return result;
 }
 
-TxSchema.statics.queryDepositsByAddress = async function (address: IDepositsAddress) {
+TxSchema.statics.queryDepositsByAddress = async function (address: string) {
     let parameters: any = {
         'msgs.type': /deposit|submit_proposal/,
         $or: [{'msgs.msg.depositor': address},
