@@ -142,6 +142,13 @@ export const ValidatorStatus = {
     'Unbonding': 2,
     'bonded': 3,
 }
+
+export const ValidatorStatus_str = {
+    'unbonded': 'unbonded',
+    'unbonding': 'unbonding',
+    'bonded': 'bonded',
+}
+
 export const ValidatorNumberStatus = {
     1: 'candidate',
     2: 'candidate',

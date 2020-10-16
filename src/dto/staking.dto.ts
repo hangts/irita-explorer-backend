@@ -100,7 +100,7 @@ export class stakingValidatorResDto extends BaseResDto {
         this.delegator_num = validator.delegator_num || 0
         this.proposer_addr = validator.proposer_addr || ''
         this.voting_power = validator.voting_power || 0
-        this.icons = validator.icons || ''
+        this.icons = validator.icon || ''
         this.voting_rate = validator.voting_rate || 0
     }
 
@@ -247,7 +247,7 @@ export class ValidatorDetailResDto {
         this.owner_addr = validatorDetail.owner_addr || ''
         this.consensus_pubkey = validatorDetail.consensus_pubkey || ''
         this.description = validatorDetail.description || {}
-        this.icons = validatorDetail.icons || ''
+        this.icons = validatorDetail.icon || ''
         this.uptime = validatorDetail.uptime || ''
         this.stats_blocks_window = validatorDetail.stats_blocks_window || ''
     }

@@ -65,19 +65,27 @@ export class BlockService {
                 time: block_db.time,
                 proposer: block_db.proposer
             };
-            if (proposer) {
-                data.proposer_moniker = (proposer.description || {}).moniker || '';
-                data.propopser_addr = proposer.operator_address || '';
+
+            if (proposer && proposer.length) {
+                data.proposer_moniker = (proposer[0].description || {}).moniker || '';
+                data.proposer_addr = proposer[0].operator_address || '';
             }
+
+            let signaturesMap:any = {};
+            block_lcd.block.last_commit.signatures.forEach((item:any)=>{
+                let address = hexToBech32(item.validator_address, addressPrefix.ica);
+                signaturesMap[address] = item;
+            }) 
             if (validatorsets) {
                 data.total_validator_num = validatorsets ? validatorsets.length : 0;
                 let icaAddr = hexToBech32(block_db.proposer, addressPrefix.ica);
                 data.total_voting_power = 0;
+                data.precommit_voting_power = 0;
                 validatorsets.forEach((item)=>{
                     //TODO:hangtaishan 使用大数计算
                     data.total_voting_power += Number(item.voting_power || 0);
-                    if (item.address == icaAddr) {
-                        data.precommit_voting_power = item.voting_power;
+                    if (signaturesMap[item.address]) {
+                        data.precommit_voting_power += Number(item.voting_power || 0);
                     }
                 });
             }

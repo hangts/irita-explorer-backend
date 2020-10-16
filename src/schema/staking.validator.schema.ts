@@ -26,7 +26,7 @@ export const StakingValidatorSchema = new mongoose.Schema({
     proposer_addr: String,
     voting_power: Number,
     min_self_delegation: Number,
-    icons: String,
+    icon: String,
     start_height: String,
     index_offset: String,
     jailed_until: String,
