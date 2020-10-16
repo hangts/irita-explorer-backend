@@ -2,8 +2,8 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {StakingHttp} from "../http/lcd/staking.http";
 import {Model} from "mongoose"
-import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp} from "../util/util";
-import {addressPrefix, moduleSlashing} from "../constant";
+import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp, hexToBech32} from "../util/util";
+import {addressPrefix, moduleSlashing, ValidatorStatus_str} from "../constant";
 
 @Injectable()
 
@@ -15,22 +15,16 @@ export class StakingValidatorTaskService {
     }
 
     async doTask(): Promise<void> {
-        let pageNum = 1, pageSize = 100, allValidatorsFromLcd = []
+        let pageNum = 1, pageSize = 1000, allValidatorsFromLcd = []
         let validatorsFromDb = await (this.stakingSyncValidatorsModel as any).queryAllValidators();
-        let validatorListDataFromLcd = await this.stakingHttp.queryValidatorListFromLcd(pageNum, pageSize)
-        if (typeof validatorListDataFromLcd == 'undefined') {
-            return
+        let validatorsFromLcd_bonded = await this.stakingHttp.queryValidatorListFromLcd(ValidatorStatus_str.bonded ,pageNum, pageSize)
+        let validatorsFromLcd_unbonded = await this.stakingHttp.queryValidatorListFromLcd(ValidatorStatus_str.unbonded, pageNum, pageSize)
+        let validatorsFromLcd_unbonding = await this.stakingHttp.queryValidatorListFromLcd(ValidatorStatus_str.unbonding, pageNum, pageSize)
+        allValidatorsFromLcd = [...(validatorsFromLcd_bonded || []),...(validatorsFromLcd_unbonded || []),...(validatorsFromLcd_unbonding || [])];
+        if (!allValidatorsFromLcd.length) {
+            return;
         }
-        if (validatorListDataFromLcd && validatorListDataFromLcd.length > 0) {
-            allValidatorsFromLcd = [...validatorListDataFromLcd];
-        }
-        //判断是否有第二页数据 如果有使用while循环请求
-        while (allValidatorsFromLcd && allValidatorsFromLcd.length === pageSize) {
-            pageNum++
-            let nextPageValidatorsFromLcd = await this.stakingHttp.queryValidatorListFromLcd(pageNum, pageSize);
-            //将第二页及以后的数据合并
-            allValidatorsFromLcd = [...allValidatorsFromLcd ,...nextPageValidatorsFromLcd]
-        }
+        
         // 处理数据
         if (allValidatorsFromLcd && Array.isArray(allValidatorsFromLcd) && allValidatorsFromLcd.length > 0) {
             await this.handDbValidators(allValidatorsFromLcd)
@@ -40,7 +34,7 @@ export class StakingValidatorTaskService {
         let validatorsFromDbMap = new Map()
         let allValidatorsFromLcdMap = new Map()
 
-        validatorListDataFromLcd.forEach(item => {
+        allValidatorsFromLcd.forEach(item => {
             allValidatorsFromLcdMap.set(item.operator_address, item)
         })
         if (validatorsFromDb.length > 0) {
@@ -118,15 +112,16 @@ export class StakingValidatorTaskService {
         }
     }
 
-    private async updateSlashInfo(dbValidators) {
+    private async updateSlashInfo(dbValidators) {        
         if (dbValidators.consensus_pubkey) {
-            let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(dbValidators.consensus_pubkey)
+            let icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey),addressPrefix.ica);
+            let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
             let validatorObject = dbValidators
-           validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
-           validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
-           validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
-           validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
-           validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
+            validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
+            validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
+            validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
+            validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
+            validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
         }
 
     }
@@ -148,13 +143,13 @@ export class StakingValidatorTaskService {
 
     private async updateIcons(dbValidators) {
         if (dbValidators.description && dbValidators.description.identity) {
-            let validatorIconUrl = await this.stakingHttp.queryValidatorIcon(dbValidators.description.identity)
+            let validatorIconUrl:any = await this.stakingHttp.queryValidatorIcon(dbValidators.description.identity)
             if (validatorIconUrl.them
-                && validatorIconUrl.them.pictures
-                && validatorIconUrl.them.pictures.primary
-                && validatorIconUrl.them.pictures.primary.url
-                && validatorIconUrl.them.pictures.primary.url !== '') {
-                dbValidators.icon = validatorIconUrl.them.pictures.primary.url
+                && validatorIconUrl.them.length
+                && validatorIconUrl.them[0].pictures
+                && validatorIconUrl.them[0].pictures.primary
+                && validatorIconUrl.them[0].pictures.primary.url) {
+                dbValidators.icon = validatorIconUrl.them[0].pictures.primary.url
             }
         }
     }

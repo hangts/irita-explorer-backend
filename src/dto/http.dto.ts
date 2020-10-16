@@ -390,11 +390,7 @@ export class Validatorset {
 
 export class IThemStruct {
     id?: string;
-    pictures?: {
-        primary?: {
-            url?: string
-        }
-    }
+    pictures?: {primary?: {url?: string}};
 }
 
 // https://keybase.io/_/api/1.0/user/lookup.json?fields=pictures&key_suffix={identity}
@@ -403,10 +399,10 @@ export class IconUriLcdDto {
         code: number,
         name: string
     };
-    them?: IThemStruct
+    them?: IThemStruct[]
 
     constructor(value) {
-        this.status = value.data || {};
+        this.status = value.status || {};
         this.them = value.them || {};
     }
 

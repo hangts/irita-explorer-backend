@@ -15,8 +15,8 @@ import {
 @Injectable()
 
 export class StakingHttp {
-    async queryValidatorListFromLcd(pageNum: number, pageSize: number) {
-        const validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?pageNum=${pageNum}&pageSize=${pageSize}`
+    async queryValidatorListFromLcd(status:string, pageNum: number, pageSize: number) {
+        const validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&pageNum=${pageNum}&pageSize=${pageSize}`
         try {
             let stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)
             if (stakingValidatorData && stakingValidatorData.result) {
@@ -29,12 +29,14 @@ export class StakingHttp {
         }
     }
 
-    async queryValidatorFormSlashing(validatorPubkey: string) {
-        const slashValidatorUri = `${cfg.serverCfg.lcdAddr}/slashing/validators/${validatorPubkey}/signing_info`
+    async queryValidatorFormSlashing(address_ica: string) {
+        // const slashValidatorUri = `${cfg.serverCfg.lcdAddr}/slashing/validators/${validatorPubkey}/signing_info`
+        //todo:hangtaishan 测试网api
+        const slashValidatorUri = `${cfg.serverCfg.lcdAddr}/cosmos/slashing/v1beta1/signing_infos/${address_ica}`
         try {
             const stakingSlashValidatorData: any = await new HttpService().get(slashValidatorUri).toPromise().then(result => result.data)
-            if (stakingSlashValidatorData && stakingSlashValidatorData.result) {
-                return new StakingValidatorSlashLcdDto(stakingSlashValidatorData.result);
+            if (stakingSlashValidatorData && stakingSlashValidatorData.val_signing_info) {
+                return new StakingValidatorSlashLcdDto(stakingSlashValidatorData.val_signing_info);
             } else {
                 Logger.warn('api-error:', 'there is no result of validators from lcd');
             }
@@ -60,7 +62,7 @@ export class StakingHttp {
     async queryValidatorIcon(valIdentity) {
         const getIconUri = `${cfg.serverCfg.iconUri}?fields=pictures&key_suffix=${valIdentity || ''}`
         try {
-            const valIconData: any = await new HttpService().get(getIconUri).toPromise().then(result => result)
+            const valIconData: any = await new HttpService().get(getIconUri).toPromise().then(result => result.data)
             if (valIconData) {
                 return new IconUriLcdDto(valIconData)
             } else {

@@ -30,8 +30,8 @@ export class BlockStakingResDto {
     time: number;
     hash: string;
     txn: string;
-    propopser_moniker: string;
-    propopser_addr: string;
+    proposer_moniker: string;
+    proposer_addr: string;
     precommit_validator_num: number;
     total_validator_num: number;
     precommit_voting_power: number;
@@ -43,9 +43,9 @@ export class BlockStakingResDto {
         this.height = value.height;
         this.time = value.time;
         this.hash = value.hash;
-        this.txn = value.txn;
-        this.propopser_moniker = value.propopser_moniker;
-        this.propopser_addr = value.propopser_addr;
+        this.txn = value.txn;          
+        this.proposer_moniker = value.proposer_moniker;
+        this.proposer_addr = value.proposer_addr;
         this.precommit_validator_num = value.precommit_validator_num;
         this.total_validator_num = value.total_validator_num;
         this.precommit_voting_power = value.precommit_voting_power;
