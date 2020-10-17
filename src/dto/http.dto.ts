@@ -286,26 +286,29 @@ export class TokenScaleStakingLcdToken {
 export class StakingValidatorLcdDto {
     operator_address: string;
     consensus_pubkey: string;
+    jailed: boolean;
     status: number;
     tokens: string;
     delegator_shares: string;
     description: object;
+    unbonding_height: string;
     unbonding_time: string;
     commission: object;
     min_self_delegation: string;
-    unbonding_height: string;
+    
 
     constructor(value) {
         this.operator_address = value.operator_address || '';
         this.consensus_pubkey = value.consensus_pubkey || '';
+        this.jailed = value.jailed || false;
         this.status = value.status || '';
         this.tokens = value.tokens || '';
         this.delegator_shares = value.delegator_shares || '';
         this.description = value.description || '';
+        this.unbonding_height = value.unbonding_height || '';
         this.unbonding_time = value.unbonding_time || '';
         this.commission = value.commission || null;
         this.min_self_delegation = value.min_self_delegation || '';
-        this.unbonding_height = value.unbonding_height || '';
     }
 
     static bundleData(value: any = []): StakingValidatorLcdDto[] {

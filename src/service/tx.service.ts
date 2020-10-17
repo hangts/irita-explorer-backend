@@ -120,6 +120,7 @@ export class TxService {
     
     // txs/blocks
     async queryTxWithHeight(query: TxListWithHeightReqDto): Promise<ListStruct<TxResDto[]>> {
+        await this.cacheTxTypes();
         const txListData = await this.txModel.queryTxWithHeight(query);
         let txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
@@ -127,6 +128,7 @@ export class TxService {
 
     //  txs/addresses
     async queryTxWithAddress(query: TxListWithAddressReqDto): Promise<ListStruct<TxResDto[]>> {
+        await this.cacheTxTypes();
         const txListData = await this.txModel.queryTxWithAddress(query);
         let txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
@@ -134,6 +136,7 @@ export class TxService {
 
     //  txs/relevance
     async queryTxWithContextId(query: TxListWithContextIdReqDto): Promise<ListStruct<TxResDto[]>> {
+        await this.cacheTxTypes();
         const txListData = await this.txModel.queryTxWithContextId(query);
         let txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
@@ -148,6 +151,7 @@ export class TxService {
 
     //  txs/services
     async queryTxWithServiceName(query: TxListWithServicesNameReqDto): Promise<ListStruct<TxResDto[]>> {
+        await this.cacheTxTypes();
         const txListData = await this.txModel.queryTxWithServiceName(query);
         let txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
