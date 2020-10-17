@@ -92,7 +92,7 @@ export class stakingValidatorResDto extends BaseResDto {
         this.tokens = validator.tokens || ''
         this.delegator_shares = validator.delegator_shares || ''
         this.description = validator.description || {}
-        this.bond_height = validator.bond_height || ''
+        this.bond_height = validator.start_height || ''
         this.unbonding_height = validator.unbonding_height || ''
         this.commission = validator.commission || ''
         this.uptime = validator.uptime || 0
