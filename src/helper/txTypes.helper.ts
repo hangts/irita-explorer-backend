@@ -33,5 +33,6 @@ export function declarationTypes():string[]{
         TxType.create_validator,
         TxType.edit_validator,
         TxType.unjail,
+        TxType.withdraw_validator_commission
     ];
 }
