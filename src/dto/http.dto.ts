@@ -293,6 +293,7 @@ export class StakingValidatorLcdDto {
     unbonding_time: string;
     commission: object;
     min_self_delegation: string;
+    unbonding_height: string;
 
     constructor(value) {
         this.operator_address = value.operator_address || '';
@@ -304,6 +305,7 @@ export class StakingValidatorLcdDto {
         this.unbonding_time = value.unbonding_time || '';
         this.commission = value.commission || null;
         this.min_self_delegation = value.min_self_delegation || '';
+        this.unbonding_height = value.unbonding_height || '';
     }
 
     static bundleData(value: any = []): StakingValidatorLcdDto[] {

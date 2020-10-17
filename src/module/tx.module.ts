@@ -7,6 +7,7 @@ import { TxTypeSchema } from '../schema/txType.schema';
 import { DenomSchema } from '../schema/denom.schema';
 import { NftSchema } from '../schema/nft.schema';
 import { IdentitySchema } from '../schema/identity.schema';
+import {StakingValidatorSchema} from "../schema/staking.validator.schema";
 
 @Module({
     imports:[
@@ -34,6 +35,11 @@ import { IdentitySchema } from '../schema/identity.schema';
             name: 'Nft',
             schema: NftSchema,
             collection: 'ex_sync_nft'
+        },
+        {
+            name: 'StakingValidator',
+            schema: StakingValidatorSchema,
+            collection: 'ex_staking_validator'
         }])
     ],
     providers:[TxService],

@@ -138,13 +138,16 @@ NftSchema.statics = {
     },
 
     updateOneById(nft: INftStruct): Promise<INftStruct> {
-        const { nft_id, owner, data, uri, hash } = nft;
+        const {denom_id ,nft_id, owner, data, uri, denom_name, nft_name, hash } = nft;
         return this.updateOne({
-            nft_id
+            nft_id,
+            denom_id
         }, {
             owner,
             data,
             uri,
+            denom_name,
+            nft_name,
             hash,
             update_time: getTimestamp()
         }, 
