@@ -89,9 +89,12 @@ export class BlockService {
                     }
                 });
             }
+            data.precommit_validator_num = 0;
             if (block_lcd) {
                 try{
-                    data.precommit_validator_num = block_lcd.block.last_commit.signatures.length;
+                    data.precommit_validator_num = block_lcd.block.last_commit.signatures.filter((item)=>{
+                        return item.validator_address && item.validator_address.length;
+                    }).length;
                 }catch(e){
                     data.precommit_validator_num = 0;
                 }
@@ -111,6 +114,7 @@ export class BlockService {
         let data = (data_lcd || []).slice((pageNum - 1) * pageSize, pageNum * pageSize);
         if (data && data.length) {
             let block = await (this.blockModel as any).findOneByHeight(Number(height));
+            block = JSON.parse(JSON.stringify(block || '{}'));
             let validators = await this.stakingValidatorModel.queryAllValidators();
             if (validators.length) {
                 let validatorMap = {};
@@ -164,7 +168,4 @@ export class BlockService {
         }
 
     }
-
-
 }
-
