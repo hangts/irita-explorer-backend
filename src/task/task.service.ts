@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Cron,Interval } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { TxTaskService } from './tx.task.service';
 import { DenomTaskService } from './denom.task.service';
 import { NftTaskService } from './nft.task.service';
@@ -11,6 +11,9 @@ import { TaskCallback } from '../types/task.interface';
 import { ValidatorsTaskService } from './validators.task.service';
 import { Logger } from '../logger';
 import { IdentityTaskService } from './idnetity.task.service';
+import {StakingValidatorTaskService} from "./staking.validator.task.service";
+import {ParametersTaskService} from "./parameters.task.service";
+import {TokenScaleTaskService} from "./token.scale.task.service";
 
 @Injectable()
 export class TasksService {
@@ -21,13 +24,18 @@ export class TasksService {
         private readonly taskDispatchService: TaskDispatchService,
         private readonly txTaskService: TxTaskService,
         private readonly validatorsTaskService: ValidatorsTaskService,
-        private readonly identityTaskService: IdentityTaskService
+        private readonly identityTaskService: IdentityTaskService,
+        private readonly stakingValidatorTaskService: StakingValidatorTaskService,
+        private readonly parametersTaskService: ParametersTaskService,
+        private readonly tokenScaleTaskService:TokenScaleTaskService
     ) {
         this[`${TaskEnum.denom}_timer`] = null;
         this[`${TaskEnum.nft}_timer`] = null;
         this[`${TaskEnum.txServiceName}_timer`] = null;
         this[`${TaskEnum.validators}_timer`] = null;
         this[`${TaskEnum.identity}_timer`] = null;
+        this[`${TaskEnum.stakingSyncValidators}_timer`] = null;
+        this[`${TaskEnum.stakingSyncParameters}_timer`] = null;
     }
     @Cron(cfg.taskCfg.executeTime.denom)
     //@Cron('50 * * * * *')
@@ -60,9 +68,21 @@ export class TasksService {
     }
     //@Cron('1 * * * * *')
     @Cron(cfg.taskCfg.executeTime.identity)
-    /*@Interval(5000)*/
     async syncIdentity() {
         this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)
+    }
+    @Cron(cfg.taskCfg.executeTime.tokenScale)
+    async syncTokenScale() {
+        this.handleDoTask(TaskEnum.tokenScale,this.tokenScaleTaskService.doTask)
+    }
+    // @Cron('*/5 * * * * *')
+    @Cron(cfg.taskCfg.executeTime.stakingValidators)
+    async syncStakingValidators() {
+       this.handleDoTask(TaskEnum.stakingSyncValidators,this.stakingValidatorTaskService.doTask)
+    }
+    @Cron(cfg.taskCfg.executeTime.stakingParameters)
+    async syncStakingParmeters(){
+        this.handleDoTask(TaskEnum.stakingSyncParameters,this.parametersTaskService.doTask)
     }
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
         const needDoTask: boolean = await this.taskDispatchService.needDoTask(taskName);

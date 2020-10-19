@@ -5,6 +5,7 @@ export interface IBlockStruct {
     hash?:string,
     txn?:number,
     time?:string,
+    proposer?:string,
 }
 
 export interface IBlock extends IBlockStruct, Document {
