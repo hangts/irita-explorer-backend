@@ -11,16 +11,18 @@ import {IBindTx} from '../types/tx.interface';
 /************************   response dto   ***************************/
 //txs response dto
 export class NetworkResDto extends BaseResDto{
-    network_id:string;
-    network_name:string;
-    uri:string;
+    network_id: string;
+    network_name: string;
+    uri: string;
+    is_main: boolean;
 
     constructor(value) {
         super();
-        const { network_id, network_name, uri } = value;
+        const { network_id, network_name, uri, is_main } = value;
         this.network_id = network_id;
         this.network_name = network_name;
         this.uri = uri;
+        this.is_main = is_main || false;
     }
 
     static bundleData(value: any): NetworkResDto[] {

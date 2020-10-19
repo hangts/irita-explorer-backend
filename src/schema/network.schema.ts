@@ -6,6 +6,7 @@ export const NetworkSchema = new mongoose.Schema({
     network_id: {type:String, required:true, unique: true},
     network_name: String,
     uri:String,
+    is_main: Boolean,
     create_time: {
     	type:Number,
     	default:getTimestamp(),
@@ -28,7 +29,8 @@ NetworkSchema.statics.insertNetwork = async function (networks:INetworkStruct[])
 			return {
 				network_id:item.network_id,
                 network_name:item.network_name,
-                uri:item.uri
+                uri:item.uri,
+                is_main:item.is_main
 			}
 		});
 		return await this.insertMany(data);
