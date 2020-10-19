@@ -20,7 +20,6 @@ export class NftTaskService {
     async doTask(): Promise<void> {
         const denomList: IDenomStruct[] = await (this.denomModel as any).findAllNames();
         if (denomList && denomList.length > 0) {
-
             for(let denom of denomList){
                 const res: any = await this.nftHttp.queryNftsFromLcdByDenom(denom.denom_id);
                 const nftFromDb: INftStruct[] = await (this.nftModel as any).findListByName(denom.denom_id);
@@ -29,7 +28,9 @@ export class NftTaskService {
                         dbNftMap: Map<string, INftStruct> | null = new Map<string, INftStruct>();
                     if (res.nfts && Array.isArray(res.nfts) && res.nfts.length > 0) {
                         res.nfts.forEach(nft => {
-                            lcdNftMap.set(nft.id, nft);
+                            nft.denom_id = res.denom.id;
+                            nft.denom_name = res.denom.name;
+                            lcdNftMap.set(NftTaskService.getNftKey({nft_id:nft.id,denom_id:res.denom.id}), nft);
                         });
                     } else {
                         lcdNftMap = null;
@@ -37,7 +38,7 @@ export class NftTaskService {
 
                     if (nftFromDb.length > 0) {
                         nftFromDb.forEach((nft: INftStruct) => {
-                            dbNftMap.set(nft.nft_id, nft);
+                            dbNftMap.set(NftTaskService.getNftKey(nft), nft);
                         });
                     } else {
                         dbNftMap = null;
@@ -117,9 +118,10 @@ export class NftTaskService {
                 return nftFromDb;
             } else {
                 const deleteNftMap = new Map<string, INftStruct>();
-                for (let key of nftFromDb.keys()) {
-                    if (!nftFromLcd.has(key)) {
-                        deleteNftMap.set(key, nftFromDb.get(key));
+                for (let nft_db of nftFromDb.values()) {
+                    let nftKey = NftTaskService.getNftKey({denom_id:nft_db.denom_id,nft_id:nft_db.nft_id});
+                    if (!nftFromLcd.has(nftKey)) {
+                        deleteNftMap.set(nftKey, nft_db);
                     }
                 }
                 return deleteNftMap;
@@ -135,9 +137,10 @@ export class NftTaskService {
                 return new Map<string, ILcdNftStruct>();
             } else {
                 const insertNftMap = new Map<string, ILcdNftStruct>();
-                for (let key of nftFromLcd.keys()) {
-                    if (!nftFromDb.has(key)) {
-                        insertNftMap.set(key, nftFromLcd.get(key));
+                for (let nft_lcd of nftFromLcd.values()) {
+                    let nftKey = NftTaskService.getNftKey({denom_id:nft_lcd.denom_id,nft_id:nft_lcd.id});
+                    if (!nftFromDb.has(nftKey)) {
+                        insertNftMap.set(nftKey, nft_lcd);
                     }
                 }
                 return insertNftMap;
@@ -153,15 +156,16 @@ export class NftTaskService {
                 return new Map<string, ILcdNftStruct>();
             } else {
                 const updateNftMap = new Map<string, ILcdNftStruct>();
-                for (let key of nftFromLcd.keys()) {
-                    if (nftFromDb.has(key)) {
-                        const { name, owner, data, uri } = nftFromLcd.get(key),
-                            lcdStr = `${name}${owner}${uri ? uri : ''}${data ? data : ''}`,
+                for (let nft_lcd of nftFromLcd.values()) {
+                    let nftKey = NftTaskService.getNftKey({denom_id:nft_lcd.denom_id,nft_id:nft_lcd.id});
+                    if (nftFromDb.has(nftKey)) {
+                        const { name, owner, data, uri, denom_name } = nft_lcd,
+                            lcdStr = `${name}${denom_name}${owner}${uri ? uri : ''}${data ? data : ''}`,
                             lcdHash = md5(lcdStr);
-                        if (nftFromDb.get(key).hash !== lcdHash) {
-                            let tempLcdNft: ILcdNftStruct = nftFromLcd.get(key);
+                        if (nftFromDb.get(nftKey).hash !== lcdHash) {
+                            let tempLcdNft: ILcdNftStruct = nft_lcd;
                             tempLcdNft.hash = lcdHash;
-                            updateNftMap.set(key, tempLcdNft);
+                            updateNftMap.set(nftKey, tempLcdNft);
                         }
                     }
                 }
@@ -170,6 +174,8 @@ export class NftTaskService {
         }
     }
 
-
+    private static getNftKey(nft:INftStruct): string {
+        return `${nft.denom_id}#${nft.nft_id}`;
+    }
 }
 

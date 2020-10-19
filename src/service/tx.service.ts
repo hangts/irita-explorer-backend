@@ -45,22 +45,71 @@ export class TxService {
                 @InjectModel('TxType') private txTypeModel: any,
                 @InjectModel('Denom') private denomModel: any,
                 @InjectModel('Nft') private nftModel: any,
-                @InjectModel('Identity') private identityModel:any
+                @InjectModel('Identity') private identityModel:any,
+                @InjectModel('StakingValidator') private stakingValidatorModel:any
     ) {
         this.cacheTxTypes();
     }
+
+    async addMonikerToTxs(txList){
+        let validators = await this.stakingValidatorModel.queryAllValidators();
+        let validatorMap = {};
+        validators.forEach((item)=>{
+            validatorMap[item.operator_address] = item;
+        });
+
+        
+        let txData = txList.map((tx)=>{
+            let item = JSON.parse(JSON.stringify(tx));
+            let monikers = [];
+            (item.addrs || []).forEach((addr)=>{
+                if (validatorMap[addr] && 
+                    validatorMap[addr].description && 
+                    validatorMap[addr].description.moniker) {
+                    let moniker = {};
+                    moniker[addr] = validatorMap[addr].description.moniker;
+                    monikers.push(moniker);
+                }
+            });
+            item.monikers = monikers;
+            return item;
+        });
+        return txData;
+    }
+
     async cacheTxTypes(){
-            let txTypes = await this.txTypeModel.queryTxTypeList();
+            const txTypes = await this.txTypeModel.queryTxTypeList();
             Cache.supportTypes = txTypes.map((item)=>item.type_name);
     }
 
     // txs
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
-        if (!Cache.supportTypes || !Cache.supportTypes.length) {
+        // if (!Cache.supportTypes || !Cache.supportTypes.length) {
             await this.cacheTxTypes();
-        }
-        let txListData = await this.txModel.queryTxList(query);
-        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+        // }
+        const txListData = await this.txModel.queryTxList(query);
+        let txData = await this.addMonikerToTxs(txListData.data);
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
+    }
+
+    // txs/staking
+    async queryStakingTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
+        // if (!Cache.supportTypes || !Cache.supportTypes.length) {
+            await this.cacheTxTypes();
+        // }
+        const txListData = await this.txModel.queryStakingTxList(query);
+        let txData = await this.addMonikerToTxs(txListData.data);
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
+    }
+
+    // txs/declaration 
+    async queryDeclarationTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
+        // if (!Cache.supportTypes || !Cache.supportTypes.length) {
+            await this.cacheTxTypes();
+        // }
+        const txListData = await this.txModel.queryDeclarationTxList(query);
+        let txData = await this.addMonikerToTxs(txListData.data);
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
     // txs/e  供eageServer调用  返回数据不做过滤
@@ -71,42 +120,51 @@ export class TxService {
     
     // txs/blocks
     async queryTxWithHeight(query: TxListWithHeightReqDto): Promise<ListStruct<TxResDto[]>> {
-        let txListData = await this.txModel.queryTxWithHeight(query);
-        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+        await this.cacheTxTypes();
+        const txListData = await this.txModel.queryTxWithHeight(query);
+        let txData = await this.addMonikerToTxs(txListData.data);
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
     //  txs/addresses
     async queryTxWithAddress(query: TxListWithAddressReqDto): Promise<ListStruct<TxResDto[]>> {
-        let txListData = await this.txModel.queryTxWithAddress(query);
-        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+        await this.cacheTxTypes();
+        const txListData = await this.txModel.queryTxWithAddress(query);
+        let txData = await this.addMonikerToTxs(txListData.data);
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
     //  txs/relevance
     async queryTxWithContextId(query: TxListWithContextIdReqDto): Promise<ListStruct<TxResDto[]>> {
-        let txListData = await this.txModel.queryTxWithContextId(query);
-        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+        await this.cacheTxTypes();
+        const txListData = await this.txModel.queryTxWithContextId(query);
+        let txData = await this.addMonikerToTxs(txListData.data);
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
     //  txs/nfts
     async queryTxWithNft(query: TxListWithNftReqDto): Promise<ListStruct<TxResDto[]>> {
-        let txListData = await this.txModel.queryTxWithNft(query);
-        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+        const txListData = await this.txModel.queryTxWithNft(query);
+        let txData = await this.addMonikerToTxs(txListData.data);
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
     //  txs/services
     async queryTxWithServiceName(query: TxListWithServicesNameReqDto): Promise<ListStruct<TxResDto[]>> {
-        let txListData = await this.txModel.queryTxWithServiceName(query);
-        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+        await this.cacheTxTypes();
+        const txListData = await this.txModel.queryTxWithServiceName(query);
+        let txData = await this.addMonikerToTxs(txListData.data);
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
     //  txs/services/call-service
     async queryTxWithCallService(query: TxListWithCallServiceReqDto): Promise<ListStruct<callServiceResDto[]>> {
-        let callServices = await this.txModel.queryCallServiceWithConsumerAddr(query.consumerAddr, query.pageNum, query.pageSize, query.useCount);
+        const callServices = await this.txModel.queryCallServiceWithConsumerAddr(query.consumerAddr, query.pageNum, query.pageSize, query.useCount);
         if (callServices && callServices.data) {
-            for(let item of callServices.data){
-                let context_id:string = getReqContextIdFromEvents(item.events);
+            for(const item of callServices.data){
+                const context_id:string = getReqContextIdFromEvents(item.events);
                 if (context_id && context_id.length) {
-                    let respond = await this.txModel.queryRespondServiceWithContextId(context_id);
+                    const respond = await this.txModel.queryRespondServiceWithContextId(context_id);
                     item.respond = respond || [];
                 }else{
                     item.respond = [];
@@ -118,15 +176,15 @@ export class TxService {
 
     //  txs/services/respond-service
     async queryTxWithRespondService(query: TxListWithRespondServiceReqDto): Promise<ListStruct<TxResDto[]>> {
-        let bindServices = await this.txModel.queryBindServiceWithProviderAddr(query.providerAddr, query.pageNum, query.pageSize, query.useCount);
+        const bindServices = await this.txModel.queryBindServiceWithProviderAddr(query.providerAddr, query.pageNum, query.pageSize, query.useCount);
         if (bindServices && bindServices.data) {
-            for(let item of bindServices.data){
-                let serviceName:string = getServiceNameFromMsgs(item.msgs);
+            for(const item of bindServices.data){
+                const serviceName:string = getServiceNameFromMsgs(item.msgs);
                 item.respond_times = 0;
                 item.unbinding_time = 0;
                 if (serviceName && serviceName.length) {
-                    let respond_times = await this.txModel.queryRespondCountWithServceName(serviceName, query.providerAddr);
-                    let disableTxs = await this.txModel.querydisableServiceBindingWithServceName(serviceName, query.providerAddr);
+                    const respond_times = await this.txModel.queryRespondCountWithServceName(serviceName, query.providerAddr);
+                    const disableTxs = await this.txModel.querydisableServiceBindingWithServceName(serviceName, query.providerAddr);
                     item.respond_times = respond_times;
                     if (disableTxs && disableTxs.length) {
                         item.unbinding_time = disableTxs[0].time;
@@ -140,7 +198,7 @@ export class TxService {
     //  txs/services/detail/{serviceName}
     async queryTxDetailWithServiceName(query: ServicesDetailReqDto): Promise<TxResDto> {
         let result: TxResDto | null = null;
-        let txData = await this.txModel.queryTxDetailWithServiceName(query.serviceName);
+        const txData = await this.txModel.queryTxDetailWithServiceName(query.serviceName);
         if (txData) {
             result = new TxResDto(txData);
         }
@@ -149,19 +207,31 @@ export class TxService {
 
     //  txs/types
     async queryTxTypeList(): Promise<ListStruct<TxTypeResDto[]>> {
-        let txTypeListData = await this.txTypeModel.queryTxTypeList();
+        const txTypeListData = await this.txTypeModel.queryTxTypeList();
         return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
     }
 
+    // txs/types/service
     async queryServiceTxTypeList(): Promise<ListStruct<TxTypeResDto[]>> {
-        let txTypeListData = await this.txTypeModel.queryServiceTxTypeList();
+        const txTypeListData = await this.txTypeModel.queryServiceTxTypeList();
         return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
     }
 
+    // txs/types/staking
+    async queryStakingTxTypeList(): Promise<ListStruct<TxTypeResDto[]>> {
+        const txTypeListData = await this.txTypeModel.queryStakingTxTypeList();
+        return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
+    }
+
+    // txs/types/declaration
+    async queryDeclarationTxTypeList(): Promise<ListStruct<TxTypeResDto[]>> {
+        const txTypeListData = await this.txTypeModel.queryDeclarationTxTypeList();
+        return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
+    }
 
     //  post txs/types
     async insertTxTypes(prarms: PostTxTypesReqDto): Promise<ListStruct<TxTypeResDto[]>> {
-        let txTypeListData = await this.txTypeModel.insertTxTypes(prarms.typeNames);
+        const txTypeListData = await this.txTypeModel.insertTxTypes(prarms.typeNames);
         this.cacheTxTypes();
         return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
     }
@@ -169,7 +239,7 @@ export class TxService {
     //  put txs/types
     async updateTxType(prarms: PutTxTypesReqDto): Promise<TxTypeResDto> {
         let result: TxTypeResDto | null = null;
-        let txData = await this.txTypeModel.updateTxType(prarms.typeName, prarms.newTypeName);
+        const txData = await this.txTypeModel.updateTxType(prarms.typeName, prarms.newTypeName);
         this.cacheTxTypes();
         if (txData) {
             result = new TxTypeResDto(txData);
@@ -180,7 +250,7 @@ export class TxService {
     //  delete txs/types
     async deleteTxType(prarms: DeleteTxTypesReqDto): Promise<TxTypeResDto> {
         let result: TxTypeResDto | null = null;
-        let txData = await this.txTypeModel.deleteTxType(prarms.typeName);
+        const txData = await this.txTypeModel.deleteTxType(prarms.typeName);
         this.cacheTxTypes();
         if (txData) {
             result = new TxTypeResDto(txData);
@@ -192,7 +262,7 @@ export class TxService {
         const { pageNum, pageSize, useCount, nameOrDescription } = query;
         const serviceTxList: ITxStruct[] = await (this.txModel as any).findServiceAllList(pageNum, pageSize, useCount, nameOrDescription);
         const serviceNameList: IServiceName[] = serviceTxList.map((item: any) => {
-            let ex:any = item.msgs[0].msg.ex || {};
+            const ex:any = item.msgs[0].msg.ex || {};
             return {
                 serviceName: ex.service_name || '',
                 description: item.msgs[0].msg.description,
@@ -200,7 +270,7 @@ export class TxService {
             };
         });
 
-        for (let name of serviceNameList) {
+        for (const name of serviceNameList) {
             if (name.bind && name.bind > 0) {
                 const bindServiceTxList: ITxStruct[] = await (this.txModel as any).findBindServiceTxList(name.serviceName);
                 const bindTxList: IBindTx[] = bindServiceTxList.map((item: any) => {
@@ -210,7 +280,7 @@ export class TxService {
                     };
                 });
                 //查出每个provider在当前绑定的serviceName下所有的绑定次数
-                for (let bindTx of bindTxList) {
+                for (const bindTx of bindTxList) {
                     bindTx.respondTimes = await (this.txModel as any).findProviderRespondTimesForService(name.serviceName, bindTx.provider);
                 }
                 name.bindList = bindTxList;
@@ -221,7 +291,7 @@ export class TxService {
         const res: ServiceResDto[] = serviceNameList.map((service: IServiceName) => {
             return new ServiceResDto(service.serviceName, service.description, service.bindList);
         });
-        let count: number = 0;
+        let count = 0;
         if (useCount) {
             count = await (this.txModel as any).findAllServiceCount(nameOrDescription);
         }
@@ -237,16 +307,16 @@ export class TxService {
                 bindTime: item.time,
             };
         });
-        console.log(query, bindServiceTxList);
+        // console.log(query, bindServiceTxList);
         //查出每个provider在当前绑定的serviceName下所有的绑定次数
-        for (let bindTx of bindTxList) {
+        for (const bindTx of bindTxList) {
             bindTx.respondTimes = await (this.txModel as any).findProviderRespondTimesForService(serviceName, bindTx.provider);
         }
         const res: ServiceProvidersResDto[] = bindTxList.map((service: ServiceProvidersResDto) => {
             return new ServiceProvidersResDto(service.provider, service.respondTimes, service.bindTime);
         });
 
-        let count: number = 0;
+        let count = 0;
         if (useCount) {
             count = await (this.txModel as any).findServiceProviderCount(serviceName);
         }
@@ -259,7 +329,7 @@ export class TxService {
         const res: ServiceTxResDto[] = txList.map((service: ITxStruct) => {
             return new ServiceTxResDto(service.tx_hash, service.type, service.height, service.time, service.status, service.msgs, service.events);
         });
-        let count: number = 0;
+        let count = 0;
         if (useCount) {
             count = await (this.txModel as any).findServiceTxCount(serviceName, type, status);
         }
@@ -285,7 +355,7 @@ export class TxService {
         const { serviceName, provider, pageNum, pageSize, useCount } = query;
         const respondTxList: ITxStruct[] = await (this.txModel as any).queryServiceRespondTx(serviceName, provider, pageNum, pageSize);
         const res: ServiceRespondResDto[] = respondTxList.map((service: ITxStruct) => {
-            let ex:any = (service.msgs as any)[0].msg.ex || {};
+            const ex:any = (service.msgs as any)[0].msg.ex || {};
             return new ServiceRespondResDto(
                 service.tx_hash,
                 service.type,
@@ -298,7 +368,7 @@ export class TxService {
                 service.status,
             );
         });
-        let count: number = 0;
+        let count = 0;
         if (useCount) {
             count = await (this.txModel as any).findRespondServiceCount(serviceName, provider);
         }
@@ -309,31 +379,32 @@ export class TxService {
     //  txs/{hash}
     async queryTxWithHash(query: TxWithHashReqDto): Promise<TxResDto> {
         let result: TxResDto | null = null;
-        let txData: any = await this.txModel.queryTxWithHash(query.hash);
+        const txData: any = await this.txModel.queryTxWithHash(query.hash);
         if (txData) {
             if (txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.denom && txData.msgs[0].msg.denom.length) {
-                let nftNameInfo : {denom_name:string,nft_name:string} = {
+                const nftNameInfo : {denom_name:string,nft_name:string} = {
                     denom_name:'',
                     nft_name:'',
                 };
                 if (txData.msgs[0].msg.id && txData.msgs[0].msg.id.length) {
-                    let nft = await this.nftModel.findOneByDenomAndNftId(txData.msgs[0].msg.denom, txData.msgs[0].msg.id);
+                    const nft = await this.nftModel.findOneByDenomAndNftId(txData.msgs[0].msg.denom, txData.msgs[0].msg.id);
                     nftNameInfo.denom_name = (nft || {}).denom_name || '';
                     nftNameInfo.nft_name = (nft || {}).nft_name || '';
                 }else{
-                    let denom = await this.denomModel.findOneByDenomId(txData.msgs[0].msg.denom);
+                    const denom = await this.denomModel.findOneByDenomId(txData.msgs[0].msg.denom);
                     nftNameInfo.denom_name = (denom || {}).name || '';
                 }
                 txData.msgs[0].msg.denom_name =  nftNameInfo.denom_name;
                 txData.msgs[0].msg.nft_name =  nftNameInfo.nft_name;
             }
-            result = new TxResDto(txData);
+            let tx = await this.addMonikerToTxs([txData]);
+            result = new TxResDto(tx[0]||{});
         }
         return result;
     }
     //tx/identity
     async queryIdentityTx(query:IdentityTxReqDto):Promise<ListStruct<TxResDto[]>>{
-        let txListData = await this.txModel.queryTxListByIdentity(query);
+        const txListData = await this.txModel.queryTxListByIdentity(query);
         return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 

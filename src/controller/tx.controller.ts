@@ -45,6 +45,18 @@ export class TxController {
         return new Result<any>(data);
     }
 
+    @Get('/staking')
+    async queryStakingTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryStakingTxList(query);
+        return new Result<any>(data);
+    }
+
+    @Get('/declaration')
+    async queryDeclarationTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryDeclarationTxList(query);
+        return new Result<any>(data);
+    }
+
     // 供eageServer调用  返回数据不做过滤
     @Get('/e')
     async queryTxList_e(@Query() query: eTxListReqDto): Promise<Result<ListStruct<any>>> {
@@ -115,6 +127,17 @@ export class TxController {
         return new Result<any>(data);
     }
 
+    @Get("/types/staking")
+    async queryStakingTxTypeList(): Promise<Result<ListStruct<TxTypeResDto>>> {
+        const data: ListStruct<TxTypeResDto[]> = await this.txService.queryStakingTxTypeList();
+        return new Result<any>(data);
+    }
+
+    @Get("/types/declaration")
+    async queryDeclarationTxTypeList(): Promise<Result<ListStruct<TxTypeResDto>>> {
+        const data: ListStruct<TxTypeResDto[]> = await this.txService.queryDeclarationTxTypeList();
+        return new Result<any>(data);
+    }
 
     @Post("/types")
     async insertTxTypes(@Body() prarms:PostTxTypesReqDto): Promise<Result<ListStruct<TxTypeResDto>>> {

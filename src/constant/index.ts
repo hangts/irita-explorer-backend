@@ -1,11 +1,14 @@
-import { cfg } from '../config/config';
+import {cfg} from '../config/config';
 
 export enum TaskEnum {
     denom = 'ex_sync_denom',
     nft = 'ex_sync_nft',
     txServiceName = "sync_tx_service_name",
     validators = 'sync_validators',
-    identity = 'sync_identity'
+    identity = 'sync_identity',
+    stakingSyncValidators = 'staking_sync_validators',
+    stakingSyncParameters = 'staking_sync_parameters',
+    tokenScale = 'token_scale'
 }
 
 
@@ -99,6 +102,7 @@ export enum TxStatus {
     SUCCESS = 1,
     FAILED = 0,
 }
+
 export const IdentityLimitSize = 1000
 
 export enum LoggerLevel {
@@ -112,13 +116,44 @@ export enum LoggerLevel {
     MARK = 'MARK',
     OFF = 'OFF',
 }
+
 export const PubKeyAlgorithm = {
-    0:'UnknownPubKeyAlgorithm',
-    1:'RSA',
-    2:'DSA',
-    3:'ECDSA',
-    4:'ED25519',
-    5:'SM2',
+    0: 'UnknownPubKeyAlgorithm',
+    1: 'RSA',
+    2: 'DSA',
+    3: 'ECDSA',
+    4: 'ED25519',
+    5: 'SM2',
+}
+export const addressPrefix = {
+    iaa: 'iaa',
+    iva: 'iva',
+    ica: 'ica'
+}
+export const signedBlocksWindow = 'signed_blocks_window'
+export const hubDefaultEmptyValue = '[do-not-modify]'
+export const moduleSlashing = 'slashing'
+export const moduleStaking = 'staking'
+export const moduleStakingBondDenom = 'bond_denom'
+
+
+export const ValidatorStatus = {
+    'Unbonded': 1,
+    'Unbonding': 2,
+    'bonded': 3,
 }
 
-export const hubDefaultEmptyValue = '[do-not-modify]'
+export const ValidatorStatus_str = {
+    'unbonded': 'unbonded',
+    'unbonding': 'unbonding',
+    'bonded': 'bonded',
+}
+
+export const ValidatorNumberStatus = {
+    1: 'candidate',
+    2: 'candidate',
+    3: 'active',
+}
+export const activeValidatorLabel = 'active'
+export const candidateValidatorLabel = 'candidate'
+export const jailedValidatorLabel = 'jailed'

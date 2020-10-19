@@ -85,30 +85,31 @@ if (cfg.env == ENV.development || cfg.disableLog) {
     logger_http = logger_console;
 }
 
+
 export class Logger {
     static trace(...args) {
-        logger_common.trace(Logger.getStackTrace(), ...args);
+       logger_common.trace(Logger.getStackTrace(), ...args);
     }
     static debug(...args) {
-        logger_common.debug(Logger.getStackTrace(), ...args);
+       logger_common.debug(Logger.getStackTrace(), ...args);
     }
     static log(...args) {
-        logger_common.log(Logger.getStackTrace(), ...args);
+       logger_common.log(Logger.getStackTrace(), ...args);
     }
     static info(...args) {
-        logger_common.info(Logger.getStackTrace(), ...args);
+       logger_common.info(Logger.getStackTrace(), ...args);
     }
     static warn(...args) {
-        logger_common.warn(Logger.getStackTrace(), ...args);
+       logger_common.warn(Logger.getStackTrace(), ...args);
     }
     static error(...args) {
-        logger_common.error(Logger.getStackTrace(), ...args);
+       logger_common.error(Logger.getStackTrace(), ...args);
     }
     static fatal(...args) {
-        logger_common.fatal(Logger.getStackTrace(), ...args);
+       logger_common.fatal(Logger.getStackTrace(), ...args);
     }
     static access(...args) {
-        logger_http.info(Logger.getStackTrace(), ...args);
+       logger_http.info(Logger.getStackTrace(), ...args);
     }
 
     static getStackTrace(deep: number = 2): string {

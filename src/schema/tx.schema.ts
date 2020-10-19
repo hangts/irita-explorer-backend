@@ -14,6 +14,10 @@ import { IListStruct } from '../types';
 import { TxStatus, TxType } from '../constant';
 import Cache from '../helper/cache';
 import { cfg } from '../config/config';
+import {
+    stakingTypes,
+    serviceTypes,
+    declarationTypes } from '../helper/txTypes.helper';
 
 export const TxSchema = new mongoose.Schema({
     time: Number,
@@ -32,6 +36,7 @@ export const TxSchema = new mongoose.Schema({
     msgs: Array,
     signers: Array,
     addrs: Array,
+    fee: Object
 }, { versionKey: false });
 
 //	csrb 浏览器交易记录过滤正则表达式
@@ -84,8 +89,102 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<IListSt
     if (query.endTime && query.endTime.length) {
         queryParameters.time.$lte = Number(query.endTime);
     }
+    if (query.address && query.address.length) {
+        queryParameters = {
+            ...queryParameters,
+            addrs: { $elemMatch: { $eq: query.address } },
+        };
+    }
     result.data = await this.find(queryParameters)
         .sort({ time: -1 })
+        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+        .limit(Number(query.pageSize));
+    if (query.useCount && query.useCount == true) {
+        result.count = await this.find(queryParameters).countDocuments();
+    }
+    return result;
+};
+
+//  txs/staking
+TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<IListStruct> {
+    const result: IListStruct = {};
+    let queryParameters: any = {};
+    if (query.type && query.type.length) {
+        queryParameters['msgs.type'] = query.type;
+    } else {
+        queryParameters['msgs.type'] = {'$in':stakingTypes()};
+    }
+    if (query.status && query.status.length) {
+        switch (query.status) {
+            case '1':
+                queryParameters.status = TxStatus.SUCCESS;
+                break;
+            case '2':
+                queryParameters.status = TxStatus.FAILED;
+                break;
+        }
+    }
+    if (query.address && query.address.length) {
+        queryParameters = {
+            ...queryParameters,
+            addrs: { $elemMatch: { $eq: query.address } },
+        };
+    }
+    if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
+        queryParameters.time = {};
+    }
+    if (query.beginTime && query.beginTime.length) {
+        queryParameters.time.$gte = Number(query.beginTime);
+    }
+    if (query.endTime && query.endTime.length) {
+        queryParameters.time.$lte = Number(query.endTime);
+    }
+    result.data = await this.find(queryParameters)
+        .sort({ time: -1 })
+        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+        .limit(Number(query.pageSize));
+    if (query.useCount && query.useCount == true) {
+        result.count = await this.find(queryParameters).countDocuments();
+    }
+    return result;
+};
+
+//  txs/declaration
+TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Promise<IListStruct> {
+    const result: IListStruct = {};
+    let queryParameters: any = {};
+    if (query.type && query.type.length) {
+        queryParameters['msgs.type'] = query.type;
+    } else {
+        queryParameters['msgs.type'] = { '$in': declarationTypes() };
+    }
+    if (query.status && query.status.length) {
+        switch (query.status) {
+            case '1':
+                queryParameters.status = TxStatus.SUCCESS;
+                break;
+            case '2':
+                queryParameters.status = TxStatus.FAILED;
+                break;
+        }
+    }
+    if (query.address && query.address.length) {
+        queryParameters = {
+            ...queryParameters,
+            addrs: { $elemMatch: { $eq: query.address } },
+        };
+    }
+    if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
+        queryParameters.time = {};
+    }
+    if (query.beginTime && query.beginTime.length) {
+        queryParameters.time.$gte = Number(query.beginTime);
+    }
+    if (query.endTime && query.endTime.length) {
+        queryParameters.time.$lte = Number(query.endTime);
+    }
+    result.data = await this.find(queryParameters)
+        .sort({time: -1})
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
     if (query.useCount && query.useCount == true) {
@@ -731,3 +830,14 @@ TxSchema.statics.queryTxListByIdentity = async function (query:IIdentityTx){
     return result;
 }
 
+TxSchema.statics.queryDepositsByAddress = async function (address: string) {
+    let parameters: any = {
+        'msgs.type': /deposit|submit_proposal/,
+        $or: [{'msgs.msg.depositor': address},
+            {'msgs.msg.proposer': address}],
+        status: 1
+    }
+    let result: any = {}
+    result.data = await this.find(parameters)
+    return result
+}
