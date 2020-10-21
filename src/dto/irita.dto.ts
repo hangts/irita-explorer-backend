@@ -34,13 +34,15 @@ export class NetworkResDto extends BaseResDto{
     }
 }
 
-export class TokenScaleResDto extends NetworkResDto {
+// export class TokenScaleResDto extends NetworkResDto {
+export class TokenScaleResDto extends BaseResDto {
     symbol:string;
     min_unit:string;
     scale:number;
     is_main_token:boolean;
     constructor(value) {
-        super(value);
+        // super(value);
+        super();
         this.symbol = value.symbol;
         this.min_unit = value.min_unit;
         this.scale = value.scale;

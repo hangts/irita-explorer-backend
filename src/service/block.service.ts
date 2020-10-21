@@ -54,10 +54,10 @@ export class BlockService {
         let block_db = await (this.blockModel as any).findOneByHeight(height);
         block_db = JSON.parse(JSON.stringify(block_db));
         if (block_db) {
-            let block_lcd = await BlockHttp.queryBlockFromLcd(height);
+            let block_lcd =  await BlockHttp.queryBlockFromLcd(height);
             let latestBlock = await BlockHttp.queryLatestBlockFromLcd();
             let proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block_db.proposer || '');
-            let validatorsets = await BlockHttp.queryValidatorsets(block_lcd.block.last_commit.height);
+            let validatorsets = await BlockHttp.queryValidatorsets(height);
             data = {
                 height: block_db.height,
                 hash: block_db.hash,
