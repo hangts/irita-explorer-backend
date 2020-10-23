@@ -42,7 +42,6 @@ export const TxSchema = new mongoose.Schema({
 //	csrb 浏览器交易记录过滤正则表达式
 function filterExTxTypeRegExp(): object {
     let RegExpStr:string = Cache.supportTypes.join('|');
-    // console.log('supportTypes:',RegExpStr);
     return new RegExp(RegExpStr || '//');
 }
 
@@ -69,7 +68,6 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<IListSt
     } else {
         queryParameters.$or = [{ 'msgs.type' : filterExTxTypeRegExp() }];
     }
-
     if (query.status && query.status.length) {
         switch (query.status) {
             case '1':

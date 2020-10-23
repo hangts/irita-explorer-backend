@@ -36,7 +36,6 @@ export enum TxType {
     start_request_context = 'start_request_context',
     kill_request_context = 'kill_request_context',
     update_request_context = 'update_request_context',
-    create_record = 'create_record',
     service_set_withdraw_address = 'service/set_withdraw_addres',
     withdraw_earned_fees = 'withdraw_earned_fees',
     // nft
@@ -45,13 +44,13 @@ export enum TxType {
     edit_nft = 'edit_nft',
     issue_denom = 'issue_denom',
     mint_nft = 'mint_nft',
-    // Token
+    // Asset 
     issue_token = 'issue_token',
     edit_token = 'edit_token',
     mint_token = 'mint_token',
     transfer_token_owner = 'transfer_token_owner',
-    //Bank
-    send = 'send',
+    //Transfer
+    send = 'send',  
     multisend = 'multisend',
     //Crisis
     verify_invariant = 'verify_invariant',
@@ -96,8 +95,13 @@ export enum TxType {
     recv_packet = 'recv_packet',
     create_client = 'create_client',
     update_client = 'update_client',
-    create_identity = 'create_identity',
+    // Identity
+    create_identity = 'create_identity', 
     update_identity = 'update_identity',
+    // Record
+    create_record = 'create_record', 
+    // Random
+    request_rand='request_rand',
 }
 
 export enum TxStatus {
