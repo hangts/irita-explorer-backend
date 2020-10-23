@@ -24,9 +24,7 @@ export function serviceTypes():string[]{
         TxType.pause_request_context,
         TxType.start_request_context,
         TxType.kill_request_context,
-        TxType.update_request_context,
-        TxType.service_set_withdraw_address,
-        TxType.withdraw_earned_fees,
+        TxType.update_request_context
     ];
 }
 
