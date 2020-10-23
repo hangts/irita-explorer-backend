@@ -6,6 +6,7 @@ import {StakingHttp} from "../http/lcd/staking.http";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {ParametersTaskService} from "../task/parameters.task.service";
 import {TokenScaleHttp} from "../http/lcd/token.scale.http";
+import {BlockHttp} from "../http/lcd/block.http";
 
 
 @Module({
@@ -23,7 +24,7 @@ import {TokenScaleHttp} from "../http/lcd/token.scale.http";
       },
     ])
   ],
-  providers:[StakingValidatorTaskService,ParametersTaskService,StakingHttp,TokenScaleHttp],
+  providers:[StakingValidatorTaskService,ParametersTaskService,StakingHttp,TokenScaleHttp,BlockHttp],
   exports:[StakingValidatorTaskService,ParametersTaskService],
 })
 
