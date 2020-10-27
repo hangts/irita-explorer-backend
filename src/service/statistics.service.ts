@@ -37,7 +37,7 @@ export class StatisticsService {
         let result:any = { height:0,latestBlockTime:0 };
         if (latestBlock && latestBlock.block && latestBlock.block.header) {
             result.height = latestBlock.block.header.height;
-            result.latestBlockTime = Number(latestBlock.block.header.time);
+            result.latestBlockTime = new Date(latestBlock.block.header.time || '').getTime()/1000;
         }else {
             const res: IBlockStruct | null = await (this.blockModel as any).findOneByHeightDesc();
             if (res) {
