@@ -23,7 +23,10 @@ export class NftService {
                 nft.data, 
                 denomDetail,
                 nft.denom_name,
-                nft.nft_name);
+                nft.nft_name,
+                nft.create_time,
+                nft.update_time
+            );
             res.push(result);
         }
         return new ListStruct(res, pageNum, pageSize, nftData.count);
@@ -42,7 +45,8 @@ export class NftService {
                 nft.data, 
                 denomDetail,
                 nft.denom_name,
-                nft.nft_name);
+                nft.nft_name
+            );
         } else {
             return null;
         }
