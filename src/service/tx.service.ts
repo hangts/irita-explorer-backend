@@ -264,7 +264,7 @@ export class TxService {
         const serviceNameList: IServiceName[] = serviceTxList.map((item: any) => {
             const ex:any = item.msgs[0].msg.ex || {};
             return {
-                serviceName: ex.service_name || '',
+                serviceName: getServiceNameFromMsgs(item.msgs),
                 description: item.msgs[0].msg.description,
                 bind: ex.bind || 0,
             };
