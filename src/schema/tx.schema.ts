@@ -327,7 +327,7 @@ TxSchema.statics.queryTxWithNft = async function(query: ITxsWithNftQuery): Promi
     return result;
 };
 
-//  txs/services
+// 废弃
 TxSchema.statics.queryTxWithServiceName = async function(query: ITxsWithServiceNameQuery): Promise<IListStruct> {
     let result: IListStruct = {};
     let queryParameters: any = {};
@@ -375,7 +375,9 @@ TxSchema.statics.queryCallServiceWithConsumerAddr = async function(consumerAddr:
 
 // ==> txs/services/call-service
 TxSchema.statics.queryRespondServiceWithContextId = async function(ContextId: string): Promise<ITxStruct[]> {
-    return await this.find({ 'msgs.msg.ex.request_context_id': ContextId, 'msgs.type': TxType.respond_service });
+    return await this.find({ 
+        'msgs.msg.ex.request_context_id': ContextId, 
+        'msgs.type': TxType.respond_service }, dbRes.service);
 };
 
 // ==> txs/services/respond-service
@@ -411,7 +413,7 @@ TxSchema.statics.querydisableServiceBindingWithServceName = async function(servc
         'msgs.msg.service_name': servceName,
         'msgs.msg.provider': providerAddr,
         'msgs.type': TxType.disable_service_binding,
-    })
+    },{time:1})
         .sort({ time: -1 })
         .limit(1);
 };
@@ -547,7 +549,7 @@ TxSchema.statics.queryDefineServiceTxHashByServiceName = async function(serviceN
     return await this.findOne(queryParameters, { 'tx_hash': 1 });
 };
 
-
+// txs/services
 TxSchema.statics.findServiceAllList = async function(
     pageNum: number,
     pageSize: number,
@@ -566,7 +568,11 @@ TxSchema.statics.findServiceAllList = async function(
             { 'msgs.msg.description': { $regex: reg } },
         ];
     }
-    return await this.find(queryParameters)
+    return await this.find(queryParameters, {
+        'msgs.msg.ex':1,
+        'msgs.msg.description':1,
+        'msgs.msg.service_name':1,
+        'msgs.msg.name':1})
         .sort({
             'msgs.msg.ex.bind': -1,
             time: -1,
