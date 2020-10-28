@@ -298,6 +298,7 @@ export class TxService {
         return new ListStruct(res, pageNum, pageSize, count);
     }
 
+    // /txs/services/providers 
     async queryServiceProviders(query: ServiceProvidersReqDto): Promise<ListStruct<ServiceProvidersResDto[]>> {
         const { serviceName, pageNum, pageSize, useCount } = query;
         const bindServiceTxList: ITxStruct[] = await (this.txModel as any).findBindServiceTxList(serviceName, pageNum, pageSize);
@@ -323,6 +324,7 @@ export class TxService {
         return new ListStruct(res, pageNum, pageSize, count);
     }
 
+    // /txs/services/tx
     async queryServiceTx(query: ServiceTxReqDto): Promise<ListStruct<ServiceTxResDto[]>> {
         const { serviceName, type, status, pageNum, pageSize, useCount } = query;
         const txList: ITxStruct[] = await (this.txModel as any).findServiceTx(serviceName, type, status, pageNum, pageSize);
@@ -351,6 +353,7 @@ export class TxService {
         }
     }
 
+    // /txs/services/respond   
     async queryServiceRespondTx(query: ServiceRespondReqDto): Promise<ListStruct<ServiceRespondResDto[]>> {
         const { serviceName, provider, pageNum, pageSize, useCount } = query;
         const respondTxList: ITxStruct[] = await (this.txModel as any).queryServiceRespondTx(serviceName, provider, pageNum, pageSize);

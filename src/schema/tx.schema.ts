@@ -13,6 +13,7 @@ import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
 import { IListStruct } from '../types';
 import { TxStatus, TxType } from '../constant';
 import Cache from '../helper/cache';
+import { dbRes } from '../helper/tx.helper';
 import { cfg } from '../config/config';
 import {
     stakingTypes,
@@ -88,12 +89,9 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<IListSt
         queryParameters.time.$lte = Number(query.endTime);
     }
     if (query.address && query.address.length) {
-        queryParameters = {
-            ...queryParameters,
-            addrs: { $elemMatch: { $eq: query.address } },
-        };
+        queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
     }
-    result.data = await this.find(queryParameters)
+    result.data = await this.find(queryParameters, dbRes.txList)
         .sort({ time: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
@@ -123,10 +121,7 @@ TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<
         }
     }
     if (query.address && query.address.length) {
-        queryParameters = {
-            ...queryParameters,
-            addrs: { $elemMatch: { $eq: query.address } },
-        };
+        queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
     }
     if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
         queryParameters.time = {};
@@ -137,7 +132,7 @@ TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<
     if (query.endTime && query.endTime.length) {
         queryParameters.time.$lte = Number(query.endTime);
     }
-    result.data = await this.find(queryParameters)
+    result.data = await this.find(queryParameters, dbRes.delegations)
         .sort({ time: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
@@ -167,10 +162,7 @@ TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Prom
         }
     }
     if (query.address && query.address.length) {
-        queryParameters = {
-            ...queryParameters,
-            addrs: { $elemMatch: { $eq: query.address } },
-        };
+        queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
     }
     if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
         queryParameters.time = {};
@@ -181,7 +173,7 @@ TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Prom
     if (query.endTime && query.endTime.length) {
         queryParameters.time.$lte = Number(query.endTime);
     }
-    result.data = await this.find(queryParameters)
+    result.data = await this.find(queryParameters, dbRes.validations)
         .sort({time: -1})
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
@@ -220,7 +212,7 @@ TxSchema.statics.queryTxWithHeight = async function(query: ITxsWithHeightQuery):
     if (query.height) {
         queryParameters.height = Number(query.height);
     }
-    result.data = await this.find(queryParameters)
+    result.data = await this.find(queryParameters, dbRes.txList)
         .sort({ time: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
@@ -259,7 +251,7 @@ TxSchema.statics.queryTxWithAddress = async function(query: ITxsWithAddressQuery
                 break;
         }
     }
-    result.data = await this.find(queryParameters)
+    result.data = await this.find(queryParameters, dbRes.txList)
         .sort({ time: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
@@ -298,7 +290,7 @@ TxSchema.statics.queryTxWithContextId = async function(query: ITxsWithContextIdQ
                 break;
         }
     }
-    result.data = await this.find(queryParameters)
+    result.data = await this.find(queryParameters, dbRes.service)
         .sort({ time: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
@@ -325,7 +317,7 @@ TxSchema.statics.queryTxWithNft = async function(query: ITxsWithNftQuery): Promi
     if (query.tokenId && query.tokenId.length) {
         queryParameters['msgs.msg.id'] = query.tokenId;
     }
-    result.data = await this.find(queryParameters)
+    result.data = await this.find(queryParameters, dbRes.txList)
         .sort({ time: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
@@ -371,7 +363,7 @@ TxSchema.statics.queryCallServiceWithConsumerAddr = async function(consumerAddr:
         'msgs.type': TxType.call_service,
         status: TxStatus.SUCCESS,
     };
-    result.data = await this.find(queryParameters)
+    result.data = await this.find(queryParameters, dbRes.service)
         .sort({ time: -1 })
         .skip((Number(pageNum) - 1) * Number(pageSize))
         .limit(Number(pageSize));
@@ -394,7 +386,7 @@ TxSchema.statics.queryBindServiceWithProviderAddr = async function(ProviderAddr:
         'msgs.type': TxType.bind_service,
         status: TxStatus.SUCCESS,
     };
-    result.data = await this.find(queryParameters)
+    result.data = await this.find(queryParameters, dbRes.service)
         .sort({ time: -1 })
         .skip((Number(pageNum) - 1) * Number(pageSize))
         .limit(Number(pageSize));
@@ -583,7 +575,7 @@ TxSchema.statics.findServiceAllList = async function(
         .limit(Number(pageSize));
 };
 
-
+// /txs/services/providers 
 TxSchema.statics.findBindServiceTxList = async function(
     serviceName: IServiceName,
     pageNum?: number,
@@ -595,7 +587,7 @@ TxSchema.statics.findBindServiceTxList = async function(
         'msgs.msg.service_name': serviceName,
     };
     if (pageNum && pageSize) {
-        return await this.find(queryParameters)
+        return await this.find(queryParameters,{'msgs.msg.provider':1,time:1})
             .sort({ 'time': -1 })
             .skip((Number(pageNum) - 1) * Number(pageSize))
             .limit(Number(pageSize));
@@ -639,6 +631,7 @@ TxSchema.statics.findServiceProviderCount = async function(serviceName): Promise
     return await this.countDocuments(queryParameters);
 };
 
+// /txs/services/tx
 TxSchema.statics.findServiceTx = async function(
     serviceName: string,
     type: string,
@@ -662,7 +655,7 @@ TxSchema.statics.findServiceTx = async function(
         default:
             break;
     }
-    return await this.find(queryParameters)
+    return await this.find(queryParameters, dbRes.service)
         .sort({ 'height': -1 })
         .skip((Number(pageNum) - 1) * Number(pageSize))
         .limit(Number(pageSize));
@@ -708,7 +701,7 @@ TxSchema.statics.findServiceOwner = async function(serviceName: string): Promise
     return await this.findOne(queryParameters);
 };
 
-
+// /txs/services/respond
 TxSchema.statics.queryServiceRespondTx = async function(serviceName: string, provider: string, pageNum: number, pageSize: number): Promise<ITxStruct[]> {
     const queryParameters: any = {
         'msgs.type': TxType.respond_service,
@@ -719,7 +712,7 @@ TxSchema.statics.queryServiceRespondTx = async function(serviceName: string, pro
     if (provider && provider.length) {
         queryParameters['msgs.msg.provider'] = provider;
     }
-    return await this.find(queryParameters)
+    return await this.find(queryParameters, {...dbRes.common, 'msgs.msg.ex':1})
         .sort({ 'height': -1 })
         .skip((Number(pageNum) - 1) * Number(pageSize))
         .limit(Number(pageSize));
@@ -805,6 +798,7 @@ TxSchema.statics.queryListByCreateAndUpDateIdentity = async function(
     return await this.find(params).limit(limitSize).sort({'height':-1})
 }
 
+// /txs/identity
 TxSchema.statics.queryTxListByIdentity = async function (query:IIdentityTx){
     let result: IListStruct = {};
     const params =  {
@@ -818,7 +812,7 @@ TxSchema.statics.queryTxListByIdentity = async function (query:IIdentityTx){
             }
         ]
     }
-    result.data = await this.find(params)
+    result.data = await this.find(params, dbRes.txList)
       .sort({ time: -1 })
       .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
       .limit(Number(query.pageSize));
