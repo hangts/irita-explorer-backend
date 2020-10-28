@@ -16,6 +16,7 @@ export class StatisticsService {
         @InjectModel('Validators') private validatorModel: any,
         @InjectModel('Identity') private identityModel: any,
         @InjectModel('Denom') private denomModel: any,
+        @InjectModel('StakingSyncValidators') private stakingValidatorsModel: any,
     ) {
     }
 
@@ -29,8 +30,8 @@ export class StatisticsService {
         const {txCount, serviceCount} = await this.queryTxCount();
         const identityCount = await this.queryIdentityCount({});
         const denomCount = await this.queryDenomCount();
-
-        return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount, identityCount, denomCount);
+        const validatorNumCount = await this.queryValidatorNumCount();
+        return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount, identityCount, denomCount,validatorNumCount);
     }
 
     async queryLatestHeightAndTime(latestBlock?:any): Promise<{height:number,latestBlockTime:number} | null> {
@@ -92,6 +93,10 @@ export class StatisticsService {
         return await this.denomModel.queryAllCount();
     }
 
+    async queryValidatorNumCount():Promise<any>{
+        return await this.stakingValidatorsModel.queryActiveValCount();
+    }
+    
 
 }
 

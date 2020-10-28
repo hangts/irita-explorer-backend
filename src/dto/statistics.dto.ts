@@ -8,6 +8,7 @@ export class StatisticsResDto {
     private assetCount: number;
     private identityCount: number;
     private denomCount: number;
+    private validatorNumCount: number;
 
     constructor(
         blockHeight: number, 
@@ -18,7 +19,9 @@ export class StatisticsResDto {
         validatorCount: number, 
         assetCount: number,
         identityCount: number,
-        denomCount: number){
+        denomCount: number,
+        validatorNumCount: number,
+    ) {
 
         this.blockHeight = blockHeight;
         this.latestBlockTime = latestBlockTime;
@@ -29,6 +32,7 @@ export class StatisticsResDto {
         this.assetCount = assetCount;
         this.identityCount = identityCount;
         this.denomCount = denomCount;
+        this.validatorNumCount = validatorNumCount;
     }
 }
 
