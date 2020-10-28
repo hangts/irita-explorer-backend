@@ -142,8 +142,8 @@ export const dbRes = {
         'msgs.msg.min_self_delegation':1
     },
     syncServiceTask:{
-        'msg.msg.request_id':1,
-        'msg.msg.request_context_id':1,
+        'msgs.msg.request_id':1,
+        'msgs.msg.request_context_id':1,
         'type':1,
         'msgs.msg.service_name':1,
         'msgs.msg.name':1,
