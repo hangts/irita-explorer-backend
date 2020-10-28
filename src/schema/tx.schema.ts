@@ -501,7 +501,7 @@ TxSchema.statics.findAllServiceTx = async function(pageSize?: number): Promise<I
         ],
         'msgs.msg.ex.service_name': null,
     };
-    return await this.find(queryParameters).sort({ time: -1 }).limit(Number(pageSize));
+    return await this.find(queryParameters, dbRes.syncServiceTask).sort({ time: -1 }).limit(Number(pageSize));
 };
 
 //用request_context_id查询call_service的service_name
@@ -782,6 +782,8 @@ TxSchema.statics.queryTxByDenom = async function(
     };
     return await this.findOne(params);
 };
+
+// sync Identity task
 TxSchema.statics.queryListByCreateAndUpDateIdentity = async function(
   height: number,
   limitSize:number,
@@ -801,7 +803,7 @@ TxSchema.statics.queryListByCreateAndUpDateIdentity = async function(
             }
         ]
     }
-    return await this.find(params).limit(limitSize).sort({'height':-1})
+    return await this.find(params, {msgs:1}).limit(limitSize).sort({'height':-1})
 }
 
 // /txs/identity
@@ -830,7 +832,7 @@ TxSchema.statics.queryTxListByIdentity = async function (query:IIdentityTx){
 
 TxSchema.statics.queryDepositsByAddress = async function (address: string) {
     let parameters: any = {
-        'msgs.type': /deposit|submit_proposal/,
+        'msgs.type': {'$in':[TxType.deposit, TxType.submit_proposal]},
         $or: [{'msgs.msg.depositor': address},
             {'msgs.msg.proposer': address}],
         status: 1
