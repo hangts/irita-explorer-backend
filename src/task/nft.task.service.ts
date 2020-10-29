@@ -80,7 +80,6 @@ export class NftTaskService {
                     time
                 };
             });
-            console.log('入库前',insertNftList)
             await (this.nftModel as any).saveBulk(insertNftList);
         }
     }

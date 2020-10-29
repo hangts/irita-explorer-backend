@@ -43,8 +43,8 @@ export class TasksService {
         this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
     }
 
-    // @Cron(cfg.taskCfg.executeTime.nft)
-    @Cron('50 * * * * *')
+    @Cron(cfg.taskCfg.executeTime.nft)
+    // @Cron('50 * * * * *')
     async syncNfts() {
         this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
     }

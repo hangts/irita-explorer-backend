@@ -129,7 +129,6 @@ NftSchema.statics = {
     },
 
     saveBulk(nfts: INftStruct[]): Promise<INftStruct[]> {
-        console.log('入库',nfts)
         return this.insertMany(nfts, { ordered: false });
     },
 
@@ -141,7 +140,6 @@ NftSchema.statics = {
 
     updateOneById(nft: INftStruct): Promise<INftStruct> {
         const {denom_id ,nft_id, owner, data, uri, denom_name, nft_name, hash, time } = nft;
-        console.log('更新数据',nft)
         return this.updateOne({
             nft_id,
             denom_id

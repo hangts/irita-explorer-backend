@@ -791,11 +791,22 @@ TxSchema.statics.queryTxByDenomIdAndNftId = async function (
     const params = {
         status: TxStatus.SUCCESS,
         'msgs.msg.id': nftId,
-        'msgs.msg.denom':denomId
+        'msgs.msg.denom': denomId,
+        $or:[
+            {
+                'msgs.type': TxType.transfer_nft,
+            },
+            {
+                'msgs.type': TxType.edit_nft,
+            },
+            {
+                'msgs.type': TxType.mint_nft,
+            }
+        ]
     };
     return await this.find(params, { time: 1 })
-        .limit(1)
-        .sort({ time: -1 });
+        .sort({ time: -1 })
+        .limit(1);
 };
 
 
