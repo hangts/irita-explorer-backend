@@ -12,26 +12,32 @@ import { ILcdNftStruct } from '../types/task.interface';
 export class NftTaskService {
     constructor(@InjectModel('Nft') private nftModel: Model<INft>,
                 @InjectModel('Denom') private denomModel: Model<IDenom>,
+                @InjectModel('Tx') private txModel: any,
                 private readonly nftHttp: NftHttp,
     ) {
         this.doTask = this.doTask.bind(this);
     }
 
     async doTask(): Promise<void> {
+        // 从数据库 ex_sync_denom 表中查询所有的 [{ denom_id: '' , name : ''}]
         const denomList: IDenomStruct[] = await (this.denomModel as any).findAllNames();
         if (denomList && denomList.length > 0) {
-            for(let denom of denomList){
+            for (let denom of denomList) {
+                // 通过lcd查询 http://192.168.150.31:11317/nft/nfts/collections/:denom_id 获取相关信息
                 const res: any = await this.nftHttp.queryNftsFromLcdByDenom(denom.denom_id);
+                // 从 数据库 ex_sync_nft 表中通过denom_id查询数据库中的数据 
                 const nftFromDb: INftStruct[] = await (this.nftModel as any).findListByName(denom.denom_id);
                 if (res) {
                     let lcdNftMap: Map<string, ILcdNftStruct> | null = new Map<string, ILcdNftStruct>(),
                         dbNftMap: Map<string, INftStruct> | null = new Map<string, INftStruct>();
                     if (res.nfts && Array.isArray(res.nfts) && res.nfts.length > 0) {
-                        res.nfts.forEach(nft => {
+                        for (let nft of res.nfts) {
                             nft.denom_id = res.denom.id;
                             nft.denom_name = res.denom.name;
-                            lcdNftMap.set(NftTaskService.getNftKey({nft_id:nft.id,denom_id:res.denom.id}), nft);
-                        });
+                            let time = await this.txModel.queryTxByDenomIdAndNftId(nft.id, res.denom.id);
+                            nft.time = time && time[0] && time[0].time
+                            lcdNftMap.set(NftTaskService.getNftKey({ nft_id: nft.id, denom_id: res.denom.id }), nft);
+                        }
                     } else {
                         lcdNftMap = null;
                     }
@@ -43,23 +49,21 @@ export class NftTaskService {
                     } else {
                         dbNftMap = null;
                     }
-
                     let shouldInsertMap: Map<string, ILcdNftStruct> = NftTaskService.getShouldInsertList(lcdNftMap, dbNftMap);
                     let shouldDeleteNftMap: Map<string, INftStruct> = NftTaskService.getShouldDeleteList(lcdNftMap, dbNftMap);
                     let shouldUpdateNftMap: Map<string, ILcdNftStruct> = NftTaskService.getShouldUpdateList(lcdNftMap, dbNftMap);
-                    await this.saveNft(denom.denom_id,denom.name, shouldInsertMap);
+                    await this.saveNft(denom.denom_id, denom.name, shouldInsertMap);
                     await this.deleteNft(denom.denom_id, shouldDeleteNftMap);
                     await this.updateNft(denom.denom_id,denom.name, shouldUpdateNftMap);
                 }
             }
-
         }
     }
 
     private async saveNft(denomId: string, denomName: string, shouldInsertMap: Map<string, ILcdNftStruct>): Promise<void> {
         if (shouldInsertMap && shouldInsertMap.size > 0) {
             let insertNftList: INftStruct[] = Array.from(shouldInsertMap.values()).map((nft) => {
-                const { owner, uri, data, id, name } = nft;
+                const { owner, uri, data, id, name, time } = nft;
                 const str: string = `${name}${owner}${uri ? uri : ''}${data ? data : ''}`,
                     hash = md5(str);
                 return {
@@ -73,8 +77,10 @@ export class NftTaskService {
                     create_time: getTimestamp(),
                     update_time: getTimestamp(),
                     hash,
+                    time
                 };
             });
+            console.log('入库前',insertNftList)
             await (this.nftModel as any).saveBulk(insertNftList);
         }
     }
@@ -93,7 +99,7 @@ export class NftTaskService {
     private async updateNft(denomId: string, denomName: string,shouldUpdateNftMap: Map<string, ILcdNftStruct>): Promise<void> {
         if (shouldUpdateNftMap && shouldUpdateNftMap.size > 0) {
             for(let nft of Array.from(shouldUpdateNftMap.values())){
-                const { id, owner, uri, data, hash, name } = nft;
+                const { id, owner, uri, data, hash, name,time } = nft;
                 const nftEntity: INftStruct = {
                     nft_id: id,
                     nft_name: name,
@@ -103,6 +109,7 @@ export class NftTaskService {
                     hash: hash,
                     denom_id: denomId,
                     denom_name: denomName || '',
+                    time
                 };
                 await (this.nftModel as any).updateOneById(nftEntity);
             }

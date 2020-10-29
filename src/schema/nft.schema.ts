@@ -21,6 +21,7 @@ export const NftSchema = new mongoose.Schema({
     create_time: Number,
     update_time: Number,
     hash: String,
+    time: Number
 },{versionKey: false});
 NftSchema.index({ denom_id: 1, nft_id: 1 }, { unique: true });
 
@@ -128,6 +129,7 @@ NftSchema.statics = {
     },
 
     saveBulk(nfts: INftStruct[]): Promise<INftStruct[]> {
+        console.log('入库',nfts)
         return this.insertMany(nfts, { ordered: false });
     },
 
@@ -138,7 +140,8 @@ NftSchema.statics = {
     },
 
     updateOneById(nft: INftStruct): Promise<INftStruct> {
-        const {denom_id ,nft_id, owner, data, uri, denom_name, nft_name, hash } = nft;
+        const {denom_id ,nft_id, owner, data, uri, denom_name, nft_name, hash, time } = nft;
+        console.log('更新数据',nft)
         return this.updateOne({
             nft_id,
             denom_id
@@ -149,7 +152,8 @@ NftSchema.statics = {
             denom_name,
             nft_name,
             hash,
-            update_time: getTimestamp()
+            update_time: getTimestamp(),
+            time
         }, 
         (e) => {
             if (e) Logger.error('mongo-error:', e.message);

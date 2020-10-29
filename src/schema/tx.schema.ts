@@ -783,6 +783,22 @@ TxSchema.statics.queryTxByDenom = async function(
     };
     return await this.findOne(params);
 };
+
+TxSchema.statics.queryTxByDenomIdAndNftId = async function (
+    nftId: string,
+    denomId: string
+): Promise<ITxStruct | null> {
+    const params = {
+        status: TxStatus.SUCCESS,
+        'msgs.msg.id': nftId,
+        'msgs.msg.denom':denomId
+    };
+    return await this.find(params, { time: 1 })
+        .limit(1)
+        .sort({ time: -1 });
+};
+
+
 TxSchema.statics.queryListByCreateAndUpDateIdentity = async function(
   height: number,
   limitSize:number,
