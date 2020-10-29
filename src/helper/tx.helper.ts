@@ -71,5 +71,82 @@ export function getConsumerFromMsgs(msgs:any[]):string{
 }
 
 export function getCtxKey(ctxId:string,type:string){
-        return `${ctxId}-${type}`;
+    return `${ctxId}-${type}`;
+}
+
+const common = {
+        tx_hash:1,
+        msgs:1,
+        'msgs.type':1,
+        status:1,
+        height:1,
+        signers:1,
+        time:1,
+        addrs:1,
+        fee:1,
+    };
+
+const fromTo = {
+        'msgs.msg.fromaddress':1,
+        'msgs.msg.toaddress':1,
+        'msgs.msg.author':1,
+        'msgs.msg.provider':1,
+        'msgs.msg.consumer':1,
+        'msgs.msg.providers':1,
+        'msgs.msg.creator':1,
+        'msgs.msg.sender':1,
+        'msgs.msg.recipient':1,
+        'msgs.msg.owner':1,
+        'msgs.msg.delegator_address':1,
+        'msgs.msg.validator_address':1,
+        'msgs.msg.validator_src_address':1,
+        'msgs.msg.validator_dst_address':1
+    };
+
+export const dbRes = {
+    common,
+    fromTo,
+    events:{
+        events:1
+    },
+    txList:{
+        ...common,
+        ...fromTo
+    },
+    service:{
+        ...common,
+        ...fromTo,
+        events:1,
+        'msgs.msg.ex':1,
+        'msgs.msg.request_context_id':1,
+        'msgs.msg.service_name':1,
+        'msgs.msg.name':1,
+        'msgs.msg.providers':1,
+        'msgs.msg.provider':1,
+        'msgs.msg.owner':1,
+        'msgs.msg.pricing':1,
+        'msgs.msg.qos':1,
+        'msgs.msg.deposit':1,
+        'msgs.msg.request_id':1
+    },
+    delegations:{
+        ...common,
+        ...fromTo,
+        'msgs.msg.amount':1,
+        'msgs.msg.delegation':1
+    },
+    validations:{
+        ...common,
+        'msgs.msg.validator_address':1,
+        'msgs.msg.address':1,
+        'msgs.msg.min_self_delegation':1
+    },
+    syncServiceTask:{
+        'msgs.msg.request_id':1,
+        'msgs.msg.request_context_id':1,
+        'type':1,
+        'msgs.msg.service_name':1,
+        'msgs.msg.name':1,
+        'tx_hash':1
     }
+}

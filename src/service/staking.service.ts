@@ -191,7 +191,7 @@ export default class StakingService {
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const allProfilerAddress = await (this.profilerModel as any).queryProfileAddress()
         const validator = allValidatorsMap.get(operatorAddress)
-        const deposits = await (this.txModel as any).queryDepositsByAddress(address)
+        // const deposits = await (this.txModel as any).queryDepositsByAddress(address)
 
         let profilerAddressMap = new Map()
         if (allProfilerAddress && allProfilerAddress.length > 0) {
@@ -211,12 +211,12 @@ export default class StakingService {
         } else {
             result.status = jailedValidatorLabel
         }
-        if (deposits && deposits.data && deposits.data.length > 0) {
+        // if (deposits && deposits.data && deposits.data.length > 0) {
             //TODO:zhangjinbiao 处理查询出来与Gov相关的交易列表计算总的amount
 
-        } else {
+        // } else {
             result.deposits = {}
-        }
+        // }
         return new AccountAddrResDto(result)
     }
 
