@@ -77,6 +77,7 @@ export function getCtxKey(ctxId:string,type:string){
 const common = {
         tx_hash:1,
         msgs:1,
+        type:1,
         'msgs.type':1,
         status:1,
         height:1,
@@ -142,11 +143,22 @@ export const dbRes = {
         'msgs.msg.min_self_delegation':1
     },
     syncServiceTask:{
+        'msgs.type':1,
         'msgs.msg.request_id':1,
         'msgs.msg.request_context_id':1,
         'type':1,
         'msgs.msg.service_name':1,
         'msgs.msg.name':1,
         'tx_hash':1
+    },
+    syncIdentityTask:{
+        ...common,
+        'msgs.type':1,
+        'msgs.msg.pubkey':1,
+        'msgs.msg.certificate':1,
+        'msgs.msg.ex':1,
+        'msgs.msg.id':1,
+        'msgs.msg.owner':1,
+        'msgs.msg.credentials':1
     }
 }
