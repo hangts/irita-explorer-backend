@@ -828,7 +828,7 @@ TxSchema.statics.queryListByCreateAndUpDateIdentity = async function(
             }
         ]
     }
-    return await this.find(params, {msgs:1}).limit(limitSize).sort({'height':-1})
+    return await this.find(params, dbRes.syncIdentityTask ).limit(limitSize).sort({'height':-1})
 }
 
 // /txs/identity

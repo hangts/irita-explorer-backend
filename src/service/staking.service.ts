@@ -78,11 +78,9 @@ export default class StakingService {
                 allShares.push(Number(item.delegation.shares))
             }
         })
-
         let totalShares;
-
         if (allShares && allShares.length) {
-            allShares.reduce((total: number, item: number) => {
+            totalShares = allShares.reduce((total: number, item: number) => {
                 return item + total
             })
         }
