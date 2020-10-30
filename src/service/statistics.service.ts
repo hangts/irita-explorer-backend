@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { StatisticsResDto } from '../dto/statistics.dto';
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { INft } from '../types/schemaTypes/nft.interface';
+import { BlockHttp } from '../http/lcd/block.http';
 
 @Injectable()
 export class StatisticsService {
@@ -19,7 +20,9 @@ export class StatisticsService {
     }
 
     async queryStatistics(): Promise<StatisticsResDto> {
-        const block = await this.queryLatestHeightAndTime();
+        const latestBlock = await BlockHttp.queryLatestBlockFromLcd();
+
+        const block = await this.queryLatestHeightAndTime(latestBlock);
         const avgBlockTime = await this.queryAvgBlockTime();
         const assetCount = await this.queryAssetCount();
         const validatorCount = await this.queryConsensusValidatorCount();
@@ -30,13 +33,19 @@ export class StatisticsService {
         return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount, identityCount, denomCount);
     }
 
-    async queryLatestHeightAndTime(): Promise<{height:number,latestBlockTime:number} | null> {
-        const res: IBlockStruct | null = await (this.blockModel as any).findOneByHeightDesc();
-        if (res) {
-            return {height:res.height, latestBlockTime:Number(res.time)};
-        } else {
-            return null;
+    async queryLatestHeightAndTime(latestBlock?:any): Promise<{height:number,latestBlockTime:number} | null> {
+        let result:any = { height:0,latestBlockTime:0 };
+        if (latestBlock && latestBlock.block && latestBlock.block.header) {
+            result.height = latestBlock.block.header.height;
+            result.latestBlockTime = new Date(latestBlock.block.header.time || '').getTime()/1000;
+        }else {
+            const res: IBlockStruct | null = await (this.blockModel as any).findOneByHeightDesc();
+            if (res) {
+                result.height = res.height;
+                result.latestBlockTime = Number(res.time);
+            }
         }
+        return result;
     }
 
     async queryAvgBlockTime(): Promise<number | null> {

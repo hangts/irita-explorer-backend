@@ -1,6 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {StakingHttp} from "../http/lcd/staking.http";
+import {BlockHttp} from "../http/lcd/block.http";
 import {Model} from "mongoose"
 import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp, hexToBech32} from "../util/util";
 import {addressPrefix, moduleSlashing, ValidatorStatus_str} from "../constant";
@@ -156,12 +157,13 @@ export class StakingValidatorTaskService {
 
     private async updateUpTime(dbValidators) {
         const moduleName = moduleSlashing
-        const signedBlocksWindow = await (this.parametersTaskModel as any).querySignedBlocksWindow(moduleName)
-        const currentHeight = Number(dbValidators.current_height) || 0
+        const signedBlocksWindow = await (this.parametersTaskModel as any).querySignedBlocksWindow(moduleName)     
+        const latestBlock = await BlockHttp.queryLatestBlockFromLcd()
+        // const currentHeight = Number(dbValidators.current_height) || 0
+        const currentHeight = latestBlock && latestBlock.block && latestBlock.block.header && Number(latestBlock.block.header.height) || 0
         const startHeight = Number(dbValidators.start_height) || 0
         let diffCurrentStart = currentHeight - startHeight + 1
         let missedBlockCount = Number(dbValidators.missed_blocks_counter) || 0
         dbValidators.uptime = 1 - missedBlockCount / Math.min(diffCurrentStart, signedBlocksWindow.cur_value)
-
     }
 }
