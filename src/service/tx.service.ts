@@ -149,7 +149,7 @@ export class TxService {
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
-    //  txs/services
+    //废弃
     async queryTxWithServiceName(query: TxListWithServicesNameReqDto): Promise<ListStruct<TxResDto[]>> {
         await this.cacheTxTypes();
         const txListData = await this.txModel.queryTxWithServiceName(query);
@@ -258,13 +258,14 @@ export class TxService {
         return result;
     }
 
+    // txs/services
     async findServiceList(query: ServiceListReqDto): Promise<ListStruct<ServiceResDto[]>> {
         const { pageNum, pageSize, useCount, nameOrDescription } = query;
         const serviceTxList: ITxStruct[] = await (this.txModel as any).findServiceAllList(pageNum, pageSize, useCount, nameOrDescription);
         const serviceNameList: IServiceName[] = serviceTxList.map((item: any) => {
             const ex:any = item.msgs[0].msg.ex || {};
             return {
-                serviceName: ex.service_name || '',
+                serviceName: getServiceNameFromMsgs(item.msgs),
                 description: item.msgs[0].msg.description,
                 bind: ex.bind || 0,
             };
@@ -298,6 +299,7 @@ export class TxService {
         return new ListStruct(res, pageNum, pageSize, count);
     }
 
+    // /txs/services/providers 
     async queryServiceProviders(query: ServiceProvidersReqDto): Promise<ListStruct<ServiceProvidersResDto[]>> {
         const { serviceName, pageNum, pageSize, useCount } = query;
         const bindServiceTxList: ITxStruct[] = await (this.txModel as any).findBindServiceTxList(serviceName, pageNum, pageSize);
@@ -323,6 +325,7 @@ export class TxService {
         return new ListStruct(res, pageNum, pageSize, count);
     }
 
+    // /txs/services/tx
     async queryServiceTx(query: ServiceTxReqDto): Promise<ListStruct<ServiceTxResDto[]>> {
         const { serviceName, type, status, pageNum, pageSize, useCount } = query;
         const txList: ITxStruct[] = await (this.txModel as any).findServiceTx(serviceName, type, status, pageNum, pageSize);
@@ -351,6 +354,7 @@ export class TxService {
         }
     }
 
+    // /txs/services/respond   
     async queryServiceRespondTx(query: ServiceRespondReqDto): Promise<ListStruct<ServiceRespondResDto[]>> {
         const { serviceName, provider, pageNum, pageSize, useCount } = query;
         const respondTxList: ITxStruct[] = await (this.txModel as any).queryServiceRespondTx(serviceName, provider, pageNum, pageSize);
