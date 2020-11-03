@@ -24,8 +24,7 @@ export class NftService {
                 denomDetail,
                 nft.denom_name,
                 nft.nft_name,
-                nft.create_time,
-                nft.update_time
+                nft.time,
             );
             res.push(result);
         }
