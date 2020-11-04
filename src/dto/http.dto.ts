@@ -246,7 +246,11 @@ export class TokensLcdDto {
     initial_supply: string;
     max_supply: string;
     mintable:boolean;
-    owner:string;
+    owner: string;
+    is_main_token: boolean;
+    total_supply: string;
+    latest_height: number
+    
     constructor(value) {
         this['@type'] = value['@type'] || '';
         this.symbol = value.symbol || '';
@@ -257,6 +261,9 @@ export class TokensLcdDto {
         this.max_supply = value.max_supply || '';
         this.mintable = value.mintable || true;
         this.owner = value.owner || '';
+        this.is_main_token = value.is_main_token || false;
+        this.total_supply = value.initial_supply || '';
+        this.latest_height = value.latest_height || 0;
     }
 
     static bundleData(value: any = []): TokensLcdDto[] {

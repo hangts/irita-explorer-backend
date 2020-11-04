@@ -8,7 +8,7 @@ export enum TaskEnum {
     identity = 'sync_identity',
     stakingSyncValidators = 'staking_sync_validators',
     stakingSyncParameters = 'staking_sync_parameters',
-    Tokens = 'token_scale'
+    Tokens = 'tokens'
 }
 
 
