@@ -14,14 +14,14 @@ export class NftService {
         const nftData = await (this.nftModel as any).findList(pageNum, pageSize, denomId, nftId, owner, useCount);
         const res: NftListResDto[] = [];
         for (let nft of nftData.data) {
-            let denomDetail = (nft.denomDetail as any).length > 0 ? nft.denomDetail[0] : null;
+            // let denomDetail = nft.denomDetail&&(nft.denomDetail as any).length > 0 ? nft.denomDetail[0] : null;
             let result = new NftListResDto(
                 nft.denom_id,
                 nft.nft_id, 
                 nft.owner, 
                 nft.uri, 
                 nft.data, 
-                denomDetail,
+                null,
                 nft.denom_name,
                 nft.nft_name);
             res.push(result);
