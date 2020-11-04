@@ -34,22 +34,22 @@ NftSchema.statics = {
         useCount?:boolean,
     ): Promise<IListStruct> {
         let result: IListStruct = {};
-        const condition: any[] = [
-            {
-                $lookup: {
-                    from: 'ex_sync_denom',
-                    localField: 'denom_id',
-                    foreignField: 'denom_id',
-                    as: 'denomDetail',
-                },
-            }, {
-                $project: {
-                    'denomDetail._id': 0,
-                    'denomDetail.update_time': 0,
-                    'denomDetail.create_time': 0,
-                },
-            },
-        ];
+        // const condition: any[] = [
+            // {
+            //     $lookup: {
+            //         from: 'ex_sync_denom',
+            //         localField: 'denom_id',
+            //         foreignField: 'denom_id',
+            //         as: 'denomDetail',
+            //     },
+            // }, {
+            //     $project: {
+            //         'denomDetail._id': 0,
+            //         'denomDetail.update_time': 0,
+            //         'denomDetail.create_time': 0,
+            //     },
+            // },
+        // ];
 
         let queryParameters:any = {};
         if (denomId || nftId || owner) {
@@ -59,12 +59,17 @@ NftSchema.statics = {
                 {'nft_id': nftId},
             ];
             if (owner) queryParameters.owner = owner;
-            condition.push({'$match': queryParameters});
+            // condition.push({'$match': queryParameters});
         }
-        result.data = await this.aggregate(condition)
+        result.data = await this.find(queryParameters)
             .sort({create_time:-1, nft_id:-1})
             .skip((Number(pageNum) - 1) * Number(pageSize))
             .limit(Number(pageSize));
+
+        // result.data = await this.aggregate(condition)
+        //     .sort({create_time:-1, nft_id:-1})
+        //     .skip((Number(pageNum) - 1) * Number(pageSize))
+        //     .limit(Number(pageSize));
         if (useCount) {
             result.count = await this.find(queryParameters).countDocuments();
         }

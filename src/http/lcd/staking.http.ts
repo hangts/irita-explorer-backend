@@ -128,7 +128,6 @@ export class StakingHttp {
             }
 
         } catch (e) {
-            console.log(e)
             Logger.warn(`api-error from ${getBalancesUri}`, e)
         }
     }
