@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
-import {ITokenScale} from "../types/schemaTypes/token.scale.interface";
+import {ITokens} from "../types/schemaTypes/tokens.interface";
 
-export const TokenScaleSchema = new mongoose.Schema({
+export const TokensSchema = new mongoose.Schema({
     symbol: String,
     min_unit: String,
     scale: String,
@@ -11,16 +11,17 @@ export const TokenScaleSchema = new mongoose.Schema({
     mintable: Boolean,
     owner: String,
     name: String,
-
+    total_supply: String,
+    latest_height: Number
 })
-TokenScaleSchema.index({symbol: 1}, {unique: true})
+TokensSchema.index({symbol: 1}, {unique: true})
 
-TokenScaleSchema.statics = {
-    async insertTokenScale(tokenScale: ITokenScale) {
+TokensSchema.statics = {
+    async insertTokens(Tokens: ITokens) {
         //设置 options 查询不到就插入操作
-        let {min_unit} = tokenScale
+        let {min_unit} = Tokens
         const options = {upsert: true, new: false, setDefaultsOnInsert: true}
-        await this.findOneAndUpdate({min_unit}, tokenScale, options)
+        await this.findOneAndUpdate({min_unit}, Tokens, options)
     },
     async queryAllTokens() {
         return await this.find({})

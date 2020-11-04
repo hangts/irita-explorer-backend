@@ -4,13 +4,13 @@ import {Model} from 'mongoose'
 import {StakingHttp} from "../http/lcd/staking.http";
 import {getTimestamp} from "../util/util";
 import {moduleSlashing, moduleStaking, moduleStakingBondDenom} from "../constant";
-import {TokenScaleHttp} from "../http/lcd/token.scale.http";
+import {TokensHttp} from "../http/lcd/tokens.http";
 
 @Injectable()
 export class ParametersTaskService {
     constructor(@InjectModel('ParametersTask') private parametersTaskModel: Model<any>
         , private readonly stakingHttp: StakingHttp,
-                private readonly tokenScaleHttp: TokenScaleHttp) {
+                private readonly TokensHttp: TokensHttp) {
         this.doTask = this.doTask.bind(this);
     }
 
@@ -18,7 +18,7 @@ export class ParametersTaskService {
         let parametersData = await this.stakingHttp.queryParametersFromSlashing(),
             needInsertData: any[] = [];
         let dbParametersData = await (this.parametersTaskModel as any).queryAllParameters()
-        const stakingTokenScaleData = await this.tokenScaleHttp.getStakingTokenScale()
+        const stakingTokensData = await this.TokensHttp.getStakingTokens()
         for (const parameterKey in parametersData) {
             const dbData = {
                 module: moduleSlashing,
@@ -29,11 +29,11 @@ export class ParametersTaskService {
             }
             await needInsertData.push(dbData)
         }
-        for (const stakingToken in stakingTokenScaleData) {
+        for (const stakingToken in stakingTokensData) {
             const stakingData = {
                 module: moduleStaking,
                 key: moduleStakingBondDenom,
-                cur_value: stakingTokenScaleData[moduleStakingBondDenom],
+                cur_value: stakingTokensData[moduleStakingBondDenom],
                 create_time: '',
                 update_time: ''
             }

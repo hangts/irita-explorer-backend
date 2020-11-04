@@ -27,7 +27,7 @@ import {StakingValidatorTaskModule} from "./module/staking.validator.task.module
 import {ParametersTaskModule} from "./module/parameters.taskModule";
 import {ProfilerModule} from "./module/profiler.module";
 import {StakingModule} from "./module/staking.module";
-import {TokenScaleModule} from "./module/token.scale.task.module";
+import {TokensModule} from "./module/tokens.task.module";
 
 console.log(cfg);
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
@@ -54,7 +54,7 @@ const params = {
         ParametersTaskModule,
         ProfilerModule,
         StakingModule,
-        TokenScaleModule
+        TokensModule
     ],
     providers:<any> [
         {

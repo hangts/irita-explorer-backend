@@ -237,7 +237,7 @@ export class Reward {
         return data;
     }
 }
-export class TokenScaleLcdDto {
+export class TokensLcdDto {
     '@type':string;
     symbol: string;
     name:string;
@@ -259,15 +259,15 @@ export class TokenScaleLcdDto {
         this.owner = value.owner || '';
     }
 
-    static bundleData(value: any = []): TokenScaleLcdDto[] {
-        let data: TokenScaleLcdDto[] = [];
+    static bundleData(value: any = []): TokensLcdDto[] {
+        let data: TokensLcdDto[] = [];
         data = value.map((v: any) => {
-            return new TokenScaleLcdDto(v);
+            return new TokensLcdDto(v);
         });
         return data;
     }
 }
-export class TokenScaleStakingLcdToken {
+export class TokensStakingLcdToken {
         unbonding_time:string;
         max_validators:number;
         max_entries:number;
