@@ -22,10 +22,10 @@ export class TokensTaskService {
         let TokensDbMap =new Map()
         if (TokensData && TokensData.length > 0) {
             for (let token of TokensData) {
-                let data = await this.txModel.queryTxBySymbol(token.symbol, token.latest_height)
+                let data = await this.txModel.queryTxBySymbol(token.symbol, token.mint_token_time)
                 if (data && data.length) {
                     data.forEach(item => {
-                        token.latest_height = item.height
+                        token.mint_token_time = item.time
                         item.msgs.forEach(element => {
                             if (element.type === TxType.mint_token) {
                                 token.total_supply = String(Number(token.total_supply) + Number(element.msg.amount))

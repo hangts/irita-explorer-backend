@@ -867,7 +867,6 @@ TxSchema.statics.queryDepositsByAddress = async function (address: string) {
     return result
 }
 
-
 // sync tokens task
 TxSchema.statics.queryTxBySymbol = async function(
     symbol: string,
@@ -879,5 +878,5 @@ TxSchema.statics.queryTxBySymbol = async function(
         'msgs.msg.symbol': symbol,
         height: { $gt:height }
       }
-    return await this.find(params, {height:1,msgs:1}).sort({'height': 1}).limit(1000)
+    return await this.find(params, {time:1,msgs:1}).sort({'height': 1}).limit(1000)
 }

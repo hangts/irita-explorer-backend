@@ -71,8 +71,8 @@ export class TasksService {
     async syncIdentity() {
         this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)
     }
-    // @Cron(cfg.taskCfg.executeTime.Tokens)
-    @Cron('23 * * * * *')
+    @Cron(cfg.taskCfg.executeTime.Tokens)
+    // @Cron('45 * * * * *')
     async syncTokens() {
         this.handleDoTask(TaskEnum.Tokens,this.TokensTaskService.doTask)
     }
