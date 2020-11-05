@@ -28,6 +28,7 @@ export class TokensTaskService {
                         token.mint_token_time = item.time
                         item.msgs.forEach(element => {
                             if (element.type === TxType.mint_token) {
+                                //TODO:duanjie 使用大数计算
                                 token.total_supply = String(Number(token.total_supply) + Number(element.msg.amount))
                             }
                         })

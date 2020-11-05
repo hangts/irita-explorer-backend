@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import {ITokens} from "../types/schemaTypes/tokens.interface";
-
+import { IAssetStruct } from '../types/schemaTypes/asset.interface';
 export const TokensSchema = new mongoose.Schema({
     symbol: String,
     min_unit: String,
@@ -28,5 +28,33 @@ TokensSchema.statics = {
     },
     async queryMainToken() {
         return await this.findOne({is_main_token:true});
-    }
+    },
+    async findList(pageNum: number, pageSize: number): Promise<IAssetStruct[]> {
+        return await this.find({'is_main_token':false})
+            .select({
+                symbol: 1,
+                owner: 1,
+                total_supply: 1,
+                initial_supply: 1,
+                max_supply: 1,
+                mintable: 1,
+            })
+            .sort({ height: 1 })
+            .skip((pageNum - 1) * pageSize)
+            .limit(pageSize).exec();
+    },
+    async findCount(): Promise<number> {
+        return await this.find({'is_main_token':false}).countDocuments().exec();
+    },
+    async findOneBySymbol(symbol: string): Promise<IAssetStruct | null> {
+        return await this.findOne({ symbol }).select({
+            name: 1,
+            owner: 1,
+            total_supply: 1,
+            initial_supply: 1,
+            max_supply: 1,
+            mintable: 1,
+            scale:1
+        });
+    },
 }
