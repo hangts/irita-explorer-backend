@@ -112,7 +112,7 @@ export const dbRes = {
     },
     txList:{
         ...common,
-        ...fromTo
+        ...fromTo,
     },
     service:{
         ...common,
@@ -160,5 +160,13 @@ export const dbRes = {
         'msgs.msg.id':1,
         'msgs.msg.owner':1,
         'msgs.msg.credentials':1
+    },
+    assetList: {
+        'height': 1,
+        'tx_hash': 1,
+        'fee': 1,
+        'status': 1,
+        'time': 1,
+        'msgs':1,
     }
 }

@@ -8,7 +8,7 @@ import {
     ITxsWithServiceNameQuery,
     IExFieldQuery, IIdentityTx,
 } from '../types/schemaTypes/tx.interface';
-import { ITxStruct, ITxStructMsgs, ITxStructHash } from '../types/schemaTypes/tx.interface';
+import { ITxStruct, ITxStructMsgs, ITxStructHash,ITxsWithAssetQuery } from '../types/schemaTypes/tx.interface';
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
 import { IListStruct } from '../types';
 import { TxStatus, TxType } from '../constant';
@@ -880,3 +880,22 @@ TxSchema.statics.queryTxBySymbol = async function(
       }
     return await this.find(params, {time:1,msgs:1}).sort({'height': 1}).limit(1000)
 }
+
+// 	txs/asset
+TxSchema.statics.queryTxWithAsset = async function(query: ITxsWithAssetQuery): Promise<IListStruct> {
+    let result: IListStruct = {};
+    let queryParameters: {type:string,'msgs.msg.symbol'?:string} = {
+        type: query.type,
+    };
+    if (query.symbol) {
+        queryParameters['msgs.msg.symbol'] = query.symbol;
+    }
+    result.data = await this.find(queryParameters, dbRes.assetList)
+        .sort({ time: -1 })
+        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+        .limit(Number(query.pageSize));
+    if (query.useCount && query.useCount == true) {
+        result.count = await this.find(queryParameters).countDocuments();
+    }
+    return result;
+};
