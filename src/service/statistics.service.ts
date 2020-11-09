@@ -32,9 +32,10 @@ export class StatisticsService {
         const identityCount = await this.queryIdentityCount({});
         const denomCount = await this.queryDenomCount();
         const validatorNumCount = await this.queryValidatorNumCount();
-        const validatorInformation = await this.queryValidatorInformation(block.height);
+        let proposer_address = latestBlock && latestBlock.block && latestBlock.block.header && latestBlock.block.header.proposer_address
+        const validatorInformation = await this.queryValidatorInformation(proposer_address);
         const bondedTokensInformation = await this.queryBondedTokensInformation()
-        return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount, identityCount, denomCount,validatorNumCount,validatorInformation.moniker,validatorInformation.validator_icon,bondedTokensInformation.bonded_tokens,bondedTokensInformation.total_supply);
+        return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount, identityCount, denomCount,validatorNumCount,validatorInformation.moniker,validatorInformation.validator_icon,validatorInformation.operator_addr,bondedTokensInformation.bonded_tokens,bondedTokensInformation.total_supply);
     }
 
     async queryLatestHeightAndTime(latestBlock?:any): Promise<{height:number,latestBlockTime:number} | null> {
@@ -100,16 +101,15 @@ export class StatisticsService {
         return await this.stakingValidatorsModel.queryActiveValCount();
     }
     
-    async queryValidatorInformation(height): Promise<any>{
-        let blocks = await (this.blockModel as any).findOneByHeight(Number(height));
-        blocks = JSON.parse(JSON.stringify(blocks || '{}'));
+    async queryValidatorInformation(proposer): Promise<any>{
         let validators = await this.stakingValidatorsModel.queryAllValidators();
         validators = validators.filter(item => {
-            return item.proposer_addr == blocks.proposer
+            return item.proposer_addr === proposer
         })
-        const moniker = validators && validators[0] && validators[0].description && validators[0].description.moniker || '';
-        const validator_icon = validators && validators[0] && validators[0].icon || '';
-        return { moniker, validator_icon};
+        const moniker = (validators && validators[0] && validators[0].description && validators[0].description.moniker) || '';
+        const validator_icon = (validators && validators[0] && validators[0].icon) || '';
+        const operator_addr = (validators && validators[0] && validators[0].operator_address) || '';
+        return { moniker, validator_icon,operator_addr };
     }
 
     async queryBondedTokensInformation(): Promise<any>{
@@ -128,4 +128,3 @@ export class StatisticsService {
         return { bonded_tokens, total_supply };
     }
 }
-
