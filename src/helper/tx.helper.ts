@@ -101,7 +101,10 @@ const fromTo = {
         'msgs.msg.delegator_address':1,
         'msgs.msg.validator_address':1,
         'msgs.msg.validator_src_address':1,
-        'msgs.msg.validator_dst_address':1
+        'msgs.msg.validator_dst_address':1,
+        'msgs.msg.to': 1,
+        'msgs.msg.src_owner': 1,
+        'msgs.msg.dst_owner': 1,
     };
 
 export const dbRes = {
