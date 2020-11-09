@@ -5,6 +5,7 @@ import { StatisticsResDto } from '../dto/statistics.dto';
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { INft } from '../types/schemaTypes/nft.interface';
 import { BlockHttp } from '../http/lcd/block.http';
+import { StatisticsHttp } from '../http/lcd/statistics.http';
 
 @Injectable()
 export class StatisticsService {
@@ -17,12 +18,12 @@ export class StatisticsService {
         @InjectModel('Identity') private identityModel: any,
         @InjectModel('Denom') private denomModel: any,
         @InjectModel('StakingSyncValidators') private stakingValidatorsModel: any,
+        @InjectModel('Tokens') private tokensModel: Model<any>,
     ) {
     }
 
     async queryStatistics(): Promise<StatisticsResDto> {
         const latestBlock = await BlockHttp.queryLatestBlockFromLcd();
-
         const block = await this.queryLatestHeightAndTime(latestBlock);
         const avgBlockTime = await this.queryAvgBlockTime();
         const assetCount = await this.queryAssetCount();
@@ -31,7 +32,9 @@ export class StatisticsService {
         const identityCount = await this.queryIdentityCount({});
         const denomCount = await this.queryDenomCount();
         const validatorNumCount = await this.queryValidatorNumCount();
-        return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount, identityCount, denomCount,validatorNumCount);
+        const validatorInformation = await this.queryValidatorInformation(block.height);
+        const bondedTokensInformation = await this.queryBondedTokensInformation()
+        return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount, identityCount, denomCount,validatorNumCount,validatorInformation.moniker,validatorInformation.validator_icon,bondedTokensInformation.bonded_tokens,bondedTokensInformation.total_supply);
     }
 
     async queryLatestHeightAndTime(latestBlock?:any): Promise<{height:number,latestBlockTime:number} | null> {
@@ -97,6 +100,32 @@ export class StatisticsService {
         return await this.stakingValidatorsModel.queryActiveValCount();
     }
     
+    async queryValidatorInformation(height): Promise<any>{
+        let blocks = await (this.blockModel as any).findOneByHeight(Number(height));
+        blocks = JSON.parse(JSON.stringify(blocks || '{}'));
+        let validators = await this.stakingValidatorsModel.queryAllValidators();
+        validators = validators.filter(item => {
+            return item.proposer_addr == blocks.proposer
+        })
+        const moniker = validators && validators[0] && validators[0].description && validators[0].description.moniker || '';
+        const validator_icon = validators && validators[0] && validators[0].icon || '';
+        return { moniker, validator_icon};
+    }
 
+    async queryBondedTokensInformation(): Promise<any>{
+        const bondedTokensLcd = await StatisticsHttp.getBondedTokens()
+        const totalSupplyLcd = await StatisticsHttp.getTotalSupply()
+        const bonded_tokens = bondedTokensLcd && bondedTokensLcd.bonded_tokens || '0'
+        const mainToken = await (this.tokensModel as any).queryMainToken()
+        let total_supply: string = '0';
+        if (totalSupplyLcd && totalSupplyLcd.supply && totalSupplyLcd.supply.length > 0) {
+            totalSupplyLcd.supply.map(item => {
+                if (item.denom === mainToken.min_unit) {
+                    total_supply = item.amount
+                }
+            })
+        }
+        return { bonded_tokens, total_supply };
+    }
 }
 

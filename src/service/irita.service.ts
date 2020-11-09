@@ -13,6 +13,7 @@ export class IritaService {
         let result:any = {}
         let netWorkDbData = await this.networkModel.queryNetworkList();
         const TokensData = await (this.tokensModel as any).queryAllTokens()
+        console.log(TokensData)
         result.networkData = NetworkResDto.bundleData(netWorkDbData);
         result.tokenData = TokensResDto.bundleData(TokensData)
         return result

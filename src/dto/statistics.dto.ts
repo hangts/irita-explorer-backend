@@ -9,6 +9,10 @@ export class StatisticsResDto {
     private identityCount: number;
     private denomCount: number;
     private validatorNumCount: number;
+    private moniker: string;
+    private validator_icon: string;
+    private bonded_tokens: string;
+    private total_supply: string;
 
     constructor(
         blockHeight: number, 
@@ -21,6 +25,10 @@ export class StatisticsResDto {
         identityCount: number,
         denomCount: number,
         validatorNumCount: number,
+        moniker: string,
+        validator_icon: string,
+        bonded_tokens: string,
+        total_supply: string,
     ) {
 
         this.blockHeight = blockHeight;
@@ -33,6 +41,10 @@ export class StatisticsResDto {
         this.identityCount = identityCount;
         this.denomCount = denomCount;
         this.validatorNumCount = validatorNumCount;
+        this.moniker = moniker;
+        this.validator_icon = validator_icon;
+        this.bonded_tokens = bonded_tokens;
+        this.total_supply = total_supply;
     }
 }
 

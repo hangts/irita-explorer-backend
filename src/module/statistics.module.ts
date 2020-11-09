@@ -9,7 +9,7 @@ import { ValidatorSchema } from '../schema/validators.schema';
 import { IdentitySchema } from '../schema/identity.schema';
 import { DenomSchema } from '../schema/denom.schema';
 import { StakingValidatorSchema } from "../schema/staking.validator.schema";
-
+import {TokensSchema} from "../schema/tokens.schema";
 
 @Module({
     imports: [
@@ -42,6 +42,10 @@ import { StakingValidatorSchema } from "../schema/staking.validator.schema";
             name: 'StakingSyncValidators',
             schema: StakingValidatorSchema,
             collection: 'ex_staking_validator'
+        },{
+            name:'Tokens',
+            schema: TokensSchema,
+            collection:'ex_tokens'
         }]),
     ],
     providers: [StatisticsService],

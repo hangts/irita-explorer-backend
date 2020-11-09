@@ -573,3 +573,22 @@ export class UndelegatorsResult {
         return data;
     }
 }
+
+export class BondedTokensLcdDto {
+    not_bonded_tokens:string;
+    bonded_tokens:string;
+
+    constructor(value) {
+        this.not_bonded_tokens = value.not_bonded_tokens || 0;
+        this.bonded_tokens = value.bonded_tokens || 0;
+    }
+}
+
+
+export class TotalSupplyLcdDto {
+    supply: Coin[];
+    constructor(value) {
+        let { supply } = value;
+        this.supply = Coin.bundleData(supply);
+    }
+}
