@@ -237,7 +237,7 @@ export class Reward {
         return data;
     }
 }
-export class TokenScaleLcdDto {
+export class TokensLcdDto {
     '@type':string;
     symbol: string;
     name:string;
@@ -246,7 +246,11 @@ export class TokenScaleLcdDto {
     initial_supply: string;
     max_supply: string;
     mintable:boolean;
-    owner:string;
+    owner: string;
+    is_main_token: boolean;
+    total_supply: string;
+    mint_token_time: number
+    
     constructor(value) {
         this['@type'] = value['@type'] || '';
         this.symbol = value.symbol || '';
@@ -257,17 +261,20 @@ export class TokenScaleLcdDto {
         this.max_supply = value.max_supply || '';
         this.mintable = value.mintable || true;
         this.owner = value.owner || '';
+        this.is_main_token = value.is_main_token || false;
+        this.total_supply = value.initial_supply || '';
+        this.mint_token_time = value.mint_token_time || 0;
     }
 
-    static bundleData(value: any = []): TokenScaleLcdDto[] {
-        let data: TokenScaleLcdDto[] = [];
+    static bundleData(value: any = []): TokensLcdDto[] {
+        let data: TokensLcdDto[] = [];
         data = value.map((v: any) => {
-            return new TokenScaleLcdDto(v);
+            return new TokensLcdDto(v);
         });
         return data;
     }
 }
-export class TokenScaleStakingLcdToken {
+export class TokensStakingLcdToken {
         unbonding_time:string;
         max_validators:number;
         max_entries:number;
@@ -564,5 +571,24 @@ export class UndelegatorsResult {
             return new UndelegatorsResult(v);
         });
         return data;
+    }
+}
+
+export class BondedTokensLcdDto {
+    not_bonded_tokens:string;
+    bonded_tokens:string;
+
+    constructor(value) {
+        this.not_bonded_tokens = value.not_bonded_tokens || 0;
+        this.bonded_tokens = value.bonded_tokens || 0;
+    }
+}
+
+
+export class TotalSupplyLcdDto {
+    supply: Coin[];
+    constructor(value) {
+        let { supply } = value;
+        this.supply = Coin.bundleData(supply);
     }
 }

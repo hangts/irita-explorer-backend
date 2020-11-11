@@ -417,4 +417,11 @@ export class ServiceBindInfoResDto {
     }
 }
 
+//txs/blocks request dto
+export class TxListWithAssetReqDto extends PagingReqDto {
+    @ApiProperty()
+    type: string;
 
+    @ApiPropertyOptional()
+    symbol?: string;
+}

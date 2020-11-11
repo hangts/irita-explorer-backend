@@ -20,7 +20,7 @@ const {
     DisableLog,
     STAKING_VALIDATORS_TIME,
     STAKING_PARAMETERS,
-    TOKEN_SCALE,
+    TOKENS,
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -48,7 +48,7 @@ export const cfg = {
             identity: IDENTITY_EXECUTE_TIME || '1 * * * * *',
             stakingValidators: STAKING_VALIDATORS_TIME || '15 * * * * *',
             stakingParameters: STAKING_PARAMETERS || '10 * * * * *',
-            tokenScale: TOKEN_SCALE || '5 * * * * *',
+            Tokens: TOKENS || '5 * * * * *',
         },
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
     },

@@ -101,7 +101,10 @@ const fromTo = {
         'msgs.msg.delegator_address':1,
         'msgs.msg.validator_address':1,
         'msgs.msg.validator_src_address':1,
-        'msgs.msg.validator_dst_address':1
+        'msgs.msg.validator_dst_address':1,
+        'msgs.msg.to': 1,
+        'msgs.msg.src_owner': 1,
+        'msgs.msg.dst_owner': 1,
     };
 
 export const dbRes = {
@@ -112,7 +115,7 @@ export const dbRes = {
     },
     txList:{
         ...common,
-        ...fromTo
+        ...fromTo,
     },
     service:{
         ...common,
@@ -160,5 +163,17 @@ export const dbRes = {
         'msgs.msg.id':1,
         'msgs.msg.owner':1,
         'msgs.msg.credentials':1
+    },
+    assetList: {
+        ...common,
+        'msgs.type': 1,
+        'msgs.msg.owner': 1,
+        'msgs.msg.symbol': 1,
+        'msgs.msg.amount': 1,
+        'msgs.msg.initial_supply': 1,
+        'msgs.msg.mintable': 1,
+        'msgs.msg.to': 1,
+        'msgs.msg.src_owner': 1,
+        'msgs.msg.dst_owner': 1
     }
 }

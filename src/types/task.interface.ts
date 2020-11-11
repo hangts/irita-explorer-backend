@@ -10,5 +10,6 @@ export interface ILcdNftStruct {
     uri?: string;
     hash?: string;
     denom_id? :string;
-    denom_name? :string;
+    denom_name?: string;
+    time?:number
 }

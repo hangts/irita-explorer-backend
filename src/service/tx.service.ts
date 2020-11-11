@@ -22,6 +22,7 @@ import {
     ServiceTxReqDto,
     ServiceBindInfoReqDto,
     ServiceRespondReqDto, IdentityTxReqDto,
+    TxListWithAssetReqDto
 } from '../dto/txs.dto';
 import {
     TxResDto,
@@ -412,5 +413,10 @@ export class TxService {
         return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
+    // txs/asset
+    async queryTxWithAsset(query: TxListWithAssetReqDto): Promise<ListStruct<TxResDto[]>> {
+        const txData = await this.txModel.queryTxWithAsset(query);
+        return new ListStruct(TxResDto.bundleData(txData.data), Number(query.pageNum), Number(query.pageSize), txData.count);
+    }
 }
 

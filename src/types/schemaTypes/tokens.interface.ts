@@ -1,5 +1,5 @@
 
-export interface ITokenScale {
+export interface ITokens {
     symbol:string;
     min_unit:string;
     scale:number;
@@ -8,5 +8,7 @@ export interface ITokenScale {
     max_supply:string;
     mintable:boolean;
     owner:string;
-    name:string;
+    name: string;
+    total_supply: string;
+    mint_token_time:number
 }

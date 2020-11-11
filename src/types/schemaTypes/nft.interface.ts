@@ -16,6 +16,7 @@ export interface INftStruct {
     create_time?: number,
     update_time?: number,
     hash?: string,
+    time?: number
 }
 export interface INftCountQueryParams {
     denom_id?: string;
