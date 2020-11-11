@@ -57,15 +57,4 @@ export class AssetListReqDto extends PagingReqDto{
 export class AssetDetailReqDto extends BaseReqDto {
     @ApiProperty()
     symbol: string;
-
-    static validate(value:any):void{
-        if(!value || !value.symbol){
-            throw new ApiError(ErrorCodes.InvalidParameter, 'symbol is necessary')
-        }
-    }
-
-    static convert(value:any):any{
-        value.symbol = value.symbol;
-        return value;
-    }
 }

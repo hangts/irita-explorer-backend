@@ -27,7 +27,7 @@ import {StakingValidatorTaskModule} from "./module/staking.validator.task.module
 import {ParametersTaskModule} from "./module/parameters.taskModule";
 import {ProfilerModule} from "./module/profiler.module";
 import {StakingModule} from "./module/staking.module";
-import { TokensModule } from "./module/tokens.task.module";
+import { TokensTaskModule } from "./module/tokens.task.module";
 import { AssetModule } from './module/asset.module';
 
 console.log(cfg);
@@ -55,7 +55,7 @@ const params = {
         ParametersTaskModule,
         ProfilerModule,
         StakingModule,
-        TokensModule,
+        TokensTaskModule,
         AssetModule
     ],
     providers:<any> [

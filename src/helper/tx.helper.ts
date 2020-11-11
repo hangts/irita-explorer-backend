@@ -165,11 +165,15 @@ export const dbRes = {
         'msgs.msg.credentials':1
     },
     assetList: {
-        'height': 1,
-        'tx_hash': 1,
-        'fee': 1,
-        'status': 1,
-        'time': 1,
-        'msgs':1,
+        ...common,
+        'msgs.type': 1,
+        'msgs.msg.owner': 1,
+        'msgs.msg.symbol': 1,
+        'msgs.msg.amount': 1,
+        'msgs.msg.initial_supply': 1,
+        'msgs.msg.mintable': 1,
+        'msgs.msg.to': 1,
+        'msgs.msg.src_owner': 1,
+        'msgs.msg.dst_owner': 1
     }
 }

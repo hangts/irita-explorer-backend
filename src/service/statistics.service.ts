@@ -5,7 +5,8 @@ import { StatisticsResDto } from '../dto/statistics.dto';
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { INft } from '../types/schemaTypes/nft.interface';
 import { BlockHttp } from '../http/lcd/block.http';
-import { StatisticsHttp } from '../http/lcd/statistics.http';
+import { StakingHttp } from '../http/lcd/staking.http';
+import { BankHttp } from '../http/lcd/bank.http';
 
 @Injectable()
 export class StatisticsService {
@@ -113,8 +114,8 @@ export class StatisticsService {
     }
 
     async queryBondedTokensInformation(): Promise<any>{
-        const bondedTokensLcd = await StatisticsHttp.getBondedTokens()
-        const totalSupplyLcd = await StatisticsHttp.getTotalSupply()
+        const bondedTokensLcd = await StakingHttp.getBondedTokens()
+        const totalSupplyLcd = await BankHttp.getTotalSupply()
         const bonded_tokens = bondedTokensLcd && bondedTokensLcd.bonded_tokens || '0'
         const mainToken = await (this.tokensModel as any).queryMainToken()
         let total_supply: string = '0';

@@ -30,4 +30,4 @@ import { TxSchema } from '../schema/tx.schema';
     providers:[TokensTaskService,StakingHttp,TokensHttp,ParametersTaskService],
     exports: [TokensTaskService,]
 })
-export class TokensModule{}
+export class TokensTaskModule{}

@@ -196,7 +196,6 @@ export class TxController {
 
     @Get(":hash")
     async queryTxWithHash(@Param() query: TxWithHashReqDto): Promise<Result<TxResDto>> {
-        console.log(':hash')
         const data: TxResDto = await this.txService.queryTxWithHash(query);
         return new Result<TxResDto>(data);
     }

@@ -870,22 +870,22 @@ TxSchema.statics.queryDepositsByAddress = async function (address: string) {
 // sync tokens task
 TxSchema.statics.queryTxBySymbol = async function(
     symbol: string,
-    height: number
+    time: number
   ):Promise<ITxStruct | null >{
       const params =  {
         'msgs.type': TxType.mint_token,
         status: TxStatus.SUCCESS,
         'msgs.msg.symbol': symbol,
-        height: { $gt:height }
+        time: { $gt:time }
       }
-    return await this.find(params, {time:1,msgs:1}).sort({'height': 1}).limit(1000)
+    return await this.find(params, {time:1,msgs:1}).sort({'time': 1}).limit(1000)
 }
 
 // 	txs/asset
 TxSchema.statics.queryTxWithAsset = async function(query: ITxsWithAssetQuery): Promise<IListStruct> {
     let result: IListStruct = {};
-    let queryParameters: {type:string,'msgs.msg.symbol'?:string} = {
-        type: query.type,
+    let queryParameters: {'msgs.type':string,'msgs.msg.symbol'?:string} = {
+        'msgs.type': query.type,
     };
     if (query.symbol) {
         queryParameters['msgs.msg.symbol'] = query.symbol;
