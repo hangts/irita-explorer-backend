@@ -137,7 +137,8 @@ export const dbRes = {
         ...common,
         ...fromTo,
         'msgs.msg.amount':1,
-        'msgs.msg.delegation':1
+        'msgs.msg.delegation': 1,
+        events:1
     },
     validations:{
         ...common,
