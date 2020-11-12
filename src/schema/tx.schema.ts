@@ -40,7 +40,6 @@ export const TxSchema = new mongoose.Schema({
     fee: Object,
     tx_index: Number,
 }, { versionKey: false });
-TxSchema.index({ height: 1, tx_index: 1 }, { unique: true });
 
 //	csrb 浏览器交易记录过滤正则表达式
 function filterExTxTypeRegExp(): object {
