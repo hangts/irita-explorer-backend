@@ -11,7 +11,7 @@ import {
 import { ITxStruct, ITxStructMsgs, ITxStructHash,ITxsWithAssetQuery } from '../types/schemaTypes/tx.interface';
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
 import { IListStruct } from '../types';
-import { TxStatus, TxType } from '../constant';
+import { INCREASE_HEIGHT, TxStatus, TxType } from '../constant';
 import Cache from '../helper/cache';
 import { dbRes } from '../helper/tx.helper';
 import { cfg } from '../config/config';
@@ -37,7 +37,8 @@ export const TxSchema = new mongoose.Schema({
     msgs: Array,
     signers: Array,
     addrs: Array,
-    fee: Object
+    fee: Object,
+    tx_index: Number,
 }, { versionKey: false });
 
 //	csrb 浏览器交易记录过滤正则表达式
@@ -899,3 +900,59 @@ TxSchema.statics.queryTxWithAsset = async function(query: ITxsWithAssetQuery): P
     }
     return result;
 };
+TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Promise<ITxStruct[]>  {
+    let cond = [
+        {
+            $sort: {
+                height:1,
+                tx_index:1,
+            },
+        },
+        {
+            $match:{
+                status: TxStatus.SUCCESS,
+                $or:[
+                    {'msgs.type':TxType.mint_nft},
+                    {'msgs.type':TxType.edit_nft},
+                    {'msgs.type':TxType.transfer_nft},
+                    {'msgs.type':TxType.burn_nft},
+                ],
+                height: {$gt: lastBlockHeight, $lte: lastBlockHeight + INCREASE_HEIGHT}
+            }
+        },
+        {
+            $unwind:'$msgs',
+        },
+
+        {
+            $match:{
+                $or:[
+                    {'msgs.type':TxType.mint_nft},
+                    {'msgs.type':TxType.edit_nft},
+                    {'msgs.type':TxType.transfer_nft},
+                    {'msgs.type':TxType.burn_nft},
+                ],
+            }
+        },
+        {
+            $project:{
+                msgs:1,
+                height: 1,
+                time: 1,
+            }
+        },
+    ];
+    return await this.aggregate(cond);
+};
+
+TxSchema.statics.queryMaxNftTxList = async function (): Promise<ITxStruct[]>  {
+    return await this.find({
+        $or:[
+            {'msgs.type':TxType.mint_nft},
+            {'msgs.type':TxType.edit_nft},
+            {'msgs.type':TxType.transfer_nft},
+            {'msgs.type':TxType.burn_nft},
+        ],
+    },{height: 1}).sort({height: -1}).limit(1);
+};
+

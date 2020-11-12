@@ -19,8 +19,8 @@ import { TxSchema } from '../schema/tx.schema';
         },{
             name: 'Tx',
             schema: TxSchema,
-            collection: 'sync_tx',
-        }])
+            collection: 'sync_tx'
+        },])
     ],
     providers:[NftTaskService, NftHttp],
     exports:[NftTaskService]
