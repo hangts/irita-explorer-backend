@@ -66,7 +66,11 @@ export class NftTaskService {
                 await querynftTxList(lastBlockHeight);
             }
         };
-        await querynftTxList(lastBlockHeight);
+        if(lastBlockHeight < maxHeight){
+            //只有当nft表中的高度落后的时候才执行
+            await querynftTxList(lastBlockHeight);
+        }
+
 
         return list;
     }
