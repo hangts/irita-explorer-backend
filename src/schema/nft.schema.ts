@@ -167,7 +167,7 @@ NftSchema.statics = {
         return await this.find({},{last_block_height: 1}).sort({last_block_height: -1}).limit(1);
     },
 
-    updateNft(nft: any){
+    updateNft(nft: INftStruct): Promise<INftStruct>{
         let cond = {
             denom_id:nft.denom_id,
             nft_id:nft.nft_id,
@@ -175,7 +175,7 @@ NftSchema.statics = {
         return this.findOneAndUpdate(cond,nft,{ upsert:true,new: true});
     },
 
-    deleteNft(nft: any){
+    deleteNft(nft: INftStruct): Promise<INftStruct>{
         let cond = {
             denom_id:nft.denom_id,
             nft_id:nft.nft_id,

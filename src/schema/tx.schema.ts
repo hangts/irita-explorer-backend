@@ -11,7 +11,7 @@ import {
 import { ITxStruct, ITxStructMsgs, ITxStructHash } from '../types/schemaTypes/tx.interface';
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
 import { IListStruct } from '../types';
-import { INTERVAL_HEIGHT, TxStatus, TxType } from '../constant';
+import { INCREASE_HEIGHT, TxStatus, TxType } from '../constant';
 import Cache from '../helper/cache';
 import { dbRes } from '../helper/tx.helper';
 import { cfg } from '../config/config';
@@ -19,8 +19,6 @@ import {
     stakingTypes,
     serviceTypes,
     declarationTypes } from '../helper/txTypes.helper';
-import { INftDetailStruct } from '../types/schemaTypes/nft.interface';
-import { NftSchema } from './nft.schema';
 
 export const TxSchema = new mongoose.Schema({
     time: Number,
@@ -42,7 +40,7 @@ export const TxSchema = new mongoose.Schema({
     fee: Object,
     tx_index: Number,
 }, { versionKey: false });
-NftSchema.index({ height: 1, tx_index: 1 }, { unique: true });
+TxSchema.index({ height: 1, tx_index: 1 }, { unique: true });
 
 //	csrb 浏览器交易记录过滤正则表达式
 function filterExTxTypeRegExp(): object {
@@ -863,7 +861,7 @@ TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Prom
                     {'msgs.type':TxType.transfer_nft},
                     {'msgs.type':TxType.burn_nft},
                 ],
-                height: {$gt: lastBlockHeight, $lte: lastBlockHeight + INTERVAL_HEIGHT}
+                height: {$gt: lastBlockHeight, $lte: lastBlockHeight + INCREASE_HEIGHT}
             }
         },
         {

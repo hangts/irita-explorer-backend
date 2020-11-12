@@ -24,8 +24,6 @@ export class NftTaskService {
         let lastBlockHeight = 0;
         if (nftList && nftList.length > 0) {
             lastBlockHeight = nftList[0].last_block_height;
-        } else {
-            lastBlockHeight = 0;
         }
         //查询最高区块, 当递加的高度超过最大交易height的时候, 需要停止查询
         let maxHeight = 0;
@@ -56,11 +54,16 @@ export class NftTaskService {
             const nftTxList: ITxStruct[] = await this.queryNftTxList(lastBlockHeight);
             list = list.concat(nftTxList);
             console.log('tx list length:', list.length, 'last block height:', lastBlockHeight);
-            if (list.length <= MAX_OPERATE_TX_COUNT) {
-                lastBlockHeight += INCREASE_HEIGHT;
-                if (lastBlockHeight <= maxHeight) {
-                    await querynftTxList(lastBlockHeight);
-                }
+             /*
+                1. 高度未达到, tx.length未达到, 查询
+                2. 高度未达到, tx.length已达到, 不查询
+                3. 高度已达到, tx.length未达到, 不查询
+                4. 高度已达到, tx.length已达到, 不查询
+             */
+            //表查询条件是   lastBlockHeight < cond <= lastBlockHeight+INCREASE_HEIGHT, 所以下面判断需要先 + INCREASE_HEIGHT;
+            lastBlockHeight += INCREASE_HEIGHT;
+            if (lastBlockHeight < maxHeight && list.length < MAX_OPERATE_TX_COUNT) {
+                await querynftTxList(lastBlockHeight);
             }
         };
         await querynftTxList(lastBlockHeight);
@@ -89,6 +92,7 @@ export class NftTaskService {
                     nftObj[idStr].uri = msg.uri;
                     nftObj[idStr].data = msg.data;
                     nftObj[idStr].is_deleted = false;
+                    nftObj[idStr].create_time = getTimestamp();
                 } else if ((tx.msgs as any).type === TxType.edit_nft) {
                     nftObj[idStr].nft_name = msg.name;
                     nftObj[idStr].uri = msg.uri;
@@ -100,12 +104,12 @@ export class NftTaskService {
                 }
                 nftObj[idStr].last_block_height = tx.height;
                 nftObj[idStr].last_block_time = tx.time;
-                nftObj[idStr].create_time = getTimestamp();
                 nftObj[idStr].update_time = getTimestamp();
             });
 
             for (let idStr in nftObj) {
                 if (nftObj[idStr].is_deleted) {
+                    delete nftObj[idStr].is_deleted;
                     promiseList.push((this.nftModel as any).deleteNft(nftObj[idStr]));
                 } else {
                     promiseList.push((this.nftModel as any).updateNft(nftObj[idStr]));
