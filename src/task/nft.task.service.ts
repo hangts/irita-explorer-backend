@@ -35,7 +35,9 @@ export class NftTaskService {
             //如果高度未查出, 会出现超出tx高度以后一直递加查询仍然达不到 所需要的交易的数量, 会陷入死循环, 需要直接抛出错误
             throw 'the max height of nft tx has not been queried!';
         }
+        console.log('---',lastBlockHeight, maxHeight)
         let nftTxList: ITxStruct[] = await this.getNftTxList(lastBlockHeight, maxHeight);
+        console.log('---',nftTxList)
         if (nftTxList && nftTxList.length > 0) {
             const denomList: IDenomStruct[] = await (this.denomModel as any).findList(0, 0, '', 'true');
             let denomMap = new Map<string, string>();
@@ -89,9 +91,7 @@ export class NftTaskService {
                 const idStr = `${msg.denom}-${msg.id}`;
                 if (!nftObj[idStr]) nftObj[idStr] = {};
                 if ((tx.msgs as any).type === TxType.mint_nft) {
-                    nftObj[idStr].denom_id = msg.denom;
                     nftObj[idStr].denom_name = denomMap.get(msg.denom);
-                    nftObj[idStr].nft_id = msg.id;
                     nftObj[idStr].nft_name = msg.name;
                     nftObj[idStr].owner = msg.sender;
                     nftObj[idStr].uri = msg.uri;
@@ -103,10 +103,12 @@ export class NftTaskService {
                     nftObj[idStr].uri = msg.uri;
                     nftObj[idStr].data = msg.data;
                 } else if ((tx.msgs as any).type === TxType.transfer_nft) {
-                    nftObj[idStr].owner = msg.sender;
+                    nftObj[idStr].owner = msg.recipient;
                 } else if ((tx.msgs as any).type === TxType.burn_nft) {
                     nftObj[idStr].is_deleted = true;
                 }
+                nftObj[idStr].denom_id = msg.denom;
+                nftObj[idStr].nft_id = msg.id;
                 nftObj[idStr].last_block_height = tx.height;
                 nftObj[idStr].last_block_time = tx.time;
                 nftObj[idStr].update_time = getTimestamp();
