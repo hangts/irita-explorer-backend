@@ -38,6 +38,6 @@ $ npm run start:prod
 - FAULT_TOLERANCE_EXECUTE_TIME: `Optional` `string`  execute time for fault tolerance（example: "41 * * * * *"）
 - SYNC_TX_SERVICE_NAME_SIZE: `Optional` `number`  execute time for fault tolerance（example: "100"）
 - INCREASE_HEIGHT `Optional` `number` increase height for sync nft (default 1000)
-- MAX_OPERATE_TX_COUNT `Optional` `number` limit operate tx count (default 1000)
+- MAX_OPERATE_TX_COUNT `Optional` `number` limit operate tx count (default 100)
 ### log configure
 - DisableLog: `Optional` `string` disable Log `true/false`
