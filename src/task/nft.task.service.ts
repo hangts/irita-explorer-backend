@@ -24,7 +24,7 @@ export class NftTaskService {
         const nftList: INftStruct[] = await (this.nftModel as any).queryLastBlockHeight();
         let lastBlockHeight = 0;
         if (nftList && nftList.length > 0) {
-            lastBlockHeight = nftList[0].last_block_height;
+            lastBlockHeight = nftList[0].last_block_height || 0;
         }
         //查询最高区块, 当递加的高度超过最大交易height的时候, 需要停止查询
         let maxHeight = 0;
@@ -35,9 +35,8 @@ export class NftTaskService {
             //如果高度未查出, 会出现超出tx高度以后一直递加查询仍然达不到 所需要的交易的数量, 会陷入死循环, 需要直接抛出错误
             throw 'the max height of nft tx has not been queried!';
         }
-        // console.log('---',lastBlockHeight, maxHeight)
+
         let nftTxList: ITxStruct[] = await this.getNftTxList(lastBlockHeight, maxHeight);
-        // console.log('---',nftTxList)
         if (nftTxList && nftTxList.length > 0) {
             const denomList: IDenomStruct[] = await (this.denomModel as any).findList(0, 0, '', 'true');
             let denomMap = new Map<string, string>();
@@ -56,7 +55,6 @@ export class NftTaskService {
         const querynftTxList = async (lastBlockHeight: number) => {
             const nftTxList: ITxStruct[] = await this.queryNftTxList(lastBlockHeight);
             list = list.concat(nftTxList);
-            console.log('tx list length:', list.length, 'last block height:', lastBlockHeight);
              /*
                 1. 高度未达到, tx.length未达到, 查询
                 2. 高度未达到, tx.length已达到, 不查询
@@ -124,7 +122,6 @@ export class NftTaskService {
             }
             Promise.all(promiseList).then(res => {
                 if (res) {
-                    console.log('Done!');
                     resolve();
                 }
             });
