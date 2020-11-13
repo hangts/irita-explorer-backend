@@ -35,9 +35,9 @@ export class NftTaskService {
             //如果高度未查出, 会出现超出tx高度以后一直递加查询仍然达不到 所需要的交易的数量, 会陷入死循环, 需要直接抛出错误
             throw 'the max height of nft tx has not been queried!';
         }
-        console.log('---',lastBlockHeight, maxHeight)
+        // console.log('---',lastBlockHeight, maxHeight)
         let nftTxList: ITxStruct[] = await this.getNftTxList(lastBlockHeight, maxHeight);
-        console.log('---',nftTxList)
+        // console.log('---',nftTxList)
         if (nftTxList && nftTxList.length > 0) {
             const denomList: IDenomStruct[] = await (this.denomModel as any).findList(0, 0, '', 'true');
             let denomMap = new Map<string, string>();
