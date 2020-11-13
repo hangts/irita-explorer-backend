@@ -47,7 +47,7 @@ export class NftTaskService {
                     denomMap.set(denom.denom_id, denom.name);
                 });
             }
-           // await this.handleNftTx(nftTxList, denomMap);
+            await this.handleNftTx(nftTxList, denomMap);
         }
     }
 
