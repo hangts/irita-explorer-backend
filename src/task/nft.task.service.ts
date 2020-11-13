@@ -24,20 +24,21 @@ export class NftTaskService {
         const nftList: INftStruct[] = await (this.nftModel as any).queryLastBlockHeight();
         let lastBlockHeight = 0;
         if (nftList && nftList.length > 0) {
-            lastBlockHeight = nftList[0].last_block_height;
+            lastBlockHeight = nftList[0].last_block_height || 0;
         }
         //查询最高区块, 当递加的高度超过最大交易height的时候, 需要停止查询
         let maxHeight = 0;
         const txList = await (this.txModel as any).queryMaxNftTxList();
+        console.log('tx list relational nft:', txList);
         if (txList && txList.length > 0 && txList[0].height > 0) {
             maxHeight = txList[0].height;
         } else {
             //如果高度未查出, 会出现超出tx高度以后一直递加查询仍然达不到 所需要的交易的数量, 会陷入死循环, 需要直接抛出错误
             throw 'the max height of nft tx has not been queried!';
         }
-        // console.log('---',lastBlockHeight, maxHeight)
+
+        console.log('last block height and max height:',lastBlockHeight, maxHeight)
         let nftTxList: ITxStruct[] = await this.getNftTxList(lastBlockHeight, maxHeight);
-        // console.log('---',nftTxList)
         if (nftTxList && nftTxList.length > 0) {
             const denomList: IDenomStruct[] = await (this.denomModel as any).findList(0, 0, '', 'true');
             let denomMap = new Map<string, string>();
@@ -46,7 +47,7 @@ export class NftTaskService {
                     denomMap.set(denom.denom_id, denom.name);
                 });
             }
-            await this.handleNftTx(nftTxList, denomMap);
+           // await this.handleNftTx(nftTxList, denomMap);
         }
     }
 
