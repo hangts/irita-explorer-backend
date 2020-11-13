@@ -119,12 +119,14 @@ export class StatisticsService {
         const bonded_tokens = bondedTokensLcd && bondedTokensLcd.bonded_tokens || '0'
         const mainToken = await (this.tokensModel as any).queryMainToken()
         let total_supply: string = '0';
-        if (totalSupplyLcd && totalSupplyLcd.supply && totalSupplyLcd.supply.length > 0) {
-            totalSupplyLcd.supply.map(item => {
-                if (item.denom === mainToken.min_unit) {
-                    total_supply = item.amount
-                }
-            })
+        if (mainToken) {
+            if (totalSupplyLcd && totalSupplyLcd.supply && totalSupplyLcd.supply.length > 0) {
+                totalSupplyLcd.supply.map(item => {
+                    if (item.denom === mainToken.min_unit) {
+                        total_supply = item.amount
+                    }
+                })
+            }
         }
         return { bonded_tokens, total_supply };
     }
