@@ -60,7 +60,7 @@ export class NftResDto {
 }
 
 export class NftListResDto extends NftResDto {
-    time: number;
+    last_block_time: number;
 
     constructor(
         denom_id: string,
@@ -71,10 +71,10 @@ export class NftListResDto extends NftResDto {
         denomDetail: IDenomStruct,
         denom_name: string,
         nft_name: string,
-        time: number
+        last_block_time: number
     ) {
         super(denom_id, nft_id, owner, tokenUri, tokenData, denomDetail, denom_name, nft_name);
-        this.time = time;
+        this.last_block_time = last_block_time;
     }
 
 }

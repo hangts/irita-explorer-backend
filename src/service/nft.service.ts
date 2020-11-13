@@ -24,7 +24,7 @@ export class NftService {
                 null,
                 nft.denom_name,
                 nft.nft_name,
-                nft.time,
+                nft.last_block_time,
             );
             res.push(result);
         }
