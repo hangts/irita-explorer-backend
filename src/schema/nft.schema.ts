@@ -65,7 +65,7 @@ NftSchema.statics = {
             // condition.push({'$match': queryParameters});
         }
         result.data = await this.find(queryParameters)
-            .sort({create_time:-1, nft_id:-1})
+            .sort({last_block_time:-1,create_time:-1, nft_id:-1})
             .skip((Number(pageNum) - 1) * Number(pageSize))
             .limit(Number(pageSize));
 
