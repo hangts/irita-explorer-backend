@@ -108,6 +108,15 @@ export class NftTaskService {
                     }
                 } else if ((tx.msgs as any).type === TxType.transfer_nft) {
                     nftObj[idStr].owner = msg.recipient;
+                    if(msg.name !== NFT_INFO_DO_NOT_MODIFY){
+                        nftObj[idStr].nft_name = msg.name;
+                    }
+                    if(msg.uri !== NFT_INFO_DO_NOT_MODIFY){
+                        nftObj[idStr].uri = msg.uri;
+                    }
+                    if(msg.data !== NFT_INFO_DO_NOT_MODIFY){
+                        nftObj[idStr].data = msg.data;
+                    }
                 } else if ((tx.msgs as any).type === TxType.burn_nft) {
                     nftObj[idStr].is_deleted = true;
                 }
