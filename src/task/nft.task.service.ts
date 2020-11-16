@@ -91,7 +91,7 @@ export class NftTaskService {
                 if ((tx.msgs as any).type === TxType.mint_nft) {
                     nftObj[idStr].denom_name = denomMap.get(msg.denom);
                     nftObj[idStr].nft_name = msg.name;
-                    nftObj[idStr].owner = msg.sender;
+                    nftObj[idStr].owner = msg.recipient;//mint_nft如果传一个recipient参数, 那么这个nft的owner就被转移到此地址下
                     nftObj[idStr].uri = msg.uri;
                     nftObj[idStr].data = msg.data;
                     nftObj[idStr].is_deleted = false;
@@ -108,6 +108,7 @@ export class NftTaskService {
                     }
                 } else if ((tx.msgs as any).type === TxType.transfer_nft) {
                     nftObj[idStr].owner = msg.recipient;
+                    //转让的时候, 可以对可编辑的信息重新赋值
                     if(msg.name !== NFT_INFO_DO_NOT_MODIFY){
                         nftObj[idStr].nft_name = msg.name;
                     }
