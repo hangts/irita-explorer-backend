@@ -8,7 +8,7 @@ import md5 from 'blueimp-md5';
 import { getTimestamp } from '../util/util';
 import { ILcdNftStruct } from '../types/task.interface';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
-import { INCREASE_HEIGHT, MAX_OPERATE_TX_COUNT, TxType } from '../constant';
+import { INCREASE_HEIGHT, MAX_OPERATE_TX_COUNT, NFT_INFO_DO_NOT_MODIFY, TxType } from '../constant';
 
 @Injectable()
 export class NftTaskService {
@@ -97,11 +97,26 @@ export class NftTaskService {
                     nftObj[idStr].is_deleted = false;
                     nftObj[idStr].create_time = getTimestamp();
                 } else if ((tx.msgs as any).type === TxType.edit_nft) {
-                    nftObj[idStr].nft_name = msg.name;
-                    nftObj[idStr].uri = msg.uri;
-                    nftObj[idStr].data = msg.data;
+                    if(msg.name !== NFT_INFO_DO_NOT_MODIFY){
+                        nftObj[idStr].nft_name = msg.name;
+                    }
+                    if(msg.uri !== NFT_INFO_DO_NOT_MODIFY){
+                        nftObj[idStr].uri = msg.uri;
+                    }
+                    if(msg.data !== NFT_INFO_DO_NOT_MODIFY){
+                        nftObj[idStr].data = msg.data;
+                    }
                 } else if ((tx.msgs as any).type === TxType.transfer_nft) {
                     nftObj[idStr].owner = msg.recipient;
+                    if(msg.name !== NFT_INFO_DO_NOT_MODIFY){
+                        nftObj[idStr].nft_name = msg.name;
+                    }
+                    if(msg.uri !== NFT_INFO_DO_NOT_MODIFY){
+                        nftObj[idStr].uri = msg.uri;
+                    }
+                    if(msg.data !== NFT_INFO_DO_NOT_MODIFY){
+                        nftObj[idStr].data = msg.data;
+                    }
                 } else if ((tx.msgs as any).type === TxType.burn_nft) {
                     nftObj[idStr].is_deleted = true;
                 }
