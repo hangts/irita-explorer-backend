@@ -5,6 +5,8 @@ import { StatisticsResDto } from '../dto/statistics.dto';
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { INft } from '../types/schemaTypes/nft.interface';
 import { BlockHttp } from '../http/lcd/block.http';
+import { StakingHttp } from '../http/lcd/staking.http';
+import { BankHttp } from '../http/lcd/bank.http';
 
 @Injectable()
 export class StatisticsService {
@@ -16,12 +18,13 @@ export class StatisticsService {
         @InjectModel('Validators') private validatorModel: any,
         @InjectModel('Identity') private identityModel: any,
         @InjectModel('Denom') private denomModel: any,
+        @InjectModel('StakingSyncValidators') private stakingValidatorsModel: any,
+        @InjectModel('Tokens') private tokensModel: Model<any>,
     ) {
     }
 
     async queryStatistics(): Promise<StatisticsResDto> {
         const latestBlock = await BlockHttp.queryLatestBlockFromLcd();
-
         const block = await this.queryLatestHeightAndTime(latestBlock);
         const avgBlockTime = await this.queryAvgBlockTime();
         const assetCount = await this.queryAssetCount();
@@ -29,8 +32,11 @@ export class StatisticsService {
         const {txCount, serviceCount} = await this.queryTxCount();
         const identityCount = await this.queryIdentityCount({});
         const denomCount = await this.queryDenomCount();
-
-        return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount, identityCount, denomCount);
+        const validatorNumCount = await this.queryValidatorNumCount();
+        let proposer_address = latestBlock && latestBlock.block && latestBlock.block.header && latestBlock.block.header.proposer_address
+        const validatorInformation = await this.queryValidatorInformation(proposer_address);
+        const bondedTokensInformation = await this.queryBondedTokensInformation()
+        return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount, identityCount, denomCount,validatorNumCount,validatorInformation.moniker,validatorInformation.validator_icon,validatorInformation.operator_addr,bondedTokensInformation.bonded_tokens,bondedTokensInformation.total_supply);
     }
 
     async queryLatestHeightAndTime(latestBlock?:any): Promise<{height:number,latestBlockTime:number} | null> {
@@ -92,6 +98,36 @@ export class StatisticsService {
         return await this.denomModel.queryAllCount();
     }
 
+    async queryValidatorNumCount():Promise<any>{
+        return await this.stakingValidatorsModel.queryActiveValCount();
+    }
+    
+    async queryValidatorInformation(proposer): Promise<any>{
+        let validators = await this.stakingValidatorsModel.queryAllValidators();
+        validators = validators.filter(item => {
+            return item.proposer_addr === proposer
+        })
+        const moniker = (validators && validators[0] && validators[0].description && validators[0].description.moniker) || '';
+        const validator_icon = (validators && validators[0] && validators[0].icon) || '';
+        const operator_addr = (validators && validators[0] && validators[0].operator_address) || '';
+        return { moniker, validator_icon,operator_addr };
+    }
 
+    async queryBondedTokensInformation(): Promise<any>{
+        const bondedTokensLcd = await StakingHttp.getBondedTokens()
+        const totalSupplyLcd = await BankHttp.getTotalSupply()
+        const bonded_tokens = bondedTokensLcd && bondedTokensLcd.bonded_tokens || '0'
+        const mainToken = await (this.tokensModel as any).queryMainToken()
+        let total_supply: string = '0';
+        if (mainToken) {
+            if (totalSupplyLcd && totalSupplyLcd.supply && totalSupplyLcd.supply.length > 0) {
+                totalSupplyLcd.supply.map(item => {
+                    if (item.denom === mainToken.min_unit) {
+                        total_supply = item.amount
+                    }
+                })
+            }
+        }
+        return { bonded_tokens, total_supply };
+    }
 }
-

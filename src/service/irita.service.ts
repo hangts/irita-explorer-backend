@@ -3,19 +3,19 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct, Result } from '../api/ApiResult';
 
-import {NetworkResDto, TokenScaleResDto} from '../dto/irita.dto';
+import {NetworkResDto, TokensResDto} from '../dto/irita.dto';
 @Injectable()
 export class IritaService {
     constructor(@InjectModel('Network') private networkModel: any,
-                @InjectModel('TokenScale') private tokenScaleModel:Model<any>) {
+                @InjectModel('Tokens') private tokensModel:Model<any>) {
     }
-
     async queryConfig(): Promise<Result<any>>{
         let result:any = {}
         let netWorkDbData = await this.networkModel.queryNetworkList();
-        const tokenScaleData = await (this.tokenScaleModel as any).queryAllTokens()
+        const TokensData = await (this.tokensModel as any).queryAllTokens()
+        console.log(TokensData)
         result.networkData = NetworkResDto.bundleData(netWorkDbData);
-        result.tokenData = TokenScaleResDto.bundleData(tokenScaleData)
+        result.tokenData = TokensResDto.bundleData(TokensData)
         return result
     }
 }

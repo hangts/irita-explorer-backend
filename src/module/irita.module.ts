@@ -5,13 +5,13 @@ import {IritaController} from '../controller/irita.controller';
 import {IritaService} from '../service/irita.service';
 import {MongooseModule} from '@nestjs/mongoose';
 import {NetworkSchema} from '../schema/network.schema';
-import {TokenScaleSchema} from "../schema/token.scale.schema";
-import {TokenScaleTaskService} from "../task/token.scale.task.service";
-import {TokenScaleHttp} from "../http/lcd/token.scale.http";
+import {TokensSchema} from "../schema/tokens.schema";
+import {TokensTaskService} from "../task/tokens.service";
+import {TokensHttp} from "../http/lcd/tokens.http";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {ParametersTaskService} from "../task/parameters.task.service";
 import {StakingHttp} from "../http/lcd/staking.http";
-
+import { TxSchema } from '../schema/tx.schema';
 @Module({
     imports: [
         MongooseModule.forFeature([
@@ -21,18 +21,22 @@ import {StakingHttp} from "../http/lcd/staking.http";
                 collection: 'ex_network'
             },
             {
-                name: 'TokenScale',
-                schema: TokenScaleSchema,
-                collection: 'ex_token_scale'
+                name: 'Tokens',
+                schema: TokensSchema,
+                collection: 'ex_tokens'
             },
             {
                 name:'ParametersTask',
                 schema: ParametersSchema,
                 collection:'ex_sync_parameters'
-            }
+            },{
+                name: 'Tx',
+                schema: TxSchema,
+                collection: 'sync_tx'
+            },
         ])
     ],
-    providers: [IritaService, TokenScaleTaskService, TokenScaleHttp,ParametersTaskService,StakingHttp],
+    providers: [IritaService, TokensTaskService, TokensHttp,ParametersTaskService,StakingHttp],
     controllers: [IritaController],
 })
 export class IritaModule {

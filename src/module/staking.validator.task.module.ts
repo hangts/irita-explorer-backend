@@ -5,7 +5,7 @@ import {StakingValidatorTaskService} from "../task/staking.validator.task.servic
 import {StakingHttp} from "../http/lcd/staking.http";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {ParametersTaskService} from "../task/parameters.task.service";
-import {TokenScaleHttp} from "../http/lcd/token.scale.http";
+import {TokensHttp} from "../http/lcd/tokens.http";
 import {BlockHttp} from "../http/lcd/block.http";
 
 
@@ -24,7 +24,7 @@ import {BlockHttp} from "../http/lcd/block.http";
       },
     ])
   ],
-  providers:[StakingValidatorTaskService,ParametersTaskService,StakingHttp,TokenScaleHttp,BlockHttp],
+  providers:[StakingValidatorTaskService,ParametersTaskService,StakingHttp,TokensHttp,BlockHttp],
   exports:[StakingValidatorTaskService,ParametersTaskService],
 })
 

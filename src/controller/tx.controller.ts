@@ -29,6 +29,7 @@ import {
     ServiceRespondReqDto,
     ServiceRespondResDto,
     IdentityTxReqDto,
+    TxListWithAssetReqDto
 } from '../dto/txs.dto';
 import { TxResDto,
          TxTypeResDto } from '../dto/txs.dto';
@@ -175,7 +176,7 @@ export class TxController {
         return new Result<ServiceBindInfoResDto>(data);
     }
 
-     @Get("/services/respond")
+    @Get("/services/respond")
     async queryServiceRespondTx(@Query() query: ServiceRespondReqDto): Promise<Result<ListStruct<ServiceRespondResDto[]>>> {
         const data: ListStruct<ServiceRespondResDto[]> = await this.txService.queryServiceRespondTx(query);
         return new Result<ListStruct<ServiceRespondResDto[]>>(data);
@@ -185,19 +186,19 @@ export class TxController {
         const data: ListStruct<TxResDto[]> = await this.txService.queryIdentityTx(query)
         return new Result<ListStruct<TxResDto[]>>(data);
     }
+
+
+    @Get("/asset")
+    async queryTxWithAsset(@Query() query: TxListWithAssetReqDto): Promise<Result<TxResDto>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithAsset(query);
+        return new Result<any>(data);
+    }
+
     @Get(":hash")
     async queryTxWithHash(@Param() query: TxWithHashReqDto): Promise<Result<TxResDto>> {
         const data: TxResDto = await this.txService.queryTxWithHash(query);
         return new Result<TxResDto>(data);
     }
-
-
-
-
-
-
-
-
 }
 
 

@@ -8,7 +8,9 @@ import {
     StakingValidatorLcdDto, StakingValidatorParametersLcdDto,
     StakingValidatorSlashLcdDto, StakingValUnBondingDelLcdDto,
     DelegatorsDelegationLcdDto,
-    DelegatorsUndelegationLcdDto
+    DelegatorsUndelegationLcdDto,
+    BondedTokensLcdDto,
+    TokensStakingLcdToken
 } from "../../dto/http.dto";
 
 
@@ -128,7 +130,6 @@ export class StakingHttp {
             }
 
         } catch (e) {
-            console.log(e)
             Logger.warn(`api-error from ${getBalancesUri}`, e)
         }
     }
@@ -158,6 +159,34 @@ export class StakingHttp {
             }
         } catch (e) {
             Logger.warn(`api-error from ${getDelegatorsUndelegationsUri}`, e)
+        }
+    }
+
+    static async getBondedTokens () {
+        const BondedTokensUrl = `${cfg.serverCfg.lcdAddr}/staking/pool`
+        try {
+            let BondedTokens: any = await new HttpService().get(BondedTokensUrl).toPromise().then(result => result.data)
+            if (BondedTokens && BondedTokens.result) {
+                return new BondedTokensLcdDto(BondedTokens.result);
+            } else {
+                Logger.warn('api-error:', 'there is no result of bonded_tokens from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${BondedTokensUrl}`, e)
+        }
+    }
+
+    async getStakingTokens() {
+        const stakingTokensUrl = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/params`
+        try {
+            let stakingTokensData: any = await new HttpService().get(stakingTokensUrl).toPromise().then(result => result.data)
+            if (stakingTokensData && stakingTokensData.params) {
+                return new TokensStakingLcdToken(stakingTokensData.params);
+            } else {
+                Logger.warn('api-error:', 'there is no result of validators from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${stakingTokensUrl}`, e)
         }
     }
 }

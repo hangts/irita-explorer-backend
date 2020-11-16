@@ -94,6 +94,11 @@ StakingValidatorSchema.statics = {
         queryParameters.operator_address = operator_address
         let result = await this.findOne(queryParameters)
         return result
-    }
+    },
+
+    async queryActiveValCount(): Promise<any> {
+        let count: number;
+        return count = await this.find({'status':ValidatorStatus['bonded'],'jailed':false}).countDocuments();
+    },
 }
 

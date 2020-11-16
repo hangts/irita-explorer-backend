@@ -35,7 +35,7 @@ export default class StakingService {
                 @InjectModel('StakingSyncValidators') private stakingValidatorsModel: Model<any>,
                 @InjectModel('Parameters') private parametersModel: Model<any>,
                 @InjectModel('Tx') private txModel: Model<any>,
-                @InjectModel('TokenScale') private tokenScaleModel: any,
+                @InjectModel('Tokens') private tokensModel: any,
                 private readonly stakingHttp: StakingHttp,
     ) {
     }
@@ -247,7 +247,7 @@ export default class StakingService {
         const { delegatorAddr } = p
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(delegatorAddr)
         const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : []
-        const aminToken = await this.tokenScaleModel.queryMainToken();
+        const aminToken = await this.tokensModel.queryMainToken();
         const count =dataLcd ? dataLcd.length : 0
         const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : []
         const allValidatorsMap = await this.getAllValidatorMonikerMap()

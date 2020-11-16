@@ -34,7 +34,7 @@ export class NetworkResDto extends BaseResDto{
     }
 }
 
-export class TokenScaleResDto extends NetworkResDto {
+export class TokensResDto extends NetworkResDto {
     symbol:string;
     min_unit:string;
     scale:number;
@@ -46,10 +46,10 @@ export class TokenScaleResDto extends NetworkResDto {
         this.scale = value.scale;
         this.is_main_token = value.is_main_token;
     }
-    static bundleData(value: any): TokenScaleResDto[] {
-        let data: TokenScaleResDto[] = [];
+    static bundleData(value: any): TokensResDto[] {
+        let data: TokensResDto[] = [];
         data = value.map((v: any) => {
-            return new TokenScaleResDto(v);
+            return new TokensResDto(v);
         });
         return data;
     }

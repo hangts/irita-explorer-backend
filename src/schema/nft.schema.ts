@@ -18,9 +18,12 @@ export const NftSchema = new mongoose.Schema({
     owner: String,
     uri: String,
     data: String,
+    last_block_height: Number,
+    last_block_time: Number,
     create_time: Number,
     update_time: Number,
     hash: String,
+    time: Number
 },{versionKey: false});
 NftSchema.index({ denom_id: 1, nft_id: 1 }, { unique: true });
 
@@ -34,22 +37,22 @@ NftSchema.statics = {
         useCount?:boolean,
     ): Promise<IListStruct> {
         let result: IListStruct = {};
-        const condition: any[] = [
-            {
-                $lookup: {
-                    from: 'ex_sync_denom',
-                    localField: 'denom_id',
-                    foreignField: 'denom_id',
-                    as: 'denomDetail',
-                },
-            }, {
-                $project: {
-                    'denomDetail._id': 0,
-                    'denomDetail.update_time': 0,
-                    'denomDetail.create_time': 0,
-                },
-            },
-        ];
+        // const condition: any[] = [
+            // {
+            //     $lookup: {
+            //         from: 'ex_sync_denom',
+            //         localField: 'denom_id',
+            //         foreignField: 'denom_id',
+            //         as: 'denomDetail',
+            //     },
+            // }, {
+            //     $project: {
+            //         'denomDetail._id': 0,
+            //         'denomDetail.update_time': 0,
+            //         'denomDetail.create_time': 0,
+            //     },
+            // },
+        // ];
 
         let queryParameters:any = {};
         if (denomId || nftId || owner) {
@@ -59,12 +62,17 @@ NftSchema.statics = {
                 {'nft_id': nftId},
             ];
             if (owner) queryParameters.owner = owner;
-            condition.push({'$match': queryParameters});
+            // condition.push({'$match': queryParameters});
         }
-        result.data = await this.aggregate(condition)
+        result.data = await this.find(queryParameters)
             .sort({create_time:-1, nft_id:-1})
             .skip((Number(pageNum) - 1) * Number(pageSize))
             .limit(Number(pageSize));
+
+        // result.data = await this.aggregate(condition)
+        //     .sort({create_time:-1, nft_id:-1})
+        //     .skip((Number(pageNum) - 1) * Number(pageSize))
+        //     .limit(Number(pageSize));
         if (useCount) {
             result.count = await this.find(queryParameters).countDocuments();
         }
@@ -139,7 +147,7 @@ NftSchema.statics = {
     },
 
     updateOneById(nft: INftStruct): Promise<INftStruct> {
-        const {denom_id ,nft_id, owner, data, uri, denom_name, nft_name, hash } = nft;
+        const {denom_id ,nft_id, owner, data, uri, denom_name, nft_name, hash, time } = nft;
         return this.updateOne({
             nft_id,
             denom_id
@@ -150,7 +158,8 @@ NftSchema.statics = {
             denom_name,
             nft_name,
             hash,
-            update_time: getTimestamp()
+            update_time: getTimestamp(),
+            time
         }, 
         (e) => {
             if (e) Logger.error('mongo-error:', e.message);
@@ -159,5 +168,31 @@ NftSchema.statics = {
 
     async queryNftCount(denomId: string): Promise<INftStruct>{
         return await this.find({denom_id:denomId}).countDocuments().exec();
-    }
+    },
+
+    async queryLastBlockHeight(): Promise<INftStruct>{
+        return await this.find({},{last_block_height: 1}).sort({last_block_height: -1}).limit(1);
+    },
+
+    updateNft(nft: INftStruct): Promise<INftStruct>{
+        let cond = {
+            denom_id:nft.denom_id,
+            nft_id:nft.nft_id,
+        };
+        return this.findOneAndUpdate(cond,nft,{ upsert:true,new: true});
+    },
+
+    deleteNft(nft: INftStruct): Promise<INftStruct>{
+        let cond = {
+            denom_id:nft.denom_id,
+            nft_id:nft.nft_id,
+        };
+        return this.deleteOne(cond);
+    },
+
+
+
+
+
+
 };

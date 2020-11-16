@@ -83,3 +83,11 @@ export interface ITXWithIdentity extends IQueryBase {
 export interface IIdentityTx extends IQueryBase {
     id?: string
 }
+
+export interface ITxsWithAssetQuery {
+	type?:string
+    symbol?:string
+    pageNum?:number
+    pageSize?:number
+    useCount?:boolean
+}
