@@ -16,5 +16,3 @@ export class IritaController {
         return new Result<any>(data);
     }
 }
-
-
