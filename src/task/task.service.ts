@@ -66,7 +66,6 @@ export class TasksService {
     @Cron(cfg.taskCfg.executeTime.faultTolerance)
     //@Cron('18 * * * * *')
     async taskDispatchFaultTolerance() {
-        //延时1min以后执行, 保证所有的定时任务已经执行过一次, 并更新过心率时间
         this.taskDispatchService.taskDispatchFaultTolerance((name: TaskEnum)=>{
             if (this[`${name}_timer`]) {
                 clearInterval(this[`${name}_timer`]);
