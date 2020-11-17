@@ -3,6 +3,9 @@ import { getIpAddress, getTimestamp } from '../util/util';
 import { ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
 import { TaskEnum } from 'src/constant';
 import { Logger } from '../logger';
+import { IRandomKey } from '../types';
+import { taskLoggerHelper } from '../helper/task.log.helper';
+import moment from 'moment';
 
 export const TaskDispatchSchema = new mongoose.Schema({
     name: { type: String, unique: true },
@@ -34,34 +37,27 @@ TaskDispatchSchema.statics = {
                     res(false);
                     return;
                 }
-                if(effect && effect.nModified === 1){
-                    res(true);
-                    Logger.log(`From task.dispatch.schema ${name} task begin time: ${new Date().getTime()}`);
-                }else {
-                    res(false);
-                }
+                res(true);
+                Logger.log(`From task.dispatch.schema ${name} task begin time: ${new Date().getTime()}`);
             }).exec();
         });
 
 
     },
 
-    async unlock(name: TaskEnum): Promise<boolean> {
+    async unlock(name: TaskEnum, randomKey?: IRandomKey): Promise<boolean> {
         return new Promise(async (res)=>{
             return await this.updateOne({ name, is_locked: true }, {
                 is_locked: false,
                 task_end_time: getTimestamp(),
             }, null, (error,effect)=>{
                 if(error) {
+                    taskLoggerHelper(`${name}: unlock error`, randomKey);
                     res(false);
                     return;
                 }
-                if(effect && effect.nModified === 1){
-                    res(true);
-                    Logger.log(`From task.dispatch.schema ${name} task end time: ${new Date().getTime()}`);
-                }else {
-                    res(false);
-                }
+                taskLoggerHelper(`${name}: unlock successful, From task.dispatch.schema ${name} task end time: ${new Date().getTime()}`, randomKey);
+                res(true);
             }).exec();
         })
     },
@@ -79,7 +75,14 @@ TaskDispatchSchema.statics = {
         return await this.find({is_locked:true}).exec();
     },
 
-    async updateHeartbeatUpdateTime(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
+    async updateHeartbeatUpdateTime(name: TaskEnum, randomKey?: IRandomKey): Promise<ITaskDispatchStruct | null> {
+        if(randomKey){
+            taskLoggerHelper(`${name}: update hearbeat time`, randomKey);
+        }else{
+            //定时任务打印的日志, 不需要对step递增
+            Logger.log(`${name}: update hearbeat time: ${moment(new Date().getTime()).format('YYYY-MM-DD HH:mm:ss')}`);
+        }
+
         return await this.updateOne({ name, is_locked: true }, {
             hearbeat_update_time: getTimestamp(),
         }).exec();

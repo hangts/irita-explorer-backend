@@ -31,7 +31,7 @@ $ npm run start:prod
 
 ### Task config
 
-- HEARTBEAT_RATE: `Optional` `number`  hearbeat rate for monitor（example: `10`）
+- HEARTBEAT_RATE: `Optional` `number`  hearbeat rate for monitor（example: `10000`）
 - DENOM_EXECUTE_TIME: `Optional`  execute time for denom pull（example: "01 * * * * *"）
 - NFT_EXECUTE_TIME: `Optional`  execute time for nft pull（example: "21 * * * * *"）
 - TX_SERVICE_NAME_EXECUTE_TIME: `Optional`  execute time for nft pull（example: "30 * * * * *"）

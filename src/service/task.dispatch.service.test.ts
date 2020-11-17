@@ -40,7 +40,7 @@ describe('taskDispatch module', () => {
 
     describe('taskDispatchFaultTolerance', () => {
         it('should check over time', async () => {
-            await taskDispatchService.taskDispatchFaultTolerance();
+            await taskDispatchService.taskDispatchFaultTolerance(()=>{});
         });
     });
 
