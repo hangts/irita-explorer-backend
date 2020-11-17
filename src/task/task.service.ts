@@ -46,7 +46,7 @@ export class TasksService {
     }
 
     @Cron(cfg.taskCfg.executeTime.nft)
-    //@Cron('55 * * * * *')
+    //@Cron('40 * * * * *')
     async syncNfts() {
         this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
     }
@@ -67,14 +67,12 @@ export class TasksService {
     //@Cron('18 * * * * *')
     async taskDispatchFaultTolerance() {
         //延时1min以后执行, 保证所有的定时任务已经执行过一次, 并更新过心率时间
-        setTimeout(()=>{
-            this.taskDispatchService.taskDispatchFaultTolerance((name: TaskEnum)=>{
-                if (this[`${name}_timer`]) {
-                    clearInterval(this[`${name}_timer`]);
-                    this[`${name}_timer`] = null;
-                }
-            });
-        }, TASK_DISPATCH_FAULT_TOLERANCE)
+        this.taskDispatchService.taskDispatchFaultTolerance((name: TaskEnum)=>{
+            if (this[`${name}_timer`]) {
+                clearInterval(this[`${name}_timer`]);
+                this[`${name}_timer`] = null;
+            }
+        });
     }
     //@Cron('1 * * * * *')
     @Cron(cfg.taskCfg.executeTime.identity)
