@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { NftHttp } from '../http/lcd/nft.http';
@@ -8,7 +8,10 @@ import md5 from 'blueimp-md5';
 import { getTimestamp } from '../util/util';
 import { ILcdNftStruct } from '../types/task.interface';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
-import { INCREASE_HEIGHT, MAX_OPERATE_TX_COUNT, NFT_INFO_DO_NOT_MODIFY, TxType } from '../constant';
+import { INCREASE_HEIGHT, MAX_OPERATE_TX_COUNT, NFT_INFO_DO_NOT_MODIFY, TaskEnum, TxType } from '../constant';
+import {Logger} from '../logger'
+import { IRandomKey } from '../types';
+import { taskLoggerHelper } from '../helper/task.log.helper';
 
 @Injectable()
 export class NftTaskService {
@@ -19,9 +22,10 @@ export class NftTaskService {
         this.doTask = this.doTask.bind(this);
     }
 
-    async doTask(): Promise<void> {
-
+    async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
+        taskLoggerHelper(`${taskName}: start to execute task`, randomKey);
         const nftList: INftStruct[] = await (this.nftModel as any).queryLastBlockHeight();
+        taskLoggerHelper(`${taskName}: execute task (step should be start step + 1)`, randomKey);
         let lastBlockHeight = 0;
         if (nftList && nftList.length > 0) {
             lastBlockHeight = nftList[0].last_block_height || 0;
@@ -29,6 +33,7 @@ export class NftTaskService {
         //查询最高区块, 当递加的高度超过最大交易height的时候, 需要停止查询
         let maxHeight = 0;
         const txList = await (this.txModel as any).queryMaxNftTxList();
+        taskLoggerHelper(`${taskName}: execute task (step should be start step + 2)`, randomKey);
         if (txList && txList.length > 0 && txList[0].height > 0) {
             maxHeight = txList[0].height;
         } else {
@@ -37,6 +42,7 @@ export class NftTaskService {
         }
 
         let nftTxList: ITxStruct[] = await this.getNftTxList(lastBlockHeight, maxHeight);
+        taskLoggerHelper(`${taskName}: execute task (step should be start step + 3)`, randomKey);
         if (nftTxList && nftTxList.length > 0) {
             const denomList: IDenomStruct[] = await (this.denomModel as any).findList(0, 0, '', 'true');
             let denomMap = new Map<string, string>();
@@ -45,8 +51,10 @@ export class NftTaskService {
                     denomMap.set(denom.denom_id, denom.name);
                 });
             }
+            taskLoggerHelper(`${taskName}: execute task (step should be start step + 4)`, randomKey);
             await this.handleNftTx(nftTxList, denomMap);
         }
+        taskLoggerHelper(`${taskName}: end to execute task (step should be start step + 4 or 5)`, randomKey);
     }
 
     async getNftTxList(lastBlockHeight: number, maxHeight: number): Promise<ITxStruct[]> {
@@ -55,6 +63,7 @@ export class NftTaskService {
         const querynftTxList = async (lastBlockHeight: number) => {
             const nftTxList: ITxStruct[] = await this.queryNftTxList(lastBlockHeight);
             list = list.concat(nftTxList);
+            Logger.log(`ex_sync_nft lastBlockHeight: ${lastBlockHeight}, tx count ${list.length}`);
              /*
                 1. 高度未达到, tx.length未达到, 查询
                 2. 高度未达到, tx.length已达到, 不查询
