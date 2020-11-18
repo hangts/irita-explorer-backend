@@ -3,6 +3,9 @@ import { getIpAddress, getTimestamp } from '../util/util';
 import { ITaskDispatchStruct } from '../types/schemaTypes/task.dispatch.interface';
 import { TaskEnum } from 'src/constant';
 import { Logger } from '../logger';
+import { IRandomKey } from '../types';
+import { taskLoggerHelper } from '../helper/task.log.helper';
+import moment from 'moment';
 
 export const TaskDispatchSchema = new mongoose.Schema({
     name: { type: String, unique: true },
@@ -24,7 +27,7 @@ TaskDispatchSchema.statics = {
     },
     async lock(name: TaskEnum): Promise<boolean> {
         return new Promise(async (res)=>{
-            return await this.updateOne({ name, is_locked: false }, {
+            return await this.update({ name, is_locked: false }, {
                 // condition: is_locked: false, those server whose query's is_locked is true should not to be updated;
                 is_locked: true,
                 task_begin_time: getTimestamp(),
@@ -46,20 +49,27 @@ TaskDispatchSchema.statics = {
 
     },
 
-    async unlock(name: TaskEnum): Promise<boolean> {
+    async unlock(name: TaskEnum, randomKey?: IRandomKey): Promise<boolean> {
         return new Promise(async (res)=>{
-            return await this.updateOne({ name, is_locked: true }, {
+            //console.log('before updated unlock:',await this.find({ name}))
+            return await this.update({ name, is_locked: true }, {
                 is_locked: false,
                 task_end_time: getTimestamp(),
             }, null, (error,effect)=>{
                 if(error) {
+                    taskLoggerHelper(`${name}: unlock error`, randomKey);
                     res(false);
                     return;
                 }
+
+                //TODO(lvshenchao) it seems like that there is a bug in mongoose, the params of nModified returned 0 while record was be updated
+                console.log('updated unlock:',effect);
+                //console.log('updated unlock:',await this.find({ name}))
                 if(effect && effect.nModified === 1){
+                    taskLoggerHelper(`${name}: unlock successful, From task.dispatch.schema ${name} task end time: ${new Date().getTime()}`, randomKey);
                     res(true);
-                    Logger.log(`From task.dispatch.schema ${name} task end time: ${new Date().getTime()}`);
                 }else {
+                    taskLoggerHelper(`${name}: unlock failed`, randomKey);
                     res(false);
                 }
             }).exec();
@@ -79,7 +89,14 @@ TaskDispatchSchema.statics = {
         return await this.find({is_locked:true}).exec();
     },
 
-    async updateHeartbeatUpdateTime(name: TaskEnum): Promise<ITaskDispatchStruct | null> {
+    async updateHeartbeatUpdateTime(name: TaskEnum, randomKey?: IRandomKey): Promise<ITaskDispatchStruct | null> {
+        if(randomKey){
+            taskLoggerHelper(`${name}: update hearbeat time`, randomKey);
+        }else{
+            //定时任务打印的日志, 不需要对step递增
+            Logger.log(`${name}: update hearbeat time: ${moment(new Date().getTime()).format('YYYY-MM-DD HH:mm:ss')}`);
+        }
+
         return await this.updateOne({ name, is_locked: true }, {
             hearbeat_update_time: getTimestamp(),
         }).exec();
