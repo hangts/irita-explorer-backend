@@ -55,7 +55,7 @@ TaskDispatchSchema.statics = {
             return await this.update({ name, is_locked: true }, {
                 is_locked: false,
                 task_end_time: getTimestamp(),
-            }, null, async (error,effect)=>{
+            }, null, (error,effect)=>{
                 if(error) {
                     taskLoggerHelper(`${name}: unlock error`, randomKey);
                     res(false);
