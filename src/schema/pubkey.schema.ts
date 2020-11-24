@@ -13,6 +13,7 @@ export const PubkeySchema = new mongoose.Schema({
     create_time:Number
 })
 PubkeySchema.index({identities_id:1,pubkey_hash: 1},{unique: true})
+PubkeySchema.index({identities_id:1,time: 1})
 
 PubkeySchema.statics = {
     async insertPubkey (pubkey) {
