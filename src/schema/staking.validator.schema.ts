@@ -36,8 +36,6 @@ export const StakingValidatorSchema = new mongoose.Schema({
     update_time: Number,
 })
 StakingValidatorSchema.index({operator_address: 1}, {unique: true})
-StakingValidatorSchema.index({proposer_addr: 1})
-StakingValidatorSchema.index({jailed: 1,status:1})
 
 StakingValidatorSchema.statics = {
 
