@@ -154,7 +154,6 @@ export const dbRes = {
     },
     syncIdentityTask:{
         ...common,
-        'msgs.type':1,
         'msgs.msg.pubkey':1,
         'msgs.msg.certificate':1,
         'msgs.msg.ex':1,
