@@ -15,7 +15,7 @@ export const CertificateSchema = new mongoose.Schema({
   create_time:Number
 })
 CertificateSchema.index({ identities_id: 1, certificate_hash: 1 }, { unique: true })
-CertificateSchema.index({ identities_id: 1, time: 1 })
+CertificateSchema.index({ identities_id: 1, height: 1 })
 
 CertificateSchema.statics = {
   async insertCertificate(certificateData){
@@ -30,7 +30,7 @@ CertificateSchema.statics = {
     queryParameters.identities_id = query.id
     result.data = await this.find(queryParameters)
       .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-      .limit(Number(query.pageSize)).sort({'time':-1});
+      .limit(Number(query.pageSize)).sort({'height':-1});
     if (query.useCount && query.useCount == true) {
       result.count = await this.find(queryParameters).countDocuments();
     }
