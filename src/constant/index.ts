@@ -132,9 +132,9 @@ export const PubKeyAlgorithm = {
     5: 'SM2',
 }
 
-export const currentChain = {
-    cosmos: 'COSMOS',
-    iris: 'IRIS'
+export enum currentChain  {
+    cosmos ='COSMOS',
+    iris ='IRIS'
 }
 
 export const addressPrefix = cfg.currentChain === currentChain.iris ? {
@@ -183,5 +183,3 @@ export const INCREASE_HEIGHT = Number(cfg.taskCfg.increaseHeight);
 export const MAX_OPERATE_TX_COUNT = Number(cfg.taskCfg.maxOperateTxCount);
 
 export const NFT_INFO_DO_NOT_MODIFY = '[do-not-modify]';
-
-export const TASK_DISPATCH_FAULT_TOLERANCE = 60 * 1000;

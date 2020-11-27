@@ -4,7 +4,7 @@ import { TxTaskService } from './tx.task.service';
 import { DenomTaskService } from './denom.task.service';
 import { NftTaskService } from './nft.task.service';
 import { TaskDispatchService } from '../service/task.dispatch.service';
-import { TASK_DISPATCH_FAULT_TOLERANCE, TaskEnum } from '../constant';
+import { TaskEnum } from '../constant';
 import { getIpAddress } from '../util/util';
 import { cfg } from '../config/config';
 import { TaskCallback } from '../types/task.interface';

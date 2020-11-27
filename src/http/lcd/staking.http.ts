@@ -24,7 +24,6 @@ export class StakingHttp {
         } else {
             validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&page=${pageNum}&limit=${pageSize}`
         }
-        console.log(validatorLcdUri)
         try {
             let stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)
             if (stakingValidatorData && stakingValidatorData.result) {
