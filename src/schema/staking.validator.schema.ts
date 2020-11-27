@@ -10,7 +10,8 @@ import {activeValidatorLabel, candidateValidatorLabel, jailedValidatorLabel, Val
 
 export const StakingValidatorSchema = new mongoose.Schema({
     operator_address: String,
-    consensus_pubkey: String,
+    // consensus_pubkey: String,
+    consensus_pubkey: Object,
     jailed: Boolean,
     status: Number,
     tokens: String,
@@ -85,6 +86,7 @@ StakingValidatorSchema.statics = {
         if (query.useCount && query.useCount == true) {
             result.count = await this.find(queryParameters).countDocuments();
         }
+        // console.log('查询条件',queryParameters)
         result.data = await this.find(queryParameters)
             .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
             .limit(Number(query.pageSize));

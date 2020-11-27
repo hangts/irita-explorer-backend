@@ -23,6 +23,7 @@ const {
     TOKENS,
     INCREASE_HEIGHT,
     MAX_OPERATE_TX_COUNT,
+    CURRENTCHAIN
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -56,5 +57,6 @@ export const cfg = {
         increaseHeight: INCREASE_HEIGHT || 1000,
         maxOperateTxCount: MAX_OPERATE_TX_COUNT || 100,
     },
+    currentChain: CURRENTCHAIN || 'IRIS'
 };
 

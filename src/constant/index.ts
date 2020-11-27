@@ -1,4 +1,4 @@
-import {cfg} from '../config/config';
+import { cfg } from '../config/config';
 
 export enum TaskEnum {
     denom = 'ex_sync_denom',
@@ -50,7 +50,7 @@ export enum TxType {
     mint_token = 'mint_token',
     transfer_token_owner = 'transfer_token_owner',
     //Transfer
-    send = 'send',  
+    send = 'send',
     multisend = 'multisend',
     //Crisis
     verify_invariant = 'verify_invariant',
@@ -96,12 +96,12 @@ export enum TxType {
     create_client = 'create_client',
     update_client = 'update_client',
     // Identity
-    create_identity = 'create_identity', 
+    create_identity = 'create_identity',
     update_identity = 'update_identity',
     // Record
-    create_record = 'create_record', 
+    create_record = 'create_record',
     // Random
-    request_rand='request_rand',
+    request_rand = 'request_rand',
 }
 
 export enum TxStatus {
@@ -131,11 +131,22 @@ export const PubKeyAlgorithm = {
     4: 'ED25519',
     5: 'SM2',
 }
-export const addressPrefix = {
+
+export const currentChain = {
+    cosmos: 'COSMOS',
+    iris: 'IRIS'
+}
+
+export const addressPrefix = cfg.currentChain === currentChain.iris ? {
     iaa: 'iaa',
     iva: 'iva',
     ica: 'ica'
-}
+} : {
+        iaa: 'cosmos',
+        iva: 'cosmosvaloper',
+        ica: 'cosmosvalcons'
+    }
+
 export const signedBlocksWindow = 'signed_blocks_window'
 export const hubDefaultEmptyValue = '[do-not-modify]'
 export const moduleSlashing = 'slashing'
@@ -149,11 +160,15 @@ export const ValidatorStatus = {
     'bonded': 3,
 }
 
-export const ValidatorStatus_str = {
+export const ValidatorStatus_str = cfg.currentChain === currentChain.iris ? {
     'unbonded': 'unbonded',
     'unbonding': 'unbonding',
     'bonded': 'bonded',
-}
+} : {
+        'unbonded': 'BOND_STATUS_UNBONDED',
+        'unbonding': 'BOND_STATUS_UNBONDING',
+        'bonded': 'BOND_STATUS_BONDED',
+    }
 
 export const ValidatorNumberStatus = {
     1: 'candidate',

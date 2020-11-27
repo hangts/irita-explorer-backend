@@ -12,13 +12,19 @@ import {
     BondedTokensLcdDto,
     TokensStakingLcdToken
 } from "../../dto/http.dto";
-
+import { currentChain } from '../../constant/index'
 
 @Injectable()
 
 export class StakingHttp {
-    async queryValidatorListFromLcd(status:string, pageNum: number, pageSize: number) {
-        const validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&pageNum=${pageNum}&pageSize=${pageSize}`
+    async queryValidatorListFromLcd(status: string, pageNum: number, pageSize: number) {
+        let validatorLcdUri;
+        if (cfg.currentChain === currentChain.iris) {
+            validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&pageNum=${pageNum}&pageSize=${pageSize}`
+        } else {
+            validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&page=${pageNum}&limit=${pageSize}`
+        }
+        console.log(validatorLcdUri)
         try {
             let stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)
             if (stakingValidatorData && stakingValidatorData.result) {

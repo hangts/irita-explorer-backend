@@ -39,29 +39,29 @@ export class TasksService {
         this[`${TaskEnum.stakingSyncValidators}_timer`] = null;
         this[`${TaskEnum.stakingSyncParameters}_timer`] = null;
     }
-    @Cron(cfg.taskCfg.executeTime.denom)
-    //@Cron('50 * * * * *')
-    async syncDenoms() {
-        this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
-    }
+    // @Cron(cfg.taskCfg.executeTime.denom)
+    // //@Cron('50 * * * * *')
+    // async syncDenoms() {
+    //     this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
+    // }
 
-    @Cron(cfg.taskCfg.executeTime.nft)
-    //@Cron('40 * * * * *')
-    async syncNfts() {
-        this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
-    }
+    // @Cron(cfg.taskCfg.executeTime.nft)
+    // //@Cron('40 * * * * *')
+    // async syncNfts() {
+    //     this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
+    // }
 
-    @Cron(cfg.taskCfg.executeTime.txServiceName)
-    //@Cron('20 * * * * *')
-    async syncTxServiceName() {
-        this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.doTask);
-    }
+    // @Cron(cfg.taskCfg.executeTime.txServiceName)
+    // //@Cron('20 * * * * *')
+    // async syncTxServiceName() {
+    //     this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.doTask);
+    // }
 
-    @Cron(cfg.taskCfg.executeTime.validators)
-    //@Cron('03 * * * * *')
-    async syncValidators() {
-        this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
-    }
+    // @Cron(cfg.taskCfg.executeTime.validators)
+    // //@Cron('03 * * * * *')
+    // async syncValidators() {
+    //     this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
+    // }
 
     @Cron(cfg.taskCfg.executeTime.faultTolerance)
     //@Cron('18 * * * * *')
@@ -74,16 +74,16 @@ export class TasksService {
         });
     }
     //@Cron('1 * * * * *')
-    @Cron(cfg.taskCfg.executeTime.identity)
-    async syncIdentity() {
-        this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)
-    }
-    @Cron(cfg.taskCfg.executeTime.Tokens)
-    // @Cron('45 * * * * *')
-    async syncTokens() {
-        this.handleDoTask(TaskEnum.Tokens,this.TokensTaskService.doTask)
-    }
-    // @Cron('*/5 * * * * *')
+    // @Cron(cfg.taskCfg.executeTime.identity)
+    // async syncIdentity() {
+    //     this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)
+    // }
+    // @Cron(cfg.taskCfg.executeTime.Tokens)
+    // // @Cron('45 * * * * *')
+    // async syncTokens() {
+    //     this.handleDoTask(TaskEnum.Tokens,this.TokensTaskService.doTask)
+    // }
+
     @Cron(cfg.taskCfg.executeTime.stakingValidators)
     async syncStakingValidators() {
        this.handleDoTask(TaskEnum.stakingSyncValidators,this.stakingValidatorTaskService.doTask)

@@ -292,7 +292,8 @@ export class TokensStakingLcdToken {
 // staking/validators
 export class StakingValidatorLcdDto {
     operator_address: string;
-    consensus_pubkey: string;
+    // consensus_pubkey: string;
+    consensus_pubkey: object | string;
     jailed: boolean;
     status: number;
     tokens: string;
