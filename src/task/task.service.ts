@@ -73,7 +73,7 @@ export class TasksService {
             }
         });
     }
-    @Cron('1 * * * * *')
+    // @Cron('1 * * * * *')
     @Cron(cfg.taskCfg.executeTime.identity)
     async syncIdentity() {
         this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)

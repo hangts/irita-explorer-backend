@@ -20,8 +20,10 @@ export class StakingHttp {
     async queryValidatorListFromLcd(status: string, pageNum: number, pageSize: number) {
         let validatorLcdUri;
         if (cfg.currentChain === currentChain.iris) {
+            // iris
             validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&pageNum=${pageNum}&pageSize=${pageSize}`
         } else {
+            // cosmos
             validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&page=${pageNum}&limit=${pageSize}`
         }
         try {

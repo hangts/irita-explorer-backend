@@ -23,7 +23,8 @@ const {
     TOKENS,
     INCREASE_HEIGHT,
     MAX_OPERATE_TX_COUNT,
-    CURRENTCHAIN
+    CURRENTCHAIN,
+    MAINTOKEN
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -57,6 +58,7 @@ export const cfg = {
         increaseHeight: INCREASE_HEIGHT || 1000,
         maxOperateTxCount: MAX_OPERATE_TX_COUNT || 100,
     },
-    currentChain: CURRENTCHAIN || 'IRIS'
+    currentChain: CURRENTCHAIN || 'IRIS',
+    MAINTOKEN: MAINTOKEN ? JSON.parse(MAINTOKEN) : {"min_unit":"umuon","scale":"6","symbol":"muon"}
 };
 
