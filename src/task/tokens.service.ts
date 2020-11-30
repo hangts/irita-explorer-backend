@@ -28,7 +28,6 @@ export class TokensTaskService {
             TokensData = TokensLcdDto.bundleData([cfg.MAINTOKEN])
         }
         const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking)
-        console.log('stakingToken',stakingToken)
         let TokensDbMap = new Map()
         if (TokensData && TokensData.length > 0) {
             for (let token of TokensData) {
