@@ -6,6 +6,7 @@ import {Model} from "mongoose"
 import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp, hexToBech32} from "../util/util";
 import {addressPrefix, moduleSlashing, ValidatorStatus_str} from "../constant";
 import { cfg } from '../config/config';
+import { currentChain } from '../constant/index'
 
 @Injectable()
 
@@ -62,9 +63,10 @@ export class StakingValidatorTaskService {
             }
             allValidatorsFromLcd[i].jailed = allValidatorsFromLcd[i].jailed || false
             // todo:duanjie  cosmos:consensus_pubkey发生变化,原有编码方式不能使用,proposer_addr出块人地址
-            const BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
-            allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
-
+            if (cfg.currentChain === currentChain.iris) {
+                const BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
+                allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
+            }
             await this.updateSlashInfo(allValidatorsFromLcd[i])
             await this.updateSelfBond(allValidatorsFromLcd[i])
             await this.updateIcons(allValidatorsFromLcd[i])
@@ -118,14 +120,16 @@ export class StakingValidatorTaskService {
     private async updateSlashInfo(dbValidators) {        
         if (dbValidators.consensus_pubkey) {
             // todo:duanjie cosmos:consensus_pubkey发生变化,原有编码方式不能使用
-            let icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey),addressPrefix.ica);
-            let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
-            let validatorObject = dbValidators
-            validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
-            validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
-            validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
-            validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
-            validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
+            if (cfg.currentChain === currentChain.iris) {
+                let icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey),addressPrefix.ica);
+                let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
+                let validatorObject = dbValidators
+                validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
+                validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
+                validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
+                validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
+                validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
+            }
         }
 
     }
