@@ -21,7 +21,7 @@ TokensSchema.statics = {
         //设置 options 查询不到就插入操作
         let {min_unit} = Tokens
         const options = {upsert: true, new: false, setDefaultsOnInsert: true}
-        await this.findOneAndUpdate({min_unit}, Tokens, options)
+        await this.findOneAndUpdate({ min_unit }, Tokens, options)
     },
     async queryAllTokens() {
         return await this.find({})
