@@ -110,8 +110,8 @@ export class TasksService {
     }
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
         // 只执行一次删除定时任务
-        if (this['once'] && cfg.taskCfg.DELETECRONJOBS && cfg.taskCfg.DELETECRONJOBS.length) {
-            cfg.taskCfg.DELETECRONJOBS.forEach(async item => {
+        if (this['once'] && cfg.taskCfg.DELETE_CRON_JOBS && cfg.taskCfg.DELETE_CRON_JOBS.length) {
+            cfg.taskCfg.DELETE_CRON_JOBS.forEach(async item => {
                 this.schedulerRegistry.deleteCronJob(item)
                 await this.taskDispatchService.deleteOneByName(item)
             })
