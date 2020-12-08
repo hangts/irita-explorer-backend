@@ -101,6 +101,7 @@ TaskDispatchSchema.statics = {
             hearbeat_update_time: getTimestamp(),
         }).exec();
     },
-
-
+    async deleteOneByName(name: TaskEnum) {
+        await this.deleteOne({name: name})
+    }
 };
