@@ -63,7 +63,7 @@ TaskDispatchSchema.statics = {
                 }
 
                 //TODO(lvshenchao) it seems like that there is a bug in mongoose, the params of nModified returned 0 while record was be updated
-                console.log('updated unlock:',effect);
+                // console.log('updated unlock:',effect);
                 //console.log('updated unlock:',await this.find({ name}))
                 if(effect && effect.nModified === 1){
                     taskLoggerHelper(`${name}: unlock successful, From task.dispatch.schema ${name} task end time: ${new Date().getTime()}`, randomKey);

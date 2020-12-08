@@ -109,6 +109,13 @@ export class TasksService {
         this.handleDoTask(TaskEnum.stakingSyncParameters,this.parametersTaskService.doTask)
     }
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
+        // 只执行一次删除定时任务
+        if (this['once'] && cfg.taskCfg.DELETECRONJOB && cfg.taskCfg.DELETECRONJOB.length) {
+            cfg.taskCfg.DELETECRONJOB.forEach(item => {
+                this.schedulerRegistry.deleteCronJob(item)
+            })
+            this['once'] = false
+        }
         const needDoTask: boolean = await this.taskDispatchService.needDoTask(taskName);
         Logger.log(`the ip ${getIpAddress()} (process pid is ${process.pid}) should do task ${taskName}? ${needDoTask}`);
         if (needDoTask) {
@@ -148,13 +155,6 @@ export class TasksService {
                     this[`${taskName}_timer`] = null;
                 }
             }
-        }
-        
-        if (this['once'] && cfg.taskCfg.DELETECRONJOB && cfg.taskCfg.DELETECRONJOB.length) {
-            cfg.taskCfg.DELETECRONJOB.forEach(item => {
-                this.schedulerRegistry.deleteCronJob(item)
-            })
-            this['once'] = false
         }
     }
 
