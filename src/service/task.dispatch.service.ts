@@ -93,6 +93,9 @@ export class TaskDispatchService {
         await (this.taskDispatchModel as any).updateHeartbeatUpdateTime(name, randomKey);
     }
 
+    public async deleteOneByName(name: TaskEnum): Promise<void> {
+        await (this.taskDispatchModel as any).deleteOneByName(name);
+    }
 
 }
 

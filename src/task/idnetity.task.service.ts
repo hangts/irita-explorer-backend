@@ -178,7 +178,7 @@ export class IdentityTaskService {
             }
             newIdentityUpdateDataMap.set(data.identities_id,identity);
         });
-        await this.identityTaskModel.insertIdentityInfo(identityInsertData)
+        identityInsertData.length ? await this.identityTaskModel.insertIdentityInfo(identityInsertData) : ''
         newIdentityUpdateDataMap.forEach((item: IUpDateIdentityCredentials) => {
             this.identityTaskModel.updateIdentityInfo(item)
         })
