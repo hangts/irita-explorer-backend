@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Cron,SchedulerRegistry } from '@nestjs/schedule';
 import { TxTaskService } from './tx.task.service';
 import { DenomTaskService } from './denom.task.service';
 import { NftTaskService } from './nft.task.service';
@@ -27,7 +27,8 @@ export class TasksService {
         private readonly identityTaskService: IdentityTaskService,
         private readonly stakingValidatorTaskService: StakingValidatorTaskService,
         private readonly parametersTaskService: ParametersTaskService,
-        private readonly TokensTaskService:TokensTaskService
+        private readonly TokensTaskService: TokensTaskService,
+        private schedulerRegistry: SchedulerRegistry,
     ) {
         this[`${TaskEnum.denom}_timer`] = null;
         this[`${TaskEnum.nft}_timer`] = null;
@@ -36,26 +37,35 @@ export class TasksService {
         this[`${TaskEnum.identity}_timer`] = null;
         this[`${TaskEnum.stakingSyncValidators}_timer`] = null;
         this[`${TaskEnum.stakingSyncParameters}_timer`] = null;
+        this['once']= true
     }
-    @Cron(cfg.taskCfg.executeTime.denom)
+    @Cron(cfg.taskCfg.executeTime.denom, {
+        name: TaskEnum.denom
+    })
     //@Cron('50 * * * * *')
     async syncDenoms() {
         this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
     }
 
-    @Cron(cfg.taskCfg.executeTime.nft)
+    @Cron(cfg.taskCfg.executeTime.nft, {
+        name: TaskEnum.nft
+    })
     // @Cron('50 * * * * *')
     async syncNfts() {
         this.handleDoTask(TaskEnum.nft, this.nftTaskService.doTask);
     }
 
-    @Cron(cfg.taskCfg.executeTime.txServiceName)
+    @Cron(cfg.taskCfg.executeTime.txServiceName, {
+        name: TaskEnum.txServiceName
+    })
     //@Cron('20 * * * * *')
     async syncTxServiceName() {
         this.handleDoTask(TaskEnum.txServiceName, this.txTaskService.doTask);
     }
 
-    @Cron(cfg.taskCfg.executeTime.validators)
+    @Cron(cfg.taskCfg.executeTime.validators, {
+        name: TaskEnum.validators
+    })
     //@Cron('03 * * * * *')
     async syncValidators() {
         this.handleDoTask(TaskEnum.validators, this.validatorsTaskService.doTask);
@@ -67,21 +77,29 @@ export class TasksService {
         this.taskDispatchService.taskDispatchFaultTolerance();
     }
     //@Cron('1 * * * * *')
-    @Cron(cfg.taskCfg.executeTime.identity)
+    @Cron(cfg.taskCfg.executeTime.identity, {
+        name: TaskEnum.identity
+    })
     async syncIdentity() {
         this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)
     }
-    @Cron(cfg.taskCfg.executeTime.Tokens)
+    @Cron(cfg.taskCfg.executeTime.Tokens, {
+        name: TaskEnum.Tokens
+    })
     // @Cron('45 * * * * *')
     async syncTokens() {
         this.handleDoTask(TaskEnum.Tokens,this.TokensTaskService.doTask)
     }
     // @Cron('*/5 * * * * *')
-    @Cron(cfg.taskCfg.executeTime.stakingValidators)
+    @Cron(cfg.taskCfg.executeTime.stakingValidators, {
+        name: TaskEnum.stakingSyncValidators
+    })
     async syncStakingValidators() {
        this.handleDoTask(TaskEnum.stakingSyncValidators,this.stakingValidatorTaskService.doTask)
     }
-    @Cron(cfg.taskCfg.executeTime.stakingParameters)
+    @Cron(cfg.taskCfg.executeTime.stakingParameters, {
+        name: TaskEnum.stakingSyncParameters
+    })
     async syncStakingParmeters(){
         this.handleDoTask(TaskEnum.stakingSyncParameters,this.parametersTaskService.doTask)
     }
@@ -113,8 +131,14 @@ export class TasksService {
                 }
             }
         }
+        
+        if (this['once'] && cfg.taskCfg.DELETECRONJOB && cfg.taskCfg.DELETECRONJOB.length) {
+            cfg.taskCfg.DELETECRONJOB.forEach(item => {
+                this.schedulerRegistry.deleteCronJob(item)
+            })
+            this['once'] = false
+        }
     }
-
     async updateHeartbeatUpdateTime(name: TaskEnum): Promise<void> {
         await this.taskDispatchService.updateHeartbeatUpdateTime(name);
     }

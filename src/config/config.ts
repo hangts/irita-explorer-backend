@@ -23,6 +23,7 @@ const {
     TOKENS,
     INCREASE_HEIGHT,
     MAX_OPERATE_TX_COUNT,
+    DELETECRONJOB
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -55,6 +56,7 @@ export const cfg = {
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
         increaseHeight: INCREASE_HEIGHT || 1000,
         maxOperateTxCount: MAX_OPERATE_TX_COUNT || 100,
+        DELETECRONJOB: DELETECRONJOB ? JSON.parse(DELETECRONJOB) : []
     },
 };
 
