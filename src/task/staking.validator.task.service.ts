@@ -4,7 +4,7 @@ import {StakingHttp} from "../http/lcd/staking.http";
 import {BlockHttp} from "../http/lcd/block.http";
 import {Model} from "mongoose"
 import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp, hexToBech32} from "../util/util";
-import {addressPrefix, moduleSlashing, ValidatorStatus_str} from "../constant";
+import {addressPrefix, moduleSlashing, validatorStatusStr} from "../constant";
 import { cfg } from '../config/config';
 import { currentChain } from '../constant/index'
 
@@ -20,9 +20,9 @@ export class StakingValidatorTaskService {
     async doTask(): Promise<void> {
         let pageNum = 1, pageSize = 1000, allValidatorsFromLcd = []
         let validatorsFromDb = await (this.stakingSyncValidatorsModel as any).queryAllValidators();
-        let validatorsFromLcd_bonded = await this.stakingHttp.queryValidatorListFromLcd(ValidatorStatus_str.bonded ,pageNum, pageSize)
-        let validatorsFromLcd_unbonded = await this.stakingHttp.queryValidatorListFromLcd(ValidatorStatus_str.unbonded, pageNum, pageSize)
-        let validatorsFromLcd_unbonding = await this.stakingHttp.queryValidatorListFromLcd(ValidatorStatus_str.unbonding, pageNum, pageSize)
+        let validatorsFromLcd_bonded = await this.stakingHttp.queryValidatorListFromLcd(validatorStatusStr.bonded ,pageNum, pageSize)
+        let validatorsFromLcd_unbonded = await this.stakingHttp.queryValidatorListFromLcd(validatorStatusStr.unbonded, pageNum, pageSize)
+        let validatorsFromLcd_unbonding = await this.stakingHttp.queryValidatorListFromLcd(validatorStatusStr.unbonding, pageNum, pageSize)
         allValidatorsFromLcd = [...(validatorsFromLcd_bonded || []),...(validatorsFromLcd_unbonded || []),...(validatorsFromLcd_unbonding || [])];
         if (!allValidatorsFromLcd.length) {
             return;
@@ -62,10 +62,19 @@ export class StakingValidatorTaskService {
                 allValidatorsFromLcd[i].voting_power = Number(allValidatorsFromLcd[i].tokens)
             }
             allValidatorsFromLcd[i].jailed = allValidatorsFromLcd[i].jailed || false
-            // todo:duanjie  cosmos:consensus_pubkey发生变化,原有编码方式不能使用,proposer_addr出块人地址
-            if (cfg.currentChain === currentChain.iris) {
-                const BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
-                allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
+            let BlockProposer;
+            switch (cfg.currentChain) {
+                case currentChain.iris:
+                    // iris
+                    BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
+                    allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
+                    break;
+                case currentChain.cosmos:
+                    // todo:duanjie  cosmos:consensus_pubkey发生变化,原有编码方式不能使用,proposer_addr出块人地址
+                    // cosmos
+                    break;
+                default:
+                    break;
             }
             await this.updateSlashInfo(allValidatorsFromLcd[i])
             await this.updateSelfBond(allValidatorsFromLcd[i])
@@ -119,19 +128,27 @@ export class StakingValidatorTaskService {
 
     private async updateSlashInfo(dbValidators) {        
         if (dbValidators.consensus_pubkey) {
-            // todo:duanjie cosmos:consensus_pubkey发生变化,原有编码方式不能使用
-            if (cfg.currentChain === currentChain.iris) {
-                let icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey),addressPrefix.ica);
-                let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
-                let validatorObject = dbValidators
-                validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
-                validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
-                validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
-                validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
-                validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
+            let icaAddr, signingInfo, validatorObject;
+            switch (cfg.currentChain) {
+                case currentChain.iris:
+                    // iris
+                    icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey), addressPrefix.ica);
+                    signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
+                    validatorObject = dbValidators
+                    validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
+                    validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
+                    validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
+                    validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
+                    validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
+                    break;
+                case currentChain.cosmos:
+                    // todo:duanjie cosmos:consensus_pubkey发生变化,原有编码方式不能使用
+                    // cosmos
+                    break;
+                default:
+                    break;
             }
         }
-
     }
 
     private async updateSelfBond(dbValidators) {

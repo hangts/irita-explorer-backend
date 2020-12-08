@@ -137,16 +137,6 @@ export enum currentChain  {
     iris ='IRIS'
 }
 
-export const addressPrefix = cfg.currentChain === currentChain.iris ? {
-    iaa: 'iaa',
-    iva: 'iva',
-    ica: 'ica'
-} : {
-        iaa: 'cosmos',
-        iva: 'cosmosvaloper',
-        ica: 'cosmosvalcons'
-    }
-
 export const signedBlocksWindow = 'signed_blocks_window'
 export const hubDefaultEmptyValue = '[do-not-modify]'
 export const moduleSlashing = 'slashing'
@@ -160,15 +150,38 @@ export const ValidatorStatus = {
     'bonded': 3,
 }
 
-export const ValidatorStatus_str = cfg.currentChain === currentChain.iris ? {
-    'unbonded': 'unbonded',
-    'unbonding': 'unbonding',
-    'bonded': 'bonded',
-} : {
-        'unbonded': 'BOND_STATUS_UNBONDED',
-        'unbonding': 'BOND_STATUS_UNBONDING',
-        'bonded': 'BOND_STATUS_BONDED',
-    }
+let addressPrefix,validatorStatusStr;
+switch (cfg.currentChain) {
+    case currentChain.iris:
+        validatorStatusStr = {
+            'unbonded': 'unbonded',
+            'unbonding': 'unbonding',
+            'bonded': 'bonded'
+        };
+        addressPrefix = {
+            iaa: 'iaa',
+            iva: 'iva',
+            ica: 'ica'
+        }
+        break;
+    case currentChain.cosmos:
+        validatorStatusStr = {
+            'unbonded': 'BOND_STATUS_UNBONDED',
+            'unbonding': 'BOND_STATUS_UNBONDING',
+            'bonded': 'BOND_STATUS_BONDED'
+        };
+        addressPrefix = {
+            iaa: 'cosmos',
+            iva: 'cosmosvaloper',
+            ica: 'cosmosvalcons'
+        }
+        break;
+    default:
+        break;
+}
+export {
+    validatorStatusStr,addressPrefix
+}
 
 export const ValidatorNumberStatus = {
     1: 'candidate',

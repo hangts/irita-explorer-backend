@@ -19,12 +19,17 @@ import { currentChain } from '../../constant/index'
 export class StakingHttp {
     async queryValidatorListFromLcd(status: string, pageNum: number, pageSize: number) {
         let validatorLcdUri;
-        if (cfg.currentChain === currentChain.iris) {
-            // iris
-            validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&pageNum=${pageNum}&pageSize=${pageSize}`
-        } else {
-            // cosmos
-            validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&page=${pageNum}&limit=${pageSize}`
+        switch (cfg.currentChain) {
+            case currentChain.iris:
+                // iris
+                validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&pageNum=${pageNum}&pageSize=${pageSize}`
+                break;
+            case currentChain.cosmos:
+                // cosmos
+                validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&page=${pageNum}&limit=${pageSize}`
+                break;
+            default:
+                break;
         }
         try {
             let stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)

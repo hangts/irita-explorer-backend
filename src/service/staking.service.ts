@@ -103,7 +103,6 @@ export default class StakingService {
             result.data = ValidatorDelegationsResDto.bundleData(resultData)
         } else {
             let pageNationData = pageNation(resultData, q.pageSize)
-            console.log(pageNationData,222,pageNationData[q.pageNum - 1],1111)
             result.data = ValidatorDelegationsResDto.bundleData(pageNationData[q.pageNum - 1])
         }
         return new ListStruct(result.data, q.pageNum, q.pageSize, count)

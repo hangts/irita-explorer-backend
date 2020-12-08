@@ -29,10 +29,11 @@ import {ProfilerModule} from "./module/profiler.module";
 import {StakingModule} from "./module/staking.module";
 import { TokensTaskModule } from "./module/tokens.task.module";
 import { AssetModule } from './module/asset.module';
-import { addressPrefix,ValidatorStatus_str } from './constant/index'
+
+import { addressPrefix,validatorStatusStr } from './constant/index'
 console.log(cfg);
 console.log(addressPrefix)
-console.log(ValidatorStatus_str)
+console.log(validatorStatusStr)
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 const params = {
     imports: [

@@ -20,13 +20,19 @@ export class TokensTaskService {
     }
     async doTask(): Promise<void> {
         let TokensData;
-        if (cfg.currentChain === currentChain.iris) {
-            // iris
-            TokensData = await this.TokensHttp.getTokens()
-        } else {
-            // cosmos
-            TokensData = TokensLcdDto.bundleData([cfg.MAIN_TOKEN])
+        switch (cfg.currentChain) {
+            case currentChain.iris:
+                // iris
+                TokensData = await this.TokensHttp.getTokens()
+                break;
+            case currentChain.cosmos:
+                // cosmos
+                TokensData = TokensLcdDto.bundleData([cfg.MAIN_TOKEN])
+                break;
+            default:
+                break;
         }
+
         const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking)
         let TokensDbMap = new Map()
         if (TokensData && TokensData.length > 0) {
