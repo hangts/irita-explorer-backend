@@ -40,7 +40,7 @@ export const cfg = {
     },
     taskCfg:{
         interval:{
-            heartbeatRate:Number(HEARTBEAT_RATE || 10),
+            heartbeatRate:Number(HEARTBEAT_RATE || 10000),
         },
         executeTime:{
             denom:DENOM_EXECUTE_TIME || '1 * * * * *',

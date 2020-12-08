@@ -21,3 +21,8 @@ export interface IResultBase {
     data?: any;
     message?: string;
 }
+
+export interface IRandomKey {
+    key: string;
+    step: number;
+}
