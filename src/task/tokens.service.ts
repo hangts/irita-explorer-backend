@@ -25,7 +25,7 @@ export class TokensTaskService {
             TokensData = await this.TokensHttp.getTokens()
         } else {
             // cosmos
-            TokensData = TokensLcdDto.bundleData([cfg.MAINTOKEN])
+            TokensData = TokensLcdDto.bundleData([cfg.MAIN_TOKEN])
         }
         const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking)
         let TokensDbMap = new Map()
