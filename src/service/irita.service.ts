@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct, Result } from '../api/ApiResult';
-
+import { addressPrefix } from '../constant/index'
 import {NetworkResDto, TokensResDto} from '../dto/irita.dto';
 @Injectable()
 export class IritaService {
@@ -13,9 +13,9 @@ export class IritaService {
         let result:any = {}
         let netWorkDbData = await this.networkModel.queryNetworkList();
         const TokensData = await (this.tokensModel as any).queryAllTokens()
-        console.log(TokensData)
         result.networkData = NetworkResDto.bundleData(netWorkDbData);
         result.tokenData = TokensResDto.bundleData(TokensData)
+        result.addressPrefix = addressPrefix
         return result
     }
 }
