@@ -127,7 +127,6 @@ export class IdentityTaskService {
                     //ex_sync_identity identity
                     const insertData: IIdentityStruct = await this.handleCreateIdentity(item, value)
                     identityInsertData.push(insertData)
-                    console.log('先执行')
                     //ex_sync_identity_pubkey   pubkey
                     if (value.msg.pubkey) {
                         const pubkeyData: IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
