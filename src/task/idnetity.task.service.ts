@@ -117,30 +117,31 @@ export class IdentityTaskService {
     async doTask(): Promise<void> {
         const height: number = await this.identityTaskModel.queryHeight() || 0
         const limitSize:number = IdentityLimitSize
-        const txlist = await this.txModel.queryListByCreateAndUpDateIdentity(height,limitSize)
+        const txlist = await this.txModel.queryListByCreateAndUpDateIdentity(height+1, limitSize)
         const identityInsertData: any = [], identityUpdateData: any = [], pubkeyInsertData: any = [],
             certificateInsertData: any = [], pubKeyByCertificateData: any = []
-        txlist.forEach(item => {
-            item.msgs.forEach(async (value: any, msgIndex: number) => {
+        for (const item of txlist) {
+            for (let msgIndex: number = 0; msgIndex < item.msgs.length; msgIndex++) {
+                let value: any = item.msgs[msgIndex]
                 if (value.type === TxType.create_identity) {
                     //ex_sync_identity identity
-                    const insertData:IIdentityStruct = await this.handleCreateIdentity(item, value)
+                    const insertData: IIdentityStruct = await this.handleCreateIdentity(item, value)
                     identityInsertData.push(insertData)
-
+                    console.log('先执行')
                     //ex_sync_identity_pubkey   pubkey
                     if (value.msg.pubkey) {
-                        const pubkeyData:IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
+                        const pubkeyData: IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
                         pubkeyInsertData.push(pubkeyData)
                     }
 
                     // ex_sync_identity_certificate certificate
                     if (value.msg.certificate) {
-                        const certificateData:IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
+                        const certificateData: IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
                         certificateInsertData.push(certificateData)
                     }
 
-                    if(value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey){
-                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item,value,msgIndex)
+                    if (value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey) {
+                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item, value, msgIndex)
                         pubKeyByCertificateData.push(pubKeyByCertificate)
                     }
 
@@ -152,23 +153,23 @@ export class IdentityTaskService {
 
                     //ex_sync_identity_pubkey   pubkey
                     if (value.msg.pubkey) {
-                        const pubkeyData:IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
+                        const pubkeyData: IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
                         pubkeyInsertData.push(pubkeyData)
                     }
 
                     // ex_sync_identity_certificate certificate
                     if (value.msg.certificate) {
-                        const certificateData:IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
+                        const certificateData: IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
                         certificateInsertData.push(certificateData)
                     }
 
-                    if(value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey){
-                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item,value,msgIndex)
+                    if (value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey) {
+                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item, value, msgIndex)
                         pubKeyByCertificateData.push(pubKeyByCertificate)
                     }
                 }
-            })
-        })
+            }
+        }
         let newIdentityUpdateDataMap = new Map();
         identityUpdateData.forEach((data) => {
             let identity = {...data};
@@ -178,9 +179,7 @@ export class IdentityTaskService {
             }
             newIdentityUpdateDataMap.set(data.identities_id,identity);
         });
-        setTimeout(async () => {
-            identityInsertData.length ? await this.identityTaskModel.insertIdentityInfo(identityInsertData) : ''
-        }, 0);
+        identityInsertData.length ? await this.identityTaskModel.insertIdentityInfo(identityInsertData) : ''
         newIdentityUpdateDataMap.forEach((item: IUpDateIdentityCredentials) => {
             this.identityTaskModel.updateIdentityInfo(item)
         })
