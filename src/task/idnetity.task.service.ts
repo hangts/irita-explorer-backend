@@ -120,27 +120,27 @@ export class IdentityTaskService {
         const txlist = await this.txModel.queryListByCreateAndUpDateIdentity(height,limitSize)
         const identityInsertData: any = [], identityUpdateData: any = [], pubkeyInsertData: any = [],
             certificateInsertData: any = [], pubKeyByCertificateData: any = []
-        txlist.forEach(item => {
-            item.msgs.forEach(async (value: any, msgIndex: number) => {
+        for (const item of txlist) {
+            for (let msgIndex: number = 0; msgIndex < item.msgs.length; msgIndex++) {
+                let value: any = item.msgs[msgIndex]
                 if (value.type === TxType.create_identity) {
                     //ex_sync_identity identity
-                    const insertData:IIdentityStruct = await this.handleCreateIdentity(item, value)
+                    const insertData: IIdentityStruct = await this.handleCreateIdentity(item, value)
                     identityInsertData.push(insertData)
-
                     //ex_sync_identity_pubkey   pubkey
                     if (value.msg.pubkey) {
-                        const pubkeyData:IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
+                        const pubkeyData: IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
                         pubkeyInsertData.push(pubkeyData)
                     }
 
                     // ex_sync_identity_certificate certificate
                     if (value.msg.certificate) {
-                        const certificateData:IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
+                        const certificateData: IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
                         certificateInsertData.push(certificateData)
                     }
 
-                    if(value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey){
-                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item,value,msgIndex)
+                    if (value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey) {
+                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item, value, msgIndex)
                         pubKeyByCertificateData.push(pubKeyByCertificate)
                     }
 
@@ -152,23 +152,23 @@ export class IdentityTaskService {
 
                     //ex_sync_identity_pubkey   pubkey
                     if (value.msg.pubkey) {
-                        const pubkeyData:IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
+                        const pubkeyData: IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
                         pubkeyInsertData.push(pubkeyData)
                     }
 
                     // ex_sync_identity_certificate certificate
                     if (value.msg.certificate) {
-                        const certificateData:IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
+                        const certificateData: IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
                         certificateInsertData.push(certificateData)
                     }
 
-                    if(value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey){
-                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item,value,msgIndex)
+                    if (value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey) {
+                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item, value, msgIndex)
                         pubKeyByCertificateData.push(pubKeyByCertificate)
                     }
                 }
-            })
-        })
+            }
+        }
         let newIdentityUpdateDataMap = new Map();
         identityUpdateData.forEach((data) => {
             let identity = {...data};
