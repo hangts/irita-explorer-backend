@@ -117,7 +117,7 @@ export class IdentityTaskService {
     async doTask(): Promise<void> {
         const height: number = await this.identityTaskModel.queryHeight() || 0
         const limitSize:number = IdentityLimitSize
-        const txlist = await this.txModel.queryListByCreateAndUpDateIdentity(height+1, limitSize)
+        const txlist = await this.txModel.queryListByCreateAndUpDateIdentity(height, limitSize)
         const identityInsertData: any = [], identityUpdateData: any = [], pubkeyInsertData: any = [],
             certificateInsertData: any = [], pubKeyByCertificateData: any = []
         for (const item of txlist) {
