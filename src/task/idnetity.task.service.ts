@@ -9,6 +9,7 @@ import {
 import {getTimestamp} from '../util/util';
 import md5 from 'blueimp-md5';
 import { taskLoggerHelper } from '../helper/task.log.helper';
+import { getTaskStatus } from '../helper/task.helper'
 @Injectable()
 
 export class IdentityTaskService {
@@ -117,8 +118,8 @@ export class IdentityTaskService {
     }
 
     async doTask(taskName?: TaskEnum): Promise<void> {
-        let count: number = await (this.taskModel as any).queryTaskCount()
-        if ( count <= 0) {
+        let status: boolean = await getTaskStatus(this.taskModel)
+        if (!status) {
             taskLoggerHelper(`${taskName}: Catch-up status task suspended`)
             return
         }

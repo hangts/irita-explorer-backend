@@ -12,7 +12,7 @@ import { INCREASE_HEIGHT, MAX_OPERATE_TX_COUNT, NFT_INFO_DO_NOT_MODIFY, TaskEnum
 import {Logger} from '../logger'
 import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
-
+import { getTaskStatus } from '../helper/task.helper'
 @Injectable()
 export class NftTaskService {
     constructor(@InjectModel('Nft') private nftModel: Model<INft>,
@@ -24,8 +24,8 @@ export class NftTaskService {
     }
 
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
-        let count: number = await (this.taskModel as any).queryTaskCount()
-        if ( count <= 0) {
+        let status: boolean = await getTaskStatus(this.taskModel)
+        if (!status) {
             taskLoggerHelper(`${taskName}: Catch-up status task suspended`)
             return
         }

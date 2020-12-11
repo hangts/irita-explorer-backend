@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct, Result } from '../api/ApiResult';
-import {NetworkResDto, TokensResDto,StatusResDto} from '../dto/irita.dto';
+import { NetworkResDto, TokensResDto, StatusResDto } from '../dto/irita.dto';
+import { getTaskStatus } from '../helper/task.helper'
 @Injectable()
 export class IritaService {
     constructor(@InjectModel('Network') private networkModel: any,
@@ -20,8 +21,7 @@ export class IritaService {
         return result
     }
     async queryStatus(): Promise<StatusResDto>{
-        let count: number = await (this.taskModel as any).queryTaskCount() 
-        let status: boolean =  count > 0
+        let status:boolean = await getTaskStatus(this.taskModel)
         return new StatusResDto(status)
     }
 }
