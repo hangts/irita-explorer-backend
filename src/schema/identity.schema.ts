@@ -50,7 +50,9 @@ IdentitySchema.statics = {
   },
 
   async insertIdentityInfo(IdentityInfo) {
-      await  this.insertMany(IdentityInfo,{ ordered: false })
+      await  this.insertMany(IdentityInfo,{ ordered: false },(error) => {
+        //console.log(error)
+      })
   },
   // base information
   async updateIdentityInfo(updateIdentityData) {
