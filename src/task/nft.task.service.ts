@@ -18,14 +18,14 @@ export class NftTaskService {
     constructor(@InjectModel('Nft') private nftModel: Model<INft>,
                 @InjectModel('Tx') private txModel: any,
                 @InjectModel('Denom') private denomModel: any,
-                @InjectModel('TaskSchema') private taskModel: any,
+                @InjectModel('SyncTask') private taskModel: any,
     ) {
         this.doTask = this.doTask.bind(this);
     }
 
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
-        let status: boolean = await (this.taskModel as any).queryTaskStatus()
-        if (!status) {
+        let count: number = await (this.taskModel as any).queryTaskCount()
+        if ( count <= 0) {
             taskLoggerHelper(`${taskName}: Catch-up status task suspended`)
             return
         }

@@ -17,7 +17,7 @@ export class IdentityTaskService {
         @InjectModel('Pubkey') private pubkeyModel: any,
         @InjectModel('Certificate') private certificateModel: any,
         @InjectModel('Tx') private txModel: any,
-        @InjectModel('TaskSchema') private taskModel: any,
+        @InjectModel('SyncTask') private taskModel: any,
     ) {
         this.doTask = this.doTask.bind(this);
     }
@@ -117,8 +117,8 @@ export class IdentityTaskService {
     }
 
     async doTask(taskName?: TaskEnum): Promise<void> {
-        let status: boolean = await (this.taskModel as any).queryTaskStatus()
-        if (!status) {
+        let count: number = await (this.taskModel as any).queryTaskCount()
+        if ( count <= 0) {
             taskLoggerHelper(`${taskName}: Catch-up status task suspended`)
             return
         }

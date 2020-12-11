@@ -7,7 +7,7 @@ import {NetworkResDto, TokensResDto,StatusResDto} from '../dto/irita.dto';
 export class IritaService {
     constructor(@InjectModel('Network') private networkModel: any,
                 @InjectModel('Tokens') private tokensModel: Model<any>,
-                @InjectModel('TaskSchema') private taskModel: any
+                @InjectModel('SyncTask') private taskModel: any
                 ) {
     }
     async queryConfig(): Promise<Result<any>>{
@@ -20,7 +20,8 @@ export class IritaService {
         return result
     }
     async queryStatus(): Promise<StatusResDto>{
-        let status: boolean = await (this.taskModel as any).queryTaskStatus()
+        let count: number = await (this.taskModel as any).queryTaskCount() 
+        let status: boolean =  count > 0
         return new StatusResDto(status)
     }
 }
