@@ -24,9 +24,8 @@ export class NftTaskService {
     }
 
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
-        let status: boolean = await getTaskStatus(this.taskModel)
+        let status: boolean = await getTaskStatus(this.taskModel,taskName)
         if (!status) {
-            taskLoggerHelper(`${taskName}: Catch-up status task suspended`)
             return
         }
         taskLoggerHelper(`${taskName}: start to execute task`, randomKey);

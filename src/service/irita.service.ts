@@ -21,7 +21,7 @@ export class IritaService {
         return result
     }
     async queryStatus(): Promise<StatusResDto>{
-        let status:boolean = await getTaskStatus(this.taskModel)
+        let status:boolean = await getTaskStatus(this.taskModel,'')
         return new StatusResDto(status)
     }
 }
