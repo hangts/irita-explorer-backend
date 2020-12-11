@@ -18,11 +18,17 @@ export class NftTaskService {
     constructor(@InjectModel('Nft') private nftModel: Model<INft>,
                 @InjectModel('Tx') private txModel: any,
                 @InjectModel('Denom') private denomModel: any,
+                @InjectModel('TaskSchema') private taskModel: any,
     ) {
         this.doTask = this.doTask.bind(this);
     }
 
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
+        let status: boolean = await (this.taskModel as any).queryTaskStatus()
+        if (!status) {
+            taskLoggerHelper(`${taskName}: Catch-up status task suspended`)
+            return
+        }
         taskLoggerHelper(`${taskName}: start to execute task`, randomKey);
         const nftList: INftStruct[] = await (this.nftModel as any).queryLastBlockHeight();
         taskLoggerHelper(`${taskName}: execute task (step should be start step + 1)`, randomKey);
