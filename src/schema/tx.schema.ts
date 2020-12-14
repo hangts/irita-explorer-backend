@@ -184,16 +184,31 @@ TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Prom
     return result;
 };
 
-//  txs/e
-TxSchema.statics.queryTxList_e = async function(types:string, height:number, pageNum:number, pageSize:number, useCount:boolean): Promise<IListStruct> {
+//  txs/e 供edgeServer调用  返回数据不做过滤
+TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, useCount:boolean): Promise<IListStruct> {
     let result: IListStruct = {};
     let queryParameters: any = {};
     if (types && types.length) {
         queryParameters['msgs.type'] = {'$in':types.split(',')};
     }
-    if (height) {
-        queryParameters['height'] = {'$gte':height};
+    if (gt_height) {
+        queryParameters['height'] = {'$gt':gt_height};
     }
+    result.data = await this.find(queryParameters)
+        .sort({ height: 1 })
+        .skip((Number(pageNum) - 1) * Number(pageSize))
+        .limit(Number(pageSize));
+
+    if (useCount && useCount == true) {
+        result.count = await this.find(queryParameters).countDocuments();
+    }
+    return result;
+};
+
+//  供edgeServer调用  返回数据不做过滤
+TxSchema.statics.queryTxListByHeightEdge = async function(height:number, pageNum:number, pageSize:number, useCount:boolean): Promise<IListStruct> {
+    let result: IListStruct = {};
+    let queryParameters: any = {height:height};
     result.data = await this.find(queryParameters)
         .sort({ height: 1 })
         .skip((Number(pageNum) - 1) * Number(pageSize))

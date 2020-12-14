@@ -60,8 +60,8 @@ export class TxController {
 
     // 供eageServer调用  返回数据不做过滤
     @Get('/e')
-    async queryTxList_e(@Query() query: eTxListReqDto): Promise<Result<ListStruct<any>>> {
-        const data: ListStruct<TxResDto[]> = await this.txService.queryTxList_e(query);
+    async queryTxListEdge(@Query() query: eTxListReqDto): Promise<Result<ListStruct<any>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryTxListEdge(query);
         return new Result<any>(data);
     }
 
