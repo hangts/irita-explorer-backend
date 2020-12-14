@@ -26,7 +26,7 @@ IdentitySchema.statics = {
     const queryParameters: any = {};
     if(query.search && query.search !== ''){
       //单条件模糊查询使用$regex $options为'i' 不区分大小写
-      queryParameters.$in = [
+      queryParameters.$or = [
         {identities_id:{ $regex: query.search,$options:'i' }},
         {owner:{ $regex: query.search,$options:'i' }}
       ]
