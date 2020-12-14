@@ -5,7 +5,7 @@ import { IdentityTaskService } from '../task/idnetity.task.service';
 import { TxSchema } from '../schema/tx.schema';
 import { PubkeySchema } from '../schema/pubkey.schema';
 import { CertificateSchema } from '../schema/certificate.schema';
-
+import { SyncTaskSchema } from '../schema/sync.task.schema';
 @Module({
   imports:[
     MongooseModule.forFeature([{
@@ -24,7 +24,11 @@ import { CertificateSchema } from '../schema/certificate.schema';
       name:'Certificate',
       schema: CertificateSchema,
       collection:'ex_sync_identity_certificate'
-    }])
+    },{
+      name: 'SyncTask',
+      schema: SyncTaskSchema,
+      collection: 'sync_task'
+  }])
   ],
   providers:[IdentityTaskService],
   exports:[IdentityTaskService]

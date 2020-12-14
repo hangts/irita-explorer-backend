@@ -12,6 +12,7 @@ import {ParametersSchema} from "../schema/parameters.schema";
 import {ParametersTaskService} from "../task/parameters.task.service";
 import {StakingHttp} from "../http/lcd/staking.http";
 import { TxSchema } from '../schema/tx.schema';
+import { SyncTaskSchema } from '../schema/sync.task.schema';
 @Module({
     imports: [
         MongooseModule.forFeature([
@@ -33,7 +34,11 @@ import { TxSchema } from '../schema/tx.schema';
                 name: 'Tx',
                 schema: TxSchema,
                 collection: 'sync_tx'
-            },
+            },{
+                name: 'SyncTask',
+                schema: SyncTaskSchema,
+                collection: 'sync_task'
+            }
         ])
     ],
     providers: [IritaService, TokensTaskService, TokensHttp,ParametersTaskService,StakingHttp],

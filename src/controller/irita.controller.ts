@@ -15,4 +15,10 @@ export class IritaController {
         const data:any = await this.iritaService.queryConfig();
         return new Result<any>(data);
     }
+
+    @Get('/sync/status')
+    async queryStatus(): Promise<Result<any>> {
+        const data:any = await this.iritaService.queryStatus();
+        return new Result<any>(data);
+    }
 }

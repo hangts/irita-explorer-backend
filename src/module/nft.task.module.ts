@@ -5,7 +5,7 @@ import {NftSchema} from '../schema/nft.schema';
 import { NftHttp } from '../http/lcd/nft.http';
 import { DenomSchema } from '../schema/denom.schema';
 import { TxSchema } from '../schema/tx.schema';
-
+import { SyncTaskSchema } from '../schema/sync.task.schema';
 @Module({
     imports:[
         MongooseModule.forFeature([{
@@ -20,7 +20,11 @@ import { TxSchema } from '../schema/tx.schema';
             name: 'Tx',
             schema: TxSchema,
             collection: 'sync_tx'
-        },])
+        },{
+            name: 'SyncTask',
+            schema: SyncTaskSchema,
+            collection: 'sync_task'
+        }])
     ],
     providers:[NftTaskService, NftHttp],
     exports:[NftTaskService]
