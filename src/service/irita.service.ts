@@ -3,11 +3,14 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct, Result } from '../api/ApiResult';
 import { addressPrefix } from '../constant/index'
-import {NetworkResDto, TokensResDto} from '../dto/irita.dto';
+import {NetworkResDto, TokensResDto,StatusResDto} from '../dto/irita.dto';
+import { getTaskStatus } from '../helper/task.helper'
 @Injectable()
 export class IritaService {
     constructor(@InjectModel('Network') private networkModel: any,
-                @InjectModel('Tokens') private tokensModel:Model<any>) {
+                @InjectModel('Tokens') private tokensModel: Model<any>,
+                @InjectModel('SyncTask') private taskModel: any
+                ) {
     }
     async queryConfig(): Promise<Result<any>>{
         let result:any = {}
@@ -17,5 +20,9 @@ export class IritaService {
         result.tokenData = TokensResDto.bundleData(TokensData)
         result.addressPrefix = addressPrefix
         return result
+    }
+    async queryStatus(): Promise<StatusResDto>{
+        let status:boolean = await getTaskStatus(this.taskModel,'')
+        return new StatusResDto(status)
     }
 }
