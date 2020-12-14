@@ -44,13 +44,13 @@ export enum TxType {
     edit_nft = 'edit_nft',
     issue_denom = 'issue_denom',
     mint_nft = 'mint_nft',
-    // Asset 
+    // Asset
     issue_token = 'issue_token',
     edit_token = 'edit_token',
     mint_token = 'mint_token',
     transfer_token_owner = 'transfer_token_owner',
     //Transfer
-    send = 'send',  
+    send = 'send',
     multisend = 'multisend',
     //Crisis
     verify_invariant = 'verify_invariant',
@@ -96,12 +96,12 @@ export enum TxType {
     create_client = 'create_client',
     update_client = 'update_client',
     // Identity
-    create_identity = 'create_identity', 
+    create_identity = 'create_identity',
     update_identity = 'update_identity',
     // Record
-    create_record = 'create_record', 
+    create_record = 'create_record',
     // Random
-    request_rand='request_rand',
+    request_rand = 'request_rand',
 }
 
 export enum TxStatus {
@@ -170,3 +170,5 @@ export const MAX_OPERATE_TX_COUNT = Number(cfg.taskCfg.maxOperateTxCount);
 export const NFT_INFO_DO_NOT_MODIFY = '[do-not-modify]';
 
 export const TASK_DISPATCH_FAULT_TOLERANCE = 60 * 1000;
+
+export const DuplicateKey = 'E11000 duplicate key error collection'
