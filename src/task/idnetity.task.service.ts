@@ -1,6 +1,6 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
-import {hubDefaultEmptyValue, IdentityLimitSize, PubKeyAlgorithm, TxType} from '../constant';
+import {hubDefaultEmptyValue, IdentityLimitSize, PubKeyAlgorithm, TxType,TaskEnum} from '../constant';
 import {
     IIdentityCertificateStruct,
     IIdentityPubKeyStruct,
@@ -8,6 +8,8 @@ import {
 } from '../types/schemaTypes/identity.interface';
 import {getTimestamp} from '../util/util';
 import md5 from 'blueimp-md5';
+import { taskLoggerHelper } from '../helper/task.log.helper';
+import { getTaskStatus } from '../helper/task.helper'
 @Injectable()
 
 export class IdentityTaskService {
@@ -16,6 +18,7 @@ export class IdentityTaskService {
         @InjectModel('Pubkey') private pubkeyModel: any,
         @InjectModel('Certificate') private certificateModel: any,
         @InjectModel('Tx') private txModel: any,
+        @InjectModel('SyncTask') private taskModel: any,
     ) {
         this.doTask = this.doTask.bind(this);
     }
@@ -114,10 +117,14 @@ export class IdentityTaskService {
         return updateData
     }
 
-    async doTask(): Promise<void> {
+    async doTask(taskName?: TaskEnum): Promise<void> {
+        let status: boolean = await getTaskStatus(this.taskModel,taskName)
+        if (!status) {
+            return
+        }
         const height: number = await this.identityTaskModel.queryHeight() || 0
         const limitSize:number = IdentityLimitSize
-        const txlist = await this.txModel.queryListByCreateAndUpDateIdentity(height,limitSize)
+        const txlist = await this.txModel.queryListByCreateAndUpDateIdentity(height, limitSize)
         const identityInsertData: any = [], identityUpdateData: any = [], pubkeyInsertData: any = [],
             certificateInsertData: any = [], pubKeyByCertificateData: any = []
         for (const item of txlist) {

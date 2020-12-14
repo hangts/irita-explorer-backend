@@ -12,17 +12,22 @@ import { INCREASE_HEIGHT, MAX_OPERATE_TX_COUNT, NFT_INFO_DO_NOT_MODIFY, TaskEnum
 import {Logger} from '../logger'
 import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
-
+import { getTaskStatus } from '../helper/task.helper'
 @Injectable()
 export class NftTaskService {
     constructor(@InjectModel('Nft') private nftModel: Model<INft>,
                 @InjectModel('Tx') private txModel: any,
                 @InjectModel('Denom') private denomModel: any,
+                @InjectModel('SyncTask') private taskModel: any,
     ) {
         this.doTask = this.doTask.bind(this);
     }
 
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
+        let status: boolean = await getTaskStatus(this.taskModel,taskName)
+        if (!status) {
+            return
+        }
         taskLoggerHelper(`${taskName}: start to execute task`, randomKey);
         const nftList: INftStruct[] = await (this.nftModel as any).queryLastBlockHeight();
         taskLoggerHelper(`${taskName}: execute task (step should be start step + 1)`, randomKey);
