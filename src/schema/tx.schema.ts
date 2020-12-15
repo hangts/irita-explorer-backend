@@ -365,7 +365,6 @@ TxSchema.statics.queryTxWithServiceName = async function(query: ITxsWithServiceN
         queryParameters = {
             $or: [
                 { 'msgs.msg.ex.service_name': query.serviceName },
-                { 'msgs.msg.ex.service_name': query.serviceName },
                 { 'msgs.type': { $in: Cache.supportTypes || [] } }
             ],
         };
@@ -618,7 +617,7 @@ TxSchema.statics.findServiceAllList = async function(
     return await this.find(queryParameters, {
         'msgs.msg.ex':1,
         'msgs.msg.description':1,
-        'msgs.msg.ex.service_name':1,
+        'msgs.msg.service_name':1,
         'msgs.msg.name':1})
         .sort({
             'msgs.msg.ex.bind': -1,
