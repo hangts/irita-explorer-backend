@@ -941,15 +941,15 @@ TxSchema.statics.queryDepositsByAddress = async function (address: string) {
 // sync tokens task
 TxSchema.statics.queryTxBySymbol = async function(
     symbol: string,
-    time: number
+    height: number
 ): Promise<ITxStruct | null>{
       const params =  {
         'msgs.type': TxType.mint_token,
         status: TxStatus.SUCCESS,
         'msgs.msg.symbol': symbol,
-        time: { $gt:time }
+        height: { $gt: height }
       }
-    return await this.find(params, {time:1,msgs:1}).sort({'height': 1}).limit(1000)
+    return await this.find(params, {height:1,msgs:1}).sort({'height': 1}).limit(1000)
 }
 
 // 	txs/asset
