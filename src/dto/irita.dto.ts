@@ -57,8 +57,8 @@ export class TokensResDto extends NetworkResDto {
 }
 
 export class StatusResDto {
-    isFollow: boolean;
+    is_follow: boolean;
     constructor(value) {
-        this.isFollow = value;
+        this.is_follow = value;
     }
 }
