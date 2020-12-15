@@ -1,3 +1,4 @@
+import { map } from 'rxjs/operators';
 import { Injectable } from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {TokensHttp} from "../http/lcd/tokens.http";
@@ -32,11 +33,17 @@ export class TokensTaskService {
             default:
                 break;
         }
-
+        const TokensFromDB = await (this.tokensModel as any).queryAllTokens()
         const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking)
         let TokensDbMap = new Map()
         if (TokensData && TokensData.length > 0) {
             for (let token of TokensData) {
+                TokensFromDB.map(item => {
+                    if (item.symbol === token.symbol) {
+                        token.total_supply = item.total_supply;
+                        token.mint_token_time = item.mint_token_time
+                    }
+                })
                 let data = await this.txModel.queryTxBySymbol(token.symbol, token.mint_token_time)
                 if (data && data.length) {
                     data.forEach(item => {

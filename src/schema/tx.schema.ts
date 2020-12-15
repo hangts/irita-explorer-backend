@@ -942,7 +942,7 @@ TxSchema.statics.queryDepositsByAddress = async function (address: string) {
 TxSchema.statics.queryTxBySymbol = async function(
     symbol: string,
     time: number
-  ):Promise<ITxStruct | null >{
+): Promise<ITxStruct | null>{
       const params =  {
         'msgs.type': TxType.mint_token,
         status: TxStatus.SUCCESS,
