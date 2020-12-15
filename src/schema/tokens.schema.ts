@@ -16,7 +16,7 @@ export const TokensSchema = new mongoose.Schema({
 })
 TokensSchema.index({symbol: 1}, {unique: true})
 TokensSchema.index({min_unit: 1})
-TokensSchema.index({is_main_token: 1,height:1})
+
 TokensSchema.statics = {
     async insertTokens(Tokens: ITokens) {
         //设置 options 查询不到就插入操作
@@ -40,7 +40,6 @@ TokensSchema.statics = {
                 max_supply: 1,
                 mintable: 1,
             })
-            .sort({ height: 1 })
             .skip((pageNum - 1) * pageSize)
             .limit(pageSize).exec();
     },
