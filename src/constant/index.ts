@@ -44,7 +44,7 @@ export enum TxType {
     edit_nft = 'edit_nft',
     issue_denom = 'issue_denom',
     mint_nft = 'mint_nft',
-    // Asset 
+    // Asset
     issue_token = 'issue_token',
     edit_token = 'edit_token',
     mint_token = 'mint_token',
@@ -196,3 +196,7 @@ export const INCREASE_HEIGHT = Number(cfg.taskCfg.increaseHeight);
 export const MAX_OPERATE_TX_COUNT = Number(cfg.taskCfg.maxOperateTxCount);
 
 export const NFT_INFO_DO_NOT_MODIFY = '[do-not-modify]';
+
+export const TASK_DISPATCH_FAULT_TOLERANCE = 60 * 1000;
+
+export const DuplicateKey = 'E11000 duplicate key error collection'
