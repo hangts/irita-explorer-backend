@@ -10,9 +10,9 @@ export class DenomHttp {
     }
     async queryDenomsFromLcd(): Promise<DenomDto[]> {
         // bifrost
-        const url: string = `${cfg.serverCfg.lcdAddr}/nft/nfts/denoms`;
+        // const url: string = `${cfg.serverCfg.lcdAddr}/nft/nfts/denoms`;
         // cschain-otc
-        // const url: string = `${cfg.serverCfg.lcdAddr}/nft/denoms`;
+        const url: string = `${cfg.serverCfg.lcdAddr}/nft/denoms`;
         try {
             const data: any = await new HttpService().get(url).toPromise().then(res => res.data);
             if(data && data.result){
