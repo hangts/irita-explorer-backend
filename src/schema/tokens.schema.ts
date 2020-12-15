@@ -15,7 +15,8 @@ export const TokensSchema = new mongoose.Schema({
     mint_token_height: Number
 })
 TokensSchema.index({symbol: 1}, {unique: true})
-
+TokensSchema.index({min_unit: 1})
+TokensSchema.index({is_main_token: 1,height:1})
 TokensSchema.statics = {
     async insertTokens(Tokens: ITokens) {
         //设置 options 查询不到就插入操作

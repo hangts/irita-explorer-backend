@@ -19,6 +19,7 @@ export const IdentitySchema = new mongoose.Schema({
   update_time: Number,
 })
 IdentitySchema.index({identities_id: 1},{unique: true})
+IdentitySchema.index({update_block_height: -1,owner:-1})
 IdentitySchema.statics = {
   async queryIdentityList(query:ITXWithIdentity):Promise<IListStruct> {
     const result: IListStruct = {}
@@ -35,7 +36,7 @@ IdentitySchema.statics = {
     }
     result.data = await this.find(queryParameters)
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-        .limit(Number(query.pageSize)).sort({'update_block_time':-1});
+        .limit(Number(query.pageSize)).sort({'update_block_height':-1});
     return result;
   },
 
@@ -75,7 +76,7 @@ IdentitySchema.statics = {
 
     result.data = await this.find(queryParameters)
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-        .limit(Number(query.pageSize)).sort({'update_block_time':-1});
+        .limit(Number(query.pageSize)).sort({'update_block_height':-1});
     if (query.useCount && query.useCount == true) {
       result.count = await this.find(queryParameters).countDocuments();
     }
