@@ -217,7 +217,6 @@ TxSchema.statics.queryTxListByHeightEdge = async function(height:number, pageNum
     let result: IListStruct = {};
     let queryParameters: any = {height:height};
     result.data = await this.find(queryParameters)
-        .sort({ height: 1 })
         .skip((Number(pageNum) - 1) * Number(pageSize))
         .limit(Number(pageSize));
 
