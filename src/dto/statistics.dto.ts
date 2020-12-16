@@ -35,8 +35,8 @@ export class PledgeRateResDto {
     bonded_tokens: string;
     total_supply: string;
     constructor(Detail) {
-        this.bonded_tokens = Detail.bonded_tokens || '0'
-        this.total_supply = Detail.total_supply || '0'
+        this.bonded_tokens = Detail.bonded_tokens
+        this.total_supply = Detail.total_supply
     }
 }
 
@@ -48,10 +48,10 @@ export class LatestHeightAndTimeAndValidator {
     operator_addr: string;
 
     constructor(Detail) {
-        this.height = Detail.height || 0
-        this.latestBlockTime = Detail.latestBlockTime || 0
-        this.moniker = Detail.moniker || ''
-        this.validator_icon = Detail.validator_icon || ''
-        this.operator_addr = Detail.operator_addr || ''
+        this.height = Detail.height
+        this.latestBlockTime = Detail.latestBlockTime
+        this.moniker = Detail.moniker
+        this.validator_icon = Detail.validator_icon
+        this.operator_addr = Detail.operator_addr
     }
 }
