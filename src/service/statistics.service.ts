@@ -1,13 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Query } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { StatisticsResDto } from '../dto/statistics.dto';
+import { StatisticsResDto,PledgeRateResDto } from '../dto/statistics.dto';
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { INft } from '../types/schemaTypes/nft.interface';
 import { BlockHttp } from '../http/lcd/block.http';
 import { StakingHttp } from '../http/lcd/staking.http';
 import { BankHttp } from '../http/lcd/bank.http';
-
+import { StatisticsStruct } from '../types/statistics.interface'
+import { correlationStr } from '../constant'
 @Injectable()
 export class StatisticsService {
 
@@ -23,33 +24,72 @@ export class StatisticsService {
     ) {
     }
 
-    async queryStatistics(): Promise<StatisticsResDto> {
+    async queryStatistics(query: string): Promise<StatisticsResDto> {
+        const params: Array<string> = query['params'].split(',');
         const latestBlock = await BlockHttp.queryLatestBlockFromLcd();
-        const block = await this.queryLatestHeightAndTime(latestBlock);
-        const avgBlockTime = await this.queryAvgBlockTime();
-        const assetCount = await this.queryAssetCount();
-        const validatorCount = await this.queryConsensusValidatorCount();
-        const {txCount, serviceCount} = await this.queryTxCount();
-        const identityCount = await this.queryIdentityCount({});
-        const denomCount = await this.queryDenomCount();
-        const validatorNumCount = await this.queryValidatorNumCount();
-        let proposer_address = latestBlock && latestBlock.block && latestBlock.block.header && latestBlock.block.header.proposer_address
-        const validatorInformation = await this.queryValidatorInformation(proposer_address);
-        const bondedTokensInformation = await this.queryBondedTokensInformation()
-        return new StatisticsResDto(block.height, block.latestBlockTime, txCount, avgBlockTime, serviceCount, validatorCount, assetCount, identityCount, denomCount,validatorNumCount,validatorInformation.moniker,validatorInformation.validator_icon,validatorInformation.operator_addr,bondedTokensInformation.bonded_tokens,bondedTokensInformation.total_supply);
+        let indicators = []
+        const Correlation:object = {
+            '200': this.queryLatestHeightAndTimeAndValidator(latestBlock),
+            '201': this.queryTxCount(),
+            '202': this.queryConsensusValidatorCount(),
+            '203': this.queryAvgBlockTime(),
+            '204': this.queryAssetCount(),
+            '205': this.queryDenomCount(),
+            '206': this.queryServiceCount(),
+            '207': this.queryIdentityCount({}),
+            '208': this.queryValidatorNumCount()
+        }
+        if ((!params.includes('200')) && params.includes('201')) {
+            params.unshift('200')
+        }
+        params.map(func => {
+            indicators.push(Correlation[func])
+        })
+        const dateArray = await Promise.all(indicators)
+        let statisticsDate:StatisticsStruct = {
+            'block': {},
+            'txCount': 0,
+            'validatorCount': 0,
+            'avgBlockTime': 0,
+            'assetCount': 0,
+            'denomCount': 0,
+            'serviceCount': 0,
+            'identityCount': 0,
+            'validatorNumCount':0
+        }
+        params.map((func, index) => {
+            statisticsDate[correlationStr[func]] = dateArray[index]
+        })
+        return new StatisticsResDto(statisticsDate)
     }
 
-    async queryLatestHeightAndTime(latestBlock?:any): Promise<{height:number,latestBlockTime:number} | null> {
-        let result:any = { height:0,latestBlockTime:0 };
+    async queryPledgeRate(): Promise<PledgeRateResDto> {
+        const bondedTokensInformation = await this.queryBondedTokensInformation();
+        return new PledgeRateResDto(bondedTokensInformation);
+    }
+    async queryLatestHeightAndTimeAndValidator(latestBlock?:any): Promise<{height:number,latestBlockTime:number,moniker:string,validator_icon:string,operator_addr:string} | null> {
+        let result: any = { height: 0, latestBlockTime: 0, moniker: '', validator_icon: '', operator_addr: '' };
+        let proposer_address: string;
         if (latestBlock && latestBlock.block && latestBlock.block.header) {
             result.height = latestBlock.block.header.height;
-            result.latestBlockTime = new Date(latestBlock.block.header.time || '').getTime()/1000;
+            result.latestBlockTime = new Date(latestBlock.block.header.time || '').getTime() / 1000;
+            proposer_address = latestBlock.block.header.proposer_address
         }else {
             const res: IBlockStruct | null = await (this.blockModel as any).findOneByHeightDesc();
             if (res) {
                 result.height = res.height;
                 result.latestBlockTime = Number(res.time);
+                proposer_address = res.proposer
             }
+        }
+        let validators = await this.stakingValidatorsModel.queryAllValidators();
+        if (validators && validators.length > 0) {
+            validators = validators.filter(item => {
+                return item.proposer_addr === proposer_address
+            })
+            result.moniker = (validators[0].description && validators[0].description.moniker) || '';
+            result.validator_icon = validators[0].icon || '';
+            result.operator_addr = validators[0].operator_address || '';
         }
         return result;
     }
@@ -87,7 +127,11 @@ export class StatisticsService {
     }
 
     async queryTxCount():Promise<any>{
-        return await (this.txModel as any).queryTxStatistics();
+        return await (this.txModel as any).queryTxCountStatistics();
+    }
+
+    async queryServiceCount():Promise<any>{
+        return await (this.txModel as any).queryServiceCountStatistics();
     }
 
     async queryIdentityCount(query:any):Promise<any>{
@@ -101,21 +145,9 @@ export class StatisticsService {
     async queryValidatorNumCount():Promise<any>{
         return await this.stakingValidatorsModel.queryActiveValCount();
     }
-    
-    async queryValidatorInformation(proposer): Promise<any>{
-        let validators = await this.stakingValidatorsModel.queryAllValidators();
-        validators = validators.filter(item => {
-            return item.proposer_addr === proposer
-        })
-        const moniker = (validators && validators[0] && validators[0].description && validators[0].description.moniker) || '';
-        const validator_icon = (validators && validators[0] && validators[0].icon) || '';
-        const operator_addr = (validators && validators[0] && validators[0].operator_address) || '';
-        return { moniker, validator_icon,operator_addr };
-    }
 
     async queryBondedTokensInformation(): Promise<any>{
-        const bondedTokensLcd = await StakingHttp.getBondedTokens()
-        const totalSupplyLcd = await BankHttp.getTotalSupply()
+        const [bondedTokensLcd,totalSupplyLcd] = await Promise.all([StakingHttp.getBondedTokens(),BankHttp.getTotalSupply()])
         const bonded_tokens = bondedTokensLcd && bondedTokensLcd.bonded_tokens || '0'
         const mainToken = await (this.tokensModel as any).queryMainToken()
         let total_supply: string = '0';
