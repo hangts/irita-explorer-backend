@@ -1,7 +1,8 @@
+import { IconUriLcdDto } from './../dto/http.dto';
 import { Injectable, Query } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { StatisticsResDto,PledgeRateResDto } from '../dto/statistics.dto';
+import { StatisticsResDto,NetworkStatisticsResDto } from '../dto/statistics.dto';
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { INft } from '../types/schemaTypes/nft.interface';
 import { BlockHttp } from '../http/lcd/block.http';
@@ -26,71 +27,93 @@ export class StatisticsService {
 
     async queryStatistics(query: string): Promise<StatisticsResDto> {
         const params: Array<string> = query['params'].split(',');
-        const latestBlock = await BlockHttp.queryLatestBlockFromLcd();
+        const that = this
         let indicators = []
-        const Correlation:object = {
-            '200': this.queryLatestHeightAndTimeAndValidator(latestBlock),
-            '201': this.queryTxCount(),
-            '202': this.queryConsensusValidatorCount(),
-            '203': this.queryAvgBlockTime(),
-            '204': this.queryAssetCount(),
-            '205': this.queryDenomCount(),
-            '206': this.queryServiceCount(),
-            '207': this.queryIdentityCount({}),
-            '208': this.queryValidatorNumCount()
-        }
-        if ((!params.includes('200')) && params.includes('201')) {
-            params.unshift('200')
-        }
-        params.map(func => {
-            indicators.push(Correlation[func])
+        params.forEach( code => {
+            switch (code) {
+                case '202':
+                    indicators.push(this.queryConsensusValidatorCount.bind(that))
+                break;
+                case '203':
+                    indicators.push(this.queryAvgBlockTime.bind(that))
+                break;
+                case '204':
+                    indicators.push(this.queryAssetCount.bind(that))
+                break;
+                case '205':
+                    indicators.push(this.queryDenomCount.bind(that))
+                break;
+                case '206':
+                    indicators.push(this.queryServiceCount.bind(that))
+                break;
+                case '207':
+                    indicators.push(this.queryIdentityCount.bind(that))
+                break;
+                case '208':
+                    indicators.push(this.queryValidatorNumCount.bind(that))
+                    break;
+                default:
+                    break;
+            }
         })
-        const dateArray = await Promise.all(indicators)
-        let statisticsDate:StatisticsStruct = {
-            'block': {},
-            'txCount': 0,
-            'validatorCount': 0,
-            'avgBlockTime': 0,
-            'assetCount': 0,
-            'denomCount': 0,
-            'serviceCount': 0,
-            'identityCount': 0,
-            'validatorNumCount':0
-        }
-        params.map((func, index) => {
+        const dateArray = await Promise.all(indicators.map(p=>p()))
+        let statisticsDate: StatisticsStruct = {}
+        params.forEach((func, index) => {
             statisticsDate[correlationStr[func]] = dateArray[index]
         })
         return new StatisticsResDto(statisticsDate)
     }
 
-    async queryPledgeRate(): Promise<PledgeRateResDto> {
-        const bondedTokensInformation = await this.queryBondedTokensInformation();
-        return new PledgeRateResDto(bondedTokensInformation);
+    async queryNetworkStatistics(query: string): Promise<NetworkStatisticsResDto> {
+        const params: Array<string> = query['params'].split(',');
+        const latestBlock = await BlockHttp.queryLatestBlockFromLcd();
+        const that = this
+        let indicators = []
+        if ((!params.includes('200')) && params.includes('201')) {
+            params.unshift('200')
+        }
+        params.forEach( code => {
+            switch (code) {
+                case '200':
+                    indicators.push(this.queryLatestHeightAndTimeAndValidator.bind(that,latestBlock))
+                    break;
+                case '201':
+                    indicators.push(this.queryTxCount.bind(that))
+                break;
+                case '209':
+                    indicators.push(this.queryBondedTokensInformation.bind(that))
+                    break;
+                default:
+                    break;
+            }
+        })
+        const dateArray = await Promise.all(indicators.map(p=>p()))
+        let statisticsDate: StatisticsStruct = {}
+        params.forEach((func, index) => {
+            statisticsDate[correlationStr[func]] = dateArray[index]
+        })
+        return new NetworkStatisticsResDto(statisticsDate);
     }
+
     async queryLatestHeightAndTimeAndValidator(latestBlock?:any): Promise<{height:number,latestBlockTime:number,moniker:string,validator_icon:string,operator_addr:string} | null> {
         let result: any = { height: 0, latestBlockTime: 0, moniker: '', validator_icon: '', operator_addr: '' };
         let proposer_address: string;
         if (latestBlock && latestBlock.block && latestBlock.block.header) {
             result.height = latestBlock.block.header.height;
-            result.latestBlockTime = new Date(latestBlock.block.header.time || '').getTime() / 1000;
-            proposer_address = latestBlock.block.header.proposer_address
+            result.latestBlockTime = Math.floor(new Date(latestBlock.block.header.time || '').getTime() / 1000);
+            proposer_address = latestBlock.block.header.proposer_address;
         }else {
             const res: IBlockStruct | null = await (this.blockModel as any).findOneByHeightDesc();
             if (res) {
                 result.height = res.height;
                 result.latestBlockTime = Number(res.time);
-                proposer_address = res.proposer
+                proposer_address = res.proposer;
             }
         }
-        let validators = await this.stakingValidatorsModel.queryAllValidators();
-        if (validators && validators.length > 0) {
-            validators = validators.filter(item => {
-                return item.proposer_addr === proposer_address
-            })
-            result.moniker = (validators[0].description && validators[0].description.moniker) || '';
-            result.validator_icon = validators[0].icon || '';
-            result.operator_addr = validators[0].operator_address || '';
-        }
+        let validator = await this.stakingValidatorsModel.findValidatorByPropopserAddr(proposer_address);
+        result.moniker = validator && validator[0] && validator[0].description && validator[0].description.moniker;
+        result.validator_icon = validator && validator[0] && validator[0].icon;
+        result.operator_addr = validator && validator[0] && validator[0].operator_address;
         return result;
     }
 

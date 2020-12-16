@@ -206,5 +206,6 @@ export const correlationStr = {
     '205': 'denomCount',
     '206': 'serviceCount',
     '207': 'identityCount',
-    '208': 'validatorNumCount'
+    '208': 'validatorNumCount',
+    '209': 'bondedTokensInformation'
 }

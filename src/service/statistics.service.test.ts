@@ -58,9 +58,9 @@ describe('statistics module', () => {
         });
     });
 
-    describe('queryPledgeRate', () => {
-        it('should return queryPledgeRate', async () => {
-            const data: any = await statisticsService.queryPledgeRate();
+    describe('queryNetworkStatistics', () => {
+        it('should return NetworkStatistics', async () => {
+            const data: any = await statisticsService.queryNetworkStatistics('200');
             expect(data).toBeDefined();
         });
     });
