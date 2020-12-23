@@ -1,4 +1,4 @@
-import {cfg} from '../config/config';
+import { cfg } from '../config/config';
 
 export enum TaskEnum {
     denom = 'ex_sync_denom',
@@ -50,7 +50,7 @@ export enum TxType {
     mint_token = 'mint_token',
     transfer_token_owner = 'transfer_token_owner',
     //Transfer
-    send = 'send',  
+    send = 'send',
     multisend = 'multisend',
     //Crisis
     verify_invariant = 'verify_invariant',
@@ -96,12 +96,12 @@ export enum TxType {
     create_client = 'create_client',
     update_client = 'update_client',
     // Identity
-    create_identity = 'create_identity', 
+    create_identity = 'create_identity',
     update_identity = 'update_identity',
     // Record
-    create_record = 'create_record', 
+    create_record = 'create_record',
     // Random
-    request_rand='request_rand',
+    request_rand = 'request_rand',
 }
 
 export enum TxStatus {
@@ -131,11 +131,12 @@ export const PubKeyAlgorithm = {
     4: 'ED25519',
     5: 'SM2',
 }
-export const addressPrefix = {
-    iaa: 'iaa',
-    iva: 'iva',
-    ica: 'ica'
+
+export enum currentChain  {
+    cosmos ='COSMOS',
+    iris ='IRIS'
 }
+
 export const signedBlocksWindow = 'signed_blocks_window'
 export const hubDefaultEmptyValue = '[do-not-modify]'
 export const moduleSlashing = 'slashing'
@@ -149,10 +150,37 @@ export const ValidatorStatus = {
     'bonded': 3,
 }
 
-export const ValidatorStatus_str = {
-    'unbonded': 'unbonded',
-    'unbonding': 'unbonding',
-    'bonded': 'bonded',
+let addressPrefix,validatorStatusStr;
+switch (cfg.currentChain) {
+    case currentChain.iris:
+        validatorStatusStr = {
+            'unbonded': 'unbonded',
+            'unbonding': 'unbonding',
+            'bonded': 'bonded'
+        };
+        addressPrefix = {
+            iaa: 'iaa',
+            iva: 'iva',
+            ica: 'ica'
+        }
+        break;
+    case currentChain.cosmos:
+        validatorStatusStr = {
+            'unbonded': 'BOND_STATUS_UNBONDED',
+            'unbonding': 'BOND_STATUS_UNBONDING',
+            'bonded': 'BOND_STATUS_BONDED'
+        };
+        addressPrefix = {
+            iaa: 'cosmos',
+            iva: 'cosmosvaloper',
+            ica: 'cosmosvalcons'
+        }
+        break;
+    default:
+        break;
+}
+export {
+    validatorStatusStr,addressPrefix
 }
 
 export const ValidatorNumberStatus = {
@@ -169,4 +197,15 @@ export const MAX_OPERATE_TX_COUNT = Number(cfg.taskCfg.maxOperateTxCount);
 
 export const NFT_INFO_DO_NOT_MODIFY = '[do-not-modify]';
 
-export const TASK_DISPATCH_FAULT_TOLERANCE = 60 * 1000;
+export const correlationStr = {
+    '200': 'block',
+    '201': 'txCount',
+    '202': 'validatorCount',
+    '203': 'avgBlockTime',
+    '204': 'assetCount',
+    '205': 'denomCount',
+    '206': 'serviceCount',
+    '207': 'identityCount',
+    '208': 'validatorNumCount',
+    '209': 'bondedTokensInformation'
+}

@@ -9,8 +9,6 @@ export interface DispatchFaultTolerance {
     (taskName: TaskEnum): void;
 }
 
-
-
 export interface ILcdNftStruct {
     id: string;
     name: string;

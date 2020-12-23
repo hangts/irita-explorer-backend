@@ -1,6 +1,6 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
-import {hubDefaultEmptyValue, IdentityLimitSize, PubKeyAlgorithm, TxType} from '../constant';
+import {hubDefaultEmptyValue, IdentityLimitSize, PubKeyAlgorithm, TxType,TaskEnum} from '../constant';
 import {
     IIdentityCertificateStruct,
     IIdentityPubKeyStruct,
@@ -8,6 +8,8 @@ import {
 } from '../types/schemaTypes/identity.interface';
 import {getTimestamp} from '../util/util';
 import md5 from 'blueimp-md5';
+import { taskLoggerHelper } from '../helper/task.log.helper';
+import { getTaskStatus } from '../helper/task.helper'
 @Injectable()
 
 export class IdentityTaskService {
@@ -16,6 +18,7 @@ export class IdentityTaskService {
         @InjectModel('Pubkey') private pubkeyModel: any,
         @InjectModel('Certificate') private certificateModel: any,
         @InjectModel('Tx') private txModel: any,
+        @InjectModel('SyncTask') private taskModel: any,
     ) {
         this.doTask = this.doTask.bind(this);
     }
@@ -114,33 +117,37 @@ export class IdentityTaskService {
         return updateData
     }
 
-    async doTask(): Promise<void> {
+    async doTask(taskName?: TaskEnum): Promise<void> {
+        let status: boolean = await getTaskStatus(this.taskModel,taskName)
+        if (!status) {
+            return
+        }
         const height: number = await this.identityTaskModel.queryHeight() || 0
         const limitSize:number = IdentityLimitSize
-        const txlist = await this.txModel.queryListByCreateAndUpDateIdentity(height,limitSize)
+        const txlist = await this.txModel.queryListByCreateAndUpDateIdentity(height, limitSize)
         const identityInsertData: any = [], identityUpdateData: any = [], pubkeyInsertData: any = [],
             certificateInsertData: any = [], pubKeyByCertificateData: any = []
-        txlist.forEach(item => {
-            item.msgs.forEach(async (value: any, msgIndex: number) => {
+        for (const item of txlist) {
+            for (let msgIndex: number = 0; msgIndex < item.msgs.length; msgIndex++) {
+                let value: any = item.msgs[msgIndex]
                 if (value.type === TxType.create_identity) {
                     //ex_sync_identity identity
-                    const insertData:IIdentityStruct = await this.handleCreateIdentity(item, value)
+                    const insertData: IIdentityStruct = await this.handleCreateIdentity(item, value)
                     identityInsertData.push(insertData)
-
                     //ex_sync_identity_pubkey   pubkey
                     if (value.msg.pubkey) {
-                        const pubkeyData:IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
+                        const pubkeyData: IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
                         pubkeyInsertData.push(pubkeyData)
                     }
 
                     // ex_sync_identity_certificate certificate
                     if (value.msg.certificate) {
-                        const certificateData:IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
+                        const certificateData: IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
                         certificateInsertData.push(certificateData)
                     }
 
-                    if(value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey){
-                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item,value,msgIndex)
+                    if (value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey) {
+                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item, value, msgIndex)
                         pubKeyByCertificateData.push(pubKeyByCertificate)
                     }
 
@@ -152,23 +159,23 @@ export class IdentityTaskService {
 
                     //ex_sync_identity_pubkey   pubkey
                     if (value.msg.pubkey) {
-                        const pubkeyData:IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
+                        const pubkeyData: IIdentityPubKeyStruct = await this.handlePubkey(item, value, msgIndex)
                         pubkeyInsertData.push(pubkeyData)
                     }
 
                     // ex_sync_identity_certificate certificate
                     if (value.msg.certificate) {
-                        const certificateData:IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
+                        const certificateData: IIdentityCertificateStruct = await this.handleCertificate(item, value, msgIndex)
                         certificateInsertData.push(certificateData)
                     }
 
-                    if(value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey){
-                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item,value,msgIndex)
+                    if (value.msg.ex && value.msg.ex.cert_pub_key && value.msg.ex.cert_pub_key.pubkey) {
+                        const pubKeyByCertificate: IIdentityPubKeyStruct = await this.handlePubKeyByCertificate(item, value, msgIndex)
                         pubKeyByCertificateData.push(pubKeyByCertificate)
                     }
                 }
-            })
-        })
+            }
+        }
         let newIdentityUpdateDataMap = new Map();
         identityUpdateData.forEach((data) => {
             let identity = {...data};
@@ -178,7 +185,7 @@ export class IdentityTaskService {
             }
             newIdentityUpdateDataMap.set(data.identities_id,identity);
         });
-        await this.identityTaskModel.insertIdentityInfo(identityInsertData)
+        identityInsertData.length ? await this.identityTaskModel.insertIdentityInfo(identityInsertData) : ''
         newIdentityUpdateDataMap.forEach((item: IUpDateIdentityCredentials) => {
             this.identityTaskModel.updateIdentityInfo(item)
         })
