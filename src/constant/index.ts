@@ -142,6 +142,8 @@ export const hubDefaultEmptyValue = '[do-not-modify]'
 export const moduleSlashing = 'slashing'
 export const moduleStaking = 'staking'
 export const moduleStakingBondDenom = 'bond_denom'
+export const moduleGov = 'gov'
+export const moduleGovDeposit = 'min_deposit'
 
 
 export const ValidatorStatus = {

@@ -81,6 +81,7 @@ export class TasksService {
             }
         });
     }
+
     //@Cron('1 * * * * *')
     @Cron(cfg.taskCfg.executeTime.identity, {
         name: TaskEnum.identity
@@ -88,6 +89,7 @@ export class TasksService {
     async syncIdentity() {
         this.handleDoTask(TaskEnum.identity,this.identityTaskService.doTask)
     }
+
     @Cron(cfg.taskCfg.executeTime.Tokens, {
         name: TaskEnum.Tokens
     })
@@ -95,6 +97,7 @@ export class TasksService {
     async syncTokens() {
         this.handleDoTask(TaskEnum.Tokens,this.TokensTaskService.doTask)
     }
+
     // @Cron('*/5 * * * * *')
     @Cron(cfg.taskCfg.executeTime.stakingValidators, {
         name: TaskEnum.stakingSyncValidators
@@ -102,12 +105,14 @@ export class TasksService {
     async syncStakingValidators() {
        this.handleDoTask(TaskEnum.stakingSyncValidators,this.stakingValidatorTaskService.doTask)
     }
+
     @Cron(cfg.taskCfg.executeTime.stakingParameters, {
         name: TaskEnum.stakingSyncParameters
     })
     async syncStakingParmeters(){
         this.handleDoTask(TaskEnum.stakingSyncParameters,this.parametersTaskService.doTask)
     }
+
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
         // 只执行一次删除定时任务
         if (this['once'] && cfg.taskCfg.DELETE_CRON_JOBS && cfg.taskCfg.DELETE_CRON_JOBS.length) {

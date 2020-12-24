@@ -592,3 +592,46 @@ export class TotalSupplyLcdDto {
         this.supply = Coin.bundleData(supply);
     }
 }
+
+export class GovParamsLcdDto {
+    voting_params: {
+        voting_period: string;
+    };
+    deposit_params: {
+        min_deposit: Coin[],
+        max_deposit_period: string
+    };
+    tally_params: {
+        quorum:string,
+        threshold:string,
+        veto_threshold:string,
+    };
+    constructor(value) {
+        this.voting_params = value.voting_params || {};
+        this.deposit_params = {
+            min_deposit: Coin.bundleData(value.deposit_params.min_deposit) || [],
+            max_deposit_period: value.deposit_params.max_deposit_period || ''
+        }
+        this.tally_params = value.tally_params || {};
+    }
+}
+
+export class GovTallyParamsLcdDto {
+    quorum: string;
+    threshold: string;
+    veto_threshold: string;
+    constructor(value) {
+        this.quorum = value.quorum || '';
+        this.threshold = value.threshold || '';
+        this.veto_threshold = value.veto_threshold || '';
+    }
+}
+
+export class GovDepositParamsLcdDto {
+    min_deposit: Coin[];
+    max_deposit_period: string
+    constructor(value) {
+        this.min_deposit = Coin.bundleData(value.min_deposit),
+        this.max_deposit_period = value.max_deposit_period || '';
+    }
+}

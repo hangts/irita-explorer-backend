@@ -14,13 +14,14 @@ ParametersSchema.index({module:1,key: 1},{unique: true})
 
 ParametersSchema.statics = {
 
-    async insertParameters(Parameters:IParameters){
+    async insertParameters(Parameters: IParameters) {
         await this.insertMany(Parameters,{ ordered: false })
     },
 
-    async updateParameters(updateParameters:IParameters){
-        const {cur_value,update_time} = updateParameters
-        await this.updateOne({cur_value},{cur_value,update_time})
+    async updateParameters(updateParameters: IParameters) {
+        const { module, key } = updateParameters
+        const options = {upsert: true, new: false, setDefaultsOnInsert: true}
+        await this.findOneAndUpdate({module,key},updateParameters,options)
     },
 
     async queryAllParameters(){
