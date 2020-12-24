@@ -7,6 +7,7 @@ import {
     ITxsWithNftQuery,
     ITxsWithServiceNameQuery,
     IExFieldQuery, IIdentityTx,
+    ITxSubmitProposal
 } from '../types/schemaTypes/tx.interface';
 import { ITxStruct, ITxStructMsgs, ITxStructHash,ITxsWithAssetQuery } from '../types/schemaTypes/tx.interface';
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
@@ -1023,4 +1024,26 @@ TxSchema.statics.queryMaxNftTxList = async function (): Promise<ITxStruct[]>  {
             $in: typesList
         }
     },{height: 1}).sort({height: -1}).limit(1);
+};
+
+TxSchema.statics.querySubmitProposalById = async function (id:string): Promise<ITxSubmitProposal>  {
+    const params =  {
+        'msgs.type': TxType.submit_proposal,
+        'events.attributes.key':'proposal_id',
+        'events.attributes.value': id,
+        status:TxStatus.SUCCESS 
+      }
+    return await this.findOne(params).select({'msgs.msg':1,'_id':0});
+};
+
+TxSchema.statics.queryVoteByProposalId = async function (id:number): Promise<any>  {
+    const cond = [
+        {
+            $match: { 'msgs.type': 'vote', 'msgs.msg.proposal_id': id }
+        },
+        {
+            $group: { _id: "$msgs.msg.voter", msg: { $first: "$msgs.msg" }, count: { $sum: 1 } }
+        }
+    ]
+    return await this.aggregate(cond);
 };

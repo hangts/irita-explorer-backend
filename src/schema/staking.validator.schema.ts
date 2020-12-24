@@ -103,5 +103,9 @@ StakingValidatorSchema.statics = {
         let count: number;
         return count = await this.find({'status':ValidatorStatus['bonded'],'jailed':false}).countDocuments();
     },
+
+    async queryActiveVal(): Promise<any> {
+        return await this.find({'status':ValidatorStatus['bonded'],'jailed':false});
+    },
 }
 

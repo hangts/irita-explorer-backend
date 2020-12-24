@@ -91,3 +91,9 @@ export interface ITxsWithAssetQuery {
     pageSize?:number
     useCount?:boolean
 }
+
+export interface  ITxSubmitProposal  {
+    proposer: string
+    initial_deposit: object[]
+    content: string|object
+} 

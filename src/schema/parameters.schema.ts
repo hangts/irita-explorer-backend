@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import {moduleStakingBondDenom, signedBlocksWindow} from "../constant";
+import {moduleStakingBondDenom, signedBlocksWindow,govParams,moduleGov} from "../constant";
 import {IParameters} from "../types/schemaTypes/parameters.interface";
 
 export const ParametersSchema = new mongoose.Schema({
@@ -33,5 +33,14 @@ ParametersSchema.statics = {
     },
     async queryStakingToken(moduleName:string){
         return await this.findOne({module:moduleName,key:moduleStakingBondDenom}).select({'_id':0,'__v':0})
+    },
+    async queryGovParams() {
+        const param = {
+            module: moduleGov,
+            key: {
+                $in: [govParams.min_deposit,govParams.quorum,govParams.threshold,govParams.veto_threshold]
+            }
+        }
+        return await this.find(param).select({'_id':0,'__v':0})
     }
 }

@@ -8,7 +8,7 @@ import {StakingController} from "../controller/staking.controller";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {TxSchema} from "../schema/tx.schema";
 import {DistributionHttp} from "../http/lcd/distribution.http";
-import {TokensSchema} from "../schema/tokens.schema";
+import { TokensSchema } from "../schema/tokens.schema";
 
 @Module({
     imports: [

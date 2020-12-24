@@ -14,6 +14,7 @@ import { IdentityTaskService } from './idnetity.task.service';
 import {StakingValidatorTaskService} from "./staking.validator.task.service";
 import {ParametersTaskService} from "./parameters.task.service";
 import {TokensTaskService} from "./tokens.service";
+import {ProposalTaskService} from "./proposal.service";
 import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
 
@@ -30,6 +31,7 @@ export class TasksService {
         private readonly stakingValidatorTaskService: StakingValidatorTaskService,
         private readonly parametersTaskService: ParametersTaskService,
         private readonly TokensTaskService: TokensTaskService,
+        private readonly ProposalTaskService: ProposalTaskService,
         private schedulerRegistry: SchedulerRegistry,
     ) {
         this[`${TaskEnum.denom}_timer`] = null;
@@ -113,6 +115,15 @@ export class TasksService {
         this.handleDoTask(TaskEnum.stakingSyncParameters,this.parametersTaskService.doTask)
     }
 
+    
+    @Cron('*/5 * * * * *')
+    // @Cron(cfg.taskCfg.executeTime.Proplsal, {
+    //     name: TaskEnum.Proposal
+    // })
+    async syncProposal() {
+        this.handleDoTask(TaskEnum.Proposal,this.ProposalTaskService.doTask)
+    }
+
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
         // 只执行一次删除定时任务
         if (this['once'] && cfg.taskCfg.DELETE_CRON_JOBS && cfg.taskCfg.DELETE_CRON_JOBS.length) {
@@ -168,5 +179,3 @@ export class TasksService {
         await this.taskDispatchService.updateHeartbeatUpdateTime(name, randomKey);
     }
 }
-
-

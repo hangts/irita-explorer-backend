@@ -8,7 +8,8 @@ export enum TaskEnum {
     identity = 'sync_identity',
     stakingSyncValidators = 'staking_sync_validators',
     stakingSyncParameters = 'staking_sync_parameters',
-    Tokens = 'tokens'
+    Tokens = 'tokens',
+    Proposal = 'ex_sync_proposal'
 }
 
 
@@ -210,4 +211,25 @@ export const correlationStr = {
     '207': 'identityCount',
     '208': 'validatorNumCount',
     '209': 'bondedTokensInformation'
+}
+
+export const proposalStatus = {
+    PROPOSAL_STATUS_DEPOSIT_PERIOD: 'DepositPeriod',
+    PROPOSAL_STATUS_VOTING_PERIOD: 'VotingPeriod',
+    PROPOSAL_STATUS_PASSED: 'Passed',
+    PROPOSAL_STATUS_REJECTED: 'Rejected'
+}
+
+export const govParams = {
+    min_deposit: 'min_deposit',
+    quorum: 'quorum',
+    threshold: 'threshold',
+    veto_threshold:'veto_threshold'
+}
+
+export const voteOptions = {
+    1: 'yes',
+    2: 'abstain',
+    3: 'no',
+    4: 'no_with_veto'
 }

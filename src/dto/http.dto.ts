@@ -635,3 +635,51 @@ export class GovDepositParamsLcdDto {
         this.max_deposit_period = value.max_deposit_period || '';
     }
 }
+
+export class GovProposalLcdDto {
+    id: string;
+    content: {
+        type: string,
+        value: object
+    };
+    status: string;
+    final_tally_result: {
+        yes: string,
+        abstain: string,
+        no: string,
+        no_with_veto: string
+    };
+    submit_time: string;
+    deposit_end_time: string;
+    total_deposit: Coin[];
+    voting_start_time: string;
+    voting_end_time: string;
+
+    constructor(value) {
+        this.id = value.proposal_id || '';
+        this.content = {
+            type: value.content && value.content['@type'] || '',
+            value: value.content && value.content.value || {}
+        };
+        this.status = value.status || '';
+        this.final_tally_result = {
+            yes: value.final_tally_result && value.final_tally_result.yes || '',
+            abstain: value.final_tally_result && value.final_tally_result.abstain || '',
+            no: value.final_tally_result && value.final_tally_result.no || '',
+            no_with_veto: value.final_tally_result && value.final_tally_result.no_with_veto || '',
+        };
+        this.submit_time = value.submit_time || '';
+        this.deposit_end_time = value.deposit_end_time || '';
+        this.total_deposit = Coin.bundleData(value.total_deposit);
+        this.voting_start_time = value.voting_start_time || '';
+        this.voting_end_time = value.voting_end_time || '';
+    }
+
+    static bundleData(value: any): GovProposalLcdDto[] {
+        let data: GovProposalLcdDto[] = [];
+        data = value.map((v: any) => {
+            return new GovProposalLcdDto(v);
+        });
+        return data;
+    }
+}
