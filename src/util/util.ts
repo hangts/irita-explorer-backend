@@ -68,3 +68,8 @@ export function getAddress(publicKey) {
     }
     return addr;
 }
+
+export function splitString(str,symbol) {
+    let array = str.split(symbol)
+    return array[array.length - 1]
+}

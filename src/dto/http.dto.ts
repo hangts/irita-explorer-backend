@@ -638,41 +638,37 @@ export class GovDepositParamsLcdDto {
 
 export class GovProposalLcdDto {
     id: string;
-    content: {
-        type: string,
-        value: object
-    };
+    content: object;
     status: string;
     final_tally_result: {
-        yes: string,
-        abstain: string,
-        no: string,
-        no_with_veto: string
+        yes: number,
+        abstain: number,
+        no: number,
+        no_with_veto: number
     };
     submit_time: string;
     deposit_end_time: string;
     total_deposit: Coin[];
     voting_start_time: string;
     voting_end_time: string;
+    is_deleted: boolean;
 
     constructor(value) {
         this.id = value.proposal_id || '';
-        this.content = {
-            type: value.content && value.content['@type'] || '',
-            value: value.content && value.content.value || {}
-        };
+        this.content = value.content || {};
         this.status = value.status || '';
         this.final_tally_result = {
-            yes: value.final_tally_result && value.final_tally_result.yes || '',
-            abstain: value.final_tally_result && value.final_tally_result.abstain || '',
-            no: value.final_tally_result && value.final_tally_result.no || '',
-            no_with_veto: value.final_tally_result && value.final_tally_result.no_with_veto || '',
+            yes: Number(value.final_tally_result && value.final_tally_result.yes) || 0,
+            abstain: Number(value.final_tally_result && value.final_tally_result.abstain) || 0,
+            no: Number(value.final_tally_result && value.final_tally_result.no) || 0,
+            no_with_veto: Number(value.final_tally_result && value.final_tally_result.no_with_veto) || 0,
         };
         this.submit_time = value.submit_time || '';
         this.deposit_end_time = value.deposit_end_time || '';
         this.total_deposit = Coin.bundleData(value.total_deposit);
         this.voting_start_time = value.voting_start_time || '';
         this.voting_end_time = value.voting_end_time || '';
+        this.is_deleted = false;
     }
 
     static bundleData(value: any): GovProposalLcdDto[] {

@@ -116,10 +116,10 @@ export class TasksService {
     }
 
     
-    @Cron('*/5 * * * * *')
-    // @Cron(cfg.taskCfg.executeTime.Proplsal, {
-    //     name: TaskEnum.Proposal
-    // })
+    // @Cron('*/5 * * * * *')
+    @Cron(cfg.taskCfg.executeTime.Proplsal, {
+        name: TaskEnum.Proposal
+    })
     async syncProposal() {
         this.handleDoTask(TaskEnum.Proposal,this.ProposalTaskService.doTask)
     }
