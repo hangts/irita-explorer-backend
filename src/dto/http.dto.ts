@@ -637,7 +637,7 @@ export class GovDepositParamsLcdDto {
 }
 
 export class GovProposalLcdDto {
-    id: string;
+    id: number;
     content: object;
     status: string;
     final_tally_result: {
@@ -654,7 +654,7 @@ export class GovProposalLcdDto {
     is_deleted: boolean;
 
     constructor(value) {
-        this.id = value.proposal_id || '';
+        this.id = Number(value.proposal_id) || 0;
         this.content = value.content || {};
         this.status = value.status || '';
         this.final_tally_result = {

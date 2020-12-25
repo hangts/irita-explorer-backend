@@ -94,14 +94,12 @@ export class ProposalTaskService {
                     id: proposal.id,
                     tally_details
                 })
-            } else {
-                if (!insertIds.includes(proposal.id)) {
-                    let proposalFromLcd = proposalFromLcdMap.get(proposal.id);
-                    console.log(proposalFromLcd)
-                    proposal.status = proposalStatus[proposalFromLcd.status];
-                    proposal.final_tally_result = proposalFromLcd.final_tally_result
-                    proposal.total_deposit = proposalFromLcd.total_deposit
-                }
+            } 
+            if (!insertIds.includes(proposal.id)) {
+                let proposalFromLcd = proposalFromLcdMap.get(proposal.id);
+                proposal.status = proposalStatus[proposalFromLcd.status];
+                proposal.final_tally_result = proposalFromLcd.final_tally_result
+                proposal.total_deposit = proposalFromLcd.total_deposit
             }
         }
         await this.insertAndUpdateProposal(updateData,proposalFromDb)
