@@ -42,5 +42,18 @@ ParametersSchema.statics = {
             }
         }
         return await this.find(param).select({'_id':0,'__v':0})
+    },
+    async queryParams(query) {
+        let { module, key } = query
+        let param: { module?: string, key?: object } = {};
+        if (module) {
+            param['module'] = module
+        }
+        if (key) {
+            param['key'] = {
+                $in: key.split(',')
+            }
+        }
+        return await this.find(param).select({'module':1,'key':1,'cur_value':1,'_id':0})
     }
 }

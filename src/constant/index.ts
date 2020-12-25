@@ -147,6 +147,7 @@ export const moduleGov = 'gov'
 export const moduleGovDeposit = 'min_deposit'
 
 
+
 export const ValidatorStatus = {
     'Unbonded': 1,
     'Unbonding': 2,

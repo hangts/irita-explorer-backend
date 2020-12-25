@@ -7,7 +7,6 @@ import { StakingHttp } from "../http/lcd/staking.http";
 import { addressTransform } from "../util/util";
 import { addressPrefix } from "../constant";
 import { getTimestamp,formatDateStringToNumber,splitString } from '../util/util';
-import { length } from 'class-validator';
 @Injectable()
 export class ProposalTaskService {
     constructor(
