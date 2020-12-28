@@ -147,7 +147,6 @@ export class GovService {
 
     async getProposalsDepositor(param: ProposalDetailReqDto, query: proposalsReqDto): Promise<ListStruct<govProposalDepositorResDto>> {
         const depositorData = await await this.txModel.queryDepositorById(Number(param.id));
-        console.log(JSON.stringify(depositorData))
         let depositorList = [];
         if (depositorData && depositorData.length > 0) {
             for (const deposotor of depositorData) {

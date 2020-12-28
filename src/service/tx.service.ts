@@ -428,5 +428,11 @@ export class TxService {
         const txData = await this.txModel.queryTxWithAsset(query);
         return new ListStruct(TxResDto.bundleData(txData.data), Number(query.pageNum), Number(query.pageSize), txData.count);
     }
+
+    // txs/types/gov
+    async queryGovTxTypeList(): Promise<TxTypeResDto[]> {
+        const txTypeListData = await this.txTypeModel.queryGovTxTypeList();
+        return TxTypeResDto.bundleData(txTypeListData);
+    }
 }
 

@@ -199,6 +199,10 @@ export class TxController {
         const data: TxResDto = await this.txService.queryTxWithHash(query);
         return new Result<TxResDto>(data);
     }
+
+    @Get("/types/gov")
+    async queryGovTxTypeList(): Promise<Result<TxTypeResDto[]>>{
+        const data: TxTypeResDto[]= await this.txService.queryGovTxTypeList();
+        return new Result<TxTypeResDto[]>(data);
+    }
 }
-
-
