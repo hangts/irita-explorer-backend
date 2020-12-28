@@ -172,5 +172,16 @@ export const dbRes = {
         'msgs.msg.to': 1,
         'msgs.msg.src_owner': 1,
         'msgs.msg.dst_owner': 1
+    },
+    voteList: {
+        'tx_hash': 1,
+        'msgs.msg': 1,
+        'height': 1,
+        'time': 1
+    },
+    depositorList: {
+        'tx_hash': 1,
+        'msgs': 1,
+        'time': 1
     }
 }

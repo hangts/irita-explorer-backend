@@ -20,12 +20,10 @@ ProposalDetailSchema.statics = {
         const options = {upsert: true, new: false, setDefaultsOnInsert: true}
         await this.findOneAndUpdate({id}, insertProposal, options)
     },
-    async queryProposalsDetail(ids: number[]) {
+    async queryProposalsDetail(id: number) {
         const queryParameters: any = {
-            id: {
-                $in: ids
-            }
+            id
         };
-        return await this.find(queryParameters);
+        return await this.findOne(queryParameters).select({'_id': 0, '__v': 0});
     },
 }

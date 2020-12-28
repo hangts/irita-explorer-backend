@@ -62,7 +62,8 @@ export class ProposalTaskService {
             })
         }
         for (let item of insertData) {
-            let txData = await this.txModel.querySubmitProposalById(item.id);
+            let txData = await this.txModel.querySubmitProposalById(String(item.id));
+            item.hash = txData && txData.tx_hash;
             item.proposer = txData && txData.msgs && txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.proposer || '';
             item.initial_deposit = txData && txData.msgs && txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.initial_deposit || {};
             item.status = proposalStatus[item.status];
@@ -204,6 +205,8 @@ export class ProposalTaskService {
         let tally_details = Object.values(delegatorsGovInfo)
         let result = {
             current_tally_result: {
+                system_voting_power:systemVotingPower,
+                total_voting_power: totalVotingPower,
                 yes,
                 abstain,
                 no,

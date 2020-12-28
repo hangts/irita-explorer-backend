@@ -1,3 +1,4 @@
+import { HttpException } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import {
     ITxsQuery,
@@ -7,11 +8,18 @@ import {
     ITxsWithNftQuery,
     ITxsWithServiceNameQuery,
     IExFieldQuery, IIdentityTx,
-    ITxSubmitProposal
 } from '../types/schemaTypes/tx.interface';
-import { ITxStruct, ITxStructMsgs, ITxStructHash,ITxsWithAssetQuery } from '../types/schemaTypes/tx.interface';
+import {
+    ITxStruct,
+    ITxStructMsgs,
+    ITxStructHash,
+    ITxsWithAssetQuery,
+    ITxVoteProposal,
+    ITxSubmitProposal,
+    ITxVoteProposalAll
+} from '../types/schemaTypes/tx.interface';
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
-import { IListStruct } from '../types';
+import { IListStruct,IQueryBase } from '../types';
 import { INCREASE_HEIGHT, TxStatus, TxType } from '../constant';
 import Cache from '../helper/cache';
 import { dbRes } from '../helper/tx.helper';
@@ -1033,10 +1041,10 @@ TxSchema.statics.querySubmitProposalById = async function (id:string): Promise<I
         'events.attributes.value': id,
         status:TxStatus.SUCCESS 
       }
-    return await this.findOne(params).select({'msgs.msg':1,'_id':0});
+    return await this.findOne(params).select({'tx_hash':1,'msgs.msg':1,'_id':0});
 };
 
-TxSchema.statics.queryVoteByProposalId = async function (id:number): Promise<any>  {
+TxSchema.statics.queryVoteByProposalId = async function (id:number): Promise<ITxVoteProposal[]>  {
     const cond = [
         {
             $match: { 'msgs.type': 'vote', 'msgs.msg.proposal_id': id }
@@ -1046,4 +1054,35 @@ TxSchema.statics.queryVoteByProposalId = async function (id:number): Promise<any
         }
     ]
     return await this.aggregate(cond);
+};
+
+TxSchema.statics.queryVoteByProposalIdAll = async function (id:number): Promise<ITxVoteProposalAll[]>  {
+    const params =  {
+        'msgs.type': TxType.vote,
+        'msgs.msg.proposal_id': id,
+        status:TxStatus.SUCCESS 
+      }
+    return await this.find(params,dbRes.voteList).sort({height:1});
+};
+
+TxSchema.statics.queryVoteByTxhashs = async function (hash:string[]): Promise<IListStruct>  {
+    const queryParameters =  {
+        'tx_hash': {
+            $in: hash
+        },
+        status:TxStatus.SUCCESS 
+    }
+    return await this.find(queryParameters,dbRes.voteList).sort({ height: -1 });
+};
+
+TxSchema.statics.queryDepositorById = async function (id:number): Promise<IListStruct>  {
+    const queryParameters =  {
+        'msgs.type': { $in: [TxType.deposit, TxType.submit_proposal] },
+        $or: [
+            { 'msgs.msg.proposal_id': Number(id) },
+            { 'events.attributes.key': 'proposal_id', 'events.attributes.value': String(id) }
+        ],
+        status:TxStatus.SUCCESS 
+    }
+    return await this.find(queryParameters,dbRes.depositorList).sort({ height: -1 });
 };

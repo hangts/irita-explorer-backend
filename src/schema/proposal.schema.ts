@@ -15,6 +15,7 @@ export const ProposalSchema = new mongoose.Schema({
     initial_deposit: Object,
     voting_start_time: Number,
     voting_end_time: Number,
+    hash:String,
     proposer: String,
     is_deleted: Boolean,
     min_deposit: String,
@@ -52,4 +53,14 @@ ProposalSchema.statics = {
             .limit(Number(query.pageSize));
         return result
     },
+    async findOneById(id: number): Promise<IGovProposal> {
+        const queryParameters: any = {
+            id:id,
+            is_deleted: false
+        };
+        return await this.findOne(queryParameters).select({ '_id': 0, '__v': 0 });
+    },
+
+
+
 }

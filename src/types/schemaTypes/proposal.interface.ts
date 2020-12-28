@@ -10,6 +10,7 @@ export interface IGovProposal {
     initial_deposit: object,
     voting_start_time: number,
     voting_end_time: number,
+    hash:string,
     proposer: string,
     is_deleted: boolean,
     min_deposit: string,

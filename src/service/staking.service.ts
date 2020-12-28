@@ -42,7 +42,6 @@ export default class StakingService {
 
     async getAllValidatorMonikerMap() {
         const allValidators = await (this.stakingValidatorsModel as any).queryAllValidators()
-        console.log('allValidators',allValidators)
         let allValidatorsMonikerMap = new Map()
         allValidators.forEach(item => {
             allValidatorsMonikerMap.set(item.operator_address, item)

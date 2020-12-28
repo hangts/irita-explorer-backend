@@ -1,14 +1,22 @@
-import { BaseReqDto, PagingReqDto,BaseResDto } from './base.dto';
-import { ApiError } from '../api/ApiResult';
-import { ErrorCodes } from '../api/ResultCodes';
-import { ApiProperty,ApiPropertyOptional } from '@nestjs/swagger';
+import { BaseReqDto, PagingReqDto, BaseResDto } from './base.dto';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Coin } from './common.res.dto';
 
 /***************Req***********************/
 
-export class proposalsReqDto extends PagingReqDto { 
-    
+export class proposalsReqDto extends PagingReqDto {
+
 }
 
+export class ProposalDetailReqDto extends BaseReqDto {
+    @ApiProperty()
+    id: number;
+}
+
+export class proposalsVoterReqDto extends PagingReqDto {
+    @ApiPropertyOptional({description: 'type: all/validator/delegator'})
+    voterType?: string;
+}
 
 /***************Res*************************/
 
@@ -50,6 +58,75 @@ export class govProposalResDto extends BaseResDto {
         let data: govProposalResDto[] = [];
         data = value.map((v: any) => {
             return new govProposalResDto(v);
+        });
+        return data;
+    }
+}
+
+export class govProposalDetailResDto extends govProposalResDto {
+    hash: string;
+    burned_rate: string | null;
+
+    constructor(proposal) {
+        super(proposal);
+        this.hash = proposal.hash || '';
+        this.burned_rate = proposal.burned_rate || null;
+    }
+}
+
+export class govProposalVoterResDto extends BaseResDto {
+    voter: string;
+    address: string;
+    moniker: string;
+    option: string;
+    hash: string;
+    timestamp: number;
+    height: number;
+    isValidator: boolean;
+
+    constructor(value) {
+        super();
+        this.voter = value.voter || '';
+        this.address = value.address || '';
+        this.moniker = value.moniker || '';
+        this.option = value.option || '';
+        this.hash = value.hash || '';
+        this.timestamp = value.timestamp || 0;
+        this.height = value.height || 0;
+        this.isValidator = value.isValidator || false;
+    }
+
+    static bundleData(value: any): govProposalVoterResDto[] {
+        let data: govProposalVoterResDto[] = [];
+        data = value.map((v: any) => {
+            return new govProposalVoterResDto(v);
+        });
+        return data;
+    }
+}
+
+export class govProposalDepositorResDto extends BaseResDto {
+    hash: string;
+    moniker: string;
+    address: string;
+    amount: Coin[];
+    type: string;
+    timestamp: number;
+
+    constructor(value) {
+        super();
+        this.hash = value.hash || '';
+        this.moniker = value.moniker || '';
+        this.address = value.address || '';
+        this.amount = Coin.bundleData(value.amount) || [];
+        this.type = value.type || '';
+        this.timestamp = value.timestamp || 0;
+    }
+
+    static bundleData(value: any): govProposalDepositorResDto[] {
+        let data: govProposalDepositorResDto[] = [];
+        data = value.map((v: any) => {
+            return new govProposalDepositorResDto(v);
         });
         return data;
     }
