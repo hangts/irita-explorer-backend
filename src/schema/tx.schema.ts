@@ -244,6 +244,10 @@ TxSchema.statics.queryGovTxList = async function(query: ITxsQuery): Promise<ILis
 };
 
 
+
+
+
+
 //  txs/e 供edgeServer调用  返回数据不做过滤
 TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, useCount:boolean): Promise<IListStruct> {
     let result: IListStruct = {};
@@ -1146,13 +1150,14 @@ TxSchema.statics.queryVoteByAddr = async function (address:string): Promise<ITxV
         'msgs.msg.voter': address,
         status:TxStatus.SUCCESS 
     }
-    return await this.find(queryParameters,dbRes.voteList).sort({ height: -1 });
+    return await this.find(queryParameters,dbRes.voteList).sort({ height: 1 });
 };
 
 TxSchema.statics.queryDepositsByAddress = async function(address:string,query:PagingReqDto): Promise<IListStruct> {
     let result: IListStruct = {};
     let queryParameters = {
         'msgs.msg.depositor': address,
+        status:TxStatus.SUCCESS
     };
     result.data = await this.find(queryParameters, dbRes.depositList)
         .sort({ height: -1 })

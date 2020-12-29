@@ -106,7 +106,7 @@ export class ProposalTaskService {
         await this.insertAndUpdateProposalDetail(updateProposalDetails,proposalDetailFromDb)
     }
     async tallyDetails(proposal_id) {
-        const validators = await this.stakingValidatorsModel.queryActiveVal()
+        const validators = await this.stakingValidatorsModel.queryActiveVal();
         let systemVotingPower = 0;
         let totalVotingPower = 0;
         let delegatorsGovInfo = {};
