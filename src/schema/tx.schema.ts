@@ -1120,19 +1120,22 @@ TxSchema.statics.queryVoteByTxhashs = async function (hash: string[], query?: Pa
         },
         status:TxStatus.SUCCESS 
     }
-    let data;
+    let data:IListStruct={};
     if (query) {
-        data = await this.find(queryParameters, dbRes.voteList)
+        data.data = await this.find(queryParameters, dbRes.voteList)
         .sort({ height: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
+        if (query.useCount && query.useCount == true) {
+            data.count = await this.find(queryParameters).countDocuments();
+        }
     } else {
         data = await this.find(queryParameters,dbRes.voteList).sort({ height: -1 })
     }
     return data;
 };
 
-TxSchema.statics.queryDepositorById = async function (id:number): Promise<IListStruct>  {
+TxSchema.statics.queryDepositorById = async function (id:number,query: PagingReqDto): Promise<IListStruct>  {
     const queryParameters =  {
         'msgs.type': { $in: [TxType.deposit, TxType.submit_proposal] },
         $or: [
@@ -1141,7 +1144,15 @@ TxSchema.statics.queryDepositorById = async function (id:number): Promise<IListS
         ],
         status:TxStatus.SUCCESS 
     }
-    return await this.find(queryParameters,dbRes.depositorList).sort({ height: -1 });
+    let result: IListStruct = {};
+    result.data = await this.find(queryParameters, dbRes.depositorList)
+        .sort({ height: -1 })
+        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+        .limit(Number(query.pageSize));
+    if (query.useCount && query.useCount == true) {
+        result.count = await this.find(queryParameters).countDocuments();
+    }
+    return result;
 };
 
 TxSchema.statics.queryVoteByAddr = async function (address:string): Promise<ITxVoteALL[]>  {

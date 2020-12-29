@@ -124,7 +124,7 @@ export class GovService {
         }
         let result: any = {};
         result.data = govProposalVoterResDto.bundleData(voteData.slice((Number(query.pageNum)-1)*Number(query.pageSize),Number(query.pageNum)*Number(query.pageSize)));
-        result.count = result.data.length;
+        result.count = voteData.length;
         result.statistical = statistical;
         return new ListStruct(result.data, query.pageNum, query.pageSize, result.count, result.statistical);
     }
@@ -146,10 +146,10 @@ export class GovService {
     }
 
     async getProposalsDepositor(param: ProposalDetailReqDto, query: proposalsReqDto): Promise<ListStruct<govProposalDepositorResDto>> {
-        const depositorData = await await this.txModel.queryDepositorById(Number(param.id));
+        const depositorData = await await this.txModel.queryDepositorById(Number(param.id),query);
         let depositorList = [];
-        if (depositorData && depositorData.length > 0) {
-            for (const deposotor of depositorData) {
+        if (depositorData && depositorData.data && depositorData.data.length > 0) {
+            for (const deposotor of depositorData.data) {
                 if (deposotor.msgs && deposotor.msgs[0] && deposotor.msgs[0].msg) {
                     let msg = deposotor.msgs[0].msg;
                     let type = deposotor.msgs[0].type;
@@ -179,9 +179,9 @@ export class GovService {
                 }
             }
         }
-        let result: any = {}
-        result.data = govProposalDepositorResDto.bundleData(depositorList)
-        result.count = depositorData.count
+        let result: any = {};
+        result.data = govProposalDepositorResDto.bundleData(depositorList);
+        result.count = depositorData.count;
         return new ListStruct(result.data, query.pageNum, query.pageSize, result.count)
     }
 }

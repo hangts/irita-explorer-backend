@@ -287,11 +287,13 @@ export default class StakingService {
             });
         }
         let votesList = [];
+        let count;
         if (votes.size > 0) {
             const hashs = [...votes.values()];
-            const votersData = await (this.txModel as any).queryVoteByTxhashs(hashs,q);
-            if (votersData && votersData.length > 0) {
-                for (const vote of votersData) {
+            const votersData = await (this.txModel as any).queryVoteByTxhashs(hashs, q);
+            count = votersData.count;
+            if (votersData && votersData.data && votersData.data.length > 0) {
+                for (const vote of votersData.data) {
                     if (vote.msgs && vote.msgs[0] && vote.msgs[0].msg) {
                         const msg = vote.msgs[0].msg;
                         const proposal = await this.proposalModel.findOneById(msg.proposal_id);
@@ -308,7 +310,7 @@ export default class StakingService {
         }
         let result: any = {};
         if (q.useCount) {
-            result.count = votesList.length;
+            result.count = count;
         }
         result.data = ValidatorVotesResDto.bundleData(votesList);
         return new ListStruct(result.data, q.pageNum, q.pageSize, result.count);
@@ -340,7 +342,7 @@ export default class StakingService {
         }
         let result: any = {};
         if (q.useCount) {
-            result.count = depositsList.length;
+            result.count = depositsData.count;
         }
         result.data = ValidatorDepositsResDto.bundleData(depositsList);
         return new ListStruct(result.data, q.pageNum, q.pageSize, result.count);
