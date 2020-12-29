@@ -29,7 +29,7 @@ ProposalSchema.index({id: 1}, {unique: true})
 
 ProposalSchema.statics = {
     async queryAllProposals() {
-        return await this.find({})
+        return await this.find({is_deleted: false})
     },
     async updateProposals(ids) {
         return await this.updateMany({id: { $in: ids } }, {$set: {is_deleted: true}})

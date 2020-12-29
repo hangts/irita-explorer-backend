@@ -8,15 +8,14 @@ import {
     ITxsWithNftQuery,
     ITxsWithServiceNameQuery,
     IExFieldQuery, IIdentityTx,
-} from '../types/schemaTypes/tx.interface';
-import {
     ITxStruct,
     ITxStructMsgs,
     ITxStructHash,
     ITxsWithAssetQuery,
     ITxVoteProposal,
     ITxSubmitProposal,
-    ITxVoteProposalAll
+    ITxVoteProposalAll,
+    ITxVoteALL
 } from '../types/schemaTypes/tx.interface';
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
 import { IListStruct,IQueryBase } from '../types';
@@ -24,6 +23,7 @@ import { INCREASE_HEIGHT, TxStatus, TxType } from '../constant';
 import Cache from '../helper/cache';
 import { dbRes } from '../helper/tx.helper';
 import { cfg } from '../config/config';
+import { PagingReqDto } from '../dto/base.dto';
 import {
     stakingTypes,
     serviceTypes,
@@ -1065,14 +1065,23 @@ TxSchema.statics.queryVoteByProposalIdAll = async function (id:number): Promise<
     return await this.find(params,dbRes.voteList).sort({height:1});
 };
 
-TxSchema.statics.queryVoteByTxhashs = async function (hash:string[]): Promise<IListStruct>  {
+TxSchema.statics.queryVoteByTxhashs = async function (hash: string[], query?: PagingReqDto): Promise<IListStruct>  {
     const queryParameters =  {
         'tx_hash': {
             $in: hash
         },
         status:TxStatus.SUCCESS 
     }
-    return await this.find(queryParameters,dbRes.voteList).sort({ height: -1 });
+    let data;
+    if (query) {
+        data = await this.find(queryParameters, dbRes.voteList)
+        .sort({ height: -1 })
+        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+        .limit(Number(query.pageSize));
+    } else {
+        data = await this.find(queryParameters,dbRes.voteList).sort({ height: -1 })
+    }
+    return data;
 };
 
 TxSchema.statics.queryDepositorById = async function (id:number): Promise<IListStruct>  {
@@ -1085,4 +1094,13 @@ TxSchema.statics.queryDepositorById = async function (id:number): Promise<IListS
         status:TxStatus.SUCCESS 
     }
     return await this.find(queryParameters,dbRes.depositorList).sort({ height: -1 });
+};
+
+TxSchema.statics.queryVoteByAddr = async function (address:string): Promise<ITxVoteALL[]>  {
+    const queryParameters =  {
+        'msgs.type': TxType.vote,
+        'msgs.msg.voter': address,
+        status:TxStatus.SUCCESS 
+    }
+    return await this.find(queryParameters,dbRes.voteList).sort({ height: -1 });
 };

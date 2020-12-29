@@ -110,3 +110,8 @@ export interface ITxVoteProposalAll  {
     tx_hash: string
     msgs: object
 }
+
+export interface ITxVoteALL {
+    msgs: object
+    tx_hash: string
+}

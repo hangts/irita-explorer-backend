@@ -9,7 +9,8 @@ import {
     jailedValidatorLabel,
     moduleSlashing,
     ValidatorNumberStatus,
-    ValidatorStatus
+    ValidatorStatus,
+    voteOptions
 } from "../constant";
 import {
     AccountAddrReqDto,
@@ -23,6 +24,7 @@ import {
     DelegatorsDelegationsReqDto,DelegatorsDelegationsResDto,
     DelegatorsUndelegationsReqDto, DelegatorsUndelegationsResDto,
     DelegatorsDelegationsParamReqDto, DelegatorsUndelegationsParamReqDto,
+    ValidatorVotesResDto
 } from "../dto/staking.dto";
 import {ListStruct} from "../api/ApiResult";
 import {BlockHttp} from "../http/lcd/block.http";
@@ -36,6 +38,7 @@ export default class StakingService {
                 @InjectModel('Parameters') private parametersModel: Model<any>,
                 @InjectModel('Tx') private txModel: Model<any>,
                 @InjectModel('Tokens') private tokensModel: any,
+                @InjectModel('Proposal') private proposalModel: any,
                 private readonly stakingHttp: StakingHttp,
     ) {
     }
@@ -134,7 +137,7 @@ export default class StakingService {
             let pageNationData = pageNation(resultData, q.pageSize)
             result.data = ValidatorUnBondingDelegationsResDto.bundleData(pageNationData[q.pageNum - 1])
         }
-        return new ListStruct(result.data, q.pageNum, q.pageSize, count)
+        return new ListStruct(result.data, q.pageNum, q.pageSize, result.count)
 
     }
 
@@ -271,5 +274,43 @@ export default class StakingService {
         result.count = count
         result.data = DelegatorsUndelegationsResDto.bundleData(resultData)
         return new ListStruct(result.data, pageNum, pageSize, result.count)
+    }
+
+    async getValidatorVotesList(p: ValidatorDelegationsReqDto,q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorVotesResDto>> {
+        const { address } = p;
+        let iaaAddress = addressTransform(address, addressPrefix.iaa);
+        const votesAll = await (this.txModel as any).queryVoteByAddr(iaaAddress);
+        const votes = new Map();
+        if (votesAll && votesAll.length > 0) {
+            votesAll.forEach(voter => {
+                votes.set(voter.msgs[0].msg.proposal_id, voter.tx_hash);
+            });
+        }
+        let votesList = [];
+        if (votes.size > 0) {
+            const hashs = [...votes.values()];
+            const votersData = await (this.txModel as any).queryVoteByTxhashs(hashs,q);
+            if (votersData && votersData.length > 0) {
+                for (const item of votersData) {
+                    if (item.msgs && item.msgs[0] && item.msgs[0].msg) {
+                        const msg = item.msgs[0].msg;
+                        const proposal = await this.proposalModel.findOneById(msg.proposal_id);
+                        votesList.push({
+                            title: proposal.content.title,
+                            proposal_id: msg.proposal_id,
+                            status: proposal.status,
+                            voted: voteOptions[msg.option],
+                            tx_hash: item.tx_hash
+                        })
+                    }
+                }
+            }
+        }
+        let result: any = {};
+        if (q.useCount) {
+            result.count = votesList.length;
+        }
+        result.data = ValidatorVotesResDto.bundleData(votesList);
+        return new ListStruct(result.data, q.pageNum, q.pageSize, result.count);
     }
 }

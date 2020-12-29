@@ -55,6 +55,7 @@ export function pageNation(dataArray: any[], pageSize: number = 0) {
     }
     return newArray
 }
+
 export function getAddress(publicKey) {
     let words = Bech32.decode(publicKey).words;
     words =  Bech32.fromWords(words);

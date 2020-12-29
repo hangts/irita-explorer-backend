@@ -333,3 +333,28 @@ export class DelegatorsUndelegationsResDto extends BaseResDto {
         return data;
     }
 }
+
+export class ValidatorVotesResDto extends BaseResDto {
+    title: string;
+    proposal_id: number;
+    status: string;
+    voted: string;
+    tx_hash: string;
+
+    constructor(vote) {
+        super();
+        this.title = vote.title || ''
+        this.proposal_id = vote.proposal_id || ''
+        this.status = vote.status || ''
+        this.voted = vote.voted || ''
+        this.tx_hash = vote.tx_hash || ''
+    }
+
+    static bundleData(value: any): ValidatorVotesResDto[] {
+        let data: ValidatorVotesResDto[] = [];
+        data = value.map((v: any) => {
+            return new ValidatorVotesResDto(v);
+        });
+        return data;
+    }
+}
