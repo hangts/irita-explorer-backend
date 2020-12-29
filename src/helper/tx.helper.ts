@@ -183,5 +183,9 @@ export const dbRes = {
         'tx_hash': 1,
         'msgs': 1,
         'time': 1
+    },
+    depositList: {
+        'tx_hash': 1,
+        'msgs.msg': 1
     }
 }

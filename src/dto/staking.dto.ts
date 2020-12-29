@@ -1,5 +1,6 @@
 import {BaseResDto, PagingReqDto} from './base.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Coin } from './common.res.dto';
 
 /***************Req***********************/
 
@@ -354,6 +355,33 @@ export class ValidatorVotesResDto extends BaseResDto {
         let data: ValidatorVotesResDto[] = [];
         data = value.map((v: any) => {
             return new ValidatorVotesResDto(v);
+        });
+        return data;
+    }
+}
+
+export class ValidatorDepositsResDto extends BaseResDto {
+    proposal_id: number;
+    proposer: string;
+    amount: Coin[];
+    submited: boolean;
+    tx_hash: string;
+    moniker: string;
+
+    constructor(deposit) {
+        super();
+        this.proposal_id = deposit.proposal_id || 0;
+        this.proposer = deposit.proposer || '';
+        this.amount = Coin.bundleData(deposit.amount) || [];
+        this.submited = deposit.submited || false;
+        this.tx_hash = deposit.tx_hash || '';
+        this.moniker = deposit.moniker || '';
+    }
+
+    static bundleData(value: any): ValidatorDepositsResDto[] {
+        let data: ValidatorDepositsResDto[] = [];
+        data = value.map((v: any) => {
+            return new ValidatorDepositsResDto(v);
         });
         return data;
     }

@@ -24,7 +24,7 @@ import {
     DelegatorsDelegationsReqDto,DelegatorsDelegationsResDto,
     DelegatorsUndelegationsReqDto, DelegatorsUndelegationsResDto,
     DelegatorsDelegationsParamReqDto, DelegatorsUndelegationsParamReqDto,
-    ValidatorVotesResDto
+    ValidatorVotesResDto,ValidatorDepositsResDto
 } from "../dto/staking.dto";
 import {ListStruct} from "../api/ApiResult";
 import {BlockHttp} from "../http/lcd/block.http";
@@ -192,7 +192,7 @@ export default class StakingService {
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const allProfilerAddress = await (this.profilerModel as any).queryProfileAddress()
         const validator = allValidatorsMap.get(operatorAddress)
-        // const deposits = await (this.txModel as any).queryDepositsByAddress(address)
+        // const deposits = await (this.txModel as any).queryDepositsAndSubmitByAddress(address)
 
         let profilerAddressMap = new Map()
         if (allProfilerAddress && allProfilerAddress.length > 0) {
@@ -291,16 +291,16 @@ export default class StakingService {
             const hashs = [...votes.values()];
             const votersData = await (this.txModel as any).queryVoteByTxhashs(hashs,q);
             if (votersData && votersData.length > 0) {
-                for (const item of votersData) {
-                    if (item.msgs && item.msgs[0] && item.msgs[0].msg) {
-                        const msg = item.msgs[0].msg;
+                for (const vote of votersData) {
+                    if (vote.msgs && vote.msgs[0] && vote.msgs[0].msg) {
+                        const msg = vote.msgs[0].msg;
                         const proposal = await this.proposalModel.findOneById(msg.proposal_id);
                         votesList.push({
                             title: proposal.content.title,
                             proposal_id: msg.proposal_id,
                             status: proposal.status,
                             voted: voteOptions[msg.option],
-                            tx_hash: item.tx_hash
+                            tx_hash: vote.tx_hash
                         })
                     }
                 }
@@ -312,5 +312,53 @@ export default class StakingService {
         }
         result.data = ValidatorVotesResDto.bundleData(votesList);
         return new ListStruct(result.data, q.pageNum, q.pageSize, result.count);
+    }
+
+    async getValidatorDepositsList(p: ValidatorDelegationsReqDto,q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorDepositsResDto>> {
+        const { address } = p;
+        let iaaAddress = addressTransform(address, addressPrefix.iaa);
+        const depositsData = await (this.txModel as any).queryDepositsByAddress(iaaAddress, q);
+        let depositsList = [];
+        if (depositsData && depositsData.data && depositsData.data.length > 0) {
+            for (const depost of depositsData.data) {
+                if (depost.msgs && depost.msgs[0] && depost.msgs[0].msg) { 
+                    const msg = depost.msgs[0].msg;
+                    const proposal = await (this.txModel as any).querySubmitProposalById(String(msg.proposal_id));
+                    const proposer = proposal && proposal.msgs && proposal.msgs[0] && proposal.msgs[0].msg && proposal.msgs[0].msg.proposer;
+                    let ivaProposer = addressTransform(proposer, addressPrefix.iva);
+                    let { moniker } = await this.addMonikerAndIva(ivaProposer);
+                    depositsList.push({
+                        proposal_id: msg.proposal_id,
+                        proposer,
+                        amount: msg.amount,
+                        submited: iaaAddress == proposer,
+                        tx_hash: depost.tx_hash,
+                        moniker
+                    })
+                }
+            }
+        }
+        let result: any = {};
+        if (q.useCount) {
+            result.count = depositsList.length;
+        }
+        result.data = ValidatorDepositsResDto.bundleData(depositsList);
+        return new ListStruct(result.data, q.pageNum, q.pageSize, result.count);
+    }
+
+    async addMonikerAndIva(address) {
+        let validators = await (this.stakingValidatorsModel as any).queryAllValidators();
+        let validatorMap = {};
+        validators.forEach((item) => {
+            validatorMap[item.operator_address] = item;
+        });
+        let moniker: string;
+        let isValidator: boolean = Boolean(validatorMap[address]);
+        if (validatorMap[address] &&
+            validatorMap[address].description &&
+            validatorMap[address].description.moniker) {
+            moniker = validatorMap[address].description.moniker
+        }
+        return {moniker,isValidator};
     }
 }

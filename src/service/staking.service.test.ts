@@ -122,5 +122,20 @@ describe('stakingValidatorController', () => {
             expect(data).toBeDefined();
         });
     });
+
+    describe('getValidatorDepositsList', () => {
+        it('should return DepositsList array', async () => {
+            let param:ValidatorDelegationsReqDto = {
+                address:'iva1nfgkyn6ux5mvavhyk5aq8zgzushrecutlt5pr8',
+            }
+            let query:ValidatorDelegationsQueryReqDto = {
+                pageNum:1,
+                pageSize:10,
+                useCount:true
+            };
+            let data:any = await stakingService.getValidatorDepositsList(param,query);
+            expect(data).toBeDefined();
+        });
+    });
 })
 

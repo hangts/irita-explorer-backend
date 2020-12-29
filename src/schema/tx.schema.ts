@@ -931,7 +931,7 @@ TxSchema.statics.queryTxListByIdentity = async function (query:IIdentityTx){
     return result;
 }
 
-TxSchema.statics.queryDepositsByAddress = async function (address: string) {
+TxSchema.statics.queryDepositsAndSubmitByAddress = async function (address: string) {
     let parameters: any = {
         'msgs.type': {'$in':[TxType.deposit, TxType.submit_proposal]},
         $or: [{'msgs.msg.depositor': address},
@@ -1103,4 +1103,19 @@ TxSchema.statics.queryVoteByAddr = async function (address:string): Promise<ITxV
         status:TxStatus.SUCCESS 
     }
     return await this.find(queryParameters,dbRes.voteList).sort({ height: -1 });
+};
+
+TxSchema.statics.queryDepositsByAddress = async function(address:string,query:PagingReqDto): Promise<IListStruct> {
+    let result: IListStruct = {};
+    let queryParameters = {
+        'msgs.msg.depositor': address,
+    };
+    result.data = await this.find(queryParameters, dbRes.depositList)
+        .sort({ height: -1 })
+        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+        .limit(Number(query.pageSize));
+    if (query.useCount && query.useCount == true) {
+        result.count = await this.find(queryParameters).countDocuments();
+    }
+    return result;
 };
