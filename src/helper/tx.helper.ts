@@ -143,6 +143,11 @@ export const dbRes = {
         'msgs.msg.address':1,
         'msgs.msg.min_self_delegation':1
     },
+    govs:{
+        ...common,
+        'events':1,
+        'msgs.msg.proposal_id':1,
+    },
     syncServiceTask:{
         'msgs.type':1,
         'msgs.msg.request_id':1,

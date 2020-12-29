@@ -27,7 +27,9 @@ import { PagingReqDto } from '../dto/base.dto';
 import {
     stakingTypes,
     serviceTypes,
-    declarationTypes } from '../helper/txTypes.helper';
+    declarationTypes,
+    govTypes
+} from '../helper/txTypes.helper';
 
 export const TxSchema = new mongoose.Schema({
     time: Number,
@@ -199,6 +201,48 @@ TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Prom
     }
     return result;
 };
+
+//  txs/gov
+TxSchema.statics.queryGovTxList = async function(query: ITxsQuery): Promise<IListStruct> {
+    const result: IListStruct = {};
+    let queryParameters: any = {};
+    if (query.type && query.type.length) {
+        queryParameters['msgs.type'] = query.type;
+    } else {
+        queryParameters['msgs.type'] = { '$in': govTypes() };
+    }
+    if (query.status && query.status.length) {
+        switch (query.status) {
+            case '1':
+                queryParameters.status = TxStatus.SUCCESS;
+                break;
+            case '2':
+                queryParameters.status = TxStatus.FAILED;
+                break;
+        }
+    }
+    if (query.address && query.address.length) {
+        queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
+    }
+    if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
+        queryParameters.time = {};
+    }
+    if (query.beginTime && query.beginTime.length) {
+        queryParameters.time.$gte = Number(query.beginTime);
+    }
+    if (query.endTime && query.endTime.length) {
+        queryParameters.time.$lte = Number(query.endTime);
+    }
+    result.data = await this.find(queryParameters, dbRes.govs)
+        .sort({time: -1})
+        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+        .limit(Number(query.pageSize));
+    if (query.useCount && query.useCount == true) {
+        result.count = await this.find(queryParameters).countDocuments();
+    }
+    return result;
+};
+
 
 //  txs/e 供edgeServer调用  返回数据不做过滤
 TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, useCount:boolean): Promise<IListStruct> {
