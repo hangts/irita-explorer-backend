@@ -10,8 +10,7 @@ import {activeValidatorLabel, candidateValidatorLabel, jailedValidatorLabel, Val
 
 export const StakingValidatorSchema = new mongoose.Schema({
     operator_address: String,
-    // consensus_pubkey: String,
-    consensus_pubkey: Object,
+    consensus_pubkey: String,
     jailed: Boolean,
     status: Number,
     tokens: String,

@@ -170,7 +170,8 @@ switch (cfg.currentChain) {
         addressPrefix = {
             iaa: 'iaa',
             iva: 'iva',
-            ica: 'ica'
+            ica: 'ica',
+            icp: 'icp'
         }
         break;
     case currentChain.cosmos:
@@ -182,7 +183,8 @@ switch (cfg.currentChain) {
         addressPrefix = {
             iaa: 'cosmos',
             iva: 'cosmosvaloper',
-            ica: 'cosmosvalcons'
+            ica: 'cosmosvalcons',
+            icp: 'cosmosvalconspub'
         }
         break;
     default:

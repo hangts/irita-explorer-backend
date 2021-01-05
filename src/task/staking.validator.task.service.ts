@@ -7,9 +7,9 @@ import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp, he
 import {addressPrefix, moduleSlashing, validatorStatusStr} from "../constant";
 import { cfg } from '../config/config';
 import { currentChain } from '../constant/index'
+let sdk  = require('@irisnet/irishub-sdk');
 
 @Injectable()
-
 export class StakingValidatorTaskService {
     constructor(@InjectModel('StakingSyncValidators') private stakingSyncValidatorsModel: Model<any>,
                 @InjectModel('ParametersTask') private parametersTaskModel: Model<any>,
@@ -62,19 +62,15 @@ export class StakingValidatorTaskService {
                 allValidatorsFromLcd[i].voting_power = Number(allValidatorsFromLcd[i].tokens)
             }
             allValidatorsFromLcd[i].jailed = allValidatorsFromLcd[i].jailed || false
-            let BlockProposer;
-            switch (cfg.currentChain) {
-                case currentChain.iris:
-                    // iris
-                    // BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
-                    // allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
-                    break;
-                case currentChain.cosmos:
-                    // todo:duanjie  cosmos:consensus_pubkey发生变化,原有编码方式不能使用,proposer_addr出块人地址
-                    // cosmos
-                    break;
-                default:
-                    break;
+            if (sdk && sdk.utils && sdk.types) {
+                let pk = sdk.utils.Crypto.aminoMarshalPubKey({
+                    type: sdk.types.PubkeyType.ed25519,
+                    value: allValidatorsFromLcd[i].consensus_pubkey.value
+                })
+                let pk_bech32  = sdk.utils.Crypto.encodeAddress(pk, addressPrefix.icp);
+                allValidatorsFromLcd[i].consensus_pubkey = pk_bech32
+                let BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
+                allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
             }
             await this.updateSlashInfo(allValidatorsFromLcd[i])
             await this.updateSelfBond(allValidatorsFromLcd[i])
@@ -127,27 +123,15 @@ export class StakingValidatorTaskService {
     }
 
     private async updateSlashInfo(dbValidators) {        
-        if (dbValidators.consensus_pubkey) {
-            let icaAddr, signingInfo, validatorObject;
-            switch (cfg.currentChain) {
-                case currentChain.iris:
-                    // iris
-                    // icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey), addressPrefix.ica);
-                    // signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
-                    // validatorObject = dbValidators
-                    // validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
-                    // validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
-                    // validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
-                    // validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
-                    // validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
-                    break;
-                case currentChain.cosmos:
-                    // todo:duanjie cosmos:consensus_pubkey发生变化,原有编码方式不能使用
-                    // cosmos
-                    break;
-                default:
-                    break;
-            }
+        if (dbValidators.consensus_pubkey && sdk && sdk.utils && sdk.types) {
+            let icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey), addressPrefix.ica);
+            let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
+            let validatorObject = dbValidators
+            validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
+            validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
+            validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
+            validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
+            validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
         }
     }
 
