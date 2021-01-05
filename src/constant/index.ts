@@ -157,10 +157,15 @@ export const ValidatorStatus = {
 let addressPrefix,validatorStatusStr;
 switch (cfg.currentChain) {
     case currentChain.iris:
+        // validatorStatusStr = {
+        //     'unbonded': 'unbonded',
+        //     'unbonding': 'unbonding',
+        //     'bonded': 'bonded'
+        // };
         validatorStatusStr = {
-            'unbonded': 'unbonded',
-            'unbonding': 'unbonding',
-            'bonded': 'bonded'
+            'unbonded': 'BOND_STATUS_UNBONDED',
+            'unbonding': 'BOND_STATUS_UNBONDING',
+            'bonded': 'BOND_STATUS_BONDED'
         };
         addressPrefix = {
             iaa: 'iaa',

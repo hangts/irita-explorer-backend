@@ -66,8 +66,8 @@ export class StakingValidatorTaskService {
             switch (cfg.currentChain) {
                 case currentChain.iris:
                     // iris
-                    BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
-                    allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
+                    // BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
+                    // allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
                     break;
                 case currentChain.cosmos:
                     // todo:duanjie  cosmos:consensus_pubkey发生变化,原有编码方式不能使用,proposer_addr出块人地址
@@ -132,14 +132,14 @@ export class StakingValidatorTaskService {
             switch (cfg.currentChain) {
                 case currentChain.iris:
                     // iris
-                    icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey), addressPrefix.ica);
-                    signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
-                    validatorObject = dbValidators
-                    validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
-                    validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
-                    validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
-                    validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
-                    validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
+                    // icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey), addressPrefix.ica);
+                    // signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
+                    // validatorObject = dbValidators
+                    // validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
+                    // validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
+                    // validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
+                    // validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
+                    // validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
                     break;
                 case currentChain.cosmos:
                     // todo:duanjie cosmos:consensus_pubkey发生变化,原有编码方式不能使用
