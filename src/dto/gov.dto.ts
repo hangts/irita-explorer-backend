@@ -32,6 +32,7 @@ export class govProposalResDto extends BaseResDto {
     total_deposit: object;
     initial_deposit: object;
     voting_end_time: number;
+    min_deposit: string;
     quorum: string;
     threshold: string;
     veto_threshold: string;
@@ -49,6 +50,7 @@ export class govProposalResDto extends BaseResDto {
         this.total_deposit = proposal.total_deposit || {};
         this.initial_deposit = proposal.initial_deposit || {};
         this.voting_end_time = proposal.voting_end_time || 0;
+        this.min_deposit = proposal.min_deposit || '';
         this.quorum = proposal.quorum || '';
         this.threshold = proposal.threshold || '';
         this.veto_threshold = proposal.veto_threshold || '';
@@ -66,11 +68,13 @@ export class govProposalResDto extends BaseResDto {
 export class govProposalDetailResDto extends govProposalResDto {
     hash: string;
     burned_rate: string | null;
+    proposer: string;
 
     constructor(proposal) {
         super(proposal);
         this.hash = proposal.hash || '';
         this.burned_rate = proposal.burned_rate || null;
+        this.proposer = proposal.proposer || '';
     }
 }
 
