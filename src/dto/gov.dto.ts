@@ -69,12 +69,14 @@ export class govProposalDetailResDto extends govProposalResDto {
     hash: string;
     burned_rate: string | null;
     proposer: string;
+    voting_start_time: string;
 
     constructor(proposal) {
         super(proposal);
         this.hash = proposal.hash || '';
         this.burned_rate = proposal.burned_rate || null;
         this.proposer = proposal.proposer || '';
+        this.voting_start_time = proposal.voting_start_time || '';
     }
 }
 

@@ -51,10 +51,10 @@ export class GovService {
                 let cond1 = proposal.total_deposit.amount < proposal.min_deposit;
                 let cond2 = (tally.total_voting_power / tally.system_voting_power) < proposal[govParams.quorum];
                 let cond3 = (tally.abstain / tally.total_voting_power) > proposal[govParams.veto_threshold];
-                if (cond1 && cond2 && cond3) {
-                    proposal.burned_rate = '0';
-                } else {
+                if (cond1 || cond2 || cond3) {
                     proposal.burned_rate = '1';
+                } else {
+                    proposal.burned_rate = '0';
                 }
             }
         }
