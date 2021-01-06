@@ -89,7 +89,6 @@ export class GovService {
                         let msg = item.msgs[0].msg;
                         let ivaAddress = addressTransform(msg.voter, addressPrefix.iva)
                         let { moniker, isValidator } = await this.addMonikerAndIva(ivaAddress)
-                        statistical[voteOptions[msg.option]]++;
                         statistical.all++;
                         if (isValidator) {
                             statistical.validator++
@@ -121,6 +120,11 @@ export class GovService {
             })
         } else {
             voteData = voteList
+        }
+        if (voteData && voteData.length > 0) {
+            voteData.forEach(vote => {
+                statistical[vote.option]++;
+            })
         }
         let result: any = {};
         result.data = govProposalVoterResDto.bundleData(voteData.slice((Number(query.pageNum)-1)*Number(query.pageSize),Number(query.pageNum)*Number(query.pageSize)));
