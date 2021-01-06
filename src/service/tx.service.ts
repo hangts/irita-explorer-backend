@@ -40,7 +40,8 @@ import { ITxStruct } from '../types/schemaTypes/tx.interface';
 import { INftMapStruct } from '../types/schemaTypes/nft.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 import Cache from '../helper/cache';
-import { TxType } from '../constant'
+import { TxType,addressPrefix } from '../constant';
+import { addressTransform } from "../util/util";
 @Injectable()
 export class TxService {
     constructor(@InjectModel('Tx') private txModel: any,
@@ -120,6 +121,7 @@ export class TxService {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
             await this.cacheTxTypes();
         // }
+        query.address = addressTransform(query.address, addressPrefix.iaa)
         const txListData = await this.txModel.queryGovTxList(query);
         const proposalsData = await this.proposalModel.queryAllProposalsSelect();
         const proposalsMap = new Map();
