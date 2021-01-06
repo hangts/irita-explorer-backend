@@ -241,3 +241,4 @@ export const voteOptions = {
     3: 'no',
     4: 'no_with_veto'
 }
+export const proposal = 'Proposal'

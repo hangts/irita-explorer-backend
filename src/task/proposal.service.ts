@@ -5,7 +5,7 @@ import { GovHttp } from "../http/lcd/gov.http";
 import { proposalStatus, govParams, voteOptions } from '../constant'
 import { StakingHttp } from "../http/lcd/staking.http";
 import { addressTransform } from "../util/util";
-import { addressPrefix } from "../constant";
+import { addressPrefix,proposal } from "../constant";
 import { getTimestamp,formatDateStringToNumber,splitString } from '../util/util';
 @Injectable()
 export class ProposalTaskService {
@@ -68,7 +68,7 @@ export class ProposalTaskService {
             item.initial_deposit = txData && txData.msgs && txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.initial_deposit || {};
             item.status = proposalStatus[item.status];
             if (item.content && item.content['@type']) {
-                item.content.type = splitString(item.content['@type'], '.');
+                item.content.type = splitString(item.content['@type'], '.').replace(proposal,'');
                 delete item.content['@type']
             }
             item.submit_time = formatDateStringToNumber(item.submit_time);
