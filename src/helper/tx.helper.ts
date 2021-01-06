@@ -105,6 +105,9 @@ const fromTo = {
         'msgs.msg.to': 1,
         'msgs.msg.src_owner': 1,
         'msgs.msg.dst_owner': 1,
+        'msgs.msg.depositor': 1,
+        'msgs.msg.voter': 1,
+        'msgs.msg.proposer': 1,
     };
 
 export const dbRes = {
