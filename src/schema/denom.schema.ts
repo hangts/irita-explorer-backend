@@ -13,6 +13,8 @@ export const DenomSchema = new mongoose.Schema({
     create_time: Number,
     update_time: Number,
 }, { versionKey: false });
+// 新增
+DenomSchema.index({ height: 1}, { background:true});
 
 DenomSchema.statics = {
     async findList(
@@ -35,7 +37,7 @@ DenomSchema.statics = {
             return await this.find(params)
                 .skip((Number(pageNum) - 1) * Number(pageSize))
                 .limit(Number(pageSize))
-                .sort({ time: -1 });
+                .sort({ height: -1 });
         }
     },
     async queryDenomCount(denomNameOrId?: string){
