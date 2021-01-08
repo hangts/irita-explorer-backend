@@ -4,11 +4,8 @@ import {StakingHttp} from "../http/lcd/staking.http";
 import {BlockHttp} from "../http/lcd/block.http";
 import {Model} from "mongoose"
 import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp, hexToBech32} from "../util/util";
-import {addressPrefix, moduleSlashing, validatorStatusStr} from "../constant";
-import { cfg } from '../config/config';
-import { currentChain } from '../constant/index'
-//  todo: duanjie sdk待替换
-let sdk = require('@irisnet/irishub-sdk');
+import { addressPrefix, moduleSlashing, validatorStatusStr } from "../constant";
+import { getConsensusPubkey } from '../helper/staking.helper';
 
 @Injectable()
 export class StakingValidatorTaskService {
@@ -63,16 +60,10 @@ export class StakingValidatorTaskService {
                 allValidatorsFromLcd[i].voting_power = Number(allValidatorsFromLcd[i].tokens)
             }
             allValidatorsFromLcd[i].jailed = allValidatorsFromLcd[i].jailed || false
-            if (sdk && sdk.utils && sdk.types) {
-                let pk = sdk.utils.Crypto.aminoMarshalPubKey({
-                    type: sdk.types.PubkeyType.ed25519,
-                    value: allValidatorsFromLcd[i].consensus_pubkey.value
-                })
-                let pk_bech32  = sdk.utils.Crypto.encodeAddress(pk, addressPrefix.icp);
-                allValidatorsFromLcd[i].consensus_pubkey = pk_bech32
-                let BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
-                allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
-            }
+            allValidatorsFromLcd[i].consensus_pubkey = getConsensusPubkey(allValidatorsFromLcd[i].consensus_pubkey['value'])
+            console.log('consensus_pubkey',allValidatorsFromLcd[i].consensus_pubkey)
+            let BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
+            allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
             await this.updateSlashInfo(allValidatorsFromLcd[i])
             await this.updateSelfBond(allValidatorsFromLcd[i])
             await this.updateIcons(allValidatorsFromLcd[i])
@@ -124,7 +115,7 @@ export class StakingValidatorTaskService {
     }
 
     private async updateSlashInfo(dbValidators) {        
-        if (dbValidators.consensus_pubkey && sdk && sdk.utils && sdk.types) {
+        if (dbValidators.consensus_pubkey) {
             let icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey), addressPrefix.ica);
             let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
             let validatorObject = dbValidators
