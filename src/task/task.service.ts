@@ -46,7 +46,7 @@ export class TasksService {
     @Cron(cfg.taskCfg.executeTime.denom, {
         name: TaskEnum.denom
     })
-    //@Cron('50 * * * * *')
+    // @Cron('*/5 * * * * *')
     async syncDenoms() {
         this.handleDoTask(TaskEnum.denom, this.denomTaskService.doTask);
     }

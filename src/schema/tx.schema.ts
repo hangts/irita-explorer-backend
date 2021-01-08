@@ -19,7 +19,7 @@ import {
 } from '../types/schemaTypes/tx.interface';
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
 import { IListStruct,IQueryBase } from '../types';
-import { INCREASE_HEIGHT, TxStatus, TxType } from '../constant';
+import { INCREASE_HEIGHT, TxStatus, TxType,MAX_OPERATE_TX_COUNT } from '../constant';
 import Cache from '../helper/cache';
 import { dbRes } from '../helper/tx.helper';
 import { cfg } from '../config/config';
@@ -1062,6 +1062,15 @@ TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Prom
     return await this.aggregate(cond);
 };
 
+TxSchema.statics.queryDenomTxList = async function (lastBlockHeight: number): Promise<ITxStruct[]>  {
+    return await this.find(
+        {
+            'msgs.type': TxType.issue_denom,
+            height: {
+                $gt: lastBlockHeight
+            }
+        }, { msgs: 1, height: 1, time: 1, tx_hash: 1 }).sort({ height: 1 }).limit(MAX_OPERATE_TX_COUNT);
+};
 TxSchema.statics.queryMaxNftTxList = async function (): Promise<ITxStruct[]>  {
     const typesList: TxType[] = [
         TxType.mint_nft,
@@ -1080,6 +1089,10 @@ TxSchema.statics.queryMaxNftTxList = async function (): Promise<ITxStruct[]>  {
             $in: typesList
         }
     },{height: 1}).sort({height: -1}).limit(1);
+};
+
+TxSchema.statics.queryMaxDenomTxList = async function (): Promise<ITxStruct[]>  {
+    return await this.find({ 'msgs.type': TxType.issue_denom },{height: 1}).sort({height: -1}).limit(1);
 };
 
 TxSchema.statics.querySubmitProposalById = async function (id:string): Promise<ITxSubmitProposal>  {

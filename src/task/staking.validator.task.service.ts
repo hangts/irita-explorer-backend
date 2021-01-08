@@ -61,7 +61,6 @@ export class StakingValidatorTaskService {
             }
             allValidatorsFromLcd[i].jailed = allValidatorsFromLcd[i].jailed || false
             allValidatorsFromLcd[i].consensus_pubkey = getConsensusPubkey(allValidatorsFromLcd[i].consensus_pubkey['value'])
-            console.log('consensus_pubkey',allValidatorsFromLcd[i].consensus_pubkey)
             let BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
             allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
             await this.updateSlashInfo(allValidatorsFromLcd[i])

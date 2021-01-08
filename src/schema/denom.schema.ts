@@ -11,7 +11,8 @@ export const DenomSchema = new mongoose.Schema({
     height: Number,
     time:Number,
     create_time: Number,
-    update_time: Number,
+    last_block_height: Number,
+    last_block_time: Number,
 }, { versionKey: false });
 // 新增
 DenomSchema.index({ height: 1}, { background:true});
@@ -87,5 +88,13 @@ DenomSchema.statics = {
 
     async findOneByDenomAndNftIdFromDenom(denomId: string): Promise<IDenomStruct> {
         return await this.findOne({ denom_id: denomId}, {'_id': 0,'update_time': 0,'create_time': 0})
+    },
+
+    async findLastBlockHeight(): Promise<IDenomStruct[]> {
+        return await this.find({}, { last_block_height: 1 }).sort({last_block_height:-1}).limit(1)
+    },
+
+    async insertManyDenom(denomList): Promise<IDenomStruct[]>{
+       return await this.insertMany(denomList,{ ordered: false })
     },
 };
