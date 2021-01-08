@@ -380,7 +380,7 @@ export class IDelegationLcd {
 // /validatorsets/{height}
 export class Validatorset {
     address:string;
-    pub_key:string;
+    pub_key:string | object;
     proposer_priority:string;
     voting_power:string;
     constructor(value) {

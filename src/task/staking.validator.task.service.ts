@@ -7,7 +7,8 @@ import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp, he
 import {addressPrefix, moduleSlashing, validatorStatusStr} from "../constant";
 import { cfg } from '../config/config';
 import { currentChain } from '../constant/index'
-let sdk  = require('@irisnet/irishub-sdk');
+//  todo: duanjie sdk待替换
+let sdk = require('@irisnet/irishub-sdk');
 
 @Injectable()
 export class StakingValidatorTaskService {

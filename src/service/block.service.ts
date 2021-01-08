@@ -14,7 +14,10 @@ import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { BlockHttp } from '../http/lcd/block.http';
 import { Logger } from '../logger';
 import { addressPrefix } from '../constant';
-import {getAddress, hexToBech32} from '../util/util';
+import { getAddress, hexToBech32 } from '../util/util';
+//  todo: duanjie sdk待替换
+let sdk = require('@irisnet/irishub-sdk');
+
 @Injectable()
 export class BlockService {
 
@@ -122,6 +125,14 @@ export class BlockService {
                     validatorMap[v.proposer_addr] = v;
                 });
                 data.forEach((item)=>{
+                    if (sdk && sdk.utils && sdk.types) {
+                        let pk = sdk.utils.Crypto.aminoMarshalPubKey({
+                            type: sdk.types.PubkeyType.ed25519,
+                            value: item.pub_key['value']
+                        })
+                        let pk_bech32  = sdk.utils.Crypto.encodeAddress(pk, addressPrefix.icp);
+                        item.pub_key = pk_bech32
+                    }
                     const proposer_addr = item.pub_key ? getAddress(item.pub_key).toLocaleUpperCase() : null
                     let validator = validatorMap[proposer_addr];
                     if (validator) {
