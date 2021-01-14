@@ -177,7 +177,7 @@ export default class StakingService {
             }
             validatorDetail.total_power = await this.getTotalVotingPower()
             validatorDetail.tokens = Number(validatorDetail.tokens)
-            validatorDetail.bonded_stake = (Number(validatorDetail.self_bond.amount) * (Number(validatorDetail.tokens) / Number(validatorDetail.delegator_shares))).toString()
+            validatorDetail.bonded_stake = ((validatorDetail.self_bond && validatorDetail.self_bond.amount ? Number(validatorDetail.self_bond.amount) : 0) * (Number(validatorDetail.tokens) / Number(validatorDetail.delegator_shares))).toString()
             validatorDetail.owner_addr = addressTransform(validatorDetail.operator_address, addressPrefix.iaa)
             result = new ValidatorDetailResDto(validatorDetail)
         }
