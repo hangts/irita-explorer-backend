@@ -22,7 +22,8 @@ export class StakingHttp {
         switch (cfg.currentChain) {
             case currentChain.iris:
                 // iris
-                validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&pageNum=${pageNum}&pageSize=${pageSize}`
+                // validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&pageNum=${pageNum}&pageSize=${pageSize}`
+                validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&page=${pageNum}&limit=${pageSize}`
                 break;
             case currentChain.cosmos:
                 // cosmos

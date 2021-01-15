@@ -40,6 +40,8 @@ import { ITxStruct } from '../types/schemaTypes/tx.interface';
 import { INftMapStruct } from '../types/schemaTypes/nft.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 import Cache from '../helper/cache';
+import { TxType,addressPrefix } from '../constant';
+import { addressTransform } from "../util/util";
 @Injectable()
 export class TxService {
     constructor(@InjectModel('Tx') private txModel: any,
@@ -47,7 +49,8 @@ export class TxService {
                 @InjectModel('Denom') private denomModel: any,
                 @InjectModel('Nft') private nftModel: any,
                 @InjectModel('Identity') private identityModel:any,
-                @InjectModel('StakingValidator') private stakingValidatorModel:any
+                @InjectModel('StakingValidator') private stakingValidatorModel: any,
+                @InjectModel('Proposal') private proposalModel: any
     ) {
         this.cacheTxTypes();
     }
@@ -110,6 +113,52 @@ export class TxService {
         // }
         const txListData = await this.txModel.queryDeclarationTxList(query);
         let txData = await this.addMonikerToTxs(txListData.data);
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
+    }
+
+    // txs/gov 
+    async queryGovTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
+        // if (!Cache.supportTypes || !Cache.supportTypes.length) {
+            await this.cacheTxTypes();
+        // }
+        query.address = addressTransform(query.address, addressPrefix.iaa)
+        const txListData = await this.txModel.queryGovTxList(query);
+        const proposalsData = await this.proposalModel.queryAllProposalsSelect();
+        const proposalsMap = new Map();
+        if (proposalsData && proposalsData.length > 0) {
+            proposalsData.forEach(proposal => {
+                proposal.content.id = proposal.id;
+                proposalsMap.set(proposal.id, proposal.content);
+            });
+        }
+        let txList = [];
+        if (txListData && txListData.data && txListData.data.length > 0) {
+            txList = txListData.data.map(tx => {
+                let item = JSON.parse(JSON.stringify(tx));
+                const msgs = item && item.msgs && item.msgs[0];
+                const events = item.events
+                if (msgs.type == TxType.vote || msgs.type == TxType.deposit) {
+                    let ex  = proposalsMap.get(msgs.msg.proposal_id);
+                    item.ex = ex;
+                    return item
+                } else {
+                    let proposal_id;
+                    events.forEach(event => {
+                        if (event.type == TxType.submit_proposal) {
+                            event.attributes.forEach(element => {
+                                if (element.key == 'proposal_id') {
+                                    proposal_id = element.value
+                                }
+                            });
+                        }
+                    });
+                    let ex = proposalsMap.get(Number(proposal_id));
+                    item.ex = ex;
+                    return item
+                }
+            });
+        }
+        let txData = await this.addMonikerToTxs(txList);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
@@ -427,6 +476,12 @@ export class TxService {
     async queryTxWithAsset(query: TxListWithAssetReqDto): Promise<ListStruct<TxResDto[]>> {
         const txData = await this.txModel.queryTxWithAsset(query);
         return new ListStruct(TxResDto.bundleData(txData.data), Number(query.pageNum), Number(query.pageSize), txData.count);
+    }
+
+    // txs/types/gov
+    async queryGovTxTypeList(): Promise<TxTypeResDto[]> {
+        const txTypeListData = await this.txTypeModel.queryGovTxTypeList();
+        return TxTypeResDto.bundleData(txTypeListData);
     }
 }
 

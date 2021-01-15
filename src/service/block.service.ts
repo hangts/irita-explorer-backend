@@ -14,7 +14,9 @@ import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { BlockHttp } from '../http/lcd/block.http';
 import { Logger } from '../logger';
 import { addressPrefix } from '../constant';
-import {getAddress, hexToBech32} from '../util/util';
+import { getAddress, hexToBech32 } from '../util/util';
+import { getConsensusPubkey } from '../helper/staking.helper';
+
 @Injectable()
 export class BlockService {
 
@@ -122,6 +124,7 @@ export class BlockService {
                     validatorMap[v.proposer_addr] = v;
                 });
                 data.forEach((item)=>{
+                    item.pub_key = getConsensusPubkey(item.pub_key['value'])
                     const proposer_addr = item.pub_key ? getAddress(item.pub_key).toLocaleUpperCase() : null
                     let validator = validatorMap[proposer_addr];
                     if (validator) {

@@ -286,6 +286,7 @@ export class TxResDto extends BaseResDto {
     signers: Array<any>;
     fee: object;
     monikers:any[];
+    ex?: object;
 
     constructor(txData) {
         super();
@@ -306,6 +307,7 @@ export class TxResDto extends BaseResDto {
         this.signers = txData.signers;
         this.fee = txData.fee;
         this.monikers = txData.monikers || [];
+        if (txData.ex) this.ex = txData.ex;
     }
 
     static bundleData(value: any): TxResDto[] {

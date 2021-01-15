@@ -25,7 +25,8 @@ const {
     MAX_OPERATE_TX_COUNT,
     CURRENT_CHAIN,
     MAIN_TOKEN,
-    DELETE_CRON_JOBS
+    DELETE_CRON_JOBS,
+    PROPLSAL
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -54,6 +55,7 @@ export const cfg = {
             stakingValidators: STAKING_VALIDATORS_TIME || '15 * * * * *',
             stakingParameters: STAKING_PARAMETERS || '10 * * * * *',
             Tokens: TOKENS || '5 * * * * *',
+            Proplsal: PROPLSAL || '25 * * * * *',
         },
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
         increaseHeight: INCREASE_HEIGHT || 1000,
