@@ -21,7 +21,6 @@ export class ProposalTaskService {
         this.doTask = this.doTask.bind(this);
     }
     async doTask(): Promise<void> {
-        console.log('开始同步proposal')
         const proposalFromLcd = await this.govHttp.getProposals();
         const proposalFromDb = await this.proposalModel.queryAllProposals();
         const proposalDetailFromDb = await this.proposalDetailModel.queryAllProposalsDetail();
