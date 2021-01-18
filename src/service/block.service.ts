@@ -27,13 +27,52 @@ export class BlockService {
     async queryBlockList(query: BlockListReqDto): Promise<ListStruct<BlockListResDto[]>> {
         const { pageNum, pageSize, useCount } = query;
         let count: number;
-        const b: IBlockStruct[] = await (this.blockModel as any).findList(pageNum, pageSize);
+        const blocks: IBlockStruct[] = await (this.blockModel as any).findList(pageNum, pageSize);
         if (useCount) {
             count = await (this.blockModel as any).findCount();
         }
-        const res: BlockListResDto[] = b.map((b) => {
-            return new BlockListResDto(b.height, b.hash, b.txn, b.time);
-        });
+        let res: BlockListResDto[]=[];
+        for (let block of blocks) {
+            block = JSON.parse(JSON.stringify(block));
+            let block_lcd = await BlockHttp.queryBlockFromLcd(block.height);
+            if (block_lcd) {
+                let proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block.proposer || '');
+                let validatorsets = await BlockHttp.queryValidatorsets(block.height);
+                if (proposer && proposer.length) {
+                    block.proposer_moniker = (proposer[0].description || {}).moniker || '';
+                    block.proposer_addr = proposer[0].operator_address || '';
+                }
+
+                let signaturesMap:any = {};
+                block_lcd.block.last_commit.signatures.forEach((item:any)=>{
+                    let address = hexToBech32(item.validator_address, addressPrefix.ica);
+                    signaturesMap[address] = item;
+                }) 
+                if (validatorsets) {
+                    block.total_validator_num = validatorsets ? validatorsets.length : 0;
+                    block.total_voting_power = 0;
+                    block.precommit_voting_power = 0;
+                    validatorsets.forEach((item)=>{
+                        //TODO:hangtaishan 使用大数计算
+                        block.total_voting_power += Number(item.voting_power || 0);
+                        if (signaturesMap[item.address]) {
+                            block.precommit_voting_power += Number(item.voting_power || 0);
+                        }
+                    });
+                }
+                block.precommit_validator_num = 0;
+                if (block_lcd) {
+                    try{
+                        block.precommit_validator_num = block_lcd.block.last_commit.signatures.filter((item)=>{
+                            return item.validator_address && item.validator_address.length;
+                        }).length;
+                    }catch(e){
+                        block.precommit_validator_num = 0;
+                    }
+                }
+            }
+            res.push(new BlockListResDto(block));
+        }
         return new ListStruct(res, pageNum, pageSize, count);
     }
 
@@ -42,7 +81,7 @@ export class BlockService {
         const { height } = p;
         const res: IBlockStruct | null = await (this.blockModel as any).findOneByHeight(height);
         if (res) {
-            data = new BlockListResDto(res.height, res.hash, res.txn, res.time);
+            data = new BlockListResDto(res);
         }
         return data;
     }
@@ -55,8 +94,18 @@ export class BlockService {
 
         let block_db = await (this.blockModel as any).findOneByHeight(height);
         block_db = JSON.parse(JSON.stringify(block_db));
+        // console.log('block_db', block_db)
+        // [{
+        //     height: 5513,
+        //     hash: '0EDCEC69A00E06291CDA777C5E791758DF6121B345DED73069B6F2E59009F49D',
+        //     txn: 0,
+        //     time: 1610789437,
+        //     proposer: '98DFE0E45673A833973C0E284CBCFA57BBD1E766'
+        //   }]
         if (block_db) {
-            let block_lcd =  await BlockHttp.queryBlockFromLcd(height);
+            let block_lcd = await BlockHttp.queryBlockFromLcd(height);
+            // http://192.168.150.60:11317/blocks/5513
+            // console.log('block_lcd',block_lcd)
             let latestBlock = await BlockHttp.queryLatestBlockFromLcd();
             let proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block_db.proposer || '');
             let validatorsets = await BlockHttp.queryValidatorsets(height);

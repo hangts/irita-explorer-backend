@@ -312,7 +312,7 @@ export class StakingValidatorLcdDto {
         this.tokens = value.tokens || '';
         this.delegator_shares = value.delegator_shares || '';
         this.description = value.description || '';
-        this.unbonding_height = value.unbonding_height || '';
+        this.unbonding_height = value.unbonding_height || '0';
         this.unbonding_time = value.unbonding_time || '';
         this.commission = value.commission || null;
         this.min_self_delegation = value.min_self_delegation || '';

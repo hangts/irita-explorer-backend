@@ -45,7 +45,7 @@ StakingValidatorSchema.statics = {
         return await this.find({})
     },
 
-    async findValidatorByPropopserAddr(PropopserAddr:string):Promise<IStakingValidator>{
+    async findValidatorByPropopserAddr(PropopserAddr: string): Promise<IStakingValidator>{
         return await this.find({proposer_addr:PropopserAddr});
     },
 

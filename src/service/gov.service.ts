@@ -47,12 +47,22 @@ export class GovService {
             proposal.tally_details = proposalsDetail && proposalsDetail.tally_details || [];
             // todo: duanjie 使用大数计算
             if (proposal.current_tally_result) {
-                let tally = proposal.current_tally_result;
-                let cond1 = proposal.total_deposit.amount < proposal.min_deposit;
-                let cond2 = (tally.total_voting_power / tally.system_voting_power) < proposal[govParams.quorum];
-                let cond3 = (tally.abstain / tally.total_voting_power) > proposal[govParams.veto_threshold];
-                if (cond1 || cond2 || cond3) {
-                    proposal.burned_rate = '1';
+                if (proposal.status === proposalStatus.PROPOSAL_STATUS_REJECTED) {
+                    let tally = proposal.current_tally_result;
+                    let cond1 = (tally.total_voting_power / tally.system_voting_power) < proposal[govParams.quorum];
+                    let cond2 = (tally.abstain / tally.total_voting_power) > proposal[govParams.veto_threshold];
+                    if (cond1 || cond2) {
+                        proposal.burned_rate = '1';
+                    } else {
+                        proposal.burned_rate = '0';
+                    }
+                } else if (proposal.status === proposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD) {
+                    let cond1 = proposal.total_deposit.amount < proposal.min_deposit;
+                    if (cond1) {
+                        proposal.burned_rate = '1';
+                    } else {
+                        proposal.burned_rate = '0';
+                    }
                 } else {
                     proposal.burned_rate = '0';
                 }

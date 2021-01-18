@@ -21,6 +21,7 @@ export class ProposalTaskService {
         this.doTask = this.doTask.bind(this);
     }
     async doTask(): Promise<void> {
+        console.log('开始同步proposal')
         const proposalFromLcd = await this.govHttp.getProposals();
         const proposalFromDb = await this.proposalModel.queryAllProposals();
         const proposalDetailFromDb = await this.proposalDetailModel.queryAllProposalsDetail();
@@ -96,10 +97,15 @@ export class ProposalTaskService {
                 })
             } 
             if (!insertIds.includes(proposal.id)) {
+                let txData = await this.txModel.querySubmitProposalById(String(proposal.id));
+                proposal.hash = txData && txData.tx_hash;
+                proposal.proposer = txData && txData.msgs && txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.proposer || '';
                 let proposalFromLcd = proposalFromLcdMap.get(proposal.id);
                 proposal.status = proposalStatus[proposalFromLcd.status];
                 proposal.final_tally_result = proposalFromLcd.final_tally_result
                 proposal.total_deposit = proposalFromLcd.total_deposit
+                proposal.voting_start_time = formatDateStringToNumber(proposalFromLcd.voting_start_time)
+                proposal.voting_end_time = formatDateStringToNumber(proposalFromLcd.voting_end_time)
             }
         }
         await this.insertAndUpdateProposal(updateData,proposalFromDb)
