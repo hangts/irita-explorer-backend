@@ -124,7 +124,6 @@ export default class StakingService {
                 block: item.entries[0].creation_height || '',
                 until: item.entries[0].completion_time || '',
             }
-
         })
         const count = resultData.length
         let result: any = {}
