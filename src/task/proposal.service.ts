@@ -87,7 +87,7 @@ export class ProposalTaskService {
         let updateData = updateDbData.concat(insertData);
         let updateProposalDetails = [];
         for (const proposal of updateData) {
-            if (proposal.status == proposalStatus['PROPOSAL_STATUS_VOTING_PERIOD']) {
+            if (proposal.status == proposalStatus['PROPOSAL_STATUS_VOTING_PERIOD'] || proposal.status == proposalStatus['PROPOSAL_STATUS_DEPOSIT_PERIOD']) {
                 let { current_tally_result, tally_details } = await this.tallyDetails(proposal.id);
                 proposal.current_tally_result = current_tally_result;
                 updateProposalDetails.push({
@@ -99,6 +99,7 @@ export class ProposalTaskService {
                 let txData = await this.txModel.querySubmitProposalById(String(proposal.id));
                 proposal.hash = txData && txData.tx_hash;
                 proposal.proposer = txData && txData.msgs && txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.proposer || '';
+                proposal.initial_deposit = txData && txData.msgs && txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.initial_deposit || {};
                 let proposalFromLcd = proposalFromLcdMap.get(proposal.id);
                 proposal.status = proposalStatus[proposalFromLcd.status];
                 proposal.final_tally_result = proposalFromLcd.final_tally_result
@@ -107,7 +108,7 @@ export class ProposalTaskService {
                 proposal.voting_end_time = formatDateStringToNumber(proposalFromLcd.voting_end_time)
             }
         }
-        await this.insertAndUpdateProposalDetail(updateProposalDetails,proposalDetailFromDb)
+        await this.insertAndUpdateProposalDetail(updateProposalDetails, proposalDetailFromDb)
         await this.insertAndUpdateProposal(updateData,proposalFromDb)
     }
     async tallyDetails(proposal_id) {
