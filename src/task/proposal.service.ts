@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from "mongoose"
+import { Model } from "mongoose";
 import { GovHttp } from "../http/lcd/gov.http";
 import { proposalStatus, govParams, voteOptions } from '../constant'
 import { StakingHttp } from "../http/lcd/staking.http";
@@ -107,8 +107,8 @@ export class ProposalTaskService {
                 proposal.voting_end_time = formatDateStringToNumber(proposalFromLcd.voting_end_time)
             }
         }
-        await this.insertAndUpdateProposal(updateData,proposalFromDb)
         await this.insertAndUpdateProposalDetail(updateProposalDetails,proposalDetailFromDb)
+        await this.insertAndUpdateProposal(updateData,proposalFromDb)
     }
     async tallyDetails(proposal_id) {
         const validators = await this.stakingValidatorsModel.queryActiveVal();

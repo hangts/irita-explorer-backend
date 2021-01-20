@@ -54,7 +54,8 @@ TokensSchema.statics = {
             initial_supply: 1,
             max_supply: 1,
             mintable: 1,
-            scale:1
+            scale: 1,
+            min_unit:1
         });
     },
 }

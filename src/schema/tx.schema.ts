@@ -828,7 +828,7 @@ TxSchema.statics.findRespondServiceCount = async function(serviceName: string, p
     const queryParameters: any = {
         'msgs.msg.ex.service_name': serviceName,
         'msgs.type': TxType.respond_service,
-        status: TxStatus.SUCCESS,
+        // status: TxStatus.SUCCESS,
     };
     if (provider) {
         queryParameters['msgs.msg.provider'] = provider;

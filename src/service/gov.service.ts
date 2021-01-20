@@ -50,7 +50,7 @@ export class GovService {
                 if (proposal.status === proposalStatus.PROPOSAL_STATUS_REJECTED) {
                     let tally = proposal.current_tally_result;
                     let cond1 = (tally.total_voting_power / tally.system_voting_power) < proposal[govParams.quorum];
-                    let cond2 = (tally.abstain / tally.total_voting_power) > proposal[govParams.veto_threshold];
+                    let cond2 = (tally.no_with_veto / tally.total_voting_power) > proposal[govParams.veto_threshold];
                     if (cond1 || cond2) {
                         proposal.burned_rate = '1';
                     } else {

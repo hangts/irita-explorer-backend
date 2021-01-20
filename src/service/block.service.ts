@@ -31,12 +31,26 @@ export class BlockService {
         if (useCount) {
             count = await (this.blockModel as any).findCount();
         }
+        const allValidators = await this.stakingValidatorModel.queryAllValidators();
+        let validators = new Map();
+        allValidators.forEach(validator => {
+            validators.set(validator.proposer_addr,validator)
+        });
         let res: BlockListResDto[] = blocks.map(block => {
+            block = JSON.parse(JSON.stringify(block));
+            let proposer = validators.get(block.proposer);
+            let proposer_addr, proposer_moniker;
+            if (proposer) {
+                proposer_moniker = (proposer.description || {}).moniker || '';
+                proposer_addr = proposer.operator_address || '';
+            }
             return {
                 height: block.height,
                 hash: block.hash,
                 txn: block.txn,
                 time: block.time,
+                proposer_addr,
+                proposer_moniker
             }
         });
         // for (let block of blocks) {
@@ -101,18 +115,8 @@ export class BlockService {
 
         let block_db = await (this.blockModel as any).findOneByHeight(height);
         block_db = JSON.parse(JSON.stringify(block_db));
-        // console.log('block_db', block_db)
-        // [{
-        //     height: 5513,
-        //     hash: '0EDCEC69A00E06291CDA777C5E791758DF6121B345DED73069B6F2E59009F49D',
-        //     txn: 0,
-        //     time: 1610789437,
-        //     proposer: '98DFE0E45673A833973C0E284CBCFA57BBD1E766'
-        //   }]
         if (block_db) {
             let block_lcd = await BlockHttp.queryBlockFromLcd(height);
-            // http://192.168.150.60:11317/blocks/5513
-            // console.log('block_lcd',block_lcd)
             let latestBlock = await BlockHttp.queryLatestBlockFromLcd();
             let proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block_db.proposer || '');
             let validatorsets = await BlockHttp.queryValidatorsets(height);
