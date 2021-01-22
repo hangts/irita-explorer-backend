@@ -41,33 +41,30 @@ ProposalSchema.statics = {
         await this.findOneAndUpdate({id}, insertProposal, options)
     },
     async queryProposals(query: IGovProposalQuery): Promise<IListStruct> {
+        let queryParameters: any = {
+            is_deleted: false
+        };
         if (query.status) {
-            const queryParameters: any = {
+            queryParameters = {
                 status: {
                     $in: query.status.split(",")
                 },
                 is_deleted: false
             };
-            const result: IListStruct = {};
-            if (query.useCount && query.useCount == 'true') {
-                result.count = await this.find(queryParameters).countDocuments();
-            };
-            result.data = await this.find(queryParameters).sort({ id: -1 });
-            return result;
-        } else {
-            const queryParameters: any = {
-                is_deleted: false
-            };
-            const result: IListStruct = {}
-            if (query.useCount && query.useCount == 'true') {
-                result.count = await this.find(queryParameters).countDocuments();
-            }
-            result.data = await this.find(queryParameters)
-                .sort({id: -1})
-                .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-                .limit(Number(query.pageSize));
-            return result
         }
+        const result: IListStruct = {}
+        if (query.useCount && query.useCount == 'true') {
+            result.count = await this.find(queryParameters).countDocuments();
+        }
+        if (query.status) {
+            result.data = await this.find(queryParameters).sort({ id: -1 });
+        } else {
+            result.data = await this.find(queryParameters)
+            .sort({id: -1})
+            .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+            .limit(Number(query.pageSize));
+        }
+        return result
     },
     async findOneById(id: number): Promise<IGovProposal> {
         const queryParameters: any = {
