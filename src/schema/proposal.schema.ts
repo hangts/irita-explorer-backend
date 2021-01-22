@@ -1,8 +1,9 @@
 import * as mongoose from 'mongoose';
 import {
-    IGovProposal
+    IGovProposal,
+    IGovProposalQuery
 } from "../types/schemaTypes/proposal.interface";
-import {IListStruct,IQueryBase} from "../types";
+import {IListStruct} from "../types";
 export const ProposalSchema = new mongoose.Schema({
     id: Number,
     content: Object,
@@ -39,19 +40,34 @@ ProposalSchema.statics = {
         const options = {upsert: true, new: false, setDefaultsOnInsert: true}
         await this.findOneAndUpdate({id}, insertProposal, options)
     },
-    async queryProposals(query: IQueryBase): Promise<IListStruct> {
-        const queryParameters: any = {
-            is_deleted: false
-        };
-        const result: IListStruct = {}
-        if (query.useCount && query.useCount == true) {
-            result.count = await this.find(queryParameters).countDocuments();
+    async queryProposals(query: IGovProposalQuery): Promise<IListStruct> {
+        if (query.status) {
+            const queryParameters: any = {
+                status: {
+                    $in: query.status.split(",")
+                },
+                is_deleted: false
+            };
+            const result: IListStruct = {};
+            if (query.useCount && query.useCount == 'true') {
+                result.count = await this.find(queryParameters).countDocuments();
+            };
+            result.data = await this.find(queryParameters).sort({ id: -1 });
+            return result;
+        } else {
+            const queryParameters: any = {
+                is_deleted: false
+            };
+            const result: IListStruct = {}
+            if (query.useCount && query.useCount == 'true') {
+                result.count = await this.find(queryParameters).countDocuments();
+            }
+            result.data = await this.find(queryParameters)
+                .sort({id: -1})
+                .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+                .limit(Number(query.pageSize));
+            return result
         }
-        result.data = await this.find(queryParameters)
-            .sort({id: -1})
-            .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-            .limit(Number(query.pageSize));
-        return result
     },
     async findOneById(id: number): Promise<IGovProposal> {
         const queryParameters: any = {
