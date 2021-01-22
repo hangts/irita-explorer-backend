@@ -129,7 +129,7 @@ export class StakingValidatorTaskService {
     private async updateSelfBond(dbValidators) {
         if (dbValidators.operator_address) {
             let valTranDelAddr = addressTransform(dbValidators.operator_address, addressPrefix.iaa)
-            let selfBondData = await this.stakingHttp.querySelfBondFromLcd(dbValidators.operator_address)
+            let selfBondData = await this.stakingHttp.queryValidatorDelegationsFromLcd(dbValidators.operator_address)
             dbValidators.delegator_num = selfBondData.length;
             await selfBondData.forEach((item) => {
                 if (item.delegation
