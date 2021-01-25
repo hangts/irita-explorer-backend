@@ -4,8 +4,18 @@ import { Coin } from './common.res.dto';
 
 /***************Req***********************/
 
-export class proposalsReqDto extends PagingReqDto {
+export class proposalsReqDto {
+    @ApiPropertyOptional()
+    pageNum?: number;
 
+    @ApiPropertyOptional()
+    pageSize?: number;
+
+    @ApiPropertyOptional({description:'true/false'})
+    useCount?: boolean;
+
+    @ApiPropertyOptional({description: 'status: "DepositPeriod,VotingPeriod,Passed,Rejected" 以,分割的字符串'})
+    status?: string;
 }
 
 export class ProposalDetailReqDto extends BaseReqDto {

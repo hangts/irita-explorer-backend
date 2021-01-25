@@ -20,3 +20,10 @@ export interface IGovProposal {
     create_time: number,
     update_time: number
 }
+
+export interface IGovProposalQuery {
+    pageNum?: string;
+    pageSize?: string;
+    useCount?: boolean | string;
+    status?: string;
+}
