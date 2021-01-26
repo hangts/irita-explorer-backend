@@ -40,8 +40,9 @@ import { ITxStruct } from '../types/schemaTypes/tx.interface';
 import { INftMapStruct } from '../types/schemaTypes/nft.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 import Cache from '../helper/cache';
-import { TxType,addressPrefix } from '../constant';
-import { addressTransform } from "../util/util";
+import { TxType,addressPrefix,proposal as proposalString } from '../constant';
+import { addressTransform,splitString } from "../util/util";
+import { GovHttp } from "../http/lcd/gov.http";
 @Injectable()
 export class TxService {
     constructor(@InjectModel('Tx') private txModel: any,
@@ -50,7 +51,8 @@ export class TxService {
                 @InjectModel('Nft') private nftModel: any,
                 @InjectModel('Identity') private identityModel:any,
                 @InjectModel('StakingValidator') private stakingValidatorModel: any,
-                @InjectModel('Proposal') private proposalModel: any
+                @InjectModel('Proposal') private proposalModel: any,
+                private readonly govHttp: GovHttp
     ) {
         this.cacheTxTypes();
     }
@@ -121,7 +123,9 @@ export class TxService {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
             await this.cacheTxTypes();
         // }
-        query.address = addressTransform(query.address, addressPrefix.iaa)
+        if (query.address) {
+            query.address = addressTransform(query.address, addressPrefix.iaa)
+        }
         const txListData = await this.txModel.queryGovTxList(query);
         const proposalsData = await this.proposalModel.queryAllProposalsSelect();
         const proposalsMap = new Map();
@@ -133,7 +137,7 @@ export class TxService {
         }
         let txList = [];
         if (txListData && txListData.data && txListData.data.length > 0) {
-            txList = txListData.data.map(tx => {
+            txList = txListData.data.map(async tx => {
                 let item = JSON.parse(JSON.stringify(tx));
                 const msgs = item && item.msgs && item.msgs[0];
                 const events = item.events
@@ -153,6 +157,14 @@ export class TxService {
                         }
                     });
                     let ex = proposalsMap.get(Number(proposal_id));
+                    if (!ex) {
+                        let proposal = await this.govHttp.getProposalById(proposal_id);
+                        let id = proposal && proposal.id;
+                        let type = proposal && proposal.content && proposal.content['@type'] && proposal.content['@type']
+                        type ? type = splitString(type, '.').replace(proposalString, '') : '';
+                        let title = proposal && proposal.content && proposal.content['title'] 
+                        ex = { id, type, title }
+                    }
                     item.ex = ex;
                     return item
                 }
