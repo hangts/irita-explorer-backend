@@ -44,5 +44,19 @@ export class GovHttp {
             Logger.warn(`api-error from ${url}`, e)
         }
     }
+
+    async getProposalById(proposal_id: string) {
+        const url = `${cfg.serverCfg.lcdAddr}/cosmos/gov/v1beta1/proposals/${proposal_id}`
+        try {
+            let proposalData: any = await new HttpService().get(url).toPromise().then(result => result.data)
+            if (proposalData) {
+                return new GovProposalLcdDto(proposalData.proposal);
+            } else {
+                Logger.warn('api-error:', 'there is no result of gov_deposit from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${url}`, e)
+        }
+    }
 }
 
