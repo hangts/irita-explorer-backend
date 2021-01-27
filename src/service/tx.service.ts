@@ -170,6 +170,7 @@ export class TxService {
                 }
             });
         }
+        txList = await Promise.all(txList)
         let txData = await this.addMonikerToTxs(txList);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
