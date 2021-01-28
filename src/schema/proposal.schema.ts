@@ -74,6 +74,6 @@ ProposalSchema.statics = {
         return await this.findOne(queryParameters).select({ '_id': 0, '__v': 0 });
     },
     async queryAllProposalsSelect() {
-        return await this.find({}).select({_id: 0,id: 1,content: 1})
+        return await this.find({}).select({_id: 0,id: 1,content: 1,is_deleted:1})
     },
 }
