@@ -100,6 +100,7 @@ export class StakingValidatorTaskService {
     private insertAndUpdateValidators(validatorsFromLcdMap) {
         if (validatorsFromLcdMap && validatorsFromLcdMap.size > 0) {
             validatorsFromLcdMap.forEach(async (validator) => {
+                validator.tokens = Number(validator.tokens)
                 await (this.stakingSyncValidatorsModel as any).insertValidator(validator)
             })
         }
