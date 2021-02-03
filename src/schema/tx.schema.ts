@@ -945,7 +945,7 @@ TxSchema.statics.queryListByCreateAndUpDateIdentity = async function(
             $in: typesList
         }
     }
-    return await this.find(params, dbRes.syncIdentityTask ).limit(limitSize).sort({'height':-1})
+    return await this.find(params, dbRes.syncIdentityTask ).limit(limitSize).sort({'height':1})
 }
 
 // /txs/identity
