@@ -12,7 +12,7 @@ export const TokensSchema = new mongoose.Schema({
     owner: String,
     name: String,
     total_supply: String,
-    mint_token_height: Number
+    update_block_height: Number
 })
 TokensSchema.index({symbol: 1}, {unique: true})
 TokensSchema.index({min_unit: 1})
