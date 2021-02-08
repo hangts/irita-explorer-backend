@@ -179,7 +179,8 @@ export const dbRes = {
         'msgs.msg.mintable': 1,
         'msgs.msg.to': 1,
         'msgs.msg.src_owner': 1,
-        'msgs.msg.dst_owner': 1
+        'msgs.msg.dst_owner': 1,
+        'msgs.msg.sender':1,
     },
     voteList: {
         'tx_hash': 1,

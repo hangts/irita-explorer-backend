@@ -997,7 +997,9 @@ TxSchema.statics.queryTxBySymbol = async function(
     height: number
 ): Promise<ITxStruct | null>{
       const params =  {
-        'msgs.type': TxType.mint_token,
+          'msgs.type': {
+            $in:[TxType.mint_token,TxType.burn_token]
+          },
         status: TxStatus.SUCCESS,
         'msgs.msg.symbol': symbol,
         height: { $gt: height }

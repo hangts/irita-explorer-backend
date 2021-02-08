@@ -52,6 +52,9 @@ export class TokensTaskService {
                             if (element.type === TxType.mint_token) {
                                 //TODO:duanjie 使用大数计算
                                 token.total_supply = String(Number(token.total_supply) + Number(element.msg.amount))
+                            } else if (element.type === TxType.burn_token) {
+                                //TODO:duanjie 使用大数计算
+                                token.total_supply = String(Number(token.total_supply) - Number(element.msg.amount))
                             }
                         })
                     })
