@@ -50,6 +50,7 @@ export enum TxType {
     edit_token = 'edit_token',
     mint_token = 'mint_token',
     transfer_token_owner = 'transfer_token_owner',
+    burn_token= 'burn_token',
     //Transfer
     send = 'send',
     multisend = 'multisend',
