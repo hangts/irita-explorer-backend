@@ -341,6 +341,7 @@ export class ValidatorVotesResDto extends BaseResDto {
     status: string;
     voted: string;
     tx_hash: string;
+    proposal_link: boolean;
 
     constructor(vote) {
         super();
@@ -349,6 +350,7 @@ export class ValidatorVotesResDto extends BaseResDto {
         this.status = vote.status || ''
         this.voted = vote.voted || ''
         this.tx_hash = vote.tx_hash || ''
+        this.proposal_link = vote.proposal_link
     }
 
     static bundleData(value: any): ValidatorVotesResDto[] {
@@ -367,6 +369,7 @@ export class ValidatorDepositsResDto extends BaseResDto {
     submited: boolean;
     tx_hash: string;
     moniker: string;
+    proposal_link: boolean;
 
     constructor(deposit) {
         super();
@@ -376,6 +379,7 @@ export class ValidatorDepositsResDto extends BaseResDto {
         this.submited = deposit.submited || false;
         this.tx_hash = deposit.tx_hash || '';
         this.moniker = deposit.moniker || '';
+        this.proposal_link = deposit.proposal_link;
     }
 
     static bundleData(value: any): ValidatorDepositsResDto[] {
