@@ -296,13 +296,16 @@ export default class StakingService {
                     if (vote.msgs && vote.msgs[0] && vote.msgs[0].msg) {
                         const msg = vote.msgs[0].msg;
                         const proposal = await this.proposalModel.findOneById(msg.proposal_id);
-                        votesList.push({
-                            title: proposal.content.title,
-                            proposal_id: msg.proposal_id,
-                            status: proposal.status,
-                            voted: voteOptions[msg.option],
-                            tx_hash: vote.tx_hash
-                        })
+                        if (proposal) {
+                            votesList.push({
+                                title: proposal.content && proposal.content.title,
+                                proposal_id: msg.proposal_id,
+                                status: proposal.status,
+                                voted: voteOptions[msg.option],
+                                tx_hash: vote.tx_hash,
+                                proposal_link: !proposal.is_deleted
+                            })
+                        }
                     }
                 }
             }
@@ -320,6 +323,8 @@ export default class StakingService {
         let iaaAddress = addressTransform(address, addressPrefix.iaa);
         const depositsData = await (this.txModel as any).queryDepositsByAddress(iaaAddress, q);
         let depositsList = [];
+        let proposalsListFromDb = await this.proposalModel.queryAllProposalsDeletedID();
+        let proposalsDeletedId = proposalsListFromDb && proposalsListFromDb.length > 0 ? proposalsListFromDb.map(id => id.id) : [];
         if (depositsData && depositsData.data && depositsData.data.length > 0) {
             for (const depost of depositsData.data) {
                 if (depost.msgs && depost.msgs[0] && depost.msgs[0].msg) { 
@@ -334,7 +339,8 @@ export default class StakingService {
                         amount: msg.amount,
                         submited: iaaAddress == proposer,
                         tx_hash: depost.tx_hash,
-                        moniker
+                        moniker,
+                        proposal_link: !proposalsDeletedId.includes(msg.proposal_id)
                     })
                 }
             }
