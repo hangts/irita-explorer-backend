@@ -1150,6 +1150,43 @@ TxSchema.statics.queryVoteByTxhashs = async function (hash: string[], query?: Pa
     return data;
 };
 
+TxSchema.statics.queryVoteByTxhashsAndOptoin = async function (hash: string[], option:number): Promise<number>  {
+    const queryParameters =  {
+        'tx_hash': {
+            $in: hash
+        },
+        status: TxStatus.SUCCESS,
+        'msgs.msg.option':option
+    }
+    return await this.find(queryParameters).countDocuments();
+};
+
+TxSchema.statics.queryVoteByTxhashsAndAddress = async function (hash: string[], address:string[],query?: PagingReqDto): Promise<IListStruct>  {
+    const queryParameters =  {
+        'tx_hash': {
+            $in: hash
+        },
+        status: TxStatus.SUCCESS,
+        'msgs.msg.voter': {
+            $in: address
+        }
+    }
+    let data:IListStruct={};
+    if (query) {
+        data.data = await this.find(queryParameters, dbRes.voteList)
+        .sort({ height: -1 })
+        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+        .limit(Number(query.pageSize));
+        if (query.useCount && query.useCount == true) {
+            data.count = await this.find(queryParameters).countDocuments();
+        }
+    } else {
+        data = await this.find(queryParameters,dbRes.voteList).sort({ height: -1 })
+    }
+    return data;
+};
+
+
 TxSchema.statics.queryDepositorById = async function (id:number,query: PagingReqDto): Promise<IListStruct>  {
     const queryParameters =  {
         'msgs.type': { $in: [TxType.deposit, TxType.submit_proposal] },
