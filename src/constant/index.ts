@@ -243,3 +243,10 @@ export const voteOptions = {
     4: 'no_with_veto'
 }
 export const proposal = 'Proposal'
+
+export const queryVoteOptionCount = {
+    yes: 1,
+    abstain: 2,
+    no: 3,
+    no_with_veto: 4,
+}

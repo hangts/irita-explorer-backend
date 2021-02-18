@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { proposalStatus } from '../constant'
 import {
     proposalsReqDto,
     ProposalDetailReqDto,
@@ -14,8 +13,8 @@ import {
     govProposalVoterResDto,
     govProposalDepositorResDto
 } from '../dto/gov.dto';
-import { govParams, addressPrefix,voteOptions } from '../constant';
-import { addressTransform } from "../util/util";
+import { govParams, addressPrefix,voteOptions,proposalStatus,queryVoteOptionCount } from '../constant';
+import { addressTransform,uniqueArr } from "../util/util";
 @Injectable()
 export class GovService {
 
@@ -90,35 +89,51 @@ export class GovService {
             no_with_veto: 0,
             abstain: 0
         };
+        let result: any = {};
         if (votes.size > 0) {
             const hashs = [...votes.values()];
+            const allAddress = [...votes.keys()];
             let validators = await this.stakingValidatorModel.queryAllValidators();
             let validatorMap = {};
             validators.forEach((item) => {
-                validatorMap[item.operator_address] = item;
+                validatorMap[addressTransform(item.operator_address,addressPrefix.iaa)] = item;
             });
-            votersData = await this.txModel.queryVoteByTxhashs(hashs);
-            if (votersData && votersData.length > 0) {
-                for (const item of votersData) {
+            [statistical.yes, statistical.abstain, statistical.no, statistical.no_with_veto] = await Promise.all([this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.yes), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.abstain), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no_with_veto)]);
+            statistical.all = hashs.length;
+            let validatorAdd = Object.keys(validatorMap);
+            let delegatorAdd = uniqueArr(allAddress, validatorAdd);
+            switch (query.voterType) {
+                case 'validator':
+                    votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, validatorAdd, query);
+                    statistical.validator = votersData.count;
+                    statistical.delegator = statistical.all - statistical.validator;
+                    break;
+                case 'delegator':
+                    votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, delegatorAdd, query);
+                    statistical.delegator = votersData.count;
+                    statistical.validator = statistical.all - statistical.delegator;
+                    break;
+                default:
+                    let count;
+                    [votersData, count] = await Promise.all([this.txModel.queryVoteByTxhashs(hashs, query),this.txModel.queryVoteByTxhashsAndAddress(hashs, validatorAdd, query)]);
+                    statistical.validator = count.count;
+                    statistical.delegator = statistical.all - statistical.validator;
+                    break;
+            }
+            if (votersData && votersData.data && votersData.data.length > 0) {
+                for (const item of votersData.data) {
                     if (item.msgs && item.msgs[0] && item.msgs[0].msg) {
                         let msg = item.msgs[0].msg;
-                        let ivaAddress = addressTransform(msg.voter, addressPrefix.iva)
-                        let isValidator: boolean = Boolean(validatorMap[ivaAddress]);
+                        let isValidator: boolean = Boolean(validatorMap[msg.voter]);
                         let moniker;
-                        if (validatorMap[ivaAddress] &&
-                            validatorMap[ivaAddress].description &&
-                            validatorMap[ivaAddress].description.moniker) {
-                            moniker = validatorMap[ivaAddress].description.moniker
-                        }
-                        statistical.all++;
-                        if (isValidator) {
-                            statistical.validator++
-                        } else {
-                            statistical.delegator++
+                        if (validatorMap[msg.voter] &&
+                            validatorMap[msg.voter].description &&
+                            validatorMap[msg.voter].description.moniker) {
+                            moniker = validatorMap[msg.voter].description.moniker
                         }
                         voteList.push({
                             voter:msg.voter,
-                            address: ivaAddress,
+                            address: validatorMap[msg.voter] && validatorMap[msg.voter].operator_address,
                             moniker,
                             option: voteOptions[msg.option],
                             hash: item['tx_hash'],
@@ -130,30 +145,11 @@ export class GovService {
                 }
             }
         }
-        let voteData;
-        if (query.voterType == 'validator') {
-            voteData = voteList.filter(vote => {
-                return vote.isValidator
-            })
-        } else if (query.voterType == 'delegator') {
-            voteData = voteList.filter(vote => {
-                return !vote.isValidator
-            })
-        } else {
-            voteData = voteList
-        }
-        if (voteData && voteData.length > 0) {
-            voteData.forEach(vote => {
-                statistical[vote.option]++;
-            })
-        }
-        let result: any = {};
-        result.data = govProposalVoterResDto.bundleData(voteData.slice((Number(query.pageNum)-1)*Number(query.pageSize),Number(query.pageNum)*Number(query.pageSize)));
-        result.count = voteData.length;
+        result.data = govProposalVoterResDto.bundleData(voteList);
+        result.count = votersData.count;
         result.statistical = statistical;
         return new ListStruct(result.data, query.pageNum, query.pageSize, result.count, result.statistical);
     }
-
     async addMonikerAndIva(address) {
         let validators = await this.stakingValidatorModel.queryAllValidators();
         let validatorMap = {};

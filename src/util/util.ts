@@ -74,3 +74,20 @@ export function splitString(str,symbol) {
     let array = str.split(symbol)
     return array[array.length - 1]
 }
+
+export function uniqueArr(arr, brr) {
+    let temp:string[] = [];
+    let temparray:string[] = [];
+    for (var i = 0; i < brr.length; i++) {  
+        temp[brr[i]] = typeof brr[i];;
+    }
+    for (var i = 0; i < arr.length; i++) {  
+        var type = typeof arr[i];
+        if (!temp[arr[i]]) {  
+            temparray.push(arr[i]);
+        } else if (temp[arr[i]].indexOf(type) < 0) { 
+            temparray.push(arr[i]); 
+        }  
+    }
+    return temparray
+}
