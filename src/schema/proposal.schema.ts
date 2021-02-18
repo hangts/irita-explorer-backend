@@ -66,11 +66,8 @@ ProposalSchema.statics = {
         }
         return result
     },
-    async findOneById(id: number): Promise<IGovProposal> {
-        const queryParameters: any = {
-            id:id,
-            is_deleted: false
-        };
+    async findOneById(id: number, is_deleted: boolean): Promise<IGovProposal> {
+        let queryParameters = typeof is_deleted === 'undefined' ? { id: id } : { id: id, is_deleted };
         return await this.findOne(queryParameters).select({ '_id': 0, '__v': 0 });
     },
     async queryAllProposalsSelect() {

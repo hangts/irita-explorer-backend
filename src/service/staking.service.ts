@@ -296,13 +296,15 @@ export default class StakingService {
                     if (vote.msgs && vote.msgs[0] && vote.msgs[0].msg) {
                         const msg = vote.msgs[0].msg;
                         const proposal = await this.proposalModel.findOneById(msg.proposal_id);
-                        votesList.push({
-                            title: proposal.content.title,
-                            proposal_id: msg.proposal_id,
-                            status: proposal.status,
-                            voted: voteOptions[msg.option],
-                            tx_hash: vote.tx_hash
-                        })
+                        if (proposal) {
+                            votesList.push({
+                                title: proposal.content && proposal.content.title,
+                                proposal_id: msg.proposal_id,
+                                status: proposal.status,
+                                voted: voteOptions[msg.option],
+                                tx_hash: vote.tx_hash
+                            })
+                        }
                     }
                 }
             }
