@@ -88,8 +88,8 @@ const common = {
     };
 
 const fromTo = {
-        'msgs.msg.fromaddress':1,
-        'msgs.msg.toaddress':1,
+        'msgs.msg.from_address':1,
+        'msgs.msg.to_address':1,
         'msgs.msg.author':1,
         'msgs.msg.provider':1,
         'msgs.msg.consumer':1,
