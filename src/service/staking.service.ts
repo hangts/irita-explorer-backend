@@ -24,7 +24,8 @@ import {
     DelegatorsDelegationsReqDto,DelegatorsDelegationsResDto,
     DelegatorsUndelegationsReqDto, DelegatorsUndelegationsResDto,
     DelegatorsDelegationsParamReqDto, DelegatorsUndelegationsParamReqDto,
-    ValidatorVotesResDto,ValidatorDepositsResDto
+    ValidatorVotesResDto, ValidatorDepositsResDto,
+    PostBlacksReqDto
 } from "../dto/staking.dto";
 import {ListStruct} from "../api/ApiResult";
 import {BlockHttp} from "../http/lcd/block.http";
@@ -376,4 +377,21 @@ export default class StakingService {
         }
         return {moniker,isValidator};
     }
+
+    async insertBlacks(params: PostBlacksReqDto): Promise<Boolean> {
+        try {
+            const { blacks } = params;
+            if (blacks && blacks.length > 0) {
+                for (const black of blacks) {
+                    let ivaAddr = (black as any).iva_addr || '';
+                    let monikerM = (black as any).moniker_m || '';
+                    await (this.stakingValidatorsModel as any).updateBlcakValidator({ivaAddr,monikerM})
+                }
+            }
+            return true;
+        } catch (e) {
+            return false
+        }
+    }
 }
+

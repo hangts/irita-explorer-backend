@@ -26,7 +26,8 @@ import {
     DelegatorsUndelegationsResDto,
     DelegatorsUndelegationsParamReqDto,
     ValidatorVotesResDto,
-    ValidatorDepositsResDto
+    ValidatorDepositsResDto,
+    PostBlacksReqDto
 } from "../dto/staking.dto";
 
 @ApiTags('Staking')
@@ -93,5 +94,11 @@ export class StakingController {
     async getValidatorDeposits(@Param()p: ValidatorDelegationsReqDto,@Query()q: ValidatorDelegationsQueryReqDto): Promise<Result<ListStruct<ValidatorDepositsResDto>>> {
         const validatorDeposits = await this.stakingService.getValidatorDepositsList(p,q)
         return new Result<ListStruct<ValidatorDepositsResDto>>(validatorDeposits)
+    }
+
+    @Post('/blacks')
+    async insertBlacksList(@Body() params: PostBlacksReqDto): Promise<Boolean> {
+        const data: Boolean = await this.stakingService.insertBlacks(params);
+        return data;
     }
 }
