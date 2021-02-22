@@ -122,7 +122,7 @@ export class ProposalTaskService {
             validators.forEach(validator => {
                 validatorGovInfo[validator.operator_address] = {
                     address: validator.operator_address,
-                    moniker: validator.is_block ? validator.moniker_m : validator.description && validator.description.moniker || '',
+                    moniker: validator.is_black ? validator.moniker_m : validator.description && validator.description.moniker || '',
                     bondedtokens: Number(validator.tokens),
                     delShares: Number(validator.delegator_shares),
                     vote: '',

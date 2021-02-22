@@ -89,11 +89,11 @@ export class StakingValidatorTaskService {
         for (let key of allValidatorsFromLcdMap.keys()) {
             let validator = allValidatorsFromLcdMap.get(key)
             let validatorFromDb = validatorsFromDbMap.get(key)
-            if (validatorFromDb.is_block) {
+            if (validatorFromDb && validatorFromDb.is_black) {
                 validator.moniker_m = validatorFromDb.moniker_m;
-                validator.is_block = true;
+                validator.is_black = true;
             } else {
-                validator.is_block = false;
+                validator.is_black = false;
                 validator.moniker_m = '';
             }
             validator.update_time = getTimestamp()

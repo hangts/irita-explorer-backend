@@ -90,7 +90,7 @@ export default class StakingService {
         let resultData = (validatorDelegationsFromLcd || []).map(item => {
             let validator = allValidatorsMap.get(item.delegation.validator_address);
             return {
-                moniker: validator && validator.is_block  ? validator.moniker_m : validator.description && validator.description.moniker,
+                moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
                 address: item.delegation.delegator_address || '',
                 amount: item.balance || '',
                 self_shares: item.delegation.shares || '',
@@ -118,7 +118,7 @@ export default class StakingService {
         let resultData = (valUnBondingDelegationsFromLcd || []).map(item => {
             let validator = allValidatorsMoniker.get(item.validator_address);
             return {
-                moniker: validator && validator.is_block  ? validator.moniker_m : validator.description && validator.description.moniker,
+                moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
                 address: item.delegator_address || '',
                 amount: item.entries[0].balance || '',
                 block: item.entries[0].creation_height || '',
@@ -144,10 +144,10 @@ export default class StakingService {
         const validatorList = await (this.stakingValidatorsModel as any).queryValidatorsByStatus(q)
         const totalVotingPower = await this.getTotalVotingPower()
         validatorList.data.forEach(item => {
-            if (item.description && item.description.moniker && item.is_block) {
+            if (item.description && item.description.moniker && item.is_black) {
                 item.description.moniker = item.moniker_m
             }
-            item.icon = item.is_block ? '' : item.icon;
+            item.icon = item.is_black ? '' : item.icon;
             item.voting_rate = item.voting_power / totalVotingPower;
         })
         let result: any = {}
@@ -178,7 +178,7 @@ export default class StakingService {
             }else {
                 validatorDetail.valStatus = jailedValidatorLabel
             }
-            if (validatorDetail.is_block) {
+            if (validatorDetail.is_black) {
                 validatorDetail.icon = "";
                 validatorDetail.description && validatorDetail.description.moniker ? validatorDetail.description.moniker = validatorDetail.moniker_m : '';
             }
@@ -211,7 +211,7 @@ export default class StakingService {
         result.amount = balancesArray || []
         result.withdrawAddress = withdrawAddress.address
         result.address = address
-        result.moniker =  validator && validator.is_block  ? validator.moniker_m : validator.description && validator.description.moniker
+        result.moniker =  validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker
         result.operator_address = allValidatorsMap.has(operatorAddress) ? validator.operator_address : ''
         result.isProfiler = profilerAddressMap.size > 0 ? profilerAddressMap.has(address) : false
         if (allValidatorsMap.has(operatorAddress) && !validator.jailed) {
@@ -240,7 +240,7 @@ export default class StakingService {
             let validator = allValidatorsMap.get(item.delegation.validator_address);
             return {
                 address: item.delegation.validator_address || '',
-                moniker: validator && validator.is_block  ? validator.moniker_m : validator.description && validator.description.moniker,
+                moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
                 amount: item.balance || '',
                 shares: item.delegation.shares,
                 //height: delegatorsDelegationsFromLcd.height || '',
@@ -268,7 +268,7 @@ export default class StakingService {
             let validator = allValidatorsMap.get(item.validator_address);
             return {
                 address: item.validator_address || '',
-                moniker: validator && validator.is_block  ? validator.moniker_m : validator.description && validator.description.moniker,
+                moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
                 amount: {
                     denom: denom || '',
                     amount: amount || ''
@@ -372,7 +372,7 @@ export default class StakingService {
         if (validatorMap[address] &&
             validatorMap[address].description &&
             validatorMap[address].description.moniker) {
-            moniker = validatorMap[address].is_block ? validatorMap[address].moniker_m : validatorMap[address].description.moniker
+            moniker = validatorMap[address].is_black ? validatorMap[address].moniker_m : validatorMap[address].description.moniker
         }
         return {moniker,isValidator};
     }

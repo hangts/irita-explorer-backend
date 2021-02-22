@@ -112,7 +112,7 @@ export class StatisticsService {
         }
         let validator = await this.stakingValidatorsModel.findValidatorByPropopserAddr(proposer_address);
         if (validator && validator[0]) {
-            if (validator[0].is_block) {
+            if (validator[0].is_black) {
                 result.moniker = validator[0].moniker_m;
                 result.validator_icon = "";
             } else {

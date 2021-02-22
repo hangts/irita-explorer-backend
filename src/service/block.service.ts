@@ -41,7 +41,7 @@ export class BlockService {
             let proposer = validators.get(block.proposer);
             let proposer_addr, proposer_moniker;
             if (proposer) {
-                proposer_moniker = proposer.is_block ?  proposer.moniker_m : (proposer.description || {}).moniker || '';
+                proposer_moniker = proposer.is_black ?  proposer.moniker_m : (proposer.description || {}).moniker || '';
                 proposer_addr = proposer.operator_address || '';
             }
             return {
@@ -129,7 +129,7 @@ export class BlockService {
             };
 
             if (proposer && proposer.length) {
-                data.proposer_moniker = proposer[0].is_block ? proposer[0].moniker_m : (proposer[0].description || {}).moniker || '';
+                data.proposer_moniker = proposer[0].is_black ? proposer[0].moniker_m : (proposer[0].description || {}).moniker || '';
                 data.proposer_addr = proposer[0].operator_address || '';
             }
 
@@ -188,7 +188,7 @@ export class BlockService {
                     const proposer_addr = item.pub_key ? getAddress(item.pub_key).toLocaleUpperCase() : null
                     let validator = validatorMap[proposer_addr];
                     if (validator) {
-                        (item as any).moniker = validator.is_block ? validator.moniker_m : (validator.description || {}).moniker || '';
+                        (item as any).moniker = validator.is_black ? validator.moniker_m : (validator.description || {}).moniker || '';
                         (item as any).operator_address = validator.operator_address || '';
                         (item as any).is_proposer = (validator.proposer_addr == block.proposer)
                     }
