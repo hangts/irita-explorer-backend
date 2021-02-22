@@ -11,7 +11,8 @@ import { TaskCallback } from '../types/task.interface';
 import { ValidatorsTaskService } from './validators.task.service';
 import { Logger } from '../logger';
 import { IdentityTaskService } from './idnetity.task.service';
-import {StakingValidatorTaskService} from "./staking.validator.task.service";
+import {StakingValidatorInfoTaskService} from "./staking.validator.info.task.service";
+import {StakingValidatorMoreInfoTaskService} from "./staking.validator.more.info.task.service";
 import {ParametersTaskService} from "./parameters.task.service";
 import {TokensTaskService} from "./tokens.service";
 import {ProposalTaskService} from "./proposal.service";
@@ -28,7 +29,8 @@ export class TasksService {
         private readonly txTaskService: TxTaskService,
         private readonly validatorsTaskService: ValidatorsTaskService,
         private readonly identityTaskService: IdentityTaskService,
-        private readonly stakingValidatorTaskService: StakingValidatorTaskService,
+        private readonly stakingValidatorTaskServiceInfo: StakingValidatorInfoTaskService,
+        private readonly stakingValidatorTaskServiceMoreInfo: StakingValidatorMoreInfoTaskService,
         private readonly parametersTaskService: ParametersTaskService,
         private readonly TokensTaskService: TokensTaskService,
         private readonly ProposalTaskService: ProposalTaskService,
@@ -39,8 +41,11 @@ export class TasksService {
         this[`${TaskEnum.txServiceName}_timer`] = null;
         this[`${TaskEnum.validators}_timer`] = null;
         this[`${TaskEnum.identity}_timer`] = null;
-        this[`${TaskEnum.stakingSyncValidators}_timer`] = null;
+        this[`${TaskEnum.stakingSyncValidatorsInfo}_timer`] = null;
+        this[`${TaskEnum.stakingSyncValidatorsMoreInfo}_timer`] = null;
         this[`${TaskEnum.stakingSyncParameters}_timer`] = null;
+        this[`${TaskEnum.Tokens}_timer`] = null;
+        this[`${TaskEnum.Proposal}_timer`] = null;
     }
     @Cron(cfg.taskCfg.executeTime.denom, {
         name: TaskEnum.denom
@@ -102,11 +107,18 @@ export class TasksService {
     }
 
     // @Cron('*/5 * * * * *')
-    @Cron(cfg.taskCfg.executeTime.stakingValidators, {
-        name: TaskEnum.stakingSyncValidators
+    @Cron(cfg.taskCfg.executeTime.stakingValidatorsInfo, {
+        name: TaskEnum.stakingSyncValidatorsInfo
     })
-    async syncStakingValidators() {
-        this.handleDoTask(TaskEnum.stakingSyncValidators, this.stakingValidatorTaskService.doTask)
+    async syncStakingValidatorsInfo() {
+        this.handleDoTask(TaskEnum.stakingSyncValidatorsInfo, this.stakingValidatorTaskServiceInfo.doTask)
+    }
+
+    @Cron(cfg.taskCfg.executeTime.stakingValidatorsMoreInfo, {
+        name: TaskEnum.stakingSyncValidatorsMoreInfo
+    })
+    async syncStakingValidatorsMoreInfo() {
+        this.handleDoTask(TaskEnum.stakingSyncValidatorsMoreInfo, this.stakingValidatorTaskServiceMoreInfo.doTask)
     }
 
     @Cron(cfg.taskCfg.executeTime.stakingParameters, {

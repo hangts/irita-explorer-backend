@@ -8,7 +8,7 @@ import { addressPrefix, moduleSlashing, validatorStatusStr } from "../constant";
 import { getConsensusPubkey } from '../helper/staking.helper';
 
 @Injectable()
-export class StakingValidatorTaskService {
+export class StakingValidatorInfoTaskService {
     constructor(@InjectModel('StakingSyncValidators') private stakingSyncValidatorsModel: Model<any>,
                 @InjectModel('ParametersTask') private parametersTaskModel: Model<any>,
                 private readonly stakingHttp: StakingHttp) {
@@ -42,13 +42,14 @@ export class StakingValidatorTaskService {
                 validatorsFromDbMap.set(item.operator_address, item)
             })
         }
-        let needInsertOrValidators = await StakingValidatorTaskService.getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
-        let needDeleteValidators = await StakingValidatorTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
+        let needInsertOrValidators = await StakingValidatorInfoTaskService.getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
+        let needDeleteValidators = await StakingValidatorInfoTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
         await this.insertAndUpdateValidators(needInsertOrValidators)
         await this.deleteValidators(needDeleteValidators)
     }
 
     private async handDbValidators(allValidatorsFromLcd) {
+        const currentHeight = await BlockHttp.queryLatestBlockHeightFromLcd();
         for (let i = 0; i < allValidatorsFromLcd.length; i++) {
             if (allValidatorsFromLcd[i].commission && allValidatorsFromLcd[i].commission.update_time) {
                 allValidatorsFromLcd[i].commission.update_time = formatDateStringToNumber(allValidatorsFromLcd[i].commission.update_time)
@@ -64,9 +65,7 @@ export class StakingValidatorTaskService {
             let BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
             allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
             await this.updateSlashInfo(allValidatorsFromLcd[i])
-            await this.updateSelfBond(allValidatorsFromLcd[i])
-            await this.updateIcons(allValidatorsFromLcd[i])
-            await this.updateUpTime(allValidatorsFromLcd[i])
+            await this.updateUpTime(allValidatorsFromLcd[i], currentHeight)
         }
     }
 
@@ -96,6 +95,9 @@ export class StakingValidatorTaskService {
                 validator.is_black = false;
                 validator.moniker_m = '';
             }
+            validatorFromDb && validatorFromDb.icon ? validator.icon = validatorFromDb.icon : validator.icon = '';
+            validatorFromDb && validatorFromDb.delegator_num ? validator.delegator_num = validatorFromDb.delegator_num : validator.delegator_num = 0;
+            validatorFromDb && validatorFromDb.self_bond ? validator.self_bond = validatorFromDb.self_bond : validator.self_bond = {};
             validator.update_time = getTimestamp()
             if (!validatorsFromDbMap.has(key)) {
                 validator.create_time = getTimestamp()
@@ -135,39 +137,9 @@ export class StakingValidatorTaskService {
         }
     }
 
-    private async updateSelfBond(dbValidators) {
-        if (dbValidators.operator_address) {
-            let valTranDelAddr = addressTransform(dbValidators.operator_address, addressPrefix.iaa)
-            let selfBondData = await this.stakingHttp.queryValidatorDelegationsFromLcd(dbValidators.operator_address)
-            dbValidators.delegator_num = selfBondData.length;
-            await selfBondData.forEach((item) => {
-                if (item.delegation
-                    && item.delegation.delegator_address
-                    && valTranDelAddr === item.delegation.delegator_address) {
-                    dbValidators.self_bond = item.balance
-                }
-            })
-        }
-    }
-
-    private async updateIcons(dbValidators) {
-        if (dbValidators.description && dbValidators.description.identity) {
-            let validatorIconUrl:any = await this.stakingHttp.queryValidatorIcon(dbValidators.description.identity)
-            if (validatorIconUrl.them
-                && validatorIconUrl.them.length
-                && validatorIconUrl.them[0].pictures
-                && validatorIconUrl.them[0].pictures.primary
-                && validatorIconUrl.them[0].pictures.primary.url) {
-                dbValidators.icon = validatorIconUrl.them[0].pictures.primary.url
-            }
-        }
-    }
-
-    private async updateUpTime(dbValidators) {
+    private async updateUpTime(dbValidators,currentHeight) {
         const moduleName = moduleSlashing
         const signedBlocksWindow = await (this.parametersTaskModel as any).querySignedBlocksWindow(moduleName)     
-        const latestBlock = await BlockHttp.queryLatestBlockFromLcd()
-        const currentHeight = latestBlock && latestBlock.block && latestBlock.block.header && Number(latestBlock.block.header.height) || 0
         const startHeight = Number(dbValidators.start_height) || 0
         let diffCurrentStart = currentHeight - startHeight + 1
         let missedBlockCount = Number(dbValidators.missed_blocks_counter) || 0
