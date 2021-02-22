@@ -88,6 +88,14 @@ export class StakingValidatorTaskService {
         let needInsertOrUpdate = new Map()
         for (let key of allValidatorsFromLcdMap.keys()) {
             let validator = allValidatorsFromLcdMap.get(key)
+            let validatorFromDb = validatorsFromDbMap.get(key)
+            if (validatorFromDb.is_block) {
+                validator.moniker_m = validatorFromDb.moniker_m;
+                validator.is_block = true;
+            } else {
+                validator.is_block = false;
+                validator.moniker_m = '';
+            }
             validator.update_time = getTimestamp()
             if (!validatorsFromDbMap.has(key)) {
                 validator.create_time = getTimestamp()

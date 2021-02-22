@@ -73,7 +73,7 @@ export class TxService {
                     validatorMap[addr].description &&
                     validatorMap[addr].description.moniker) {
                     let moniker = {};
-                    moniker[addr] = validatorMap[addr].description.moniker;
+                    moniker[addr] = validatorMap[addr].is_block ? validatorMap[addr].moniker_m : validatorMap[addr].description.moniker;
                     monikers.push(moniker);
                 }
             });

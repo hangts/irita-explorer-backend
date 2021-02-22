@@ -1,4 +1,4 @@
-import {Controller, Query, Get, Param} from '@nestjs/common';
+import {Controller, Query, Get, Param, Post, Body} from '@nestjs/common';
 import {ApiTags} from '@nestjs/swagger';
 import {ListStruct, Result} from "../api/ApiResult";
 import StakingService from "../service/staking.service";
@@ -94,5 +94,4 @@ export class StakingController {
         const validatorDeposits = await this.stakingService.getValidatorDepositsList(p,q)
         return new Result<ListStruct<ValidatorDepositsResDto>>(validatorDeposits)
     }
-    
 }

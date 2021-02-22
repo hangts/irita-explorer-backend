@@ -129,7 +129,7 @@ export class GovService {
                         if (validatorMap[msg.voter] &&
                             validatorMap[msg.voter].description &&
                             validatorMap[msg.voter].description.moniker) {
-                            moniker = validatorMap[msg.voter].description.moniker
+                            moniker = validatorMap[msg.voter].is_block ? validatorMap[msg.voter].moniker_m :validatorMap[msg.voter].description.moniker
                         }
                         voteList.push({
                             voter:msg.voter,
@@ -161,7 +161,7 @@ export class GovService {
         if (validatorMap[address] &&
             validatorMap[address].description &&
             validatorMap[address].description.moniker) {
-            moniker = validatorMap[address].description.moniker
+            moniker =validatorMap[address].is_block ? validatorMap[address].moniker_m : validatorMap[address].description.moniker
         }
         return {moniker,isValidator};
     }

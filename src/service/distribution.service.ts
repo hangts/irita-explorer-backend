@@ -39,7 +39,7 @@ export class DistributionService {
             data.rewards.forEach((item)=>{
               let v = validatorMap[item.validator_address];
               if (v) {
-                (item as any).moniker = (v.description || {}).moniker || '';
+                (item as any).moniker = v.is_block ? v.moniker_m : (v.description || {}).moniker || '';
               }
             })
           }

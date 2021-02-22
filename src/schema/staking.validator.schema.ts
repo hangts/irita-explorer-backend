@@ -34,6 +34,8 @@ export const StakingValidatorSchema = new mongoose.Schema({
     missed_blocks_counter: String,
     create_time: Number,
     update_time: Number,
+    is_block: Boolean,
+    moniker_m: String
 })
 StakingValidatorSchema.index({operator_address: 1}, {unique: true})
 StakingValidatorSchema.index({proposer_addr: 1})	

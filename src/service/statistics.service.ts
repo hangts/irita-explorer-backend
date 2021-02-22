@@ -111,9 +111,16 @@ export class StatisticsService {
             }
         }
         let validator = await this.stakingValidatorsModel.findValidatorByPropopserAddr(proposer_address);
-        result.moniker = validator && validator[0] && validator[0].description && validator[0].description.moniker;
-        result.validator_icon = validator && validator[0] && validator[0].icon;
-        result.operator_addr = validator && validator[0] && validator[0].operator_address;
+        if (validator && validator[0]) {
+            if (validator[0].is_block) {
+                result.moniker = validator[0].moniker_m;
+                result.validator_icon = "";
+            } else {
+                result.moniker = validator[0].description && validator[0].description.moniker;
+                result.validator_icon = validator[0].icon;
+            }
+            result.operator_addr = validator[0].operator_address;
+        }
         return result;
     }
 
