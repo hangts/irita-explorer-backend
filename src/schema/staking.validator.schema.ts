@@ -112,8 +112,8 @@ StakingValidatorSchema.statics = {
     },
 
     async updateBlcakValidator(updateValidator: IStakingValidatorBlock) {
-        let { ivaAddr, monikerM } = updateValidator
-        return await this.updateOne({ operator_address: ivaAddr }, { $set: {is_black:true,moniker_m: monikerM}})
+        let { ivaAddr, monikerM,isBlack } = updateValidator
+        return await this.updateOne({ operator_address: ivaAddr }, { $set: {is_black: isBlack,moniker_m: monikerM}})
     },
 
 }

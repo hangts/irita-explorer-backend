@@ -16,7 +16,7 @@ import {GovHttp} from "../http/lcd/gov.http";
       {
         name:'StakingSyncValidators',
         schema: StakingValidatorSchema,
-        collection:'ex_staking_validator_test'
+        collection:'ex_staking_validator'
       },
       {
         name:'ParametersTask',

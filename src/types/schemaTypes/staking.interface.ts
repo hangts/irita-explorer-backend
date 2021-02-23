@@ -60,5 +60,6 @@ export interface IStakingValidatorFromLcd {
 }
 export interface IStakingValidatorBlock {
     ivaAddr:string,
-    monikerM:string,
+    monikerM: string,
+    isBlack:boolean
 }

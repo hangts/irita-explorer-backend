@@ -12,11 +12,11 @@ export class DistributionHttp {
 
     }
     static async queryWithdrawAddressByDelegator(delegatorAddr: string): Promise<WithdrawAddressDto> {
-        const url: string = `${cfg.serverCfg.lcdAddr}/distribution/delegators/${delegatorAddr}/withdraw_address`;
+        const url: string = `${cfg.serverCfg.lcdAddr}/cosmos/distribution/v1beta1/delegators/${delegatorAddr}/withdraw_address`;
         try {
             const data: any = await new HttpService().get(url).toPromise().then(res => res.data);
-            if(data && data.result){
-                return new WithdrawAddressDto(data.result);
+            if(data && data.withdraw_address){
+                return new WithdrawAddressDto(data.withdraw_address);
             }else{
                 Logger.warn('api-error:', 'there is no result of nft from lcd');
             }
@@ -28,11 +28,11 @@ export class DistributionHttp {
     }
 
     static async queryDelegatorRewards(delegatorAddr: string): Promise<DelegatorRewardsDto> {
-        const url: string = `${cfg.serverCfg.lcdAddr}/distribution/delegators/${delegatorAddr}/rewards`;
+        const url: string = `${cfg.serverCfg.lcdAddr}/cosmos/distribution/v1beta1/delegators/${delegatorAddr}/rewards`;
         try {
             const data: any = await new HttpService().get(url).toPromise().then(res => res.data);
-            if (data && data.result) {
-                return new DelegatorRewardsDto(data.result);
+            if (data) {
+                return new DelegatorRewardsDto(data);
             }else{
                 Logger.warn('api-error:', 'there is no result of nft from lcd');
             }
@@ -43,11 +43,13 @@ export class DistributionHttp {
     }
 
     static async getCommissionRewards(valAddress:string): Promise<commissionRewardsLcdDto> {
-        const getCommissionRewardsUri = `${cfg.serverCfg.lcdAddr}/distribution/validators/${valAddress}`
+        const getCommissionRewardsUri = `${cfg.serverCfg.lcdAddr}/cosmos/distribution/v1beta1/validators/${valAddress}/commission`
         try {
             const commissionRewardsData: any = await new HttpService().get(getCommissionRewardsUri).toPromise().then(result => result.data)
-            if (commissionRewardsData && commissionRewardsData.result) {
-                return new commissionRewardsLcdDto(commissionRewardsData.result)
+            if (commissionRewardsData) {
+                console.log(new commissionRewardsLcdDto(commissionRewardsData))
+                return new commissionRewardsLcdDto(commissionRewardsData)
+                
             } else {
                 Logger.warn('api-error:', 'there is no result of validator withdraw address from lcd');
             }

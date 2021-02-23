@@ -65,7 +65,7 @@ export class DelegatorsUndelegationsParamReqDto {
 
 //Post staking/blacks request dto
 export class PostBlacksReqDto {
-    @ApiProperty({description:`{"blacks": [{"iva_addr": "iva176dd0tgn38grpc8hpxfmwl6sl8jfmkneak3emy","moniker_m":"test1"}]}`})
+    @ApiProperty({description:`{"blacks": [{"iva_addr": "iva176dd0tgn38grpc8hpxfmwl6sl8jfmkneak3emy","moniker_m":"test1","is_block":true}]}`})
     @ArrayNotEmpty()
     blacks: String;
 }

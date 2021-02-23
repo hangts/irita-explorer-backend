@@ -61,7 +61,7 @@ export class StakingValidatorInfoTaskService {
                 allValidatorsFromLcd[i].voting_power = Number(allValidatorsFromLcd[i].tokens)
             }
             allValidatorsFromLcd[i].jailed = allValidatorsFromLcd[i].jailed || false
-            allValidatorsFromLcd[i].consensus_pubkey = getConsensusPubkey(allValidatorsFromLcd[i].consensus_pubkey['value'])
+            allValidatorsFromLcd[i].consensus_pubkey = getConsensusPubkey(allValidatorsFromLcd[i].consensus_pubkey['key'])
             let BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
             allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
             await this.updateSlashInfo(allValidatorsFromLcd[i])

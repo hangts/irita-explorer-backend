@@ -385,7 +385,8 @@ export default class StakingService {
                 for (const black of blacks) {
                     let ivaAddr = (black as any).iva_addr || '';
                     let monikerM = (black as any).moniker_m || '';
-                    await (this.stakingValidatorsModel as any).updateBlcakValidator({ivaAddr,monikerM})
+                    let isBlack = (black as any).is_block === true ? true : false;
+                    await (this.stakingValidatorsModel as any).updateBlcakValidator({ivaAddr,monikerM,isBlack})
                 }
             }
             return true;

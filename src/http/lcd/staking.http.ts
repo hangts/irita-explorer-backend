@@ -23,19 +23,19 @@ export class StakingHttp {
             case currentChain.iris:
                 // iris
                 // validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&pageNum=${pageNum}&pageSize=${pageSize}`
-                validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&page=${pageNum}&limit=${pageSize}`
+                validatorLcdUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators?status=${status}&pagination.limit=${pageSize}`
                 break;
             case currentChain.cosmos:
                 // cosmos
-                validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&page=${pageNum}&limit=${pageSize}`
+                validatorLcdUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators?status=${status}&pagination.limit=${pageSize}`
                 break;
             default:
                 break;
         }
         try {
             let stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)
-            if (stakingValidatorData && stakingValidatorData.result) {
-                return StakingValidatorLcdDto.bundleData(stakingValidatorData.result);
+            if (stakingValidatorData && stakingValidatorData.validators) {
+                return StakingValidatorLcdDto.bundleData(stakingValidatorData.validators);
             } else {
                 Logger.warn('api-error:', 'there is no result of validators from lcd');
             }
@@ -60,20 +60,6 @@ export class StakingHttp {
         }
     }
 
-    async querySelfBondFromLcd(valOperatorAddr) {
-        const selfBondUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${valOperatorAddr}/delegations`
-        try {
-            const selfBondData: any = await new HttpService().get(selfBondUri).toPromise().then(result => result.data)
-            if (selfBondData && selfBondData.result) {
-                return StakingValidatorDelegationLcdDto.bundleData(selfBondData.result);
-            } else {
-                Logger.warn('api-error:', 'there is no result of validators from lcd');
-            }
-        } catch (e) {
-            Logger.warn(`api-error from ${selfBondUri}`, e)
-        }
-    }
-
     async queryValidatorIcon(valIdentity) {
         const getIconUri = `${cfg.serverCfg.iconUri}?fields=pictures&key_suffix=${valIdentity || ''}`
         try {
@@ -90,11 +76,11 @@ export class StakingHttp {
     }
 
     async queryParametersFromSlashing() {
-        const parameterUri = `${cfg.serverCfg.lcdAddr}/slashing/parameters`
+        const parameterUri = `${cfg.serverCfg.lcdAddr}/cosmos/slashing/v1beta1/params`
         try {
             const parameterData: any = await new HttpService().get(parameterUri).toPromise().then(result => result.data)
-            if (parameterData && parameterData.result) {
-                return new StakingValidatorParametersLcdDto(parameterData.result)
+            if (parameterData && parameterData.params) {
+                return new StakingValidatorParametersLcdDto(parameterData.params)
             } else {
                 Logger.warn('api-error:', 'there is no result of validators from lcd');
             }
@@ -120,11 +106,12 @@ export class StakingHttp {
     }
 
     async queryValidatorUnBondingDelegations(address) {
-        const getValidatorUnBondingDelUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/unbonding_delegations`
+        // const getValidatorUnBondingDelUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/unbonding_delegations`
+        const getValidatorUnBondingDelUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators/${address}/unbonding_delegations?pagination.limit=1000`
         try {
             let validatorUnBondingDelegationsData: any = await new HttpService().get(getValidatorUnBondingDelUri).toPromise().then(result => result.data)
-            if (validatorUnBondingDelegationsData && validatorUnBondingDelegationsData.result) {
-                return StakingValUnBondingDelLcdDto.bundleData(validatorUnBondingDelegationsData.result);
+            if (validatorUnBondingDelegationsData && validatorUnBondingDelegationsData.unbonding_responses) {
+                return StakingValUnBondingDelLcdDto.bundleData(validatorUnBondingDelegationsData.unbonding_responses);
             } else {
                 Logger.warn('api-error:', 'there is no result of validator unBonding delegations from lcd');
             }
@@ -134,11 +121,11 @@ export class StakingHttp {
     }
 
     async queryBalanceByAddress(address) {
-        const getBalancesUri = `${cfg.serverCfg.lcdAddr}/bank/balances/${address}`
+        const getBalancesUri = `${cfg.serverCfg.lcdAddr}/cosmos/bank/v1beta1/balances/${address}`
         try {
             let addressBalancesData: any = await new HttpService().get(getBalancesUri).toPromise().then(result => result.data)
-            if (addressBalancesData && addressBalancesData.result) {
-                return AddressBalancesLcdDto.bundleData(addressBalancesData.result);
+            if (addressBalancesData && addressBalancesData.balances) {
+                return AddressBalancesLcdDto.bundleData(addressBalancesData.balances);
             } else {
                 Logger.warn('api-error:', 'there is no result of validator unBonding delegations from lcd');
             }
@@ -149,10 +136,11 @@ export class StakingHttp {
     }
 
     async queryDelegatorsDelegationsFromLcd(address) {
-        const getDelegatorsDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/delegators/${address}/delegations`
+        // const getDelegatorsDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/delegators/${address}/delegations`
+        const getDelegatorsDelegationsUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/delegations/${address}?pagination.limit=1000`
         try {
             const delegatorsDelegationsData: any = await new HttpService().get(getDelegatorsDelegationsUri).toPromise().then(result => result.data)
-            if (delegatorsDelegationsData && delegatorsDelegationsData.result) {
+            if (delegatorsDelegationsData && delegatorsDelegationsData.delegation_responses) {
                 return new DelegatorsDelegationLcdDto(delegatorsDelegationsData);
             } else {
                 Logger.warn('api-error:', 'there is no result of delegators delegations from lcd');
@@ -163,10 +151,11 @@ export class StakingHttp {
     }
 
     async queryDelegatorsUndelegationsFromLcd(address) {
-        const getDelegatorsUndelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/delegators/${address}/unbonding_delegations`
+        // const getDelegatorsUndelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/delegators/${address}/unbonding_delegations`
+        const getDelegatorsUndelegationsUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/delegators/${address}/unbonding_delegations?pagination.limit=1000`
         try {
             const delegatorsUndelegationsData: any = await new HttpService().get(getDelegatorsUndelegationsUri).toPromise().then(result => result.data)
-            if (delegatorsUndelegationsData && delegatorsUndelegationsData.result) {
+            if (delegatorsUndelegationsData && delegatorsUndelegationsData.unbonding_responses) {
                 return new DelegatorsUndelegationLcdDto(delegatorsUndelegationsData);
             } else {
                 Logger.warn('api-error:', 'there is no result of delegators delegations from lcd');
@@ -177,11 +166,11 @@ export class StakingHttp {
     }
 
     static async getBondedTokens () {
-        const BondedTokensUrl = `${cfg.serverCfg.lcdAddr}/staking/pool`
+        const BondedTokensUrl = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/pool`
         try {
             let BondedTokens: any = await new HttpService().get(BondedTokensUrl).toPromise().then(result => result.data)
-            if (BondedTokens && BondedTokens.result) {
-                return new BondedTokensLcdDto(BondedTokens.result);
+            if (BondedTokens && BondedTokens.pool) {
+                return new BondedTokensLcdDto(BondedTokens.pool);
             } else {
                 Logger.warn('api-error:', 'there is no result of bonded_tokens from lcd');
             }
