@@ -3,6 +3,7 @@ dotenv.config();
 
 const {
     LCD_ADDR,
+    RPC_ADDR,
     DB_USER,
     DB_PASSWD,
     DB_ADDR,
@@ -18,7 +19,8 @@ const {
     HEARTBEAT_RATE,
     VALIDATORS_EXECTUTE_TIME,
     DisableLog,
-    STAKING_VALIDATORS_TIME,
+    STAKING_VALIDATORS_INFO_TIME,
+    STAKING_VALIDATORS_MORE_INFO_TIME,
     STAKING_PARAMETERS,
     TOKENS,
     INCREASE_HEIGHT,
@@ -40,7 +42,8 @@ export const cfg = {
     },
     serverCfg:{
         lcdAddr:LCD_ADDR,
-        iconUri:ICONURI || 'https://keybase.io/_/api/1.0/user/lookup.json'
+        rpcAddr:RPC_ADDR,
+        iconUri: ICONURI || 'https://keybase.io/_/api/1.0/user/lookup.json'
     },
     taskCfg:{
         interval:{
@@ -53,7 +56,8 @@ export const cfg = {
             faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME || '41 * * * * *',
             validators:VALIDATORS_EXECTUTE_TIME || '1 * * * * *',
             identity: IDENTITY_EXECUTE_TIME || '1 * * * * *',
-            stakingValidators: STAKING_VALIDATORS_TIME || '15 * * * * *',
+            stakingValidatorsInfo: STAKING_VALIDATORS_INFO_TIME || '15 * * * * *',
+            stakingValidatorsMoreInfo: STAKING_VALIDATORS_MORE_INFO_TIME || '0 */5 * * * *',
             stakingParameters: STAKING_PARAMETERS || '10 * * * * *',
             Tokens: TOKENS || '5 * * * * *',
             Proplsal: PROPLSAL || '25 * * * * *',

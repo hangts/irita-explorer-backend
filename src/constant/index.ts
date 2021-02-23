@@ -6,7 +6,8 @@ export enum TaskEnum {
     txServiceName = "sync_tx_service_name",
     validators = 'sync_validators',
     identity = 'sync_identity',
-    stakingSyncValidators = 'staking_sync_validators',
+    stakingSyncValidatorsInfo = 'staking_sync_validators_info',
+    stakingSyncValidatorsMoreInfo = 'staking_sync_validators_more_info',
     stakingSyncParameters = 'staking_sync_parameters',
     Tokens = 'tokens',
     Proposal = 'ex_sync_proposal'

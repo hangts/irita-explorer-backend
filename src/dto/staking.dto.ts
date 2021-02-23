@@ -1,5 +1,6 @@
 import {BaseResDto, PagingReqDto} from './base.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {ArrayNotEmpty} from 'class-validator';
 import { Coin } from './common.res.dto';
 
 /***************Req***********************/
@@ -62,6 +63,13 @@ export class DelegatorsUndelegationsParamReqDto {
     delegatorAddr: string
 }
 
+//Post staking/blacks request dto
+export class PostBlacksReqDto {
+    @ApiProperty({description:`{"blacks": [{"iva_addr": "iva176dd0tgn38grpc8hpxfmwl6sl8jfmkneak3emy","moniker_m":"test1"}]}`})
+    @ArrayNotEmpty()
+    blacks: String;
+}
+
 /***************Res*************************/
 
 export class stakingValidatorResDto extends BaseResDto {
@@ -82,7 +90,7 @@ export class stakingValidatorResDto extends BaseResDto {
     proposer_addr: string;
     voting_power: number;
     icons: string;
-    voting_rate: number
+    voting_rate: number;
 
     constructor(validator) {
         super();

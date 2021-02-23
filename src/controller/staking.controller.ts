@@ -1,4 +1,4 @@
-import {Controller, Query, Get, Param} from '@nestjs/common';
+import {Controller, Query, Get, Param, Post, Body} from '@nestjs/common';
 import {ApiTags} from '@nestjs/swagger';
 import {ListStruct, Result} from "../api/ApiResult";
 import StakingService from "../service/staking.service";
@@ -26,7 +26,8 @@ import {
     DelegatorsUndelegationsResDto,
     DelegatorsUndelegationsParamReqDto,
     ValidatorVotesResDto,
-    ValidatorDepositsResDto
+    ValidatorDepositsResDto,
+    PostBlacksReqDto
 } from "../dto/staking.dto";
 
 @ApiTags('Staking')
@@ -94,5 +95,10 @@ export class StakingController {
         const validatorDeposits = await this.stakingService.getValidatorDepositsList(p,q)
         return new Result<ListStruct<ValidatorDepositsResDto>>(validatorDeposits)
     }
-    
+
+    @Post('/blacks')
+    async insertBlacksList(@Body() params: PostBlacksReqDto): Promise<Boolean> {
+        const data: Boolean = await this.stakingService.insertBlacks(params);
+        return data;
+    }
 }

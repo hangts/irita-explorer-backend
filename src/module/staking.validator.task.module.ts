@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {StakingValidatorSchema} from "../schema/staking.validator.schema";
-import {StakingValidatorTaskService} from "../task/staking.validator.task.service";
+import {StakingValidatorInfoTaskService} from "../task/staking.validator.info.task.service";
+import {StakingValidatorMoreInfoTaskService} from "../task/staking.validator.more.info.task.service";
 import {StakingHttp} from "../http/lcd/staking.http";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {ParametersTaskService} from "../task/parameters.task.service";
@@ -15,7 +16,7 @@ import {GovHttp} from "../http/lcd/gov.http";
       {
         name:'StakingSyncValidators',
         schema: StakingValidatorSchema,
-        collection:'ex_staking_validator'
+        collection:'ex_staking_validator_test'
       },
       {
         name:'ParametersTask',
@@ -24,8 +25,8 @@ import {GovHttp} from "../http/lcd/gov.http";
       },
     ])
   ],
-  providers:[StakingValidatorTaskService,ParametersTaskService,StakingHttp,TokensHttp,BlockHttp,GovHttp],
-  exports:[StakingValidatorTaskService,ParametersTaskService],
+  providers:[StakingValidatorInfoTaskService,StakingValidatorMoreInfoTaskService,ParametersTaskService,StakingHttp,TokensHttp,BlockHttp,GovHttp],
+  exports:[StakingValidatorInfoTaskService,StakingValidatorMoreInfoTaskService,ParametersTaskService],
 })
 
 export class StakingValidatorTaskModule{}

@@ -4,6 +4,7 @@ import {IListStruct} from "../types";
 import {
     IQueryValidatorByStatus,
     IStakingValidator,
+    IStakingValidatorBlock,
     IDetailByValidatorAddress
 } from "../types/schemaTypes/staking.interface";
 import {activeValidatorLabel, candidateValidatorLabel, jailedValidatorLabel, ValidatorStatus} from "../constant";
@@ -34,6 +35,8 @@ export const StakingValidatorSchema = new mongoose.Schema({
     missed_blocks_counter: String,
     create_time: Number,
     update_time: Number,
+    is_black: Boolean,
+    moniker_m: String
 })
 StakingValidatorSchema.index({operator_address: 1}, {unique: true})
 StakingValidatorSchema.index({proposer_addr: 1})	
@@ -107,5 +110,11 @@ StakingValidatorSchema.statics = {
     async queryActiveVal(): Promise<any> {
         return await this.find({'status':ValidatorStatus['bonded'],'jailed':false});
     },
+
+    async updateBlcakValidator(updateValidator: IStakingValidatorBlock) {
+        let { ivaAddr, monikerM } = updateValidator
+        return await this.updateOne({ operator_address: ivaAddr }, { $set: {is_black:true,moniker_m: monikerM}})
+    },
+
 }
 
