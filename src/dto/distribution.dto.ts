@@ -68,14 +68,14 @@ export class Reward {
 
 // distribution/validators/:address resdto
 export class ValCommissionRewResDto extends BaseResDto {
-    operator_address: string;
-    self_bond_rewards: [];
+    // operator_address: string;
+    // self_bond_rewards: [];
     val_commission: object;
 
     constructor(commissionRewards) {
         super();
-        this.operator_address = commissionRewards.operator_address || ''
-        this.self_bond_rewards = commissionRewards.self_bond_rewards || {}
+        // this.operator_address = commissionRewards.operator_address || ''
+        // this.self_bond_rewards = commissionRewards.self_bond_rewards || {}
         this.val_commission = commissionRewards.val_commission || {}
     }
 }

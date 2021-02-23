@@ -165,9 +165,9 @@ switch (cfg.currentChain) {
         //     'bonded': 'bonded'
         // };
         validatorStatusStr = {
-            'unbonded': 'BOND_STATUS_UNBONDED',
-            'unbonding': 'BOND_STATUS_UNBONDING',
-            'bonded': 'BOND_STATUS_BONDED'
+            'unbonded': 'BOND_STATUS_UNBONDED', // 1 关押状态
+            'unbonding': 'BOND_STATUS_UNBONDING', // 2  候选人状态
+            'bonded': 'BOND_STATUS_BONDED' // 3 活跃的验证人状态
         };
         addressPrefix = {
             iaa: 'iaa',
@@ -194,6 +194,12 @@ switch (cfg.currentChain) {
 }
 export {
     validatorStatusStr,addressPrefix
+}
+
+export const validatorStatusFromLcd = {
+    1: 'BOND_STATUS_UNBONDED',
+    2: 'BOND_STATUS_UNBONDING',
+    3: 'BOND_STATUS_BONDED'
 }
 
 export const ValidatorNumberStatus = {

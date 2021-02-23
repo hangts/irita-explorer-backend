@@ -6,7 +6,7 @@ import { ApiError } from '../api/ApiResult';
 import { ErrorCodes } from '../api/ResultCodes';
 import { IBindTx } from '../types/tx.interface';
 import { IDenomStruct } from '../types/schemaTypes/denom.interface';
-
+import { validatorStatusFromLcd } from '../constant'
 // lcd相关请求返回值数据模型
 
 /************************   response dto   ***************************/
@@ -292,7 +292,7 @@ export class TokensStakingLcdToken {
 // staking/validators
 export class StakingValidatorLcdDto {
     operator_address: string;
-    consensus_pubkey: string;
+    consensus_pubkey: string | object;
     jailed: boolean;
     status: number;
     tokens: string;
@@ -308,7 +308,7 @@ export class StakingValidatorLcdDto {
         this.operator_address = value.operator_address || '';
         this.consensus_pubkey = value.consensus_pubkey || '';
         this.jailed = value.jailed || false;
-        this.status = value.status || '';
+        this.status = value.status ?  validatorStatusFromLcd[value.status] : '';
         this.tokens = value.tokens || '';
         this.delegator_shares = value.delegator_shares || '';
         this.description = value.description || '';
@@ -432,7 +432,7 @@ export class StakingValidatorParametersLcdDto {
     constructor(value) {
         this.signed_blocks_window = value.signed_blocks_window || '';
         this.min_signed_per_window = value.min_signed_per_window || '';
-        this.downtime_jail_duration = value.downtime_jail_duration || '';
+        this.downtime_jail_duration = value.downtime_jail_duration.replace('s', '000000000') || '';
         this.slash_fraction_double_sign = value.slash_fraction_double_sign || '';
         this.slash_fraction_downtime = value.slash_fraction_downtime || '';
     }
@@ -450,14 +450,14 @@ export class ISelfBondRewards {
 
 // /distribution/validators/${valAddress}
 export class commissionRewardsLcdDto {
-    operator_address: string;
-    self_bond_rewards: [];
+    // operator_address: string;
+    // self_bond_rewards: [];
     val_commission: object;
 
     constructor(value) {
-        this.operator_address = value.operator_address || '';
-        this.self_bond_rewards = value.self_bond_rewards || [];
-        this.val_commission = value.val_commission || {};
+        // this.operator_address = value.operator_address || '';
+        // this.self_bond_rewards = value.self_bond_rewards || [];
+        this.val_commission = value.commission || {};
     }
 }
 
@@ -512,7 +512,7 @@ export class DelegatorsDelegationLcdDto {
     result: DelegatorsResult[];
     constructor(value) {
         this.height = value.height || '',
-        this.result = DelegatorsResult.bundleData(value.result)
+        this.result = DelegatorsResult.bundleData(value.delegation_responses)
     }
 }
 
@@ -546,7 +546,7 @@ export class DelegatorsUndelegationLcdDto {
     result: UndelegatorsResult[];
     constructor(value) {
         this.height = value.height || '',
-        this.result = UndelegatorsResult.bundleData(value.result)
+        this.result = UndelegatorsResult.bundleData(value.unbonding_responses)
     }
 }
 
