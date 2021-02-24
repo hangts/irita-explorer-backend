@@ -71,52 +71,36 @@ export default class StakingService {
         return allValCommissionInfo
     }
 
-    async getValidatorDelegationList(p: ValidatorDelegationsReqDto,q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorDelegationsResDto>> {
+    async getValidatorDelegationList(p: ValidatorDelegationsReqDto, q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorDelegationsResDto>> {
         const validatorAddr = p.address
+        const { pageNum,pageSize,useCount } = q
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
-        const validatorDelegationsFromLcd = await this.stakingHttp.queryValidatorDelegationsFromLcd(validatorAddr)
-        const allShares: number[] = [];
-        (validatorDelegationsFromLcd || []).forEach(item => {
-            //TODO:zhangjinbiao 使用位移进行大数字的计算
-            if(item){
-                allShares.push(Number(item.delegation.shares))
-            }
-        })
-        let totalShares;
-        if (allShares && allShares.length) {
-            totalShares = allShares.reduce((total: number, item: number) => {
-                return item + total
-            })
-        }
-        let resultData = (validatorDelegationsFromLcd || []).map(item => {
+        const validatorDelegationsFromLcd = await this.stakingHttp.queryValidatorDelegationsFromLcd(validatorAddr, pageNum, pageSize, useCount)
+        let resultData = (validatorDelegationsFromLcd.result || []).map(item => {
             let validator = allValidatorsMap.get(item.delegation.validator_address);
             return {
                 moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
                 address: item.delegation.delegator_address || '',
                 amount: item.balance || '',
                 self_shares: item.delegation.shares || '',
-                total_shares: totalShares || '',
+                total_shares: validator && Number(validator.delegator_shares) || 0,
             }
         })
-        const count = resultData.length
+        const count = validatorDelegationsFromLcd.total
         let result: any = {}
-        if (q.useCount) {
+        if (useCount) {
             result.count = count
         }
-        if (resultData.length <= q.pageSize) {
-            result.data = ValidatorDelegationsResDto.bundleData(resultData)
-        } else {
-            let pageNationData = pageNation(resultData, q.pageSize)
-            result.data = ValidatorDelegationsResDto.bundleData(pageNationData[q.pageNum - 1])
-        }
-        return new ListStruct(result.data, q.pageNum, q.pageSize, count)
+        result.data = ValidatorDelegationsResDto.bundleData(resultData)
+        return new ListStruct(result.data, pageNum, pageSize, count)
     }
 
     async getValidatorUnBondingDelegations(p: ValidatorUnBondingDelegationsReqDto,q: ValidatorUnBondingDelegationsQueryReqDto): Promise<ListStruct<ValidatorUnBondingDelegationsResDto>> {
         const validatorAddr = p.address
+        const { pageNum,pageSize,useCount } = q
         const allValidatorsMoniker = await this.getAllValidatorMonikerMap()
-        const valUnBondingDelegationsFromLcd = await this.stakingHttp.queryValidatorUnBondingDelegations(validatorAddr)
-        let resultData = (valUnBondingDelegationsFromLcd || []).map(item => {
+        const valUnBondingDelegationsFromLcd = await this.stakingHttp.queryValidatorUnBondingDelegations(validatorAddr, pageNum, pageSize, useCount)
+        let resultData = (valUnBondingDelegationsFromLcd.result || []).map(item => {
             let validator = allValidatorsMoniker.get(item.validator_address);
             return {
                 moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
@@ -128,16 +112,11 @@ export default class StakingService {
         })
         const count = resultData.length
         let result: any = {}
-        if (q.useCount) {
+        if (useCount) {
             result.count = count
         }
-        if (resultData.length <= q.pageSize) {
-            result.data = ValidatorUnBondingDelegationsResDto.bundleData(resultData)
-        } else {
-            let pageNationData = pageNation(resultData, q.pageSize)
-            result.data = ValidatorUnBondingDelegationsResDto.bundleData(pageNationData[q.pageNum - 1])
-        }
-        return new ListStruct(result.data, q.pageNum, q.pageSize, result.count)
+        result.data = ValidatorUnBondingDelegationsResDto.bundleData(resultData)
+        return new ListStruct(result.data, pageNum, pageSize, result.count)
 
     }
 
@@ -212,7 +191,7 @@ export default class StakingService {
         result.amount = balancesArray || []
         result.withdrawAddress = withdrawAddress.address
         result.address = address
-        result.moniker =  validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker
+        result.moniker =  validator && validator.is_black  ? validator.moniker_m : validator && validator.description && validator.description.moniker
         result.operator_address = allValidatorsMap.has(operatorAddress) ? validator.operator_address : ''
         result.isProfiler = profilerAddressMap.size > 0 ? profilerAddressMap.has(address) : false
         if (allValidatorsMap.has(operatorAddress) && !validator.jailed) {
@@ -230,14 +209,13 @@ export default class StakingService {
     }
 
     async getDelegatorsDelegations(p:DelegatorsDelegationsParamReqDto,q: DelegatorsDelegationsReqDto): Promise<ListStruct<DelegatorsDelegationsResDto>> {
-        const { pageNum, pageSize } = q
+        const { pageNum, pageSize,useCount } = q
         const { delegatorAddr } = p
-        const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsDelegationsFromLcd(delegatorAddr)
+        const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsDelegationsFromLcd(delegatorAddr,pageNum, pageSize, useCount)
         const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : []
-        const count = dataLcd ? dataLcd.length : 0;
-        const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : []
+        const count = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.total : 0;
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
-        const resultData = data.map(item => {
+        const resultData = (dataLcd || []).map(item => {
             let validator = allValidatorsMap.get(item.delegation.validator_address);
             return {
                 address: item.delegation.validator_address || '',
@@ -248,21 +226,22 @@ export default class StakingService {
             }
         })
         const result: any = {}
-        result.count = count
+        if (useCount) {
+            result.count = count
+        }
         result.data = DelegatorsDelegationsResDto.bundleData(resultData)
         return new ListStruct(result.data, pageNum, pageSize, result.count)
     }
 
     async getDelegatorsUndelegations(p:DelegatorsUndelegationsParamReqDto,q: DelegatorsUndelegationsReqDto): Promise<ListStruct<DelegatorsUndelegationsResDto>> {
-        const { pageNum, pageSize } = q
+        const { pageNum, pageSize,useCount } = q
         const { delegatorAddr } = p
-        const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(delegatorAddr)
+        const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(delegatorAddr,pageNum, pageSize, useCount)
         const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : []
         const aminToken = await this.tokensModel.queryMainToken();
-        const count =dataLcd ? dataLcd.length : 0
-        const data = dataLcd ? dataLcd.slice((pageNum - 1) * pageSize, pageNum * pageSize) : []
+        const count =delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.total : 0
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
-        const resultData = data.map(item => {
+        const resultData = (dataLcd || []).map(item => {
             const denom:string = (aminToken || {}).min_unit || '';
             let entries:any = item && item.entries || []
             const amount =  entries && entries.length > 0 ? entries[0].balance : ''
@@ -279,7 +258,9 @@ export default class StakingService {
             }
         })
         const result: any = {}
-        result.count = count
+        if (useCount) {
+            result.count = count
+        }
         result.data = DelegatorsUndelegationsResDto.bundleData(resultData)
         return new ListStruct(result.data, pageNum, pageSize, result.count)
     }

@@ -348,8 +348,13 @@ export class StakingValidatorSlashLcdDto {
 
 // /staking/validators/${valOperatorAddr}/delegations
 export class StakingValidatorDelegationLcdDto {
+    total: number;
     result: Array<IDelegationLcd>;
 
+    constructor(value) {
+        this.total = value.total || 0;
+        this.result = StakingValidatorDelegationLcdDto.bundleData(value.result) || [];
+    }
     static bundleData(value: any = []): IDelegationLcd[] {
         let data: IDelegationLcd[] = [];
         data = value.map((v: any) => {
@@ -358,6 +363,8 @@ export class StakingValidatorDelegationLcdDto {
         return data;
     }
 }
+
+
 
 export class IDelegationLcd {
     delegation: {
@@ -462,7 +469,19 @@ export class commissionRewardsLcdDto {
 }
 
 // /staking/validators/${address}/unbonding_delegations
+
+
 export class StakingValUnBondingDelLcdDto {
+    total: number;
+    result: Array<StakingValUnBondingDelLcdResultDto>;
+
+    constructor(value) {
+        this.total = value.total || 0;
+        this.result = StakingValUnBondingDelLcdResultDto.bundleData(value.result) || [];
+    }
+}
+
+export class StakingValUnBondingDelLcdResultDto {
     delegator_address: string;
     validator_address: string;
     entries: Array<UnBondingDel>
@@ -473,10 +492,10 @@ export class StakingValUnBondingDelLcdDto {
         this.entries = value.entries || [];
     }
 
-    static bundleData(value: any = []): StakingValUnBondingDelLcdDto[] {
-        let data: StakingValUnBondingDelLcdDto[] = [];
+    static bundleData(value: any = []): StakingValUnBondingDelLcdResultDto[] {
+        let data: StakingValUnBondingDelLcdResultDto[] = [];
         data = value.map((v: any) => {
-            return new StakingValUnBondingDelLcdDto(v);
+            return new StakingValUnBondingDelLcdResultDto(v);
         });
         return data;
     }
@@ -509,10 +528,12 @@ export class AddressBalancesLcdDto {
 
 export class DelegatorsDelegationLcdDto {
     height: string;
+    total: number;
     result: DelegatorsResult[];
     constructor(value) {
-        this.height = value.height || '',
-        this.result = DelegatorsResult.bundleData(value.delegation_responses)
+        this.height = value.height || '';
+        this.result = DelegatorsResult.bundleData(value.delegation_responses);
+        this.total = (value.pagination && Number(value.pagination.total)) || 0;
     }
 }
 
@@ -544,9 +565,11 @@ export class DelegatorsResult {
 export class DelegatorsUndelegationLcdDto {
     height: string;
     result: UndelegatorsResult[];
+    total: number;
     constructor(value) {
-        this.height = value.height || '',
-        this.result = UndelegatorsResult.bundleData(value.unbonding_responses)
+        this.height = value.height || '';
+        this.result = UndelegatorsResult.bundleData(value.unbonding_responses);
+        this.total = (value.pagination && Number(value.pagination.total)) || 0;
     }
 }
 
