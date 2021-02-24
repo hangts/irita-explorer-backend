@@ -10,6 +10,7 @@ import {
     DelegatorsDelegationLcdDto,
     DelegatorsUndelegationLcdDto,
     BondedTokensLcdDto,
+    IDelegationLcd,
     TokensStakingLcdToken
 } from "../../dto/http.dto";
 import { currentChain } from '../../constant/index'
@@ -104,6 +105,37 @@ export class StakingHttp {
             Logger.warn(`api-error from ${getValidatorDelegationsUri}`, e)
         }
     }
+
+    async queryValidatordelegatorNumFromLcd(address) {
+        // const getValidatorDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/delegations`
+        const getValidatorDelegationsUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators/${address}/delegations?pagination.limit=1&pagination.count_total=true`
+        try {
+            let validatorDelegationsData: any = await new HttpService().get(getValidatorDelegationsUri).toPromise().then(result => result.data)
+            if (validatorDelegationsData && validatorDelegationsData.pagination && validatorDelegationsData.pagination.total) {
+                return Number(validatorDelegationsData.pagination.total);
+            } else {
+                Logger.warn('api-error:', 'there is no result of validator delegatorNum from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${getValidatorDelegationsUri}`, e)
+        }
+    }
+
+    async queryValidatorSelfBondFromLcd(address_iva,address_iaa) {
+        const getValidatorDelegationsUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators/${address_iva}/delegations/${address_iaa}`
+        try {
+            let validatorDelegationsData: any = await new HttpService().get(getValidatorDelegationsUri).toPromise().then(result => result.data)
+            if (validatorDelegationsData && validatorDelegationsData.delegation_response) {
+                return new IDelegationLcd(validatorDelegationsData.delegation_response);
+            } else {
+                Logger.warn('api-error:', 'there is no result of validator delegations from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${getValidatorDelegationsUri}`, e)
+        }
+    }
+
+
 
     async queryValidatorUnBondingDelegations(address) {
         // const getValidatorUnBondingDelUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/unbonding_delegations`
