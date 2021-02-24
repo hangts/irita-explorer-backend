@@ -197,9 +197,9 @@ export {
 }
 
 export const validatorStatusFromLcd = {
-    1: 'BOND_STATUS_UNBONDED',
-    2: 'BOND_STATUS_UNBONDING',
-    3: 'BOND_STATUS_BONDED'
+    'BOND_STATUS_UNBONDED': 1,
+    'BOND_STATUS_UNBONDING': 2,
+    'BOND_STATUS_BONDED': 3
 }
 
 export const ValidatorNumberStatus = {
