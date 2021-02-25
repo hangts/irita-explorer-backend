@@ -58,3 +58,8 @@ export interface IStakingValidatorFromLcd {
     commission:object,
     min_self_delegation:string,
 }
+export interface IStakingValidatorBlock {
+    ivaAddr:string,
+    monikerM: string,
+    isBlack:boolean
+}

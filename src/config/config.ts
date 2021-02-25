@@ -3,6 +3,7 @@ dotenv.config();
 
 const {
     LCD_ADDR,
+    RPC_ADDR,
     DB_USER,
     DB_PASSWD,
     DB_ADDR,
@@ -18,14 +19,17 @@ const {
     HEARTBEAT_RATE,
     VALIDATORS_EXECTUTE_TIME,
     DisableLog,
-    STAKING_VALIDATORS_TIME,
+    STAKING_VALIDATORS_INFO_TIME,
+    STAKING_VALIDATORS_MORE_INFO_TIME,
     STAKING_PARAMETERS,
     TOKENS,
     INCREASE_HEIGHT,
     MAX_OPERATE_TX_COUNT,
     CURRENT_CHAIN,
     MAIN_TOKEN,
-    DELETE_CRON_JOBS
+    CRON_JOBS,
+    PROPLSAL,
+    PROPOSALS_LIMIT
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -38,7 +42,8 @@ export const cfg = {
     },
     serverCfg:{
         lcdAddr:LCD_ADDR,
-        iconUri:ICONURI || 'https://keybase.io/_/api/1.0/user/lookup.json'
+        rpcAddr:RPC_ADDR,
+        iconUri: ICONURI || 'https://keybase.io/_/api/1.0/user/lookup.json'
     },
     taskCfg:{
         interval:{
@@ -51,14 +56,17 @@ export const cfg = {
             faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME || '41 * * * * *',
             validators:VALIDATORS_EXECTUTE_TIME || '1 * * * * *',
             identity: IDENTITY_EXECUTE_TIME || '1 * * * * *',
-            stakingValidators: STAKING_VALIDATORS_TIME || '15 * * * * *',
+            stakingValidatorsInfo: STAKING_VALIDATORS_INFO_TIME || '15 * * * * *',
+            stakingValidatorsMoreInfo: STAKING_VALIDATORS_MORE_INFO_TIME || '0 */5 * * * *',
             stakingParameters: STAKING_PARAMETERS || '10 * * * * *',
             Tokens: TOKENS || '5 * * * * *',
+            Proplsal: PROPLSAL || '25 * * * * *',
         },
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
         increaseHeight: INCREASE_HEIGHT || 1000,
         maxOperateTxCount: MAX_OPERATE_TX_COUNT || 100,
-        DELETE_CRON_JOBS: DELETE_CRON_JOBS ? JSON.parse(DELETE_CRON_JOBS) : []
+        CRON_JOBS: CRON_JOBS ? JSON.parse(CRON_JOBS) : [],
+        proposalsLimit: PROPOSALS_LIMIT || 1000,
     },
     currentChain: CURRENT_CHAIN || 'IRIS',
     MAIN_TOKEN: MAIN_TOKEN ? JSON.parse(MAIN_TOKEN) : {"min_unit":"umuon","scale":"6","symbol":"muon"}

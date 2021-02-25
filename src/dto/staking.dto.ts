@@ -1,5 +1,7 @@
 import {BaseResDto, PagingReqDto} from './base.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {ArrayNotEmpty} from 'class-validator';
+import { Coin } from './common.res.dto';
 
 /***************Req***********************/
 
@@ -61,6 +63,13 @@ export class DelegatorsUndelegationsParamReqDto {
     delegatorAddr: string
 }
 
+//Post staking/blacks request dto
+export class PostBlacksReqDto {
+    @ApiProperty({description:`{"blacks": [{"iva_addr": "iva176dd0tgn38grpc8hpxfmwl6sl8jfmkneak3emy","moniker_m":"test1","is_block":true}]}`})
+    @ArrayNotEmpty()
+    blacks: String;
+}
+
 /***************Res*************************/
 
 export class stakingValidatorResDto extends BaseResDto {
@@ -81,7 +90,7 @@ export class stakingValidatorResDto extends BaseResDto {
     proposer_addr: string;
     voting_power: number;
     icons: string;
-    voting_rate: number
+    voting_rate: number;
 
     constructor(validator) {
         super();
@@ -329,6 +338,62 @@ export class DelegatorsUndelegationsResDto extends BaseResDto {
         let data: DelegatorsUndelegationsResDto[] = [];
         data = value.map((v: any) => {
             return new DelegatorsUndelegationsResDto(v);
+        });
+        return data;
+    }
+}
+
+export class ValidatorVotesResDto extends BaseResDto {
+    title: string;
+    proposal_id: number;
+    status: string;
+    voted: string;
+    tx_hash: string;
+    proposal_link: boolean;
+
+    constructor(vote) {
+        super();
+        this.title = vote.title || ''
+        this.proposal_id = vote.proposal_id || ''
+        this.status = vote.status || ''
+        this.voted = vote.voted || ''
+        this.tx_hash = vote.tx_hash || ''
+        this.proposal_link = vote.proposal_link
+    }
+
+    static bundleData(value: any): ValidatorVotesResDto[] {
+        let data: ValidatorVotesResDto[] = [];
+        data = value.map((v: any) => {
+            return new ValidatorVotesResDto(v);
+        });
+        return data;
+    }
+}
+
+export class ValidatorDepositsResDto extends BaseResDto {
+    proposal_id: number;
+    proposer: string;
+    amount: Coin[];
+    submited: boolean;
+    tx_hash: string;
+    moniker: string;
+    proposal_link: boolean;
+
+    constructor(deposit) {
+        super();
+        this.proposal_id = deposit.proposal_id || 0;
+        this.proposer = deposit.proposer || '';
+        this.amount = Coin.bundleData(deposit.amount) || [];
+        this.submited = deposit.submited || false;
+        this.tx_hash = deposit.tx_hash || '';
+        this.moniker = deposit.moniker || '';
+        this.proposal_link = deposit.proposal_link;
+    }
+
+    static bundleData(value: any): ValidatorDepositsResDto[] {
+        let data: ValidatorDepositsResDto[] = [];
+        data = value.map((v: any) => {
+            return new ValidatorDepositsResDto(v);
         });
         return data;
     }

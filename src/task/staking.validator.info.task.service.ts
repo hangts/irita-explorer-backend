@@ -4,13 +4,11 @@ import {StakingHttp} from "../http/lcd/staking.http";
 import {BlockHttp} from "../http/lcd/block.http";
 import {Model} from "mongoose"
 import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp, hexToBech32} from "../util/util";
-import {addressPrefix, moduleSlashing, validatorStatusStr} from "../constant";
-import { cfg } from '../config/config';
-import { currentChain } from '../constant/index'
+import { addressPrefix, moduleSlashing, validatorStatusStr } from "../constant";
+import { getConsensusPubkey } from '../helper/staking.helper';
 
 @Injectable()
-
-export class StakingValidatorTaskService {
+export class StakingValidatorInfoTaskService {
     constructor(@InjectModel('StakingSyncValidators') private stakingSyncValidatorsModel: Model<any>,
                 @InjectModel('ParametersTask') private parametersTaskModel: Model<any>,
                 private readonly stakingHttp: StakingHttp) {
@@ -44,13 +42,14 @@ export class StakingValidatorTaskService {
                 validatorsFromDbMap.set(item.operator_address, item)
             })
         }
-        let needInsertOrValidators = await StakingValidatorTaskService.getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
-        let needDeleteValidators = await StakingValidatorTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
+        let needInsertOrValidators = await StakingValidatorInfoTaskService.getInsertOrUpdateValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
+        let needDeleteValidators = await StakingValidatorInfoTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
         await this.insertAndUpdateValidators(needInsertOrValidators)
         await this.deleteValidators(needDeleteValidators)
     }
 
     private async handDbValidators(allValidatorsFromLcd) {
+        const currentHeight = await BlockHttp.queryLatestBlockHeightFromLcd();
         for (let i = 0; i < allValidatorsFromLcd.length; i++) {
             if (allValidatorsFromLcd[i].commission && allValidatorsFromLcd[i].commission.update_time) {
                 allValidatorsFromLcd[i].commission.update_time = formatDateStringToNumber(allValidatorsFromLcd[i].commission.update_time)
@@ -62,24 +61,11 @@ export class StakingValidatorTaskService {
                 allValidatorsFromLcd[i].voting_power = Number(allValidatorsFromLcd[i].tokens)
             }
             allValidatorsFromLcd[i].jailed = allValidatorsFromLcd[i].jailed || false
-            let BlockProposer;
-            switch (cfg.currentChain) {
-                case currentChain.iris:
-                    // iris
-                    BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
-                    allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
-                    break;
-                case currentChain.cosmos:
-                    // todo:duanjie  cosmos:consensus_pubkey发生变化,原有编码方式不能使用,proposer_addr出块人地址
-                    // cosmos
-                    break;
-                default:
-                    break;
-            }
+            allValidatorsFromLcd[i].consensus_pubkey = getConsensusPubkey(allValidatorsFromLcd[i].consensus_pubkey['key'])
+            let BlockProposer = getAddress(allValidatorsFromLcd[i].consensus_pubkey)
+            allValidatorsFromLcd[i].proposer_addr = BlockProposer ? BlockProposer.toLocaleUpperCase() : null
             await this.updateSlashInfo(allValidatorsFromLcd[i])
-            await this.updateSelfBond(allValidatorsFromLcd[i])
-            await this.updateIcons(allValidatorsFromLcd[i])
-            await this.updateUpTime(allValidatorsFromLcd[i])
+            await this.updateUpTime(allValidatorsFromLcd[i], currentHeight)
         }
     }
 
@@ -101,6 +87,17 @@ export class StakingValidatorTaskService {
         let needInsertOrUpdate = new Map()
         for (let key of allValidatorsFromLcdMap.keys()) {
             let validator = allValidatorsFromLcdMap.get(key)
+            let validatorFromDb = validatorsFromDbMap.get(key)
+            if (validatorFromDb && validatorFromDb.is_black) {
+                validator.moniker_m = validatorFromDb.moniker_m;
+                validator.is_black = true;
+            } else {
+                validator.is_black = false;
+                validator.moniker_m = '';
+            }
+            validatorFromDb && validatorFromDb.icon ? validator.icon = validatorFromDb.icon : validator.icon = '';
+            validatorFromDb && validatorFromDb.delegator_num ? validator.delegator_num = validatorFromDb.delegator_num : validator.delegator_num = 0;
+            validatorFromDb && validatorFromDb.self_bond ? validator.self_bond = validatorFromDb.self_bond : validator.self_bond = {};
             validator.update_time = getTimestamp()
             if (!validatorsFromDbMap.has(key)) {
                 validator.create_time = getTimestamp()
@@ -113,6 +110,7 @@ export class StakingValidatorTaskService {
     private insertAndUpdateValidators(validatorsFromLcdMap) {
         if (validatorsFromLcdMap && validatorsFromLcdMap.size > 0) {
             validatorsFromLcdMap.forEach(async (validator) => {
+                validator.tokens = Number(validator.tokens)
                 await (this.stakingSyncValidatorsModel as any).insertValidator(validator)
             })
         }
@@ -128,62 +126,20 @@ export class StakingValidatorTaskService {
 
     private async updateSlashInfo(dbValidators) {        
         if (dbValidators.consensus_pubkey) {
-            let icaAddr, signingInfo, validatorObject;
-            switch (cfg.currentChain) {
-                case currentChain.iris:
-                    // iris
-                    icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey), addressPrefix.ica);
-                    signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
-                    validatorObject = dbValidators
-                    validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
-                    validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
-                    validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
-                    validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
-                    validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
-                    break;
-                case currentChain.cosmos:
-                    // todo:duanjie cosmos:consensus_pubkey发生变化,原有编码方式不能使用
-                    // cosmos
-                    break;
-                default:
-                    break;
-            }
+            let icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey), addressPrefix.ica);
+            let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
+            let validatorObject = dbValidators
+            validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;
+            validatorObject.jailed_until = signingInfo && signingInfo.jailed_until ? formatDateStringToNumber(signingInfo.jailed_until) : '';
+            validatorObject.start_height = signingInfo && signingInfo.start_height || 0;
+            validatorObject.missed_blocks_counter = signingInfo && signingInfo.missed_blocks_counter || 0;
+            validatorObject.tombstoned = signingInfo && signingInfo.tombstoned || false;
         }
     }
 
-    private async updateSelfBond(dbValidators) {
-        if (dbValidators.operator_address) {
-            let valTranDelAddr = addressTransform(dbValidators.operator_address, addressPrefix.iaa)
-            let selfBondData = await this.stakingHttp.querySelfBondFromLcd(dbValidators.operator_address)
-            dbValidators.delegator_num = selfBondData.length;
-            await selfBondData.forEach((item) => {
-                if (item.delegation
-                    && item.delegation.delegator_address
-                    && valTranDelAddr === item.delegation.delegator_address) {
-                    dbValidators.self_bond = item.balance
-                }
-            })
-        }
-    }
-
-    private async updateIcons(dbValidators) {
-        if (dbValidators.description && dbValidators.description.identity) {
-            let validatorIconUrl:any = await this.stakingHttp.queryValidatorIcon(dbValidators.description.identity)
-            if (validatorIconUrl.them
-                && validatorIconUrl.them.length
-                && validatorIconUrl.them[0].pictures
-                && validatorIconUrl.them[0].pictures.primary
-                && validatorIconUrl.them[0].pictures.primary.url) {
-                dbValidators.icon = validatorIconUrl.them[0].pictures.primary.url
-            }
-        }
-    }
-
-    private async updateUpTime(dbValidators) {
+    private async updateUpTime(dbValidators,currentHeight) {
         const moduleName = moduleSlashing
         const signedBlocksWindow = await (this.parametersTaskModel as any).querySignedBlocksWindow(moduleName)     
-        const latestBlock = await BlockHttp.queryLatestBlockFromLcd()
-        const currentHeight = latestBlock && latestBlock.block && latestBlock.block.header && Number(latestBlock.block.header.height) || 0
         const startHeight = Number(dbValidators.start_height) || 0
         let diffCurrentStart = currentHeight - startHeight + 1
         let missedBlockCount = Number(dbValidators.missed_blocks_counter) || 0

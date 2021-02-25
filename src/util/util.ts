@@ -55,6 +55,7 @@ export function pageNation(dataArray: any[], pageSize: number = 0) {
     }
     return newArray
 }
+
 export function getAddress(publicKey) {
     let words = Bech32.decode(publicKey).words;
     words =  Bech32.fromWords(words);
@@ -67,4 +68,26 @@ export function getAddress(publicKey) {
         addr = addr.substr(0,40);
     }
     return addr;
+}
+
+export function splitString(str,symbol) {
+    let array = str.split(symbol)
+    return array[array.length - 1]
+}
+
+export function uniqueArr(arr, brr) {
+    let temp:string[] = [];
+    let temparray:string[] = [];
+    for (var i = 0; i < brr.length; i++) {  
+        temp[brr[i]] = typeof brr[i];;
+    }
+    for (var i = 0; i < arr.length; i++) {  
+        var type = typeof arr[i];
+        if (!temp[arr[i]]) {  
+            temparray.push(arr[i]);
+        } else if (temp[arr[i]].indexOf(type) < 0) { 
+            temparray.push(arr[i]); 
+        }  
+    }
+    return temparray
 }

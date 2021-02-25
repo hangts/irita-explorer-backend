@@ -4,6 +4,7 @@ import {IListStruct} from "../types";
 import {
     IQueryValidatorByStatus,
     IStakingValidator,
+    IStakingValidatorBlock,
     IDetailByValidatorAddress
 } from "../types/schemaTypes/staking.interface";
 import {activeValidatorLabel, candidateValidatorLabel, jailedValidatorLabel, ValidatorStatus} from "../constant";
@@ -13,7 +14,7 @@ export const StakingValidatorSchema = new mongoose.Schema({
     consensus_pubkey: String,
     jailed: Boolean,
     status: Number,
-    tokens: String,
+    tokens: Number,
     delegator_shares: String,
     description: Object,
     bond_height: String,
@@ -34,10 +35,12 @@ export const StakingValidatorSchema = new mongoose.Schema({
     missed_blocks_counter: String,
     create_time: Number,
     update_time: Number,
+    is_black: Boolean,
+    moniker_m: String
 })
 StakingValidatorSchema.index({operator_address: 1}, {unique: true})
 StakingValidatorSchema.index({proposer_addr: 1})	
-StakingValidatorSchema.index({jailed: 1, status: 1})
+StakingValidatorSchema.index({jailed: 1, status: 1,tokens:1})
 
 StakingValidatorSchema.statics = {
 
@@ -45,7 +48,7 @@ StakingValidatorSchema.statics = {
         return await this.find({})
     },
 
-    async findValidatorByPropopserAddr(PropopserAddr:string):Promise<IStakingValidator>{
+    async findValidatorByPropopserAddr(PropopserAddr: string): Promise<IStakingValidator>{
         return await this.find({proposer_addr:PropopserAddr});
     },
 
@@ -88,7 +91,7 @@ StakingValidatorSchema.statics = {
         // console.log('查询条件',queryParameters)
         result.data = await this.find(queryParameters)
             .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-            .limit(Number(query.pageSize));
+            .limit(Number(query.pageSize)).sort({ tokens: -1 });
         return result
     },
 
@@ -103,5 +106,15 @@ StakingValidatorSchema.statics = {
         let count: number;
         return count = await this.find({'status':ValidatorStatus['bonded'],'jailed':false}).countDocuments();
     },
+
+    async queryActiveVal(): Promise<any> {
+        return await this.find({'status':ValidatorStatus['bonded'],'jailed':false});
+    },
+
+    async updateBlcakValidator(updateValidator: IStakingValidatorBlock) {
+        let { ivaAddr, monikerM,isBlack } = updateValidator
+        return await this.updateOne({ operator_address: ivaAddr }, { $set: {is_black: isBlack,moniker_m: monikerM}})
+    },
+
 }
 
