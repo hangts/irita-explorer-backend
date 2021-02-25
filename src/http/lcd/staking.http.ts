@@ -57,7 +57,7 @@ export class StakingHttp {
                 Logger.warn('api-error:', 'there is no result of validators from lcd');
             }
         } catch (e) {
-            if (e && e.response && e.response.data && (e.response.data.message || '').includes("key not found")) {
+            if (e && e.response && e.response.data && e.response.data.code == 2) {
                 Logger.warn(`api-error from ${slashValidatorUri}`, e.response.data)
             } else {
                 Logger.warn(`api-error from ${slashValidatorUri}`, e)
