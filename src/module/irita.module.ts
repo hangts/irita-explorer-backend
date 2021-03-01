@@ -6,7 +6,7 @@ import {IritaService} from '../service/irita.service';
 import {MongooseModule} from '@nestjs/mongoose';
 import {NetworkSchema} from '../schema/network.schema';
 import {TokensSchema} from "../schema/tokens.schema";
-import {TokensTaskService} from "../task/tokens.service";
+import {TokensTaskService} from "../task/tokens.task.service";
 import {TokensHttp} from "../http/lcd/tokens.http";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {ParametersTaskService} from "../task/parameters.task.service";

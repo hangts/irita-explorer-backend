@@ -14,8 +14,8 @@ import { IdentityTaskService } from './idnetity.task.service';
 import {StakingValidatorInfoTaskService} from "./staking.validator.info.task.service";
 import {StakingValidatorMoreInfoTaskService} from "./staking.validator.more.info.task.service";
 import {ParametersTaskService} from "./parameters.task.service";
-import {TokensTaskService} from "./tokens.service";
-import {ProposalTaskService} from "./proposal.service";
+import {TokensTaskService} from "./tokens.task.service";
+import {ProposalTaskService} from "./proposal.task.service";
 import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
 
