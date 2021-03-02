@@ -437,7 +437,7 @@ TxSchema.statics.queryTxWithServiceName = async function(query: ITxsWithServiceN
 
 //  txs/services/detail/{serviceName}
 TxSchema.statics.queryTxDetailWithServiceName = async function(serviceName: string): Promise<ITxStruct> {
-    return await this.findOne({ 'msgs.msg.name': serviceName, 'msgs.type': TxType.define_service });
+    return await this.findOne({ 'msgs.msg.name': serviceName, 'msgs.type': TxType.define_service, status:TxStatus.SUCCESS});
 };
 
 // ==> txs/services/call-service
@@ -580,7 +580,7 @@ TxSchema.statics.findAllServiceTx = async function(pageSize?: number): Promise<I
         TxType.pause_request_context,
         TxType.start_request_context,
         TxType.kill_request_context,
-        TxType.update_request_context,
+        TxType.update_request_context
     ];
 
     let queryParameters: any = {
@@ -598,7 +598,7 @@ TxSchema.statics.findAllServiceTx = async function(pageSize?: number): Promise<I
         //     { 'type': TxType.kill_request_context },
         //     { 'type': TxType.update_request_context },
         // ],
-        'type': { $in: serviceTypesList },
+        'msgs.type': { $in: serviceTypesList },
         'msgs.msg.ex.service_name': null,
     };
     return await this.find(queryParameters, dbRes.syncServiceTask).sort({ height: -1 }).limit(Number(pageSize));
@@ -636,16 +636,18 @@ TxSchema.statics.addExFieldForServiceTx = async function(ex: IExFieldQuery): Pro
     if (bind) {
         updateParams['$set']['msgs.0.msg.ex.bind'] = bind;
     }
-
     return await this.findOneAndUpdate({ tx_hash: hash }, updateParams);
 };
 
 //根据serviceName 查询define_service tx
-TxSchema.statics.queryDefineServiceTxHashByServiceName = async function(serviceName: string): Promise<ITxStruct> {
+TxSchema.statics.queryDefineServiceTxHashByServiceName = async function(serviceName: string, status?:TxStatus): Promise<ITxStruct> {
     let queryParameters: any = {
         'msgs.type': TxType.define_service,
         'msgs.msg.name': serviceName,
     };
+    if (typeof status != 'undefined') {
+        queryParameters.status = status;
+    }
     return await this.findOne(queryParameters, { 'tx_hash': 1 });
 };
 
@@ -750,6 +752,25 @@ TxSchema.statics.findServiceTx = async function(
     };
     if (type) {
         queryParameters['msgs.type'] = type;
+    }else{
+        queryParameters['msgs.type'] = {
+            '$in':[
+                TxType.define_service,
+                TxType.bind_service,
+                TxType.call_service,
+                TxType.respond_service,
+                TxType.update_service_binding,
+                TxType.disable_service_binding,
+                TxType.enable_service_binding,
+                TxType.refund_service_deposit,
+                TxType.pause_request_context,
+                TxType.start_request_context,
+                TxType.kill_request_context,
+                TxType.update_request_context,
+                // TxType.service_set_withdraw_address,
+                // TxType.withdraw_earned_fees
+            ]
+        }
     }
     switch (status) {
         case 0:
@@ -773,6 +794,25 @@ TxSchema.statics.findServiceTxCount = async function(serviceName: string, type: 
     };
     if (type) {
         queryParameters['msgs.type'] = type;
+    }else{
+        queryParameters['msgs.type'] = {
+            '$in':[
+                TxType.define_service,
+                TxType.bind_service,
+                TxType.call_service,
+                TxType.respond_service,
+                TxType.update_service_binding,
+                TxType.disable_service_binding,
+                TxType.enable_service_binding,
+                TxType.refund_service_deposit,
+                TxType.pause_request_context,
+                TxType.start_request_context,
+                TxType.kill_request_context,
+                TxType.update_request_context,
+                // TxType.service_set_withdraw_address,
+                // TxType.withdraw_earned_fees
+            ]
+        }
     }
 
     switch (status) {
