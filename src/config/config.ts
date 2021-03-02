@@ -29,7 +29,9 @@ const {
     MAIN_TOKEN,
     CRON_JOBS,
     PROPLSAL,
-    PROPOSALS_LIMIT
+    PROPOSALS_LIMIT,
+    ACCOUNT_EXECUTE_TIME,
+    ACCOUNT_INFO_EXECUTE_TIME
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -59,8 +61,10 @@ export const cfg = {
             stakingValidatorsInfo: STAKING_VALIDATORS_INFO_TIME || '15 * * * * *',
             stakingValidatorsMoreInfo: STAKING_VALIDATORS_MORE_INFO_TIME || '0 */5 * * * *',
             stakingParameters: STAKING_PARAMETERS || '10 * * * * *',
-            Tokens: TOKENS || '5 * * * * *',
-            Proplsal: PROPLSAL || '25 * * * * *',
+            tokens: TOKENS || '5 * * * * *',
+            proplsal: PROPLSAL || '25 * * * * *',
+            account: ACCOUNT_EXECUTE_TIME || '35 * * * * *',
+            accountInfo: ACCOUNT_INFO_EXECUTE_TIME || '* */10 * * * *',
         },
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
         increaseHeight: INCREASE_HEIGHT || 1000,

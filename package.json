@@ -31,6 +31,7 @@
     "@nestjs/schedule": "^0.4.0",
     "@nestjs/swagger": "^4.5.7",
     "bech32": "^1.1.4",
+    "bignumber.js": "^9.0.1",
     "blueimp-md5": "^2.16.0",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.2",

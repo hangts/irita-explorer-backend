@@ -1,5 +1,5 @@
 import os from 'os'
-
+import BigNumber from 'bignumber.js'
 let Bech32 = require('bech32')
 let Sha256 = require("sha256")
 export function getIpAddress() {
@@ -90,4 +90,9 @@ export function uniqueArr(arr, brr) {
         }  
     }
     return temparray
+}
+
+export function BigNumberPlus(num1, num2) {
+    const x = new BigNumber(num1)
+    return x.plus(num2).toNumber()
 }
