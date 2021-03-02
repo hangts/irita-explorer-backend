@@ -584,20 +584,6 @@ TxSchema.statics.findAllServiceTx = async function(pageSize?: number): Promise<I
     ];
 
     let queryParameters: any = {
-        // $or: [
-        //     { 'type': TxType.define_service },
-        //     { 'type': TxType.bind_service },
-        //     { 'type': TxType.call_service },
-        //     { 'type': TxType.respond_service },
-        //     { 'type': TxType.update_service_binding },
-        //     { 'type': TxType.disable_service_binding },
-        //     { 'type': TxType.enable_service_binding },
-        //     { 'type': TxType.refund_service_deposit },
-        //     { 'type': TxType.pause_request_context },
-        //     { 'type': TxType.start_request_context },
-        //     { 'type': TxType.kill_request_context },
-        //     { 'type': TxType.update_request_context },
-        // ],
         'msgs.type': { $in: serviceTypesList },
         'msgs.msg.ex.service_name': null,
     };
