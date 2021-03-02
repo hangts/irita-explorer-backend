@@ -1,22 +1,34 @@
+import { map, withLatestFrom } from 'rxjs/operators';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
 import {
-    genesisAccountsReqDto
+    genesisAccountsReqDto,
 } from '../dto/account.dto';
 import {
-
+    accountsListResDto,
+    tokenStatsResDto,
+    accountTotalResDto
 } from '../dto/account.dto';
-import { currentChain } from '../constant';
-// import {  } from "../util/util";
+import { currentChain,moduleStaking,addressAccount } from '../constant';
+import { json } from 'express';
+import { BigNumberPlus, BigNumberDivision,BigNumberMinus } from "../util/util";
+import { BankHttp } from '../http/lcd/bank.http';
+import { StakingHttp } from '../http/lcd/staking.http';
+import { TokensHttp } from '../http/lcd/tokens.http';
+import { cfg } from "../config/config"
+
 const path = require('path');
 const fs = require('fs')
 
 @Injectable()
 export class AccountService {
     constructor(
-        @InjectModel('Account') private accountModel: any,) { }
+        @InjectModel('Account') private accountModel: any,
+        @InjectModel('ParametersTask') private parametersTaskModel: Model<any>,
+        private readonly TokensHttp: TokensHttp,
+        private readonly stakingHttp: StakingHttp) {}
 
     async taskGenesisAccounts(query: genesisAccountsReqDto): Promise<String> {
         try {
@@ -61,5 +73,139 @@ export class AccountService {
         }
     }
 
-    
+    async getAccountsList(): Promise<accountsListResDto> {
+        const accountList = await this.accountModel.queryAccountsLimit();
+        const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking);
+        let updated_time;
+        let data = [];
+        if (accountList && accountList.length > 0) {
+            updated_time = accountList[0].update_time;
+            let total = 0;
+            accountList.forEach(account => {
+                if (account.balance) {
+                    account.balance.forEach(balance => {
+                        if (balance.denom == stakingToken.cur_value) {
+                            total = BigNumberPlus(total,balance.amount)
+                        }
+                    });
+                }
+            });
+            data = accountList.filter(item => item.address !== addressAccount).map((account,index) => {
+                let percent;
+                let balance;
+                if (account.balance) {
+                    account.balance.forEach(balances => {
+                        if (balances.denom == stakingToken.cur_value) {
+                            percent = BigNumberDivision(balances.amount,total)
+                            balance = {
+                                amount: Number(balances.amount),
+                                denom: balances.denom
+                            }
+                        }
+                    });
+                }
+                return {
+                    rank: index + 1,
+                    address: account.address,
+                    balance,
+                    percent
+                }
+            });
+        }
+        return {data,updated_time}
+    }
+
+    async getTokenStats(): Promise<tokenStatsResDto> {
+        const [bondedTokensLcd,totalSupplyLcd] = await Promise.all([StakingHttp.getBondedTokens(),BankHttp.getTotalSupply()])
+        const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking);
+        const bonded_tokens = {
+            denom: stakingToken && stakingToken.cur_value,
+            amount: bondedTokensLcd && bondedTokensLcd.bonded_tokens
+        };
+        const total_supply_tokens = (totalSupplyLcd && totalSupplyLcd.supply || []).filter(item => item.denom === (stakingToken && stakingToken.cur_value))[0] || [];
+        let circulation_tokens,community_tax = {denom:'',amount:''},burned_tokens = {denom:'',amount:''};
+        switch (cfg.currentChain) {
+            case currentChain.iris:
+                circulation_tokens = {
+                    denom: stakingToken && stakingToken.cur_value,
+                    amount: await this.TokensHttp.getCirculationtTokens() || 0
+                }
+                break;
+            case currentChain.cosmos:
+                circulation_tokens = {
+                    denom: stakingToken && stakingToken.cur_value,
+                    amount: BigNumberMinus((total_supply_tokens as any).amount || 1,bonded_tokens.amount || 0) || 0
+                }
+                break;
+            default:
+                break;
+        }
+        return new tokenStatsResDto({bonded_tokens, total_supply_tokens,circulation_tokens,community_tax,burned_tokens})
+    }
+
+    async getAccountTotal(): Promise<accountTotalResDto> {
+        const tokenFromDB = await this.accountModel.queryTokenTotal();
+        const tokens = tokenFromDB && tokenFromDB.account_totals;
+        const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking);
+        const accountList = await this.accountModel.queryAccountsTotalLimit();
+        if (accountList && accountList.length > 0) {
+            const first = this.addAmount(accountList.splice(0, 5),tokens,stakingToken.cur_value);
+            const second = this.addAmount(accountList.splice(0, 5),tokens,stakingToken.cur_value);
+            const third = this.addAmount(accountList.splice(0, 40),tokens,stakingToken.cur_value);
+            const fourth = this.addAmount(accountList.splice(0, 50),tokens,stakingToken.cur_value);
+            const fifth = this.addAmount(accountList.splice(0, 400),tokens,stakingToken.cur_value);
+            const sixth = this.addAmount(accountList.splice(0, 500), tokens, stakingToken.cur_value);
+            let firstSixth = 0;
+            firstSixth = BigNumberPlus(firstSixth, first.total);
+            firstSixth = BigNumberPlus(firstSixth, second.total);
+            firstSixth = BigNumberPlus(firstSixth, third.total);
+            firstSixth = BigNumberPlus(firstSixth, fourth.total);
+            firstSixth = BigNumberPlus(firstSixth, fifth.total);
+            firstSixth = BigNumberPlus(firstSixth, sixth.total);
+            const lastAmount = BigNumberMinus(tokens, firstSixth);
+            const lastPercent = BigNumberDivision(lastAmount, tokens);
+            const last = {
+                total_amount: {
+                    denom: stakingToken.cur_value,
+                    amount: lastAmount
+                },
+                percent: lastPercent
+            }
+            return new accountTotalResDto({
+                "1-5": first,
+                "6-10": second,
+                "11-50": third,
+                "51-100": fourth,
+                "101-500": fifth,
+                "501-1000": sixth,
+                "1001-": last
+            })
+        }
+        return new accountTotalResDto({
+            "1-5": {},
+            "6-10": {},
+            "11-50": {},
+            "51-100": {},
+            "101-500": {},
+            "501-1000": {},
+            "1001-": {}
+        })
+    }
+    addAmount(array,totals,denom) {
+        let total = 0;
+        (array || []).forEach(item => {
+            if (item.total && item.total.amount) {
+                total = BigNumberPlus(total,item.total.amount)
+            }
+        });
+        const percent = BigNumberDivision(total,totals)
+        return {
+            total_amount: {
+                denom,
+                amount: total
+            },
+            percent,
+            total,
+        }
+    }
 }

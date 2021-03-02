@@ -1,5 +1,3 @@
-import { Document } from 'mongoose';
-
 export interface IAccountStruct {
     address?: string,
     account_total?: number,
@@ -12,3 +10,8 @@ export interface IAccountStruct {
     update_time?: number,
     handled_block_height?: number,
 }
+
+export interface ITokenTotal {
+    _id: any,
+    account_totals: number
+} 

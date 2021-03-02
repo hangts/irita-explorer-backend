@@ -96,3 +96,14 @@ export function BigNumberPlus(num1, num2) {
     const x = new BigNumber(num1)
     return x.plus(num2).toNumber()
 }
+
+export function BigNumberDivision(num1, num2) {
+    const x = new BigNumber(num1)
+    const y = new BigNumber(num2)
+    return x.dividedBy(y).toNumber()  
+}
+
+export function BigNumberMinus(num1, num2) {
+    const x = new BigNumber(num1)
+    return x.minus(num2).toNumber()  
+}

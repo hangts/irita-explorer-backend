@@ -27,7 +27,6 @@ export class AccountTaskService {
         if (accountList && accountList.length > 0) {
             handledBlockHeight = accountList[0].handled_block_height || 0;
         }
-        console.log('handledBlockHeight', handledBlockHeight);
         const txList = await (this.txModel as any).queryAccountTxList(handledBlockHeight);
         let addressSet = new Set();
         let handled_block_height: number = handledBlockHeight + INCREASE_HEIGHT;

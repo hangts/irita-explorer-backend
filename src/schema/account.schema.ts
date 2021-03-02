@@ -1,7 +1,9 @@
 import * as mongoose from 'mongoose';
 import {
     IAccountStruct,
+    ITokenTotal
 } from '../types/schemaTypes/account.interface';
+import {IListStruct} from "../types";
 
 export const AccountSchema = new mongoose.Schema({
     address: String,
@@ -33,5 +35,17 @@ AccountSchema.statics = {
     },
     async queryAllAddress(): Promise<IAccountStruct>{
         return await this.find({}, {address:1,_id:0});
+    },
+    async queryAccountsLimit(): Promise<IAccountStruct[]> {
+        return await this.find({}, {address:1,balance:1,_id:0,update_time:1}).sort({account_total: -1}).limit(100);
+    },
+    async queryTokenTotal(): Promise<ITokenTotal> {
+        let data = await this.aggregate( [
+            { $group: { _id: null, "account_totals" : { $sum: "$account_total" } } }
+         ])
+        return data[0]
+    },
+    async queryAccountsTotalLimit(): Promise<IAccountStruct[]> {
+        return await this.find({}, {total:1,_id:0}).sort({account_total: -1}).limit(1000);
     },
 }
