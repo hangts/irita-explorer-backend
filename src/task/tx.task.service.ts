@@ -12,7 +12,7 @@ import {
 } from '../helper/tx.helper';
 import { IExFieldQuery, ITxStruct } from '../types/schemaTypes/tx.interface';
 import { IExFieldTx } from '../types/tx.interface';
-import { TxType } from '../constant';
+import { TxType, TxStatus } from '../constant';
 
 @Injectable()
 export class TxTaskService {
@@ -30,7 +30,13 @@ export class TxTaskService {
                 case TxType.respond_service:{
                     let reqContextId:string = getReqContextIdWithReqId(getRequestIdFromMsgs(item.msgs) || '').toUpperCase();
                     if (reqContextId && reqContextId.length) {
-                        callServiceTxMap[getCtxKey(reqContextId, item.type)] = item;
+                        let key = getCtxKey(reqContextId, item.type);
+                        //不同的respond_service 可以响应同一个call_service
+                        if (callServiceTxMap[key]) {
+                            callServiceTxMap[key].push(item);
+                        }else{
+                            callServiceTxMap[key] = [item];
+                        }
                         callContextIds.add(reqContextId);
                     }
                 }
@@ -78,23 +84,26 @@ export class TxTaskService {
                 getCtxKey(reqContextId, TxType.update_request_context)
             ];
             callTypes.forEach((key)=>{
-                let resTx:IExFieldTx = callServiceTxMap[key];
-                if (resTx) {
-                    resTx.ex_service_name = serviceName;
-                    if (key == getCtxKey(reqContextId, TxType.respond_service)) {
-                        resTx.ex_call_hash = item.tx_hash
-                        resTx.ex_consumer = consumer;
-                        resTx.ex_request_context_id = reqContextId;
+                let resTx:any = callServiceTxMap[key];
+                if (key == getCtxKey(reqContextId, TxType.respond_service)) {//respond_service 数据结构为Array
+                    resTx.forEach((respond_service_item:IExFieldTx)=>{
+                        respond_service_item.ex_service_name = serviceName;
+                        respond_service_item.ex_call_hash = item.tx_hash
+                        respond_service_item.ex_consumer = consumer;
+                        respond_service_item.ex_request_context_id = reqContextId;
+                    })
+                }else{
+                    if (resTx) {
+                        resTx.ex_service_name = serviceName;
                     }
                 }
             });
         });
-
         //更新到数据库
         respondServiceTxData.forEach(async (item:IExFieldTx)=>{
             let exFieldQuery:IExFieldQuery = {hash:item.tx_hash};
-            if (item.type == TxType.bind_service) {
-                const res: ITxStruct = await this.txModel.queryDefineServiceTxHashByServiceName(getServiceNameFromMsgs(item.msgs));
+            if (item.type == TxType.bind_service && item.status == TxStatus.SUCCESS) {
+                const res: ITxStruct = await this.txModel.queryDefineServiceTxHashByServiceName(getServiceNameFromMsgs(item.msgs), TxStatus.SUCCESS);
                 if (res && res.tx_hash && res.tx_hash.length) {
                    let subExFieldQuery: IExFieldQuery = {
                         hash: res.tx_hash,
