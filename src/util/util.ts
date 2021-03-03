@@ -100,7 +100,7 @@ export function BigNumberPlus(num1, num2) {
 export function BigNumberDivision(num1, num2) {
     const x = new BigNumber(num1)
     const y = new BigNumber(num2)
-    return x.dividedBy(y).toNumber()  
+    return x.dividedBy(y).toFixed()  
 }
 
 export function BigNumberMinus(num1, num2) {

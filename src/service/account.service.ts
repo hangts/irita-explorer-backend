@@ -198,7 +198,7 @@ export class AccountService {
                 total = BigNumberPlus(total,item.total.amount)
             }
         });
-        const percent = BigNumberDivision(total,totals)
+        const percent = BigNumberDivision(total, totals)
         return {
             total_amount: {
                 denom,

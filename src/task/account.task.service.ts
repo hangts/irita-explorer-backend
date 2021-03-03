@@ -65,7 +65,7 @@ export class AccountTaskService {
         }
         await (this.accountModel as any).updateAccount({
             address: addressAccount,
-            account_total: 0,
+            account_total: -1,
             total: {},
             balance: [],
             delegation: {},
