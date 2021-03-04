@@ -1257,3 +1257,18 @@ TxSchema.statics.queryDepositsByAddress = async function(address:string,query:Pa
     }
     return result;
 };
+
+TxSchema.statics.queryAccountTxList = async function (lastSyncBlockHeight:number): Promise<ITxStruct[]>  {
+    const typesList: TxType[] = [
+        TxType.send,
+        TxType.multisend,
+        TxType.set_withdraw_address,
+        TxType.add_super
+    ];
+    return await this.find({
+        'msgs.type': {
+            $in: typesList
+        },
+        height: {$gt: lastSyncBlockHeight, $lte: lastSyncBlockHeight + INCREASE_HEIGHT}
+    },{addrs: 1,height: 1,_id:0}).sort({height:1});
+};

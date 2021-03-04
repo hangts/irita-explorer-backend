@@ -9,8 +9,10 @@ export enum TaskEnum {
     stakingSyncValidatorsInfo = 'staking_sync_validators_info',
     stakingSyncValidatorsMoreInfo = 'staking_sync_validators_more_info',
     stakingSyncParameters = 'staking_sync_parameters',
-    Tokens = 'tokens',
-    Proposal = 'ex_sync_proposal'
+    tokens = 'tokens',
+    proposal = 'ex_sync_proposal',
+    account = 'ex_sync_account',
+    accountInfo =  'ex_sync_account_info'
 }
 
 
@@ -89,6 +91,7 @@ export enum TxType {
     delete_profiler = 'delete_profiler',
     add_trustee = 'add_trustee',
     delete_trustee = 'delete_trustee',
+    add_super = 'add_super',
     // Oracle
     create_feed = 'create_feed',
     start_feed = 'start_feed',
@@ -257,3 +260,5 @@ export const queryVoteOptionCount = {
     no: 3,
     no_with_veto: 4,
 }
+
+export const addressAccount = 'xxx'

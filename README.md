@@ -44,6 +44,8 @@ $ npm run start:prod
 - STAKING_PARAMETERS `Optional` execute time for parameters pull（example: "10 * * * * *"）
 - TOKENS `Optional` execute time for parameters pull（example: "5 * * * * *"）
 - PROPLSAL `Optional` execute time for proplsal pull（example: "25 * * * * *"）
+- ACCOUNT_EXECUTE_TIME `Optional` execute time for account pull（example: "35 * * * * *"）
+- ACCOUNT_INFO_EXECUTE_TIME `Optional` execute time for account info pull（example: "* */10 * * * *"）
 - SYNC_TX_SERVICE_NAME_SIZE: `Optional` `number`  execute time for fault tolerance（default 200）
 - INCREASE_HEIGHT `Optional` `number` increase height for sync nft (default 1000)
 - MAX_OPERATE_TX_COUNT `Optional` `number` limit operate tx count (default 100)
