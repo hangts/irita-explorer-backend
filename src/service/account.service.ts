@@ -13,7 +13,7 @@ import {
 } from '../dto/account.dto';
 import { currentChain,moduleStaking,addressAccount } from '../constant';
 import { json } from 'express';
-import { BigNumberPlus, BigNumberDivision,BigNumberMinus } from "../util/util";
+import { BigNumberPlus, BigNumberDivision,BigNumberMinus,BigNumberMultiplied } from "../util/util";
 import { BankHttp } from '../http/lcd/bank.http';
 import { StakingHttp } from '../http/lcd/staking.http';
 import { TokensHttp } from '../http/lcd/tokens.http';
@@ -27,6 +27,7 @@ export class AccountService {
     constructor(
         @InjectModel('Account') private accountModel: any,
         @InjectModel('ParametersTask') private parametersTaskModel: Model<any>,
+        @InjectModel('Tokens') private tokensModel: Model<any>,
         private readonly TokensHttp: TokensHttp,
         private readonly stakingHttp: StakingHttp) {}
 
@@ -118,17 +119,27 @@ export class AccountService {
     async getTokenStats(): Promise<tokenStatsResDto> {
         const [bondedTokensLcd,totalSupplyLcd] = await Promise.all([StakingHttp.getBondedTokens(),BankHttp.getTotalSupply()])
         const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking);
+        const mainToken = await (this.tokensModel as any).queryMainToken();
+        const scale = mainToken.scale;
         const bonded_tokens = {
             denom: stakingToken && stakingToken.cur_value,
             amount: bondedTokensLcd && bondedTokensLcd.bonded_tokens
         };
-        const total_supply_tokens = (totalSupplyLcd && totalSupplyLcd.supply || []).filter(item => item.denom === (stakingToken && stakingToken.cur_value))[0] || [];
-        let circulation_tokens,community_tax = {denom:'',amount:''},burned_tokens = {denom:'',amount:''};
+        const total_supply_tokens = (totalSupplyLcd && totalSupplyLcd.supply || []).filter(item => item.denom === (stakingToken && stakingToken.cur_value))[0] ||  {denom:'',amount:''};
+        let circulation_tokens,unbonded_token = {denom:'',amount: 0};
         switch (cfg.currentChain) {
             case currentChain.iris:
+                const circulation_amount = await this.TokensHttp.getCirculationtTokens()
                 circulation_tokens = {
                     denom: stakingToken && stakingToken.cur_value,
-                    amount: await this.TokensHttp.getCirculationtTokens() || 0
+                    amount:  BigNumberMultiplied(circulation_amount,Math.pow(10,scale || 6))
+                }
+                let unbonded_amount = 0;
+                unbonded_amount = BigNumberMinus(total_supply_tokens.amount, circulation_tokens.amount);
+                unbonded_amount = BigNumberMinus(unbonded_amount, bonded_tokens.amount);
+                unbonded_token = {
+                    denom: stakingToken && stakingToken.cur_value,
+                    amount: unbonded_amount
                 }
                 break;
             case currentChain.cosmos:
@@ -140,7 +151,7 @@ export class AccountService {
             default:
                 break;
         }
-        return new tokenStatsResDto({bonded_tokens, total_supply_tokens,circulation_tokens,community_tax,burned_tokens})
+        return new tokenStatsResDto({bonded_tokens, total_supply_tokens,circulation_tokens,unbonded_token})
     }
 
     async getAccountTotal(): Promise<accountTotalResDto> {

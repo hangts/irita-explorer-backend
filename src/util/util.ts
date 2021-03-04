@@ -107,3 +107,8 @@ export function BigNumberMinus(num1, num2) {
     const x = new BigNumber(num1)
     return x.minus(num2).toNumber()  
 }
+
+export function BigNumberMultiplied(num1, num2) {
+    const x = new BigNumber(num1)
+    return x.multipliedBy(num2).toNumber()  
+}

@@ -45,11 +45,13 @@ export class tokenStatsResDto {
     total_supply_tokens: Coin[];
     circulation_tokens: Coin[];
     bonded_tokens: Coin[];
+    unbonded_token: Coin[];
 
     constructor(value) {
         this.total_supply_tokens = value.total_supply_tokens || [];
         this.circulation_tokens = value.circulation_tokens || [];
         this.bonded_tokens = value.bonded_tokens || [];
+        this.unbonded_token = value.unbonded_token || [];
     }
 }
 
