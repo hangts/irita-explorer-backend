@@ -468,6 +468,17 @@ export class commissionRewardsLcdDto {
     }
 }
 
+// /cosmos/distribution/v1beta1/community_pool
+export class communityPoolLcdDto {
+    pool: Coin[];
+    
+    constructor(value) {
+        this.pool = value.pool || [];
+    }
+}
+
+
+
 // /staking/validators/${address}/unbonding_delegations
 
 
