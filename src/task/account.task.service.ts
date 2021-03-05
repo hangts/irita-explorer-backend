@@ -28,8 +28,8 @@ export class AccountTaskService {
             handledBlockHeight = accountList[0].handled_block_height || 0;
         }
         const txList = await (this.txModel as any).queryAccountTxList(handledBlockHeight);
+        let handled_block_height;
         let addressSet = new Set();
-        let handled_block_height: number = handledBlockHeight + INCREASE_HEIGHT;
         if (txList && txList.length > 0) {
             txList.forEach(tx => {
                 if (tx.addrs && tx.addrs.length > 0) {
@@ -39,6 +39,8 @@ export class AccountTaskService {
                 }
             });
             handled_block_height = txList[txList.length - 1].height;
+        } else {
+            handled_block_height = handledBlockHeight + INCREASE_HEIGHT;
         }
         if (addressSet.size > 0) {
             let addAccount: IAccountStruct[] = [...addressSet].map(address => {
