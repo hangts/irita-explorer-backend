@@ -43,7 +43,6 @@ AccountSchema.statics = {
         let data = await this.aggregate( [
             { $group: { _id: null, "account_totals" : { $sum: "$account_total" } } }
         ])
-        console.log(data,111);
         return data[0]
     },
     async queryAccountsTotalLimit(): Promise<IAccountStruct[]> {
