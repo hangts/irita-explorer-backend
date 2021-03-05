@@ -37,7 +37,7 @@ AccountSchema.statics = {
         return await this.find({}, {address:1,_id:0});
     },
     async queryAccountsLimit(): Promise<IAccountStruct[]> {
-        return await this.find({}, {address:1,balance:1,_id:0,update_time:1}).sort({account_total: -1}).limit(100);
+        return await this.find({account_total : {$gt : 0}}, {address:1,balance:1,_id:0,update_time:1}).sort({account_total: -1}).limit(100);
     },
     async queryTokenTotal(): Promise<ITokenTotal> {
         let data = await this.aggregate( [
