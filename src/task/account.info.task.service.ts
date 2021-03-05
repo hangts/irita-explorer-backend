@@ -79,9 +79,20 @@ export class AccountInfoTaskService {
                         denom: stakingToken.cur_value,
                         amount: unbondingDelegationAmount
                     };
-                    let temp = BigNumberPlus(balancesAmount, delegation.amount);
-                    temp = BigNumberPlus(temp, rewards.amount);
-                    const account_total = BigNumberPlus(temp, unbonding_delegation.amount);
+                    let temp = 0; 
+                    if (balancesAmount) {
+                        temp = BigNumberPlus(temp,balancesAmount)
+                    }
+                    if (delegation.amount) {
+                        temp = BigNumberPlus(temp, delegation.amount);
+                    }
+                    if (rewards.amount) {
+                        temp = BigNumberPlus(temp, rewards.amount);
+                    }
+                    if (unbonding_delegation.amount) {
+                        temp = BigNumberPlus(temp, rewards.amount);
+                    }
+                    const account_total = temp;
                     const total = {
                         denom: stakingToken.cur_value,
                         amount: account_total
