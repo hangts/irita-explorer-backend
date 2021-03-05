@@ -79,7 +79,8 @@ export class AccountInfoTaskService {
                         denom: stakingToken.cur_value,
                         amount: unbondingDelegationAmount
                     };
-                    const temp = BigNumberPlus(balancesAmount, delegation.amount);
+                    let temp = BigNumberPlus(balancesAmount, delegation.amount);
+                    temp = BigNumberPlus(temp, rewards.amount);
                     const account_total = BigNumberPlus(temp, unbonding_delegation.amount);
                     const total = {
                         denom: stakingToken.cur_value,
