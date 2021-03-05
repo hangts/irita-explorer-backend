@@ -77,34 +77,22 @@ export class AccountService {
 
     async getAccountsList(): Promise<accountsListResDto> {
         const accountList = await this.accountModel.queryAccountsLimit();
-        const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking);
         let updated_time;
         let data = [];
         if (accountList && accountList.length > 0) {
             updated_time = accountList[0].update_time;
             let total = 0;
             accountList.forEach(account => {
-                if (account.balance) {
-                    account.balance.forEach(balance => {
-                        if (balance.denom == stakingToken.cur_value) {
-                            total = BigNumberPlus(total,balance.amount)
-                        }
-                    });
+                if (account.total && account.total.amount) {
+                    total = BigNumberPlus(total,account.total.amount)
                 }
             });
             data = accountList.filter(item => item.address !== addressAccount).map((account,index) => {
                 let percent;
                 let balance;
-                if (account.balance) {
-                    account.balance.forEach(balances => {
-                        if (balances.denom == stakingToken.cur_value) {
-                            percent = BigNumberDivision(balances.amount,total)
-                            balance = {
-                                amount: Number(balances.amount),
-                                denom: balances.denom
-                            }
-                        }
-                    });
+                if (account.total) {
+                    percent = BigNumberDivision(account.total.amount, total)
+                    balance = account.total
                 }
                 return {
                     rank: index + 1,
@@ -166,7 +154,7 @@ export class AccountService {
             firstSixth = BigNumberPlus(firstSixth, fourth.total);
             firstSixth = BigNumberPlus(firstSixth, fifth.total);
             firstSixth = BigNumberPlus(firstSixth, sixth.total);
-            const lastAmount = BigNumberMinus(tokens, firstSixth);
+            const lastAmount = BigNumberMinus(tokens, firstSixth) > 0 ? BigNumberMinus(tokens, firstSixth) : 0;
             const lastPercent = BigNumberDivision(lastAmount, tokens);
             const last = {
                 total_amount: {

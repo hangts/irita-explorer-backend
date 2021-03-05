@@ -49,7 +49,8 @@ export interface ITxStruct {
     events:object[],
     msgs:object[],
     signers: string[],
-    addrs: string[]
+    addrs: string[],
+    fee: object[]
 }
 
 export interface callServiceStruct extends ITxStruct {

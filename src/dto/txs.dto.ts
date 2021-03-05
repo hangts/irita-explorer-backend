@@ -195,6 +195,7 @@ export class ServiceTxResDto {
     status: number;
     msgs: any;
     events: any;
+    fee: any;
 
     constructor(
         hash: string,
@@ -204,6 +205,7 @@ export class ServiceTxResDto {
         status: number,
         msgs: any,
         events: any,
+        fee: any
     ) {
         this.hash = hash;
         this.type = type;
@@ -212,6 +214,7 @@ export class ServiceTxResDto {
         this.status = status;
         this.msgs = msgs;
         this.events = events;
+        this.fee = fee;
     }
 }
 
