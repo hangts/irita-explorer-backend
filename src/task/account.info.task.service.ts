@@ -90,7 +90,7 @@ export class AccountInfoTaskService {
                         temp = BigNumberPlus(temp, rewards.amount);
                     }
                     if (unbonding_delegation.amount) {
-                        temp = BigNumberPlus(temp, rewards.amount);
+                        temp = BigNumberPlus(temp, unbonding_delegation.amount);
                     }
                     const account_total = temp;
                     const total = {
