@@ -189,7 +189,7 @@ export default class StakingService {
         }
         let result: any = {}
         result.amount = balancesArray || []
-        result.withdrawAddress = withdrawAddress.address
+        result.withdrawAddress =  withdrawAddress && withdrawAddress.address
         result.address = address
         result.moniker =  validator && validator.is_black  ? validator.moniker_m : validator && validator.description && validator.description.moniker
         result.operator_address = allValidatorsMap.has(operatorAddress) ? validator.operator_address : ''

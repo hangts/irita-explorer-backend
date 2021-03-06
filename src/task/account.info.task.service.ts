@@ -26,7 +26,6 @@ export class AccountInfoTaskService {
         this.doTask = this.doTask.bind(this);
     }
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
-        console.log('地址详细信息开始同步');
         const accountList: IAccountStruct[] = await (this.accountModel as any).queryAllAddress();
         const validatorsFromDb = await (this.stakingSyncValidatorsModel as any).queryAllValidators();
         let ivaArray = [];
