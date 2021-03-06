@@ -6,10 +6,12 @@ import { cfg } from "../config/config";
 import { getTaskStatus } from '../helper/task.helper';
 import { IRandomKey } from '../types';
 import { TaskEnum } from '../constant';
-import { IAccountStruct } from '../types/schemaTypes/account.interface';
+import { IAccountStruct,CommissionReward } from '../types/schemaTypes/account.interface';
 import { StakingHttp } from "../http/lcd/staking.http";
 import { DistributionHttp } from "../http/lcd/distribution.http";
 import { moduleStaking,addressAccount } from "../constant";
+import {addressTransform} from "../util/util";
+import { addressPrefix } from "../constant";
 
 @Injectable()
 export class AccountInfoTaskService {
@@ -17,6 +19,7 @@ export class AccountInfoTaskService {
         @InjectModel('Tx') private txModel: any,
         @InjectModel('ParametersTask') private parametersTaskModel: Model<any>,
         @InjectModel('Account') private accountModel: any,
+        @InjectModel('StakingSyncValidators') private stakingSyncValidatorsModel: Model<any>,
         private readonly stakingHttp: StakingHttp,
         private readonly distributionHttp: DistributionHttp,
     ) {
@@ -24,17 +27,35 @@ export class AccountInfoTaskService {
     }
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
         const accountList: IAccountStruct[] = await (this.accountModel as any).queryAllAddress();
+        const validatorsFromDb = await (this.stakingSyncValidatorsModel as any).queryAllValidators();
+        let ivaArray = [];
+        if (validatorsFromDb && validatorsFromDb.length > 0) {
+            validatorsFromDb.forEach(iva => {
+                ivaArray.push(iva.operator_address)
+            })
+        }
         const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking);
         if (accountList && accountList.length > 0) {
-            for (const { address } of accountList) {
+            for (let { address } of accountList) {
                 if (address !== addressAccount) {
                     // 处理 balance
                     const balances = await this.stakingHttp.queryBalanceByAddress(address);
                     const balanceArray = (balances || []).filter(item => item.denom === stakingToken.cur_value)
-                    const balancesAmount = balanceArray && balanceArray[0] && Number(balanceArray[0].amount) || 0;
+                    const balancesAmount = balanceArray && balanceArray[0] && balanceArray[0].amount || 0;
                     // 处理 rewards
-                    const rewardsFromLCD = await DistributionHttp.queryDelegatorRewards(address);
-                    const rewards: any = rewardsFromLCD && rewardsFromLCD.total && rewardsFromLCD.total[0] || {};
+                    const ivaAddress = addressTransform(address, addressPrefix.iva);
+                    let delegatorRewards, commissionRewards;
+                    if (ivaArray.includes(ivaAddress)) {
+                        [delegatorRewards,commissionRewards] = await Promise.all([DistributionHttp.queryDelegatorRewards(address),DistributionHttp.getCommissionRewards(ivaAddress)]);
+                    } else {
+                        delegatorRewards = await DistributionHttp.queryDelegatorRewards(address)
+                    }
+                    const delegatorReward = delegatorRewards && delegatorRewards.total && delegatorRewards.total[0] || { denom: '', amount: '' };
+                    const commissionReward = commissionRewards && commissionRewards.val_commission && (commissionRewards.val_commission as any).commission && (commissionRewards.val_commission as any).commission.length > 0 && (commissionRewards.val_commission as any).commission[0] || { denom: '', amount: '' };
+                    const rewards = {
+                        denom: stakingToken.cur_value,
+                        amount: BigNumberPlus(delegatorReward.amount || 0, commissionReward.amount || 0) || ''
+                    };
                     // 处理 delegation
                     let delegationFlag:any = true;
                     let delegationsArray = [];
@@ -104,10 +125,7 @@ export class AccountInfoTaskService {
                         balance: balances,
                         delegation: delegation,
                         unbonding_delegation: unbonding_delegation,
-                        rewards: {
-                            denom: rewards.denom || stakingToken.cur_value,
-                            amount: Number(rewards.amount) || 0
-                        },
+                        rewards,
                         update_time: getTimestamp(),
                     });
                 }

@@ -1272,3 +1272,7 @@ TxSchema.statics.queryAccountTxList = async function (lastSyncBlockHeight:number
         height: {$gt: lastSyncBlockHeight, $lte: lastSyncBlockHeight + INCREASE_HEIGHT}
     },{addrs: 1,height: 1,_id:0}).sort({height:1});
 };
+
+TxSchema.statics.queryTxMaxHeight = async function (): Promise<ITxStruct[]>  {
+    return await this.find({},{height: 1}).sort({height: -1}).limit(1);
+};

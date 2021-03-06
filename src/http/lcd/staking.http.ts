@@ -169,7 +169,6 @@ export class StakingHttp {
             } else {
                 Logger.warn('api-error:', 'there is no result of validator unBonding delegations from lcd');
             }
-
         } catch (e) {
             Logger.warn(`api-error from ${getBalancesUri}`, e)
         }

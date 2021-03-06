@@ -27,6 +27,11 @@ export class AccountTaskService {
         if (accountList && accountList.length > 0) {
             handledBlockHeight = accountList[0].handled_block_height || 0;
         }
+        let txMaxHeight = 0;
+        const queryTxMaxHeight = await (this.txModel as any).queryTxMaxHeight();
+        if (queryTxMaxHeight && queryTxMaxHeight.length > 0) {
+            txMaxHeight = queryTxMaxHeight[0].height || 0;
+        }
         const txList = await (this.txModel as any).queryAccountTxList(handledBlockHeight);
         let handled_block_height;
         let addressSet = new Set();
@@ -40,7 +45,7 @@ export class AccountTaskService {
             });
             handled_block_height = txList[txList.length - 1].height;
         } else {
-            handled_block_height = handledBlockHeight + INCREASE_HEIGHT;
+            handled_block_height = txMaxHeight > handledBlockHeight + INCREASE_HEIGHT ? handledBlockHeight + INCREASE_HEIGHT : txMaxHeight;
         }
         if (addressSet.size > 0) {
             let addAccount: IAccountStruct[] = [...addressSet].map(address => {
