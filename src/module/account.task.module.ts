@@ -8,6 +8,7 @@ import { AccountSchema } from '../schema/account.schema';
 import { StakingHttp } from "../http/lcd/staking.http";
 import { ParametersSchema } from "../schema/parameters.schema";
 import { DistributionHttp } from "../http/lcd/distribution.http";
+import {StakingValidatorSchema} from "../schema/staking.validator.schema";
 @Module({
     imports:[
         MongooseModule.forFeature([
@@ -27,6 +28,10 @@ import { DistributionHttp } from "../http/lcd/distribution.http";
                 name:'ParametersTask',
                 schema: ParametersSchema,
                 collection:'ex_sync_parameters'
+            },{
+                name:'StakingSyncValidators',
+                schema: StakingValidatorSchema,
+                collection:'ex_staking_validator'
             }
         ])
     ],

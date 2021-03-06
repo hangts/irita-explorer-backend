@@ -14,4 +14,15 @@ export interface IAccountStruct {
 export interface ITokenTotal {
     _id: any,
     account_totals: number
-} 
+}
+
+export interface ITokenTotal {
+    _id: any,
+    account_totals: number
+}
+
+export interface CommissionReward {
+    val_commission?: {
+        commission?: Object[]
+    }
+}

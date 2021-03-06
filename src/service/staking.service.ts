@@ -219,7 +219,7 @@ export default class StakingService {
             let validator = allValidatorsMap.get(item.delegation.validator_address);
             return {
                 address: item.delegation.validator_address || '',
-                moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
+                moniker: validator && validator.is_black  ? validator.moniker_m : validator && validator.description && validator.description.moniker,
                 amount: item.balance || '',
                 shares: item.delegation.shares,
                 //height: delegatorsDelegationsFromLcd.height || '',
