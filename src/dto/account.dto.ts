@@ -78,6 +78,7 @@ export class accountTotalResDto {
         this["6-10"] = new accountTotal(value["6-10"]);
         this["11-50"] = new accountTotal(value["11-50"]);
         this["51-100"] = new accountTotal(value["51-100"]);
+        this["101-500"] = new accountTotal(value["101-500"]);
         this["501-1000"] = new accountTotal(value["501-1000"]);
         this["1001-"] = new accountTotal(value["1001-"]);
     }
