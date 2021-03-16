@@ -24,7 +24,7 @@ import {StakingHttp} from "../http/lcd/staking.http";
             {
                 name: 'Proposal',
                 schema: ProposalSchema,
-                collection: 'ex_sync_ proposal'
+                collection: 'ex_sync_proposal'
             },
             {
                 name: 'StakingSyncValidators',
@@ -34,7 +34,7 @@ import {StakingHttp} from "../http/lcd/staking.http";
             {
                 name: 'ProposalDetail',
                 schema: ProposalDetailSchema,
-                collection: 'ex_sync_ proposal_details'
+                collection: 'ex_sync_proposal_details'
             }
         ])
     ],

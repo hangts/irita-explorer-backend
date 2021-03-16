@@ -45,7 +45,7 @@ import { GovHttp } from "../http/lcd/gov.http";
         {
             name: 'Proposal',
             schema: ProposalSchema,
-            collection: 'ex_sync_ proposal'
+            collection: 'ex_sync_proposal'
         },])
     ],
     providers:[TxService,GovHttp],

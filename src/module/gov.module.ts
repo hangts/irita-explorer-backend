@@ -17,12 +17,12 @@ import {StakingValidatorSchema} from "../schema/staking.validator.schema";
             {
                 name: 'Proposal',
                 schema: ProposalSchema,
-                collection: 'ex_sync_ proposal'
+                collection: 'ex_sync_proposal'
             },
             {
                 name: 'ProposalDetail',
                 schema: ProposalDetailSchema,
-                collection: 'ex_sync_ proposal_details'
+                collection: 'ex_sync_proposal_details'
             },
             {
                 name: 'StakingValidator',
