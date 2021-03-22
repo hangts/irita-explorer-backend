@@ -43,6 +43,7 @@ import Cache from '../helper/cache';
 import { TxType, addressPrefix, proposal as proposalString } from '../constant';
 import { addressTransform, splitString } from "../util/util";
 import { GovHttp } from "../http/lcd/gov.http";
+import { getConsensusPubkey } from "../helper/staking.helper"
 @Injectable()
 export class TxService {
     constructor(@InjectModel('Tx') private txModel: any,
@@ -475,6 +476,9 @@ export class TxService {
                 }
                 txData.msgs[0].msg.denom_name = nftNameInfo.denom_name;
                 txData.msgs[0].msg.nft_name = nftNameInfo.nft_name;
+            }
+            if (txData.msgs[0] && txData.msgs[0].type && txData.msgs[0].type === TxType.create_validator && txData.msgs[0].msg && txData.msgs[0].msg.pubkey) {
+                txData.msgs[0].msg.pubkey = getConsensusPubkey(JSON.parse(txData.msgs[0].msg.pubkey).key);
             }
             let tx = await this.addMonikerToTxs([txData]);
             result = new TxResDto(tx[0] || {});

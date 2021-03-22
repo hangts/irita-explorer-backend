@@ -41,7 +41,7 @@ import { ProposalSchema } from '../schema/proposal.schema';
             {
                 name: 'Proposal',
                 schema: ProposalSchema,
-                collection: 'ex_sync_ proposal'
+                collection: 'ex_sync_proposal'
             }
         ])
     ],
