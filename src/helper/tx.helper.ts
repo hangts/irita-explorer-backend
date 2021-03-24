@@ -108,6 +108,8 @@ const fromTo = {
         'msgs.msg.depositor': 1,
         'msgs.msg.voter': 1,
         'msgs.msg.proposer': 1,
+        'msgs.msg.input': 1,
+        'msgs.msg.output':1
     };
 
 export const dbRes = {
