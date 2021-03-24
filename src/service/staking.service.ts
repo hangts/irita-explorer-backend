@@ -248,7 +248,7 @@ export default class StakingService {
             let validator = allValidatorsMap.get(item.validator_address);
             return {
                 address: item.validator_address || '',
-                moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
+                moniker: validator && validator.is_black  ? validator.moniker_m : validator && validator.description && validator.description.moniker,
                 amount: {
                     denom: denom || '',
                     amount: amount || ''
