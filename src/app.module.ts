@@ -32,6 +32,8 @@ import { AssetModule } from './module/asset.module';
 import { ProposalTaskModule } from './module/proposal.task.module';
 import { GovModule } from './module/gov.module';
 import { ParameterModule } from './module/parameter.module';
+import { AccountTaskModule } from './module/account.task.module';
+import { AccountModule } from './module/account.module';
 
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 const params = {
@@ -61,7 +63,9 @@ const params = {
         AssetModule,
         ProposalTaskModule,
         GovModule,
-        ParameterModule
+        ParameterModule,
+        AccountTaskModule,
+        AccountModule
     ],
     providers:<any> [
         {

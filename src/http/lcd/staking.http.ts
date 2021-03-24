@@ -57,7 +57,11 @@ export class StakingHttp {
                 Logger.warn('api-error:', 'there is no result of validators from lcd');
             }
         } catch (e) {
-            Logger.warn(`api-error from ${slashValidatorUri}`, e)
+            if (e && e.response && e.response.data && e.response.data.code == 2) {
+                Logger.warn(`api-error from ${slashValidatorUri}`, e.response.data)
+            } else {
+                Logger.warn(`api-error from ${slashValidatorUri}`, e)
+            }
         }
     }
 
@@ -165,7 +169,6 @@ export class StakingHttp {
             } else {
                 Logger.warn('api-error:', 'there is no result of validator unBonding delegations from lcd');
             }
-
         } catch (e) {
             Logger.warn(`api-error from ${getBalancesUri}`, e)
         }
@@ -183,7 +186,11 @@ export class StakingHttp {
                 Logger.warn('api-error:', 'there is no result of delegators delegations from lcd');
             }
         } catch (e) {
-            Logger.warn(`api-error from ${getDelegatorsDelegationsUri}`, e)
+            if (e && e.response && e.response.data && e.response.data.code == 2) {
+                Logger.warn(`api-error from ${getDelegatorsDelegationsUri}`, e.response.data)
+            } else {
+                Logger.warn(`api-error from ${getDelegatorsDelegationsUri}`, e)
+            }
         }
     }
 
@@ -199,7 +206,11 @@ export class StakingHttp {
                 Logger.warn('api-error:', 'there is no result of delegators delegations from lcd');
             }
         } catch (e) {
-            Logger.warn(`api-error from ${getDelegatorsUndelegationsUri}`, e)
+            if (e && e.response && e.response.data && e.response.data.code == 2) {
+                Logger.warn(`api-error from ${getDelegatorsUndelegationsUri}`, e.response.data)
+            } else {
+                Logger.warn(`api-error from ${getDelegatorsUndelegationsUri}`, e)
+            }
         }
     }
 

@@ -405,7 +405,7 @@ export class TxService {
         const { serviceName, type, status, pageNum, pageSize, useCount } = query;
         const txList: ITxStruct[] = await (this.txModel as any).findServiceTx(serviceName, type, status, pageNum, pageSize);
         const res: ServiceTxResDto[] = txList.map((service: ITxStruct) => {
-            return new ServiceTxResDto(service.tx_hash, service.type, service.height, service.time, service.status, service.msgs, service.events);
+            return new ServiceTxResDto(service.tx_hash, service.type, service.height, service.time, service.status, service.msgs, service.events,service.fee);
         });
         let count = 0;
         if (useCount) {

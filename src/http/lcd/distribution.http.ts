@@ -4,7 +4,9 @@ import { Logger } from '../../logger';
 import { 
     WithdrawAddressDto, 
     DelegatorRewardsDto,
-    commissionRewardsLcdDto } from '../../dto/http.dto';
+    commissionRewardsLcdDto,
+    communityPoolLcdDto
+} from '../../dto/http.dto';
 
 @Injectable()
 export class DistributionHttp {
@@ -47,7 +49,6 @@ export class DistributionHttp {
         try {
             const commissionRewardsData: any = await new HttpService().get(getCommissionRewardsUri).toPromise().then(result => result.data)
             if (commissionRewardsData) {
-                console.log(new commissionRewardsLcdDto(commissionRewardsData))
                 return new commissionRewardsLcdDto(commissionRewardsData)
                 
             } else {
@@ -56,6 +57,20 @@ export class DistributionHttp {
 
         } catch (e) {
             Logger.warn(`api-error from ${getCommissionRewardsUri}`, e)
+        }
+    }
+
+    static async getCommunityPool(): Promise<communityPoolLcdDto> {
+        const getCommunityPoolUri = `${cfg.serverCfg.lcdAddr}/cosmos/distribution/v1beta1/community_pool`
+        try {
+            const communityPoolData: any = await new HttpService().get(getCommunityPoolUri).toPromise().then(result => result.data)
+            if (communityPoolData && communityPoolData.pool) {
+                return new communityPoolLcdDto(communityPoolData)
+            } else {
+                Logger.warn('api-error:', 'there is no result of community_pool from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${getCommunityPoolUri}`, e)
         }
     }
 }

@@ -14,8 +14,10 @@ import { IdentityTaskService } from './idnetity.task.service';
 import {StakingValidatorInfoTaskService} from "./staking.validator.info.task.service";
 import {StakingValidatorMoreInfoTaskService} from "./staking.validator.more.info.task.service";
 import {ParametersTaskService} from "./parameters.task.service";
-import {TokensTaskService} from "./tokens.service";
-import {ProposalTaskService} from "./proposal.service";
+import {TokensTaskService} from "./tokens.task.service";
+import {ProposalTaskService} from "./proposal.task.service";
+import {AccountTaskService} from "./account.task.service";
+import {AccountInfoTaskService} from "./account.info.task.service";
 import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
 
@@ -32,8 +34,10 @@ export class TasksService {
         private readonly stakingValidatorTaskServiceInfo: StakingValidatorInfoTaskService,
         private readonly stakingValidatorTaskServiceMoreInfo: StakingValidatorMoreInfoTaskService,
         private readonly parametersTaskService: ParametersTaskService,
-        private readonly TokensTaskService: TokensTaskService,
-        private readonly ProposalTaskService: ProposalTaskService,
+        private readonly tokensTaskService: TokensTaskService,
+        private readonly proposalTaskService: ProposalTaskService,
+        private readonly accountTaskService: AccountTaskService,
+        private readonly accountInfoTaskService: AccountInfoTaskService,
         private schedulerRegistry: SchedulerRegistry,
     ) {
         this[`${TaskEnum.denom}_timer`] = null;
@@ -44,8 +48,10 @@ export class TasksService {
         this[`${TaskEnum.stakingSyncValidatorsInfo}_timer`] = null;
         this[`${TaskEnum.stakingSyncValidatorsMoreInfo}_timer`] = null;
         this[`${TaskEnum.stakingSyncParameters}_timer`] = null;
-        this[`${TaskEnum.Tokens}_timer`] = null;
-        this[`${TaskEnum.Proposal}_timer`] = null;
+        this[`${TaskEnum.tokens}_timer`] = null;
+        this[`${TaskEnum.proposal}_timer`] = null;
+        this[`${TaskEnum.account}_timer`] = null;
+        this[`${TaskEnum.accountInfo}_timer`] = null;
     }
     @Cron(cfg.taskCfg.executeTime.denom, {
         name: TaskEnum.denom
@@ -98,12 +104,12 @@ export class TasksService {
         this.handleDoTask(TaskEnum.identity, this.identityTaskService.doTask)
     }
 
-    @Cron(cfg.taskCfg.executeTime.Tokens, {
-        name: TaskEnum.Tokens
+    @Cron(cfg.taskCfg.executeTime.tokens, {
+        name: TaskEnum.tokens
     })
     // @Cron('45 * * * * *')
     async syncTokens() {
-        this.handleDoTask(TaskEnum.Tokens, this.TokensTaskService.doTask)
+        this.handleDoTask(TaskEnum.tokens, this.tokensTaskService.doTask)
     }
 
     // @Cron('*/5 * * * * *')
@@ -130,11 +136,27 @@ export class TasksService {
 
     
     // @Cron('*/5 * * * * *')
-    @Cron(cfg.taskCfg.executeTime.Proplsal, {
-        name: TaskEnum.Proposal
+    @Cron(cfg.taskCfg.executeTime.proplsal, {
+        name: TaskEnum.proposal
     })
     async syncProposal() {
-        this.handleDoTask(TaskEnum.Proposal, this.ProposalTaskService.doTask)
+        this.handleDoTask(TaskEnum.proposal, this.proposalTaskService.doTask)
+    }
+
+    // @Cron('*/5 * * * * *')
+    @Cron(cfg.taskCfg.executeTime.account, {
+        name: TaskEnum.account
+    })
+    async syncAccount() {
+        this.handleDoTask(TaskEnum.account, this.accountTaskService.doTask)
+    }
+
+    // @Cron('*/5 * * * * *')
+    @Cron(cfg.taskCfg.executeTime.accountInfo, {
+        name: TaskEnum.accountInfo
+    })
+    async syncAccountInfo() {
+        this.handleDoTask(TaskEnum.accountInfo, this.accountInfoTaskService.doTask)
     }
 
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
@@ -181,7 +203,7 @@ export class TasksService {
 
                 taskLoggerHelper(`${taskName}: current task executes end, took ${new Date().getTime() - beginTime}ms`, randomKey)
             } catch (e) {
-                Logger.error(`${taskName}: task executes error, should release lock`);
+                Logger.error(`${taskName}: task executes error, should release lock`,e);
                 await this.taskDispatchService.unlock(taskName, randomKey);
                 if (this[`${taskName}_timer`]) {
                     clearInterval(this[`${taskName}_timer`]);

@@ -4,7 +4,7 @@ import {ParametersSchema} from "../schema/parameters.schema";
 import { TxSchema } from '../schema/tx.schema';
 import { ProposalSchema } from '../schema/proposal.schema';
 import { ProposalDetailSchema } from '../schema/proposal.detail.schema';
-import { ProposalTaskService } from "../task/proposal.service";
+import { ProposalTaskService } from "../task/proposal.task.service";
 import { GovHttp } from "../http/lcd/gov.http";
 import { StakingValidatorSchema } from "../schema/staking.validator.schema";
 import {StakingHttp} from "../http/lcd/staking.http";

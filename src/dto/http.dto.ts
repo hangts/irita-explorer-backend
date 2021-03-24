@@ -468,6 +468,17 @@ export class commissionRewardsLcdDto {
     }
 }
 
+// /cosmos/distribution/v1beta1/community_pool
+export class communityPoolLcdDto {
+    pool: Coin[];
+    
+    constructor(value) {
+        this.pool = value.pool || [];
+    }
+}
+
+
+
 // /staking/validators/${address}/unbonding_delegations
 
 
@@ -529,11 +540,13 @@ export class AddressBalancesLcdDto {
 export class DelegatorsDelegationLcdDto {
     height: string;
     total: number;
+    next_key: string | null;
     result: DelegatorsResult[];
     constructor(value) {
         this.height = value.height || '';
         this.result = DelegatorsResult.bundleData(value.delegation_responses);
         this.total = (value.pagination && Number(value.pagination.total)) || 0;
+        this.next_key = value.pagination && value.pagination.next_key;
     }
 }
 
@@ -564,12 +577,14 @@ export class DelegatorsResult {
 
 export class DelegatorsUndelegationLcdDto {
     height: string;
+    next_key: string | null;
     result: UndelegatorsResult[];
     total: number;
     constructor(value) {
         this.height = value.height || '';
         this.result = UndelegatorsResult.bundleData(value.unbonding_responses);
         this.total = (value.pagination && Number(value.pagination.total)) || 0;
+        this.next_key = value.pagination && value.pagination.next_key;
     }
 }
 

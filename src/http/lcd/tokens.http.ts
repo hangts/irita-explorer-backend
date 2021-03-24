@@ -11,10 +11,24 @@ export class TokensHttp {
             if (TokensData && TokensData.Tokens) {
                 return TokensLcdDto.bundleData(TokensData.Tokens);
             } else {
-                Logger.warn('api-error:', 'there is no result of validators from lcd');
+                Logger.warn('api-error:', 'there is no result of tokens from lcd');
             }
         } catch (e) {
             Logger.warn(`api-error from ${TokensUrl}`, e)
+        }
+    }
+
+    async getCirculationtTokens () {
+        const CirculationtTokensUrl = `https://rpc.irisnet.org/token-stats/circulation`
+        try {
+            let CirculationtTokens: any = await new HttpService().get(CirculationtTokensUrl).toPromise().then(result => result.data)
+            if (CirculationtTokens) {
+                return CirculationtTokens;
+            } else {
+                Logger.warn('api-error:', `there is no result of circulationt_tokens from ${CirculationtTokensUrl}`);
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${CirculationtTokensUrl}`, e)
         }
     }
 }
