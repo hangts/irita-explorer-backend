@@ -121,6 +121,11 @@ export const dbRes = {
     txList:{
         ...common,
         ...fromTo,
+        // transactions list 
+        // events: 1,
+        'msgs.msg.amount': 1,
+        'msgs.msg.content.amount': 1,
+        'msgs.msg.initial_deposit':1
     },
     service:{
         ...common,
