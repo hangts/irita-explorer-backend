@@ -251,7 +251,7 @@ export class ValidatorDetailResDto {
         this.bond_height = validatorDetail.start_height || '0'
         this.unbonding_height = validatorDetail.unbonding_height || ''
         this.jailed_until = validatorDetail.jailed_until || ''
-        this.missed_blocks_count = validatorDetail.missed_blocks_count || '0'
+        this.missed_blocks_count = validatorDetail.missed_blocks_counter || '0'
         this.operator_addr = validatorDetail.operator_address || ''
         this.owner_addr = validatorDetail.owner_addr || ''
         this.consensus_pubkey = validatorDetail.consensus_pubkey || ''
