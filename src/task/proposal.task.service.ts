@@ -23,6 +23,7 @@ export class ProposalTaskService {
     }
     async doTask(): Promise<void> {
         const proposalFromLcd = await this.govHttp.getProposals(cfg.taskCfg.proposalsLimit);
+        if (!proposalFromLcd || proposalFromLcd.length == 0) return
         const proposalFromDb = await this.proposalModel.queryAllProposals();
         const proposalDetailFromDb = await this.proposalDetailModel.queryAllProposalsDetail();
         const govParamsFromDb = await (this.parametersTaskModel as any).queryGovParams();
