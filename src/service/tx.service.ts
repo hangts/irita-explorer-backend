@@ -84,6 +84,50 @@ export class TxService {
         return txData;
     }
 
+    handerEvents(txList) {
+        (txList).forEach(tx => {
+            let amount, recipient;
+            if (tx.type === TxType.claim_htlc) {
+                let numberTransfer = 0;
+                (tx.events || []).forEach(event => {
+                    if(event.type === "transfer") {
+                        numberTransfer++
+                    }
+                    if(event.type === "transfer" && numberTransfer === 2) {
+                        (event.attributes || []).forEach(item => {
+                            if(item.key === 'amount')  {
+                                amount = item.value
+                            }
+                            if(item.key === 'recipient') {
+                                recipient = item.value
+                            }
+                        })
+                    }
+                })
+                if (tx.msgs && tx.msgs[0] && tx.msgs[0].msg) {
+                    tx.msgs[0].msg['amount'] = amount;
+                    tx.msgs[0].msg['recipient'] = recipient;
+                }
+            }
+            if (tx.type === TxType.withdraw_delegator_reward) {
+                (tx.events || []).forEach((item) => {
+					if(item.type === 'withdraw_rewards') {
+						(item.attributes || []).forEach((attr) => {
+							if (attr.key == 'amount') {
+								amount = attr.value || '--';
+							}
+						});
+					}
+				});
+                if (tx.msgs && tx.msgs[0] && tx.msgs[0].msg) {
+                    tx.msgs[0].msg['amount'] = amount;
+                }
+            }
+            tx.events = undefined;
+        });
+        return txList
+    }
+
     async cacheTxTypes() {
         const txTypes = await this.txTypeModel.queryTxTypeList();
         Cache.supportTypes = txTypes.map((item) => item.type_name);
@@ -95,6 +139,9 @@ export class TxService {
         await this.cacheTxTypes();
         // }
         const txListData = await this.txModel.queryTxList(query);
+        if (txListData.data && txListData.data.length > 0) {
+            txListData.data = this.handerEvents(txListData.data)
+        }
         let txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
@@ -105,6 +152,9 @@ export class TxService {
         await this.cacheTxTypes();
         // }
         const txListData = await this.txModel.queryStakingTxList(query);
+        if (txListData.data && txListData.data.length > 0) {
+            txListData.data = this.handerEvents(txListData.data)
+        }
         let txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
@@ -207,6 +257,9 @@ export class TxService {
     async queryTxWithAddress(query: TxListWithAddressReqDto): Promise<ListStruct<TxResDto[]>> {
         await this.cacheTxTypes();
         const txListData = await this.txModel.queryTxWithAddress(query);
+        if (txListData.data && txListData.data.length > 0) {
+            txListData.data = this.handerEvents(txListData.data)
+        }
         let txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
