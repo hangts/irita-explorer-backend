@@ -11,6 +11,15 @@ export function stakingTypes():string[]{
     ];
 }
 
+export function coinswapTypes():string[]{
+    return [
+        TxType.add_liquidity,
+        TxType.remove_liquidity,
+        TxType.swap_order
+    ];
+}
+
+
 export function serviceTypes():string[]{
     return [
         TxType.define_service,
