@@ -87,17 +87,17 @@ export class StakingValidatorInfoTaskService {
         let needInsertOrUpdate = new Map()
         for (let key of allValidatorsFromLcdMap.keys()) {
             let validator = allValidatorsFromLcdMap.get(key)
-            let validatorFromDb = validatorsFromDbMap.get(key)
-            if (validatorFromDb && validatorFromDb.is_black) {
-                validator.moniker_m = validatorFromDb.moniker_m;
-                validator.is_black = true;
-            } else {
-                validator.is_black = false;
-                validator.moniker_m = '';
-            }
-            validatorFromDb && validatorFromDb.icon ? validator.icon = validatorFromDb.icon : '';
-            validatorFromDb && validatorFromDb.delegator_num ? validator.delegator_num = validatorFromDb.delegator_num : '';
-            validatorFromDb && validatorFromDb.self_bond ? validator.self_bond = validatorFromDb.self_bond : '';
+            // let validatorFromDb = validatorsFromDbMap.get(key)
+            // if (validatorFromDb && validatorFromDb.is_black) {
+            //     validator.moniker_m = validatorFromDb.moniker_m;
+            //     validator.is_black = true;
+            // } else {
+            //     validator.is_black = false;
+            //     validator.moniker_m = '';
+            // }
+            // validatorFromDb && validatorFromDb.icon ? validator.icon = validatorFromDb.icon : '';
+            // validatorFromDb && validatorFromDb.delegator_num ? validator.delegator_num = validatorFromDb.delegator_num : '';
+            // validatorFromDb && validatorFromDb.self_bond ? validator.self_bond = validatorFromDb.self_bond : '';
             validator.update_time = getTimestamp()
             if (!validatorsFromDbMap.has(key)) {
                 validator.create_time = getTimestamp()
