@@ -52,6 +52,12 @@ export class TxController {
         return new Result<any>(data);
     }
 
+    @Get('/coinswap')
+    async queryCoinswapTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryCoinswapTxList(query);
+        return new Result<any>(data);
+    }
+
     @Get('/declaration')
     async queryDeclarationTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryDeclarationTxList(query);

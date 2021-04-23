@@ -159,6 +159,12 @@ export class TxService {
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
+    // txs/coinswap
+    async queryCoinswapTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
+        const txListData = await this.txModel.queryCoinswapTxList(query);
+        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+    }
+
     // txs/declaration 
     async queryDeclarationTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
