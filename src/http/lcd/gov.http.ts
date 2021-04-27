@@ -42,6 +42,7 @@ export class GovHttp {
             }
         } catch (e) {
             Logger.warn(`api-error from ${url}`, e)
+            throw new Error(e);
         }
     }
 
