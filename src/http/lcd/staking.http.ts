@@ -42,6 +42,7 @@ export class StakingHttp {
             }
         } catch (e) {
             Logger.warn(`api-error from ${validatorLcdUri}`, e)
+            throw new Error(e);
         }
     }
 

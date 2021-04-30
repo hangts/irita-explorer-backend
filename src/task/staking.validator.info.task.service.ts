@@ -22,7 +22,7 @@ export class StakingValidatorInfoTaskService {
         let validatorsFromLcd_unbonded = await this.stakingHttp.queryValidatorListFromLcd(validatorStatusStr.unbonded, pageNum, pageSize)
         let validatorsFromLcd_unbonding = await this.stakingHttp.queryValidatorListFromLcd(validatorStatusStr.unbonding, pageNum, pageSize)
         allValidatorsFromLcd = [...(validatorsFromLcd_bonded || []),...(validatorsFromLcd_unbonded || []),...(validatorsFromLcd_unbonding || [])];
-        if (!allValidatorsFromLcd.length) {
+        if (!validatorsFromLcd_bonded || !allValidatorsFromLcd.length) {
             return;
         }
         // 处理数据
