@@ -299,7 +299,7 @@ TxSchema.statics.queryGovTxList = async function(query: ITxsQuery): Promise<ILis
 
 
 //  txs/e 供edgeServer调用  返回数据不做过滤
-TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, useCount:boolean): Promise<IListStruct> {
+TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, useCount:boolean,status?:number): Promise<IListStruct> {
     let result: IListStruct = {};
     let queryParameters: any = {};
     if (types && types.length) {
@@ -307,6 +307,9 @@ TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number
     }
     if (gt_height) {
         queryParameters['height'] = {'$gt':gt_height};
+    }
+    if (status || status === 0) {
+        queryParameters['status'] = status;
     }
     result.data = await this.find(queryParameters)
         .sort({ height: 1 })
@@ -320,9 +323,12 @@ TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number
 };
 
 //  供edgeServer调用  返回数据不做过滤
-TxSchema.statics.queryTxListByHeightEdge = async function(height:number, pageNum:number, pageSize:number, useCount:boolean): Promise<IListStruct> {
+TxSchema.statics.queryTxListByHeightEdge = async function(height:number, pageNum:number, pageSize:number, useCount:boolean,status?:number): Promise<IListStruct> {
     let result: IListStruct = {};
-    let queryParameters: any = {height:height};
+    let queryParameters: any = { height: height };
+    if (status || status === 0) {
+        queryParameters['status'] = status;
+    }
     result.data = await this.find(queryParameters)
         .skip((Number(pageNum) - 1) * Number(pageSize))
         .limit(Number(pageSize));
