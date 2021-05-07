@@ -1172,7 +1172,8 @@ TxSchema.statics.queryMaxNftTxList = async function (): Promise<ITxStruct[]>  {
         // ],
         'msgs.type': {
             $in: typesList
-        }
+        },
+        status: TxStatus.SUCCESS
     },{height: 1}).sort({height: -1}).limit(1);
 };
 
