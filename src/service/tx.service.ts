@@ -1,3 +1,4 @@
+import { PagingReqDto } from './../dto/base.dto';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -22,7 +23,9 @@ import {
     ServiceTxReqDto,
     ServiceBindInfoReqDto,
     ServiceRespondReqDto, IdentityTxReqDto,
-    TxListWithAssetReqDto
+    TxListWithAssetReqDto,
+    ExternalQueryCallServiceReqDto,
+    ExternalQueryCallServiceResDto
 } from '../dto/txs.dto';
 import {
     TxResDto,
@@ -33,9 +36,10 @@ import {
     ServiceProvidersResDto,
     ServiceTxResDto,
     ServiceBindInfoResDto,
-    ServiceRespondResDto
+    ServiceRespondResDto,
+    ExternalServiceResDto
 } from '../dto/txs.dto';
-import { IBindTx, IServiceName } from '../types/tx.interface';
+import { IBindTx, IServiceName,ExternalIBindTx,ExternalIServiceName } from '../types/tx.interface';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
 import { INftMapStruct } from '../types/schemaTypes/nft.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
@@ -397,6 +401,7 @@ export class TxService {
     // txs/services
     async findServiceList(query: ServiceListReqDto): Promise<ListStruct<ServiceResDto[]>> {
         const { pageNum, pageSize, useCount, nameOrDescription } = query;
+        // 查询出所有服务
         const serviceTxList: ITxStruct[] = await (this.txModel as any).findServiceAllList(pageNum, pageSize, useCount, nameOrDescription);
         const serviceNameList: IServiceName[] = serviceTxList.map((item: any) => {
             const ex: any = item.msgs[0].msg.ex || {};
@@ -408,6 +413,7 @@ export class TxService {
         });
         for (const name of serviceNameList) {
             if (name.bind && name.bind > 0) {
+                // 通过服务名，查询出该服务下的所有提供者以及绑定的时间
                 const bindServiceTxList: ITxStruct[] = await (this.txModel as any).findBindServiceTxList(name.serviceName);
                 const bindTxList: IBindTx[] = bindServiceTxList.map((item: any) => {
                     return {
@@ -415,7 +421,7 @@ export class TxService {
                         bindTime: item.time,
                     };
                 });
-                //查出每个provider在当前绑定的serviceName下所有的绑定次数
+                //查出每个provider在当前绑定的serviceName下的绑定次数
                 for (const bindTx of bindTxList) {
                     bindTx.respondTimes = await (this.txModel as any).findProviderRespondTimesForService(name.serviceName, bindTx.provider);
                 }
@@ -434,6 +440,53 @@ export class TxService {
         return new ListStruct(res, pageNum, pageSize, count);
     }
 
+    // e/services
+    async externalFindServiceList(query: PagingReqDto): Promise<ListStruct<ExternalServiceResDto[]>> {
+        const { pageNum, pageSize, useCount } = query;
+        // 查询出所有服务
+        const serviceTxList: ITxStruct[] = await (this.txModel as any).findServiceAllList(pageNum, pageSize, useCount);
+        const serviceNameList: ExternalIServiceName[] = serviceTxList.map((item: any) => {
+            const ex: any = item.msgs[0].msg.ex || {};
+            return {
+                serviceName: getServiceNameFromMsgs(item.msgs),
+                bind: ex.bind || 0,
+            };
+        });
+        for (const name of serviceNameList) {
+            if (name.bind && name.bind > 0) {
+                // 通过服务名，查询出该服务下的所有提供者
+                const bindServiceTxList: ITxStruct[] = await (this.txModel as any).findBindServiceTxList(name.serviceName);
+                const bindTxList: ExternalIBindTx[] = bindServiceTxList.map((item: any) => {
+                    return {
+                        provider: item.msgs[0].msg.provider,
+                    };
+                });
+                //查出每个provider在当前绑定的serviceName下的绑定次数
+                for (const bindTx of bindTxList) {
+                    bindTx.respondTimes = await (this.txModel as any).findProviderRespondTimesForService(name.serviceName, bindTx.provider);
+                }
+                name.bindList = bindTxList;
+            } else {
+                name.bindList = [];
+            }
+        }
+        const res: ExternalServiceResDto[] = serviceNameList.map((service: IServiceName) => {
+            return new ExternalServiceResDto(service.serviceName,service.bindList);
+        });
+        let count = 0;
+        if (useCount) {
+            count = await (this.txModel as any).findAllServiceCount();
+        }
+        return new ListStruct(res, pageNum, pageSize, count);
+    }
+
+    // e/services/call-service
+    async externalQueryCallService(query: ExternalQueryCallServiceReqDto): Promise<ExternalQueryCallServiceResDto> {
+        const { serviceName, consumerAddr } = query;
+        const res =  await (this.txModel as any).findConsumerCallServiceForService(serviceName, consumerAddr);
+        return new ExternalQueryCallServiceResDto(res)
+    }
+    
     // /txs/services/providers 
     async queryServiceProviders(query: ServiceProvidersReqDto): Promise<ListStruct<ServiceProvidersResDto[]>> {
         const { serviceName, pageNum, pageSize, useCount } = query;
