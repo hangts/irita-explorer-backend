@@ -363,10 +363,10 @@ export class callServiceResDto extends TxResDto {
 
 //e/services/respond-service
 export class ExternalQueryRespondServiceResDto {
-    respond_service_counts: number
+    respondTimes: number
 
     constructor(value) {
-        this.respond_service_counts = value || 0;
+        this.respondTimes = value || 0;
     }
 }
 
