@@ -1,9 +1,9 @@
-import {IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty} from 'class-validator';
+import { IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty, validate } from 'class-validator';
 import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
 import {BaseReqDto, BaseResDto, PagingReqDto} from './base.dto';
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
-import {IBindTx} from '../types/tx.interface';
+import {IBindTx,ExternalIBindTx} from '../types/tx.interface';
 
 /************************   request dto   ***************************/
 //txs request dto
@@ -113,6 +113,16 @@ export class TxListWithCallServiceReqDto extends PagingReqDto {
     @ApiProperty()
     @MinLength(1, {message: "consumerAddr is too short"})
     consumerAddr: string;
+}
+
+//txs/e/services/respond-service
+export class ExternalQueryRespondServiceReqDto {
+    @ApiProperty()
+    serviceName: string;
+
+    @ApiProperty()
+    @MinLength(1, {message: "providerAddr is too short"})
+    providerAddr: string;
 }
 
 //txs/service/respond-service
@@ -351,6 +361,15 @@ export class callServiceResDto extends TxResDto {
     }
 }
 
+//e/services/respond-service
+export class ExternalQueryRespondServiceResDto {
+    respond_service_counts: number
+
+    constructor(value) {
+        this.respond_service_counts = value || 0;
+    }
+}
+
 //txs/service/respond-service
 export class RespondServiceResDto extends TxResDto {
     respond_times: number;
@@ -397,6 +416,16 @@ export class ServiceResDto {
     constructor(serviceName: string, description: string, bindList: IBindTx[]) {
         this.serviceName = serviceName;
         this.description = description;
+        this.bindList = bindList;
+    }
+}
+
+export class ExternalServiceResDto {
+    serviceName: string;
+    bindList: ExternalIBindTx[];
+
+    constructor(serviceName: string, bindList: ExternalIBindTx[]) {
+        this.serviceName = serviceName;
         this.bindList = bindList;
     }
 }
