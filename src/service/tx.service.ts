@@ -24,8 +24,8 @@ import {
     ServiceBindInfoReqDto,
     ServiceRespondReqDto, IdentityTxReqDto,
     TxListWithAssetReqDto,
-    ExternalQueryCallServiceReqDto,
-    ExternalQueryCallServiceResDto
+    ExternalQueryRespondServiceReqDto,
+    ExternalQueryRespondServiceResDto
 } from '../dto/txs.dto';
 import {
     TxResDto,
@@ -480,11 +480,11 @@ export class TxService {
         return new ListStruct(res, pageNum, pageSize, count);
     }
 
-    // e/services/call-service
-    async externalQueryCallService(query: ExternalQueryCallServiceReqDto): Promise<ExternalQueryCallServiceResDto> {
-        const { serviceName, consumerAddr } = query;
-        const res =  await (this.txModel as any).findConsumerCallServiceForService(serviceName, consumerAddr);
-        return new ExternalQueryCallServiceResDto(res)
+    // e/services/respond-service
+    async externalQueryRespondService(query: ExternalQueryRespondServiceReqDto): Promise<ExternalQueryRespondServiceResDto> {
+        const { serviceName, providerAddr } = query;
+        const res =  await (this.txModel as any).findProviderRespondTimesForService(serviceName, providerAddr);
+        return new ExternalQueryRespondServiceResDto(res)
     }
     
     // /txs/services/providers 

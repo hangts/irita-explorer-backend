@@ -31,12 +31,12 @@ import {
     ServiceRespondResDto,
     IdentityTxReqDto,
     TxListWithAssetReqDto,
-    ExternalQueryCallServiceReqDto
+    ExternalQueryRespondServiceReqDto
 } from '../dto/txs.dto';
 import { TxResDto,
     TxTypeResDto,
     ExternalServiceResDto,
-    ExternalQueryCallServiceResDto
+    ExternalQueryRespondServiceResDto
 } from '../dto/txs.dto';
 
 @ApiTags('Txs')
@@ -82,7 +82,7 @@ export class TxController {
         return new Result<any>(data);
     }
 
-    // 供外部系统调用的 API,获取服务列表以及调用次数
+    // 供外部系统调用的 API,获取服务列表以及被调用次数
     @Get("e/services")
     async externalQueryServiceList(@Query() query: PagingReqDto):Promise<Result<ListStruct<ExternalServiceResDto[]>>> {
        const data: ListStruct<ExternalServiceResDto[]> = await this.txService.externalFindServiceList(query);
@@ -90,10 +90,10 @@ export class TxController {
     }
     
     // 供外部系统调用的 API,根据地址以及服务名获取服务被调用次数
-    @Get("e/services/call-service")
-    async externalQueryCallService(@Query() query: ExternalQueryCallServiceReqDto):Promise<Result<ExternalQueryCallServiceResDto>> {
-        const data: ExternalQueryCallServiceResDto = await this.txService.externalQueryCallService(query);
-        return new Result<ExternalQueryCallServiceResDto>(data);
+    @Get("e/services/respond-service")
+    async externalQueryRespondService(@Query() query: ExternalQueryRespondServiceReqDto):Promise<Result<ExternalQueryRespondServiceResDto>> {
+        const data: ExternalQueryRespondServiceResDto = await this.txService.externalQueryRespondService(query);
+        return new Result<ExternalQueryRespondServiceResDto>(data);
     }
 
     @Get("/blocks")

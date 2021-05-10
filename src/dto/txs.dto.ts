@@ -115,14 +115,14 @@ export class TxListWithCallServiceReqDto extends PagingReqDto {
     consumerAddr: string;
 }
 
-//txs/e/services/call-service
-export class ExternalQueryCallServiceReqDto {
+//txs/e/services/respond-service
+export class ExternalQueryRespondServiceReqDto {
     @ApiProperty()
     serviceName: string;
 
     @ApiProperty()
-    @MinLength(1, {message: "consumerAddr is too short"})
-    consumerAddr: string;
+    @MinLength(1, {message: "providerAddr is too short"})
+    providerAddr: string;
 }
 
 //txs/service/respond-service
@@ -361,12 +361,12 @@ export class callServiceResDto extends TxResDto {
     }
 }
 
-//e/services/call-service
-export class ExternalQueryCallServiceResDto {
-    call_service_counts: number
+//e/services/respond-service
+export class ExternalQueryRespondServiceResDto {
+    respond_service_counts: number
 
     constructor(value) {
-        this.call_service_counts = value || 0;
+        this.respond_service_counts = value || 0;
     }
 }
 

@@ -758,14 +758,14 @@ TxSchema.statics.findProviderRespondTimesForService = async function(serviceName
 };
 
 //查询某个consumer在某个service下所有的调用次数
-TxSchema.statics.findConsumerCallServiceForService = async function(serviceName: string, consumer: string): Promise<number> {
-    const queryParameters: any = {
-        'msgs.type': TxType.call_service,
-        'msgs.msg.service_name': serviceName,
-        'msgs.msg.consumer': consumer,
-    };
-    return await this.countDocuments(queryParameters);
-};
+// TxSchema.statics.findConsumerCallServiceForService = async function(serviceName: string, consumer: string): Promise<number> {
+//     const queryParameters: any = {
+//         'msgs.type': TxType.call_service,
+//         'msgs.msg.service_name': serviceName,
+//         'msgs.msg.consumer': consumer,
+//     };
+//     return await this.countDocuments(queryParameters);
+// };
 
 TxSchema.statics.findAllServiceCount = async function(nameOrDescription?: string): Promise<number> {
     const queryParameters: any = {
