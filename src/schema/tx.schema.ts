@@ -918,10 +918,12 @@ TxSchema.statics.queryServiceRespondTx = async function(serviceName: string, pro
 
 TxSchema.statics.findRespondServiceCount = async function(serviceName: string, provider: string): Promise<ITxStruct[]> {
     const queryParameters: any = {
-        'msgs.msg.ex.service_name': serviceName,
         'msgs.type': TxType.respond_service,
         // status: TxStatus.SUCCESS,
     };
+    if (serviceName && serviceName.length) {
+        queryParameters['msgs.msg.ex.service_name'] = serviceName;
+    }
     if (provider) {
         queryParameters['msgs.msg.provider'] = provider;
     }
