@@ -449,6 +449,7 @@ export class TxService {
             const ex: any = item.msgs[0].msg.ex || {};
             return {
                 serviceName: getServiceNameFromMsgs(item.msgs),
+                description: item.msgs[0].msg.description,
                 bind: ex.bind || 0,
             };
         });
@@ -471,7 +472,7 @@ export class TxService {
             }
         }
         const res: ExternalServiceResDto[] = serviceNameList.map((service: IServiceName) => {
-            return new ExternalServiceResDto(service.serviceName,service.bindList);
+            return new ExternalServiceResDto(service.serviceName,service.description,service.bindList);
         });
         let count = 0;
         if (useCount) {
