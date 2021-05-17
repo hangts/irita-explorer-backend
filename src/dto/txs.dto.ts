@@ -422,10 +422,12 @@ export class ServiceResDto {
 
 export class ExternalServiceResDto {
     serviceName: string;
+    description: string;
     bindList: ExternalIBindTx[];
 
-    constructor(serviceName: string, bindList: ExternalIBindTx[]) {
+    constructor(serviceName: string,description: string,  bindList: ExternalIBindTx[]) {
         this.serviceName = serviceName;
+        this.description = description;
         this.bindList = bindList;
     }
 }
