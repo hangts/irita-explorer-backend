@@ -16,6 +16,7 @@ import { Logger } from '../logger';
 import { addressPrefix } from '../constant';
 import { getAddress, hexToBech32 } from '../util/util';
 import { getConsensusPubkey } from '../helper/staking.helper';
+import { Validatorset } from '../dto/http.dto';
 
 @Injectable()
 export class BlockService {
@@ -107,19 +108,36 @@ export class BlockService {
         return data;
     }
 
+    async queryAllValidatorset(height):Promise<Validatorset[]> {
+        let allValidatorsets = [];
+        let PageNum = 1;
+        let validatorsets = await BlockHttp.queryValidatorsets(height);
+        if(validatorsets && validatorsets.length > 0) {
+            allValidatorsets = allValidatorsets.concat(validatorsets);
+        }
+        //判断是否有第二页数据 如果有使用while循环请求
+        while (validatorsets && validatorsets.length === 100){
+            PageNum++
+            validatorsets = await BlockHttp.queryValidatorsets(height,PageNum);
+            //将第二页及以后的数据合并
+            allValidatorsets = allValidatorsets.concat(validatorsets)
+        }
+        return allValidatorsets
+    }
+
+
     // blocks/staking/{height}
     async queryBlockStakingDetail(query: BlockDetailReqDto): Promise<BlockStakingResDto | null> {
         const { height } = query;
         let result: BlockStakingResDto | null = null;
         let data:any = {};
-
         let block_db = await (this.blockModel as any).findOneByHeight(height);
         block_db = JSON.parse(JSON.stringify(block_db));
         if (block_db) {
             let block_lcd = await BlockHttp.queryBlockFromLcd(height);
             let latestBlock = await BlockHttp.queryLatestBlockFromLcd();
             let proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block_db.proposer || '');
-            let validatorsets = await BlockHttp.queryValidatorsets(height);
+            let allValidatorsets = await this.queryAllValidatorset(height);
             data = {
                 height: block_db.height,
                 hash: block_db.hash,
@@ -138,12 +156,12 @@ export class BlockService {
                 let address = hexToBech32(item.validator_address, addressPrefix.ica);
                 signaturesMap[address] = item;
             }) 
-            if (validatorsets) {
-                data.total_validator_num = validatorsets ? validatorsets.length : 0;
+            if (allValidatorsets) {
+                data.total_validator_num = allValidatorsets ? allValidatorsets.length : 0;
                 let icaAddr = hexToBech32(block_db.proposer, addressPrefix.ica);
                 data.total_voting_power = 0;
                 data.precommit_voting_power = 0;
-                validatorsets.forEach((item)=>{
+                allValidatorsets.forEach((item)=>{
                     //TODO:hangtaishan 使用大数计算
                     data.total_voting_power += Number(item.voting_power || 0);
                     if (signaturesMap[item.address]) {
@@ -172,7 +190,8 @@ export class BlockService {
     // validatorset/{height}
     async queryValidatorset(query: ValidatorsetsReqDto): Promise<ListStruct<ValidatorsetsResDto[]>> {
         const { height, pageNum, pageSize, useCount } = query;
-        let data_lcd = await BlockHttp.queryValidatorsets(height);
+
+        let data_lcd = await this.queryAllValidatorset(height);
         let data = (data_lcd || []).slice((pageNum - 1) * pageSize, pageNum * pageSize);
         if (data && data.length) {
             let block = await (this.blockModel as any).findOneByHeight(Number(height));
