@@ -259,7 +259,7 @@ export class TokensLcdDto {
         this.min_unit = value.min_unit || '';
         this.initial_supply = value.initial_supply || '';
         this.max_supply = value.max_supply || '';
-        this.mintable = value.mintable || true;
+        this.mintable = value.mintable || false;
         this.owner = value.owner || '';
         this.is_main_token = value.is_main_token || false;
         this.total_supply = value.initial_supply || '';
