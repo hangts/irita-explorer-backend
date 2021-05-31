@@ -38,38 +38,47 @@ export class AccountInfoTaskService {
         if (accountList && accountList.length > 0) {
             for (let { address } of accountList) {
                 if (address !== addressAccount) {
-                    // 处理 balance
-                    const balances = await this.stakingHttp.queryBalanceByAddress(address);
-                    if (!balances) continue;
+                    // balance and rewards
+                    let balances, delegatorRewards, commissionRewards;
+                    const ivaAddress = addressTransform(address, addressPrefix.iva);
+                    if (ivaArray.includes(ivaAddress)) {
+                        [balances,delegatorRewards,commissionRewards] = await Promise.all([this.stakingHttp.queryBalanceByAddress(address),DistributionHttp.queryDelegatorRewards(address),DistributionHttp.getCommissionRewards(ivaAddress)]);
+                        if(!balances || !delegatorRewards || !commissionRewards) continue;
+                    } else {
+                        [balances,delegatorRewards] = await Promise.all([this.stakingHttp.queryBalanceByAddress(address),DistributionHttp.queryDelegatorRewards(address)]);
+                        if(!balances || !delegatorRewards) continue;
+                    }
                     const balanceArray = (balances || []).filter(item => item.denom === stakingToken.cur_value)
                     const balancesAmount = balanceArray && balanceArray[0] && balanceArray[0].amount || 0;
-                    // 处理 rewards
-                    const ivaAddress = addressTransform(address, addressPrefix.iva);
-                    let delegatorRewards, commissionRewards;
-                    if (ivaArray.includes(ivaAddress)) {
-                        [delegatorRewards,commissionRewards] = await Promise.all([DistributionHttp.queryDelegatorRewards(address),DistributionHttp.getCommissionRewards(ivaAddress)]);
-                        if(!delegatorRewards || !commissionRewards) continue;
-                    } else {
-                        delegatorRewards = await DistributionHttp.queryDelegatorRewards(address);
-                        if(!delegatorRewards) continue;
-                    }
                     const delegatorReward = delegatorRewards && delegatorRewards.total && delegatorRewards.total[0] || { denom: '', amount: '' };
                     const commissionReward = commissionRewards && commissionRewards.val_commission && (commissionRewards.val_commission as any).commission && (commissionRewards.val_commission as any).commission.length > 0 && (commissionRewards.val_commission as any).commission[0] || { denom: '', amount: '' };
                     const rewards = {
                         denom: stakingToken.cur_value,
                         amount: BigNumberPlus(delegatorReward.amount || 0, commissionReward.amount || 0) || ''
                     };
-                    // 处理 delegation
+                    // delegation and unbonding_delegation
                     let delegationFlag:any = true;
                     let delegationsArray = [];
                     let delegationPageNum = 1;
-                    while (delegationFlag) {
-                        const delegationsFromLCD = await this.stakingHttp.queryDelegatorsDelegationsFromLcd(address, delegationPageNum);
-                        delegationFlag = delegationsFromLCD && delegationsFromLCD.next_key;
-                        if (delegationsFromLCD && delegationsFromLCD.result && delegationsFromLCD.result.length > 0) {
-                            delegationsArray = delegationsArray.concat(delegationsFromLCD.result);
+                    let unbondingDelegationFlag:any = true;
+                    let unbondingDelegationsArray = [];
+                    let unbondingDelegationPageNum = 1;
+                    while (delegationFlag || unbondingDelegationFlag) {
+                        if (delegationFlag && unbondingDelegationFlag) {
+                            const [delegationsFromLCD, unbondingDelegationsFromLCD] = await Promise.all([this.stakingHttp.queryDelegatorsDelegationsFromLcd(address, delegationPageNum), this.stakingHttp.queryDelegatorsUndelegationsFromLcd(address, unbondingDelegationPageNum)]);
+                            [delegationFlag, delegationsArray] = this.handleDelegationAndUnbondingDelegations(delegationsArray, delegationsFromLCD);
+                            [unbondingDelegationFlag, unbondingDelegationsArray] = this.handleDelegationAndUnbondingDelegations(unbondingDelegationsArray, unbondingDelegationsFromLCD);
+                            delegationPageNum++;
+                            unbondingDelegationPageNum++;
+                        } else if (delegationFlag) {
+                            const delegationsFromLCD = await this.stakingHttp.queryDelegatorsDelegationsFromLcd(address, delegationPageNum);
+                            [delegationFlag, delegationsArray] = this.handleDelegationAndUnbondingDelegations(delegationsArray, delegationsFromLCD);
+                            delegationPageNum++;
+                        }else if (unbondingDelegationFlag) {
+                            const unbondingDelegationsFromLCD = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(address, unbondingDelegationPageNum);
+                            [unbondingDelegationFlag, unbondingDelegationsArray] = this.handleDelegationAndUnbondingDelegations(unbondingDelegationsArray, unbondingDelegationsFromLCD);
+                            unbondingDelegationPageNum++;
                         }
-                        delegationPageNum++;
                     }
                     let delegationAmount = 0;
                     (delegationsArray || []).forEach(delegation => {
@@ -81,18 +90,6 @@ export class AccountInfoTaskService {
                         denom: stakingToken.cur_value,
                         amount: delegationAmount
                     };
-                    // 处理 unbonding_delegation 
-                    let unbondingDelegationFlag:any = true;
-                    let unbondingDelegationsArray = [];
-                    let unbondingDelegationPageNum = 1;
-                    while (unbondingDelegationFlag) {
-                        const unbondingDelegationsFromLCD = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(address, unbondingDelegationPageNum);
-                        unbondingDelegationFlag = unbondingDelegationsFromLCD && unbondingDelegationsFromLCD.next_key;
-                        if (unbondingDelegationsFromLCD && unbondingDelegationsFromLCD.result && unbondingDelegationsFromLCD.result.length > 0) {
-                            unbondingDelegationsArray = unbondingDelegationsArray.concat(unbondingDelegationsFromLCD.result);
-                        }
-                        unbondingDelegationPageNum++;
-                    }
                     let unbondingDelegationAmount = 0;
                     (unbondingDelegationsArray || []).forEach(unbondingDelegation => {
                         if (unbondingDelegation.entries && unbondingDelegation.entries[0] && unbondingDelegation.entries[0].balance) {
@@ -104,23 +101,15 @@ export class AccountInfoTaskService {
                         amount: unbondingDelegationAmount
                     };
                     let temp = 0; 
-                    if (balancesAmount) {
-                        temp = BigNumberPlus(temp,balancesAmount)
-                    }
-                    if (delegation.amount) {
-                        temp = BigNumberPlus(temp, delegation.amount);
-                    }
-                    if (rewards.amount) {
-                        temp = BigNumberPlus(temp, rewards.amount);
-                    }
-                    if (unbonding_delegation.amount) {
-                        temp = BigNumberPlus(temp, unbonding_delegation.amount);
-                    }
+                    if (balancesAmount) temp = BigNumberPlus(temp, balancesAmount);
+                    if (delegation.amount) temp = BigNumberPlus(temp, delegation.amount);
+                    if (rewards.amount) temp = BigNumberPlus(temp, rewards.amount);
+                    if (unbonding_delegation.amount) temp = BigNumberPlus(temp, unbonding_delegation.amount);
                     const account_total = temp;
                     const total = {
                         denom: stakingToken.cur_value,
                         amount: account_total
-                    }
+                    };
                     await (this.accountModel as any).updateAccount({
                         address,
                         account_total: account_total,
@@ -132,7 +121,15 @@ export class AccountInfoTaskService {
                         update_time: getTimestamp(),
                     });
                 }
+                console.timeEnd(ti + '地址的时间')
             }
         }
+    }
+    handleDelegationAndUnbondingDelegations(dataArray,dataFromLCD) {
+        let flag = dataFromLCD && dataFromLCD.next_key;
+        if (dataFromLCD && dataFromLCD.result && dataFromLCD.result.length > 0) {
+            dataArray = dataArray.concat(dataFromLCD.result);
+        }
+        return [flag, dataArray]
     }
 }
