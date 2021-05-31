@@ -150,7 +150,7 @@ export const dbRes = {
         ...common,
         'msgs.msg.validator_address':1,
         'msgs.msg.address':1,
-        'msgs.msg.min_self_delegation':1
+        'msgs.msg.value':1,
     },
     govs:{
         ...common,
