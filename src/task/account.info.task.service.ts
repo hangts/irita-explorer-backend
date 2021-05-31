@@ -121,7 +121,6 @@ export class AccountInfoTaskService {
                         update_time: getTimestamp(),
                     });
                 }
-                console.timeEnd(ti + '地址的时间')
             }
         }
     }
