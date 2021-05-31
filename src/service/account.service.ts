@@ -107,7 +107,7 @@ export class AccountService {
 
     async getTokenStats(): Promise<tokenStatsResDto> {
         const [bondedTokensLcd, totalSupplyLcd, communityPoolFromLcd, stakingToken, mainToken] = await Promise.all([StakingHttp.getBondedTokens(), BankHttp.getTotalSupply(), DistributionHttp.getCommunityPool(), (this.parametersTaskModel as any).queryStakingToken(moduleStaking), (this.tokensModel as any).queryMainToken()]);
-        const scale = mainToken.scale;
+        const scale = mainToken && mainToken.scale;
         const bonded_tokens = {
             denom: stakingToken && stakingToken.cur_value,
             amount: bondedTokensLcd && bondedTokensLcd.bonded_tokens
@@ -126,7 +126,7 @@ export class AccountService {
             case currentChain.cosmos:
                 circulation_tokens = {
                     denom: stakingToken && stakingToken.cur_value,
-                    amount: '--'
+                    amount: null
                 }
                 break;
             default:

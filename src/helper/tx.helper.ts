@@ -76,7 +76,6 @@ export function getCtxKey(ctxId:string,type:string){
 
 const common = {
         tx_hash:1,
-        msgs:1,
         type:1,
         'msgs.type':1,
         status:1,
