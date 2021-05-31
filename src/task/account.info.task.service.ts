@@ -40,6 +40,7 @@ export class AccountInfoTaskService {
                 if (address !== addressAccount) {
                     // 处理 balance
                     const balances = await this.stakingHttp.queryBalanceByAddress(address);
+                    if (!balances) continue;
                     const balanceArray = (balances || []).filter(item => item.denom === stakingToken.cur_value)
                     const balancesAmount = balanceArray && balanceArray[0] && balanceArray[0].amount || 0;
                     // 处理 rewards
@@ -47,8 +48,10 @@ export class AccountInfoTaskService {
                     let delegatorRewards, commissionRewards;
                     if (ivaArray.includes(ivaAddress)) {
                         [delegatorRewards,commissionRewards] = await Promise.all([DistributionHttp.queryDelegatorRewards(address),DistributionHttp.getCommissionRewards(ivaAddress)]);
+                        if(!delegatorRewards || !commissionRewards) continue;
                     } else {
-                        delegatorRewards = await DistributionHttp.queryDelegatorRewards(address)
+                        delegatorRewards = await DistributionHttp.queryDelegatorRewards(address);
+                        if(!delegatorRewards) continue;
                     }
                     const delegatorReward = delegatorRewards && delegatorRewards.total && delegatorRewards.total[0] || { denom: '', amount: '' };
                     const commissionReward = commissionRewards && commissionRewards.val_commission && (commissionRewards.val_commission as any).commission && (commissionRewards.val_commission as any).commission.length > 0 && (commissionRewards.val_commission as any).commission[0] || { denom: '', amount: '' };
