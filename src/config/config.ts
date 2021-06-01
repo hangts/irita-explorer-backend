@@ -68,7 +68,7 @@ export const cfg = {
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
         increaseHeight: INCREASE_HEIGHT || 1000,
         maxOperateTxCount: MAX_OPERATE_TX_COUNT || 100,
-        CRON_JOBS: ['tokens'],
+        CRON_JOBS: CRON_JOBS ? JSON.parse(CRON_JOBS) : [],
         proposalsLimit: PROPOSALS_LIMIT || 1000,
     },
     currentChain: CURRENT_CHAIN || 'IRIS',
