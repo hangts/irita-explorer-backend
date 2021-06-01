@@ -5,7 +5,7 @@ import {TokensHttp} from "../http/lcd/tokens.http";
 import {ITokens} from "../types/schemaTypes/tokens.interface";
 import {Model} from "mongoose"
 import { moduleStaking } from "../constant";
-import { TxType,currentChain } from '../constant';
+import { TxType,currentChain, SRC_PROTOCOL } from '../constant';
 import { cfg } from '../config/config'
 import {TokensLcdDto} from "../dto/http.dto";
 @Injectable()
@@ -26,17 +26,19 @@ export class TokensTaskService {
                 // iris
                 TokensData = await this.TokensHttp.getTokens()
                 break;
-            case currentChain.cosmos:
+                //cosmos token暂时只应手动插入
+            /*case currentChain.cosmos:
                 // cosmos
                 TokensData = TokensLcdDto.bundleData([cfg.MAIN_TOKEN])
-                break;
+                break;*/
             default:
                 break;
         }
-        const TokensFromDB = await (this.tokensModel as any).queryAllTokens()
-        const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking)
-        let TokensDbMap = new Map()
+
         if (TokensData && TokensData.length > 0) {
+            const TokensFromDB = await (this.tokensModel as any).queryAllTokens()
+            const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking)
+            let TokensDbMap = new Map()
             for (let token of TokensData) {
                 TokensFromDB.map(item => {
                     if (item.symbol === token.symbol) {
@@ -59,13 +61,18 @@ export class TokensTaskService {
                         })
                     })
                 }
-                TokensDbMap.set(token.min_unit,token)
+                token.src_protocol = SRC_PROTOCOL.NATIVE;
+                token.chain = cfg.currentChain;
+                TokensDbMap.set(token.denom,token)
             }
+            console.log(TokensDbMap)
+            if(stakingToken && stakingToken.cur_value) {
+                TokensDbMap.get(stakingToken.cur_value).is_main_token = true
+            }
+
+            this.insertTokens(TokensDbMap)
         }
-        if(stakingToken && stakingToken.cur_value) {
-            TokensDbMap.get(stakingToken.cur_value).is_main_token = true
-        }
-       this.insertTokens(TokensDbMap)
+
     }
     private insertTokens(TokensDataMap) {
         if (TokensDataMap && TokensDataMap.size > 0) {

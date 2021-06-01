@@ -54,7 +54,6 @@ $ npm run start:prod
 
 ### Chain config
 - CURRENT_CHAIN `Optional` `string` chain name (example: "IRIS")
-- MAIN_TOKEN `Optional` `objece` chain main tonken (example: {"min_unit":"uiris","scale":"6","symbol":"iris"})
 
 ### log configure
 - DisableLog: `Optional` `string` disable Log `true/false`

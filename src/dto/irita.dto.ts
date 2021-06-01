@@ -36,13 +36,13 @@ export class NetworkResDto extends BaseResDto{
 
 export class TokensResDto extends BaseResDto {
     symbol:string;
-    min_unit:string;
+    denom:string;
     scale:number;
     is_main_token:boolean;
     constructor(value) {
         super();
         this.symbol = value.symbol;
-        this.min_unit = value.min_unit;
+        this.denom = value.denom;
         this.scale = value.scale;
         this.is_main_token = value.is_main_token;
     }

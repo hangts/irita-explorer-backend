@@ -48,7 +48,7 @@ export enum TxType {
     edit_nft = 'edit_nft',
     issue_denom = 'issue_denom',
     mint_nft = 'mint_nft',
-    // Asset 
+    // Asset
     issue_token = 'issue_token',
     edit_token = 'edit_token',
     mint_token = 'mint_token',
@@ -262,3 +262,7 @@ export const queryVoteOptionCount = {
 }
 
 export const addressAccount = 'xxx'
+
+export const SRC_PROTOCOL = {
+    NATIVE:'native',
+}

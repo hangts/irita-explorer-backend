@@ -2,6 +2,7 @@ import { BaseReqDto, PagingReqDto } from './base.dto';
 import { ApiError } from '../api/ApiResult';
 import { ErrorCodes } from '../api/ResultCodes';
 import { ApiProperty } from '@nestjs/swagger';
+import {SRC_PROTOCOL} from '../constant';
 
 export class AssetListResDto {
     symbol: number;
@@ -10,6 +11,8 @@ export class AssetListResDto {
     initial_supply: string;
     max_supply: string;
     mintable: boolean;
+    src_protocol: string;
+    chain: string;
 
     constructor(value) {
         this.symbol = value.symbol;
@@ -18,6 +21,8 @@ export class AssetListResDto {
         this.initial_supply = value.initial_supply;
         this.max_supply = value.max_supply;
         this.mintable = value.mintable;
+        this.src_protocol = value.src_protocol;
+        this.chain = value.chjain;
     }
 }
 
@@ -25,22 +30,26 @@ export class AssetListResDto {
 export class AssetDetailResDto {
     name: string;
     owner: number;
-    min_unit: string;
+    denom: string;
     total_supply: string;
     initial_supply: string;
     max_supply: string;
     mintable: string;
     scale: number;
+    src_protocol: string;
+    chain: string;
 
     constructor(value) {
         this.name = value.name;
         this.owner = value.owner;
         this.total_supply = value.total_supply;
-        this.initial_supply = value.initial_supply;          
+        this.initial_supply = value.initial_supply;
         this.max_supply = value.max_supply;
         this.mintable = value.mintable;
         this.scale = value.scale;
-        this.min_unit = value.min_unit;
+        this.denom = value.denom;
+        this.src_protocol = value.src_protocol;
+        this.chain = value.chain;
     }
 }
 
