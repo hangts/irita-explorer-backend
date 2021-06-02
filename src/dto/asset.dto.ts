@@ -22,7 +22,7 @@ export class AssetListResDto {
         this.max_supply = value.max_supply;
         this.mintable = value.mintable;
         this.src_protocol = value.src_protocol;
-        this.chain = value.chjain;
+        this.chain = value.chain;
     }
 }
 
