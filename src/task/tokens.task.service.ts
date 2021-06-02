@@ -65,7 +65,6 @@ export class TokensTaskService {
                 token.chain = cfg.currentChain;
                 TokensDbMap.set(token.denom,token)
             }
-            console.log(TokensDbMap)
             if(stakingToken && stakingToken.cur_value) {
                 TokensDbMap.get(stakingToken.cur_value).is_main_token = true
             }

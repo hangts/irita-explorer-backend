@@ -139,8 +139,9 @@ export const PubKeyAlgorithm = {
 }
 
 export enum currentChain  {
-    cosmos ='COSMOS',
-    iris ='IRIS'
+    cosmos ='cosmos',
+    iris ='iris',
+    binance = 'binance'
 }
 
 export const signedBlocksWindow = 'signed_blocks_window'
@@ -265,4 +266,8 @@ export const addressAccount = 'xxx'
 
 export const SRC_PROTOCOL = {
     NATIVE:'native',
+    HTLT:'htlt',
+    IBC:'ibc',
+    SWAP:'swap',
+    PEG:'peg',
 }

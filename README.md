@@ -53,7 +53,7 @@ $ npm run start:prod
 - PROPOSALS_LIMIT `Optional` `number` proposals limit for sync proposal (default 1000)
 
 ### Chain config
-- CURRENT_CHAIN `Optional` `string` chain name (example: "IRIS")
+- CURRENT_CHAIN `Optional` `string` chain name (example: iris/cosmos/binance)
 
 ### log configure
 - DisableLog: `Optional` `string` disable Log `true/false`

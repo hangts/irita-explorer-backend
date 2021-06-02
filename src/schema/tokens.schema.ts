@@ -19,11 +19,10 @@ export const TokensSchema = new mongoose.Schema({
     chain:String,
 })
 TokensSchema.index({symbol: 1}, {unique: true})
-TokensSchema.index({denom: 1})
+TokensSchema.index({denom: 1, chain:1})
 
 TokensSchema.statics = {
     async insertTokens(Tokens: ITokens) {
-        console.log(Tokens)
         //设置 options 查询不到就插入操作
         let {denom} = Tokens
         const options = {upsert: true, new: false, setDefaultsOnInsert: true}
