@@ -26,7 +26,6 @@ const {
     INCREASE_HEIGHT,
     MAX_OPERATE_TX_COUNT,
     CURRENT_CHAIN,
-    MAIN_TOKEN,
     CRON_JOBS,
     PROPLSAL,
     PROPOSALS_LIMIT,
@@ -72,7 +71,7 @@ export const cfg = {
         CRON_JOBS: CRON_JOBS ? JSON.parse(CRON_JOBS) : [],
         proposalsLimit: PROPOSALS_LIMIT || 1000,
     },
-    currentChain: CURRENT_CHAIN || 'IRIS',
-    MAIN_TOKEN: MAIN_TOKEN ? JSON.parse(MAIN_TOKEN) : {"min_unit":"umuon","scale":"6","symbol":"muon"}
+    currentChain: CURRENT_CHAIN || 'iris',
+   // MAIN_TOKEN: MAIN_TOKEN ? JSON.parse(MAIN_TOKEN) : {"min_unit":"umuon","scale":"6","symbol":"muon"}
 };
 

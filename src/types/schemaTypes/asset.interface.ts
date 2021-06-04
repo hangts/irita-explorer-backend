@@ -6,5 +6,7 @@ export interface IAssetStruct {
     max_supply?:string,
     mintable?: boolean,
     name?: string,
-    scale?:string
+    scale?:string,
+    src_protocol?: string;
+    chain?: string;
 }
