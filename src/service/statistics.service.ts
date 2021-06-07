@@ -184,7 +184,7 @@ export class StatisticsService {
         if (mainToken) {
             if (totalSupplyLcd && totalSupplyLcd.supply && totalSupplyLcd.supply.length > 0) {
                 totalSupplyLcd.supply.map(item => {
-                    if (item.denom === mainToken.min_unit) {
+                    if (item.denom === mainToken.denom) {
                         total_supply = item.amount
                     }
                 })
