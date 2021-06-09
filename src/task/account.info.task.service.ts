@@ -54,7 +54,7 @@ export class AccountInfoTaskService {
                     const commissionReward = commissionRewards && commissionRewards.val_commission && (commissionRewards.val_commission as any).commission && (commissionRewards.val_commission as any).commission.length > 0 && (commissionRewards.val_commission as any).commission[0] || { denom: '', amount: '' };
                     const rewards = {
                         denom: stakingToken.cur_value,
-                        amount: BigNumberPlus(delegatorReward.amount || 0, commissionReward.amount || 0) || ''
+                        amount: Math.floor(BigNumberPlus(delegatorReward.amount || 0, commissionReward.amount || 0)) || ''
                     };
                     // delegation and unbonding_delegation
                     let delegationFlag:any = true;
