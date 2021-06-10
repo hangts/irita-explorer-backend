@@ -122,7 +122,7 @@ export const dbRes = {
         ...common,
         ...fromTo,
         // transactions list 
-        events: 1,
+        events_new: 1,
         'msgs.msg.amount': 1,
         'msgs.msg.content.amount': 1,
         'msgs.msg.initial_deposit':1
@@ -145,7 +145,7 @@ export const dbRes = {
         ...fromTo,
         'msgs.msg.amount':1,
         'msgs.msg.delegation': 1,
-        events:1
+        events_new: 1,
     },
     validations:{
         ...common,
