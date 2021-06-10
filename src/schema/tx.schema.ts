@@ -46,6 +46,7 @@ export const TxSchema = new mongoose.Schema({
     coins: Array,
     signer: String,
     events: Array,
+    events_new: Array,
     msgs: Array,
     signers: Array,
     addrs: Array,

@@ -86,44 +86,47 @@ export class TxService {
 
     handerEvents(txList) {
         (txList).forEach(tx => {
-            let amount, recipient;
-            if (tx.type === TxType.claim_htlc) {
-                let numberTransfer = 0;
-                (tx.events || []).forEach(event => {
-                    if(event.type === "transfer") {
-                        numberTransfer++
-                    }
-                    if(event.type === "transfer" && numberTransfer === 2) {
-                        (event.attributes || []).forEach(item => {
-                            if(item.key === 'amount')  {
-                                amount = item.value
-                            }
-                            if(item.key === 'recipient') {
-                                recipient = item.value
-                            }
-                        })
-                    }
-                })
-                if (tx.msgs && tx.msgs[0] && tx.msgs[0].msg) {
-                    tx.msgs[0].msg['amount'] = amount;
-                    tx.msgs[0].msg['recipient'] = recipient;
+            (tx.msgs || []).forEach((msg,index) => {
+                if (msg.type === TxType.claim_htlc) {
+                    (tx.events_new || []).forEach((eventNew) => {
+                        if (eventNew.msg_index === index) {
+                            let amount, recipient;
+                            (eventNew.events || []).forEach(event => {
+                                if(event.type === "transfer") {
+                                    (event.attributes || []).forEach(item => {
+                                        if(item.key === 'amount')  {
+                                            amount = item.value
+                                        }
+                                        if(item.key === 'recipient') {
+                                            recipient = item.value
+                                        }
+                                    })
+                                }
+                            })
+                            msg.msg['amount'] = amount;
+                            msg.msg['recipient'] = recipient;
+                        }
+                    })
                 }
-            }
-            if (tx.type === TxType.withdraw_delegator_reward) {
-                (tx.events || []).forEach((item) => {
-					if(item.type === 'withdraw_rewards') {
-						(item.attributes || []).forEach((attr) => {
-							if (attr.key == 'amount') {
-								amount = attr.value || '--';
-							}
-						});
-					}
-				});
-                if (tx.msgs && tx.msgs[0] && tx.msgs[0].msg) {
-                    tx.msgs[0].msg['amount'] = amount;
+                if (msg.type === TxType.withdraw_delegator_reward) {
+                    (tx.events_new || []).forEach((eventNew) => {
+                        if (eventNew.msg_index === index) {
+                            let amount;
+                            (eventNew.events || []).forEach((item) => {
+                                if(item.type === 'withdraw_rewards') {
+                                    (item.attributes || []).forEach((attr) => {
+                                        if (attr.key == 'amount') {
+                                            amount = attr.value || '--';
+                                        }
+                                    });
+                                }
+                            });
+                            msg.msg['amount'] = amount;
+                        }
+                    })
                 }
-            }
-            tx.events = undefined;
+            });
+            tx.events_new = undefined;
         });
         return txList
     }

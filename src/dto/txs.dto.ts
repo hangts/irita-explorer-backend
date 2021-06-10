@@ -288,6 +288,7 @@ export class TxResDto extends BaseResDto {
     coins: Array<any>;
     signer: string;
     events: Array<any>;
+    events_new: Array<any>;
     msgs: Array<any>;
     signers: Array<any>;
     fee: object;
@@ -311,6 +312,7 @@ export class TxResDto extends BaseResDto {
         this.coins = txData.coins;
         this.signer = txData.signer;
         this.events = txData.events;
+        this.events_new = txData.events_new;
         this.msgs = txData.msgs;
         this.signers = txData.signers;
         this.fee = txData.fee;
