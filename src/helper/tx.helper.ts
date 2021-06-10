@@ -125,7 +125,13 @@ export const dbRes = {
         events_new: 1,
         'msgs.msg.amount': 1,
         'msgs.msg.content.amount': 1,
-        'msgs.msg.initial_deposit':1
+        'msgs.msg.initial_deposit': 1,
+        'msgs.msg.sorce_port':1,
+        'msgs.msg.sorce_channel':1,//IBC
+        'msgs.msg.token':1,//IBC
+        'msgs.msg.timeout_height':1,//IBC
+        'msgs.msg.timeout_timestamp':1,//IBC
+        'msgs.msg.packet':1,//IBC
     },
     service:{
         ...common,
