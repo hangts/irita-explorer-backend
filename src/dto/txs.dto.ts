@@ -298,7 +298,6 @@ export class TxResDto extends BaseResDto {
     coins: Array<any>;
     signer: string;
     events: Array<any>;
-    events_new: Array<any>;
     msgs: Array<any>;
     signers: Array<any>;
     fee: object;
