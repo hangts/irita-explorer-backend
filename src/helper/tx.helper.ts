@@ -96,6 +96,7 @@ const fromTo = {
         'msgs.msg.creator':1,
         'msgs.msg.sender':1,
         'msgs.msg.recipient':1,
+        'msgs.msg.receiver':1,
         'msgs.msg.owner':1,
         'msgs.msg.delegator_address':1,
         'msgs.msg.validator_address':1,
@@ -120,11 +121,16 @@ export const dbRes = {
     txList:{
         ...common,
         ...fromTo,
-        // transactions list 
+        // transactions list
         events: 1,
-        'msgs.msg.amount': 1,
         'msgs.msg.content.amount': 1,
-        'msgs.msg.initial_deposit':1
+        'msgs.msg.initial_deposit':1,
+        'msgs.msg.sorce_port':1,
+        'msgs.msg.sorce_channel':1,//IBC
+        'msgs.msg.token':1,//IBC
+        'msgs.msg.timeout_height':1,//IBC
+        'msgs.msg.timeout_timestamp':1,//IBC
+        'msgs.msg.packet':1,//IBC
     },
     service:{
         ...common,
