@@ -41,6 +41,26 @@ export class eTxListReqDto extends PagingReqDto {
 
     @ApiPropertyOptional()
     status?: number;
+
+    @ApiPropertyOptional()
+    address?: string;
+
+    @ApiPropertyOptional({description:'true/false'})
+    include_event_addr?: boolean;
+
+    static convert(value: any): any {
+        super.convert(value);
+        if(!value.include_event_addr){
+            value.include_event_addr = false;
+        }else {
+            if(value.include_event_addr === 'true'){
+                value.include_event_addr = true;
+            }else {
+                value.include_event_addr = false;
+            }
+        }
+        return value;
+    }
 }
 
 //txs/blocks request dto

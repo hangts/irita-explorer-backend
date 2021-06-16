@@ -300,7 +300,7 @@ TxSchema.statics.queryGovTxList = async function(query: ITxsQuery): Promise<ILis
 
 
 //  txs/e 供edgeServer调用  返回数据不做过滤
-TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, useCount:boolean,status?:number): Promise<IListStruct> {
+TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, useCount:boolean,status?:number,address?:string,include_event_addr?:boolean): Promise<IListStruct> {
     let result: IListStruct = {};
     let queryParameters: any = {};
     if (types && types.length) {
@@ -312,11 +312,18 @@ TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number
     if (status || status === 0) {
         queryParameters['status'] = status;
     }
+    if (include_event_addr && include_event_addr == true && address && address.length) {
+        queryParameters['$or'] = [
+            { 'events.attributes.value': address },
+            { 'addrs': { $elemMatch: {'$in': address.split(',')} }}
+        ]
+    } else if (address && address.length) {
+        queryParameters['addrs'] = { $elemMatch: { '$in': address.split(',') } };
+    }
     result.data = await this.find(queryParameters)
-        .sort({ height: 1 })
-        .skip((Number(pageNum) - 1) * Number(pageSize))
-        .limit(Number(pageSize));
-
+    .sort({ height: 1 })
+    .skip((Number(pageNum) - 1) * Number(pageSize))
+    .limit(Number(pageSize));
     if (useCount && useCount == true) {
         result.count = await this.find(queryParameters).countDocuments();
     }
