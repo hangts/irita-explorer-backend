@@ -243,7 +243,7 @@ export class TxService {
 
     // txs/e  供edgeServer调用  返回数据不做过滤
     async queryTxListEdge(query: eTxListReqDto): Promise<ListStruct<any[]>> {
-        let txListData = await this.txModel.queryTxListEdge(query.types, query.height, query.pageNum, query.pageSize, query.useCount,query.status);
+        let txListData = await this.txModel.queryTxListEdge(query.types, query.height, query.pageNum, query.pageSize, query.useCount,query.status,query.address,query.include_event_addr);
         let txList = [...txListData.data];
         if (txListData.data && txListData.data.length && txListData.data.length == query.pageSize) {
             let lastItem = txListData.data[txListData.data.length - 1];
