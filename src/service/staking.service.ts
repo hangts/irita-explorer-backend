@@ -242,7 +242,7 @@ export default class StakingService {
         const count =delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.total : 0
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const resultData = (dataLcd || []).map(item => {
-            const denom:string = (aminToken || {}).min_unit || '';
+            const denom:string = (aminToken || {}).denom || '';
             let entries:any = item && item.entries || []
             const amount =  entries && entries.length > 0 ? entries[0].balance : ''
             let validator = allValidatorsMap.get(item.validator_address);
@@ -317,7 +317,7 @@ export default class StakingService {
         let proposalsDeletedId = proposalsListFromDb && proposalsListFromDb.length > 0 ? proposalsListFromDb.map(id => id.id) : [];
         if (depositsData && depositsData.data && depositsData.data.length > 0) {
             for (const depost of depositsData.data) {
-                if (depost.msgs && depost.msgs[0] && depost.msgs[0].msg) { 
+                if (depost.msgs && depost.msgs[0] && depost.msgs[0].msg) {
                     const msg = depost.msgs[0].msg;
                     const proposal = await (this.txModel as any).querySubmitProposalById(String(msg.proposal_id));
                     const proposer = proposal && proposal.msgs && proposal.msgs[0] && proposal.msgs[0].msg && proposal.msgs[0].msg.proposer;
