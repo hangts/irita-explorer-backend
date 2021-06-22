@@ -1,9 +1,9 @@
-import {IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty} from 'class-validator';
+import { IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty, validate } from 'class-validator';
 import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
 import {BaseReqDto, BaseResDto, PagingReqDto} from './base.dto';
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
-import {IBindTx} from '../types/tx.interface';
+import {IBindTx,ExternalIBindTx} from '../types/tx.interface';
 
 /************************   request dto   ***************************/
 //txs request dto
@@ -38,6 +38,29 @@ export class eTxListReqDto extends PagingReqDto {
 
     @ApiPropertyOptional({description: 'Greater than block height'})
     height?: number;
+
+    @ApiPropertyOptional()
+    status?: number;
+
+    @ApiPropertyOptional()
+    address?: string;
+
+    @ApiPropertyOptional({description:'true/false'})
+    include_event_addr?: boolean;
+
+    static convert(value: any): any {
+        super.convert(value);
+        if(!value.include_event_addr){
+            value.include_event_addr = false;
+        }else {
+            if(value.include_event_addr === 'true'){
+                value.include_event_addr = true;
+            }else {
+                value.include_event_addr = false;
+            }
+        }
+        return value;
+    }
 }
 
 //txs/blocks request dto
@@ -110,6 +133,16 @@ export class TxListWithCallServiceReqDto extends PagingReqDto {
     @ApiProperty()
     @MinLength(1, {message: "consumerAddr is too short"})
     consumerAddr: string;
+}
+
+//txs/e/services/respond-service
+export class ExternalQueryRespondServiceReqDto {
+    @ApiProperty()
+    serviceName: string;
+
+    @ApiProperty()
+    @MinLength(1, {message: "providerAddr is too short"})
+    providerAddr: string;
 }
 
 //txs/service/respond-service
@@ -289,8 +322,10 @@ export class TxResDto extends BaseResDto {
     signers: Array<any>;
     fee: object;
     monikers: any[];
+    addrs?: any[];
     ex?: object;
     proposal_link?: boolean;
+    events_new?:any[];
 
     constructor(txData) {
         super();
@@ -307,12 +342,14 @@ export class TxResDto extends BaseResDto {
         this.coins = txData.coins;
         this.signer = txData.signer;
         this.events = txData.events;
+        this.events_new = txData.events_new;
         this.msgs = txData.msgs;
         this.signers = txData.signers;
         this.fee = txData.fee;
         this.monikers = txData.monikers || [];
         if (txData.ex) this.ex = txData.ex;
         if (txData.proposal_link) this.proposal_link = true;
+        if (txData.addrs) this.addrs = txData.addrs;
     }
 
     static bundleData(value: any): TxResDto[] {
@@ -343,6 +380,15 @@ export class callServiceResDto extends TxResDto {
             return new callServiceResDto(v);
         });
         return data;
+    }
+}
+
+//e/services/respond-service
+export class ExternalQueryRespondServiceResDto {
+    respondTimes: number
+
+    constructor(value) {
+        this.respondTimes = value || 0;
     }
 }
 
@@ -390,6 +436,18 @@ export class ServiceResDto {
     bindList: IBindTx[];
 
     constructor(serviceName: string, description: string, bindList: IBindTx[]) {
+        this.serviceName = serviceName;
+        this.description = description;
+        this.bindList = bindList;
+    }
+}
+
+export class ExternalServiceResDto {
+    serviceName: string;
+    description: string;
+    bindList: ExternalIBindTx[];
+
+    constructor(serviceName: string,description: string,  bindList: ExternalIBindTx[]) {
         this.serviceName = serviceName;
         this.description = description;
         this.bindList = bindList;

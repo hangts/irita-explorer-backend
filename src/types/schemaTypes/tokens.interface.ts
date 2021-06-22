@@ -1,7 +1,7 @@
 
 export interface ITokens {
     symbol:string;
-    min_unit:string;
+    denom:string;
     scale:number;
     is_main_token:boolean;
     initial_supply:string;
@@ -10,5 +10,7 @@ export interface ITokens {
     owner:string;
     name: string;
     total_supply: string;
-    update_block_height:number
+    update_block_height:number;
+    src_protocol: string;
+    chain: string;
 }

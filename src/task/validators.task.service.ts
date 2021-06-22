@@ -16,7 +16,7 @@ export class ValidatorsTaskService {
     async doTask(): Promise<void> {
         let PageNum = 1,limitSize = 100, allValidatorsFromLcd = [];
         //验证人第一次默认请求 默认请求第一页
-        let validatorsFromLcd: any[] = await this.validatorsHttp.queryValidatorsFromLcd(null,PageNum,limitSize);
+        let validatorsFromLcd: any[] = await this.validatorsHttp.queryValidatorsFromLcd(PageNum,limitSize);
         if (typeof validatorsFromLcd == 'undefined') {
             return;
         }
@@ -27,7 +27,7 @@ export class ValidatorsTaskService {
         //判断是否有第二页数据 如果有使用while循环请求
         while (validatorsFromLcd && validatorsFromLcd.length === limitSize){
             PageNum++
-            validatorsFromLcd = await this.validatorsHttp.queryValidatorsFromLcd(null,PageNum,limitSize);
+            validatorsFromLcd = await this.validatorsHttp.queryValidatorsFromLcd(PageNum,limitSize);
             //将第二页及以后的数据合并
             allValidatorsFromLcd = allValidatorsFromLcd.concat(validatorsFromLcd)
         }

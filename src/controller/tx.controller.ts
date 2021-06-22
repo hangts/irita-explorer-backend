@@ -1,3 +1,4 @@
+import { PagingReqDto } from './../dto/base.dto';
 import { Controller, Get, Post, Put, Delete, Param, Query, Res, Req, Body, HttpCode } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { TxService } from '../service/tx.service';
@@ -29,10 +30,14 @@ import {
     ServiceRespondReqDto,
     ServiceRespondResDto,
     IdentityTxReqDto,
-    TxListWithAssetReqDto
+    TxListWithAssetReqDto,
+    ExternalQueryRespondServiceReqDto
 } from '../dto/txs.dto';
 import { TxResDto,
-         TxTypeResDto } from '../dto/txs.dto';
+    TxTypeResDto,
+    ExternalServiceResDto,
+    ExternalQueryRespondServiceResDto
+} from '../dto/txs.dto';
 
 @ApiTags('Txs')
 @Controller('txs')
@@ -49,6 +54,12 @@ export class TxController {
     @Get('/staking')
     async queryStakingTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryStakingTxList(query);
+        return new Result<any>(data);
+    }
+
+    @Get('/coinswap')
+    async queryCoinswapTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryCoinswapTxList(query);
         return new Result<any>(data);
     }
 
@@ -69,6 +80,20 @@ export class TxController {
     async queryTxListEdge(@Query() query: eTxListReqDto): Promise<Result<ListStruct<any>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxListEdge(query);
         return new Result<any>(data);
+    }
+
+    // 供外部系统调用的 API,获取服务列表以及被调用次数
+    @Get("e/services")
+    async externalQueryServiceList(@Query() query: PagingReqDto):Promise<Result<ListStruct<ExternalServiceResDto[]>>> {
+       const data: ListStruct<ExternalServiceResDto[]> = await this.txService.externalFindServiceList(query);
+        return new Result<ListStruct<ExternalServiceResDto[]>>(data);
+    }
+    
+    // 供外部系统调用的 API,根据地址以及服务名获取服务被调用次数
+    @Get("e/services/respond-service")
+    async externalQueryRespondService(@Query() query: ExternalQueryRespondServiceReqDto):Promise<Result<ExternalQueryRespondServiceResDto>> {
+        const data: ExternalQueryRespondServiceResDto = await this.txService.externalQueryRespondService(query);
+        return new Result<ExternalQueryRespondServiceResDto>(data);
     }
 
     @Get("/blocks")
@@ -103,7 +128,7 @@ export class TxController {
         const data: ListStruct<ServiceResDto[]> = await this.txService.findServiceList(query);
         return new Result<ListStruct<ServiceResDto[]>>(data);
     }
-
+    
     @Get("/services/call-service")
     async queryTxWithCallService(@Query() query: TxListWithCallServiceReqDto):Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithCallService(query);

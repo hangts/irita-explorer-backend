@@ -13,26 +13,12 @@ import {
     IDelegationLcd,
     TokensStakingLcdToken
 } from "../../dto/http.dto";
-import { currentChain } from '../../constant/index'
 
 @Injectable()
 
 export class StakingHttp {
     async queryValidatorListFromLcd(status: string, pageNum: number, pageSize: number) {
-        let validatorLcdUri;
-        switch (cfg.currentChain) {
-            case currentChain.iris:
-                // iris
-                // validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&pageNum=${pageNum}&pageSize=${pageSize}`
-                validatorLcdUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators?status=${status}&pagination.limit=${pageSize}`
-                break;
-            case currentChain.cosmos:
-                // cosmos
-                validatorLcdUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators?status=${status}&pagination.limit=${pageSize}`
-                break;
-            default:
-                break;
-        }
+        let validatorLcdUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators?status=${status}&pagination.limit=${pageSize}`;
         try {
             let stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)
             if (stakingValidatorData && stakingValidatorData.validators) {
@@ -42,6 +28,7 @@ export class StakingHttp {
             }
         } catch (e) {
             Logger.warn(`api-error from ${validatorLcdUri}`, e)
+            throw new Error(e);
         }
     }
 

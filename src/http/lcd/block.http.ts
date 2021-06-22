@@ -50,8 +50,8 @@ export class BlockHttp {
         }
     }
 
-    static async queryValidatorsets(height:string|number): Promise<Validatorset[]> {
-        const url: string = `${cfg.serverCfg.lcdAddr}/validatorsets/${height}`;
+    static async queryValidatorsets(height:string|number,page=1): Promise<Validatorset[]> {
+        const url: string = `${cfg.serverCfg.lcdAddr}/validatorsets/${height}?page=${page}`;
         try {
             const data: any = await new HttpService().get(url).toPromise().then(res => res.data);
             if (data && data.result) {

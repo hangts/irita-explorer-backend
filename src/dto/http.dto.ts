@@ -242,28 +242,32 @@ export class TokensLcdDto {
     symbol: string;
     name:string;
     scale:number;
-    min_unit:string;
+    denom:string;
     initial_supply: string;
     max_supply: string;
     mintable:boolean;
     owner: string;
     is_main_token: boolean;
     total_supply: string;
-    update_block_height: number
-    
+    update_block_height: number;
+    src_protocol: string;
+    chain: string;
+
     constructor(value) {
         this['@type'] = value['@type'] || '';
         this.symbol = value.symbol || '';
         this.name = value.name || '';
         this.scale = value.scale || 0;
-        this.min_unit = value.min_unit || '';
+        this.denom = value.min_unit || '';
         this.initial_supply = value.initial_supply || '';
         this.max_supply = value.max_supply || '';
-        this.mintable = value.mintable || true;
+        this.mintable = value.mintable || false;
         this.owner = value.owner || '';
         this.is_main_token = value.is_main_token || false;
         this.total_supply = value.initial_supply || '';
         this.update_block_height = value.update_block_height || 0;
+        this.src_protocol = value.src_protocol || '';
+        this.chain = value.chain || '';
     }
 
     static bundleData(value: any = []): TokensLcdDto[] {
@@ -302,7 +306,7 @@ export class StakingValidatorLcdDto {
     unbonding_time: string;
     commission: object;
     min_self_delegation: string;
-    
+
 
     constructor(value) {
         this.operator_address = value.operator_address || '';
@@ -471,7 +475,7 @@ export class commissionRewardsLcdDto {
 // /cosmos/distribution/v1beta1/community_pool
 export class communityPoolLcdDto {
     pool: Coin[];
-    
+
     constructor(value) {
         this.pool = value.pool || [];
     }
