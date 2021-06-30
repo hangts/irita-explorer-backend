@@ -88,12 +88,16 @@ export class TxController {
        const data: ListStruct<ExternalServiceResDto[]> = await this.txService.externalFindServiceList(query);
         return new Result<ListStruct<ExternalServiceResDto[]>>(data);
     }
-    
+
     // 供外部系统调用的 API,根据地址以及服务名获取服务被调用次数
     @Get("e/services/respond-service")
     async externalQueryRespondService(@Query() query: ExternalQueryRespondServiceReqDto):Promise<Result<ExternalQueryRespondServiceResDto>> {
         const data: ExternalQueryRespondServiceResDto = await this.txService.externalQueryRespondService(query);
         return new Result<ExternalQueryRespondServiceResDto>(data);
+    }
+    @Get("e/debug")//TODO (lvshenchao)
+    async debug():Promise<any[]> {
+        return ['debug'];
     }
 
     @Get("/blocks")
@@ -128,7 +132,7 @@ export class TxController {
         const data: ListStruct<ServiceResDto[]> = await this.txService.findServiceList(query);
         return new Result<ListStruct<ServiceResDto[]>>(data);
     }
-    
+
     @Get("/services/call-service")
     async queryTxWithCallService(@Query() query: TxListWithCallServiceReqDto):Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithCallService(query);
