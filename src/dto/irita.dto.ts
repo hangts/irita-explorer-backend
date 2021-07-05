@@ -6,7 +6,16 @@ import {ErrorCodes} from '../api/ResultCodes';
 import {IBindTx} from '../types/tx.interface';
 
 /************************   request dto   ***************************/
+export class TokensReqDto extends BaseReqDto {
+  @ApiProperty({ required: false, default: 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2' })
+  denom:string;
+  
+  @ApiProperty({ required: false, default: 'iris' })
+  chain:string;
 
+  @ApiProperty({ required: false, default: '66bc60f8251ac60e2baca8afe7f69b8d' })
+  key: string;
+}
 
 /************************   response dto   ***************************/
 //txs response dto
@@ -35,18 +44,31 @@ export class NetworkResDto extends BaseResDto{
 }
 
 export class TokensResDto extends BaseResDto {
+    @ApiProperty()
     symbol:string;
+    @ApiProperty()
     denom:string;
+    @ApiProperty()
     scale:number;
+    @ApiProperty()
     is_main_token:boolean;
+    @ApiProperty()
     initial_supply: string;
+    @ApiProperty()
     max_supply: string;
+    @ApiProperty()
     mintable: boolean;
+    @ApiProperty()
     owner: string;
+    @ApiProperty()
     name: string;
+    @ApiProperty()
     total_supply: string;
+    @ApiProperty()
     update_block_height: number;
+    @ApiProperty()
     src_protocol: string;
+    @ApiProperty()
     chain:string;
     constructor(value) {
         super();

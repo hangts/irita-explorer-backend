@@ -7,7 +7,7 @@ export class TokensHttp {
     async getTokens () {
         const TokensUrl = `${cfg.serverCfg.lcdAddr}/irismod/token/tokens`
         try {
-            let TokensData: any = await new HttpService().get(TokensUrl).toPromise().then(result => result.data)
+            const TokensData: any = await new HttpService().get(TokensUrl).toPromise().then(result => result.data)
             if (TokensData && TokensData.Tokens) {
                 return TokensLcdDto.bundleData(TokensData.Tokens);
             } else {
@@ -21,7 +21,7 @@ export class TokensHttp {
     async getCirculationtTokens () {
         const CirculationtTokensUrl = `https://rpc.irisnet.org/token-stats/circulation`
         try {
-            let CirculationtTokens: any = await new HttpService().get(CirculationtTokensUrl).toPromise().then(result => result.data)
+            const CirculationtTokens: any = await new HttpService().get(CirculationtTokensUrl).toPromise().then(result => result.data)
             if (CirculationtTokens) {
                 return CirculationtTokens;
             } else {
@@ -30,5 +30,21 @@ export class TokensHttp {
         } catch (e) {
             Logger.warn(`api-error from ${CirculationtTokensUrl}`, e)
         }
+    }
+
+    async getIbcTraces(hash) {
+      // cfg.serverCfg.lcdAddr
+      const url = 'https://irishub.iobscan.io/lcd'
+      const ibcTracesUrl = `${url}/ibc/applications/transfer/v1beta1/denom_traces/${hash}`
+      try {
+        const TracesData: any = await new HttpService().get(ibcTracesUrl).toPromise().then(result => result.data)
+        if (TracesData) {
+          return TracesData;
+      } else {
+          Logger.warn('api-error:', `there is no result of ibcTraces from ${ibcTracesUrl}`);
+      }
+      } catch (error) {
+        Logger.warn(`api-error from ${ibcTracesUrl}`, error)
+      }
     }
 }

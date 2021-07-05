@@ -2,6 +2,7 @@ import * as mongoose from 'mongoose';
 import {ITokens} from "../types/schemaTypes/tokens.interface";
 import { IAssetStruct } from '../types/schemaTypes/asset.interface';
 import {SRC_PROTOCOL} from '../constant';
+import { DenomSchema } from './denom.schema';
 
 export const TokensSchema = new mongoose.Schema({
     symbol: String,
@@ -24,12 +25,19 @@ TokensSchema.index({denom: 1, chain:1}, {unique: true})
 TokensSchema.statics = {
     async insertTokens(Tokens: ITokens) {
         //设置 options 查询不到就插入操作
-        let {denom} = Tokens
+        const {denom} = Tokens
         const options = {upsert: true, new: false, setDefaultsOnInsert: true}
         await this.findOneAndUpdate({ denom }, Tokens, options)
     },
     async queryAllTokens() {
         return await this.find({})
+    },
+
+    async insertIbcToken(Token: ITokens) {
+        return await this.insertMany(Token)
+    },
+    async queryIbcToken(denom, chain) {
+        return await this.find({"denom": denom, "chain": chain})
     },
     async queryMainToken() {
         return await this.findOne({is_main_token:true});
