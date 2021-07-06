@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { IritaService } from '../service/irita.service';
 import { TokenService } from '../service/token.service';
 import { Result } from '../api/ApiResult';
-import { TokensReqDto } from '../dto/irita.dto';
+import { TokensReqDto, TokensResDto } from '../dto/irita.dto';
 // import {} from '../dto/txs.dto';
 
 @ApiTags('/')
@@ -15,9 +15,9 @@ export class IritaController {
     ) {}
 
     @Post("/upload-token-info")
-    async uploadTokenInfo(@Body() prarms :TokensReqDto): Promise<Result<any>> {
-      const data:any = await this.tokenService.uploadTokenInfo(prarms);
-      return new Result<any>(data);
+    async uploadTokenInfo(@Body() prarms :TokensReqDto): Promise<Result<TokensResDto | null>> {
+      const data: TokensResDto = await this.tokenService.uploadTokenInfo(prarms);
+      return new Result<TokensResDto | null>(data);
     }
 
     @Get('config')

@@ -7,6 +7,9 @@ import { TokensReqDto, TokensResDto } from '../dto/irita.dto';
 import { BaseResDto } from '../dto/base.dto'
 import { SRC_PROTOCOL } from '../constant'
 import md5 from "blueimp-md5"
+import { ApiError } from '../api/ApiResult';
+import { ErrorCodes } from '../api/ResultCodes';
+import { cfg } from '../config/config'
 
 @Injectable()
 export class TokenService {
@@ -15,32 +18,32 @@ export class TokenService {
         private readonly TokensHttp:TokensHttp
     ) {}
 
-    async uploadTokenInfo(tokenInfo: TokensReqDto): Promise<Result<any>> {
-      const lcdHashKey = md5((tokenInfo.chain.slice(1, 2) + tokenInfo.denom.slice(5, -10) + tokenInfo.chain.slice(2,3)).slice(3, -8))
+    async uploadTokenInfo(tokenInfo: TokensReqDto): Promise<TokensResDto | null> {
+      const lcdHashKey = md5(tokenInfo.denom.slice(5, -10).slice(3, -8))
       if(lcdHashKey === tokenInfo.key){
         return this.doQueryIbcToken(tokenInfo)
       } else {
-        return BaseResDto.bundleData('validate error')
+        throw new ApiError(ErrorCodes.InvalidRequest,"key validate error")
       }
     }
 
-    async doQueryIbcToken(tokenInfo: TokensReqDto): Promise<any>{
+    async doQueryIbcToken(tokenInfo: TokensReqDto): Promise<TokensResDto | null>{
       try {
-        const selTokensData = await this.tokensModel.queryIbcToken(tokenInfo.denom, tokenInfo.chain)
+        const selTokensData = await this.tokensModel.queryIbcToken(tokenInfo.denom, cfg.currentChain)
         if(selTokensData.length > 0){
           return selTokensData[0]
         } else {
           const tracesTokensData = await this.TokensHttp.getIbcTraces(tokenInfo.denom.split('/').pop())
           if(tracesTokensData?.denom_trace) {
             const retTokensData = await this.doInsertIbcToken(tracesTokensData, tokenInfo)
-            const result = TokensResDto.bundleData(retTokensData)
+            const result = new TokensResDto(retTokensData)
             return result
           } else {
-            return BaseResDto.bundleData('') 
+            throw new ApiError(ErrorCodes.failed, "request failed")
           }
         }
       } catch (error) {
-        return BaseResDto.bundleData('queryIbcToken error')
+        throw new ApiError(ErrorCodes.failed, "queryIbcToken error")
       }
     }
 
@@ -60,7 +63,7 @@ export class TokenService {
         total_supply: '',
         update_block_height: 0,
         src_protocol: SRC_PROTOCOL.IBC,
-        chain: tokenInfo.chain
+        chain: cfg.currentChain,
       }
       return await this.tokensModel.insertIbcToken(Itoken)
     }

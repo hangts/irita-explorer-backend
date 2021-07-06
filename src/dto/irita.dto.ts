@@ -11,7 +11,7 @@ export class TokensReqDto extends BaseReqDto {
   denom:string;
   
   @ApiProperty({ required: false, default: 'iris' })
-  chain:string;
+  chain?:string;
 
   @ApiProperty({ required: false, default: '66bc60f8251ac60e2baca8afe7f69b8d' })
   key: string;
@@ -22,7 +22,7 @@ export class TokensReqDto extends BaseReqDto {
     } else {
       throw new ApiError(ErrorCodes.InvalidParameter, 'chain must be one of iris, cosmos and binance');
     }
-}
+  }
 }
 
 /************************   response dto   ***************************/

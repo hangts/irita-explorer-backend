@@ -35,7 +35,7 @@ TokensSchema.statics = {
     async insertIbcToken(Token: ITokens) {
         return await this.insertOne(Token)
     },
-    async queryIbcToken(denom, chain) {
+    async queryIbcToken(denom: string, chain: string) {
         return await this.find({"denom": denom, "chain": chain})
     },
     async queryMainToken() {
