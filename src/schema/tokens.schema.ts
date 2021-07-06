@@ -2,7 +2,6 @@ import * as mongoose from 'mongoose';
 import {ITokens} from "../types/schemaTypes/tokens.interface";
 import { IAssetStruct } from '../types/schemaTypes/asset.interface';
 import {SRC_PROTOCOL} from '../constant';
-import { DenomSchema } from './denom.schema';
 
 export const TokensSchema = new mongoose.Schema({
     symbol: String,
@@ -34,7 +33,7 @@ TokensSchema.statics = {
     },
 
     async insertIbcToken(Token: ITokens) {
-        return await this.insertMany(Token)
+        return await this.insertOne(Token)
     },
     async queryIbcToken(denom, chain) {
         return await this.find({"denom": denom, "chain": chain})

@@ -10,6 +10,19 @@ import { validatorStatusFromLcd } from '../constant'
 // lcd相关请求返回值数据模型
 
 /************************   response dto   ***************************/
+// /ibc/applications/transfer/v1beta1/denom_traces/{hash} response dto
+export class IbcTraceDto {
+  denom_trace: {
+    path: string;
+    base_denom: string;
+  }
+  constructor(value) {
+    const { path, base_denom } = value.denom_trace;
+    this.denom_trace.path = path || '',
+    this.denom_trace.base_denom = base_denom || ''  
+  }
+}
+
 // /nft/nfts/denoms response dto
 export class DenomDto {
     id: string;
@@ -55,7 +68,7 @@ export class NftCollectionDto {
     nfts: Nft[];
 
     constructor(value) {
-        let {denom, nfts} = value;
+        const {denom, nfts} = value;
         this.denom = new DenomDto(denom);
         this.nfts = (nfts || []).map(item=>{
             return new Nft(item);
@@ -100,7 +113,7 @@ export class BlockId {
     hash: string;
     parts: { total:number, hash:string};
     constructor(value) {
-        let { hash, parts } = value;
+        const { hash, parts } = value;
         this.hash = hash || '';
         this.parts = parts;
     }
@@ -113,7 +126,7 @@ export class Signatures {
     signature: string;
 
     constructor(value) {
-        let { block_id_flag, validator_address, timestamp, signature } = value;
+        const { block_id_flag, validator_address, timestamp, signature } = value;
         this.block_id_flag = block_id_flag || '';
         this.validator_address = validator_address || '';
         this.timestamp = timestamp || '';
@@ -168,7 +181,7 @@ export class Commit {
     block_id: BlockId;
     signatures: Signatures[];
     constructor(value) {
-        let { height, round, block_id, signatures } = value;
+        const { height, round, block_id, signatures } = value;
         this.height = Number(height);
         this.round = round;
         this.block_id = new BlockId(block_id);
@@ -183,7 +196,7 @@ export class Block {
     last_commit: Commit;
 
     constructor(value) {
-        let { header, data, evidence, last_commit } = value;
+        const { header, data, evidence, last_commit } = value;
         this.header = new BlockHeader(header);
         this.data =  data;
         this.evidence =  evidence;
@@ -195,7 +208,7 @@ export class BlockDto {
     block_id: BlockId;
     block: Block;
     constructor(value) {
-        let { block_id,  block } = value;
+        const { block_id,  block } = value;
         this.block_id = new BlockId(block_id);
         this.block = new Block(block);
     }
@@ -214,7 +227,7 @@ export class DelegatorRewardsDto {
     rewards: Reward[];
     total: Coin[];
     constructor(value) {
-        let { rewards, total } = value;
+        const { rewards, total } = value;
         this.rewards = Reward.bundleData(rewards);
         this.total = Coin.bundleData(total);
     }
@@ -224,7 +237,7 @@ export class Reward {
     validator_address:string;
     reward:Coin[];
     constructor(value) {
-        let { validator_address, reward } = value;
+        const { validator_address, reward } = value;
         this.validator_address = validator_address || '';
         this.reward = reward ? Coin.bundleData(reward) : [];
     }
@@ -395,7 +408,7 @@ export class Validatorset {
     proposer_priority:string;
     voting_power:string;
     constructor(value) {
-        let { address, pub_key, proposer_priority, voting_power } = value;
+        const { address, pub_key, proposer_priority, voting_power } = value;
         this.address = address || '';
         this.pub_key = pub_key || '';
         this.proposer_priority = proposer_priority || '';
@@ -630,7 +643,7 @@ export class BondedTokensLcdDto {
 export class TotalSupplyLcdDto {
     supply: Coin[];
     constructor(value) {
-        let { supply } = value;
+        const { supply } = value;
         this.supply = Coin.bundleData(supply);
     }
 }

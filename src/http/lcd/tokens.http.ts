@@ -1,6 +1,6 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import {cfg} from "../../config/config";
-import {TokensLcdDto} from "../../dto/http.dto";
+import {TokensLcdDto, IbcTraceDto} from "../../dto/http.dto";
 import {Logger} from "../../logger";
 @Injectable()
 export class TokensHttp {
@@ -32,17 +32,15 @@ export class TokensHttp {
         }
     }
 
-    async getIbcTraces(hash) {
-      // cfg.serverCfg.lcdAddr
-      const url = 'https://irishub.iobscan.io/lcd'
-      const ibcTracesUrl = `${url}/ibc/applications/transfer/v1beta1/denom_traces/${hash}`
+    async getIbcTraces(hash: string): Promise<Record<string, any>> {
+      const ibcTracesUrl = `${cfg.serverCfg.lcdAddr}/ibc/applications/transfer/v1beta1/denom_traces/${hash}`
       try {
         const TracesData: any = await new HttpService().get(ibcTracesUrl).toPromise().then(result => result.data)
         if (TracesData) {
-          return TracesData;
-      } else {
+          return new IbcTraceDto(TracesData);
+        } else {
           Logger.warn('api-error:', `there is no result of ibcTraces from ${ibcTracesUrl}`);
-      }
+        }
       } catch (error) {
         Logger.warn(`api-error from ${ibcTracesUrl}`, error)
       }

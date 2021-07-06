@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Param, Query, Res, Req, Body, HttpCode } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { IritaService } from '../service/irita.service';
-import { TokensTaskService } from '../task/tokens.task.service';
+import { TokenService } from '../service/token.service';
 import { Result } from '../api/ApiResult';
 import { TokensReqDto } from '../dto/irita.dto';
 // import {} from '../dto/txs.dto';
@@ -11,12 +11,12 @@ import { TokensReqDto } from '../dto/irita.dto';
 export class IritaController {
     constructor(
       private readonly iritaService: IritaService,
-      private readonly tokensTaskService: TokensTaskService
+      private readonly tokenService: TokenService
     ) {}
 
     @Post("/upload-token-info")
-    async uploadTokenInfo(@Body() prarms :TokensReqDto){
-      const data:any = await this.tokensTaskService.uploadTokenInfo(prarms);
+    async uploadTokenInfo(@Body() prarms :TokensReqDto): Promise<Result<any>> {
+      const data:any = await this.tokenService.uploadTokenInfo(prarms);
       return new Result<any>(data);
     }
 

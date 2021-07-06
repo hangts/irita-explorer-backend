@@ -15,6 +15,14 @@ export class TokensReqDto extends BaseReqDto {
 
   @ApiProperty({ required: false, default: '66bc60f8251ac60e2baca8afe7f69b8d' })
   key: string;
+
+  static validate(value: any) {
+    super.validate(value);
+    if (value.chain === 'iris' || value.chain === 'cosmos' || value.chain === 'binance') {
+    } else {
+      throw new ApiError(ErrorCodes.InvalidParameter, 'chain must be one of iris, cosmos and binance');
+    }
+}
 }
 
 /************************   response dto   ***************************/
@@ -44,31 +52,18 @@ export class NetworkResDto extends BaseResDto{
 }
 
 export class TokensResDto extends BaseResDto {
-    @ApiProperty()
     symbol:string;
-    @ApiProperty()
     denom:string;
-    @ApiProperty()
     scale:number;
-    @ApiProperty()
     is_main_token:boolean;
-    @ApiProperty()
     initial_supply: string;
-    @ApiProperty()
     max_supply: string;
-    @ApiProperty()
     mintable: boolean;
-    @ApiProperty()
     owner: string;
-    @ApiProperty()
     name: string;
-    @ApiProperty()
     total_supply: string;
-    @ApiProperty()
     update_block_height: number;
-    @ApiProperty()
     src_protocol: string;
-    @ApiProperty()
     chain:string;
     constructor(value) {
         super();
