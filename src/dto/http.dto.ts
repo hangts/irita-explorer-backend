@@ -12,14 +12,10 @@ import { validatorStatusFromLcd } from '../constant'
 /************************   response dto   ***************************/
 // /ibc/applications/transfer/v1beta1/denom_traces/{hash} response dto
 export class IbcTraceDto {
-  denom_trace: {
-    path: string;
-    base_denom: string;
-  }
+  denom_trace: { path: string, base_denom: string; };
   constructor(value) {
-    const { path, base_denom } = value.denom_trace;
-    this.denom_trace.path = path || '',
-    this.denom_trace.base_denom = base_denom || ''  
+    const { denom_trace } = value;
+    this.denom_trace = denom_trace || '';
   }
 }
 

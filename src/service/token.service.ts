@@ -3,7 +3,8 @@ import {InjectModel} from '@nestjs/mongoose';
 import {TokensHttp} from "../http/lcd/tokens.http";
 import {Model} from "mongoose"
 import { Result } from '../api/ApiResult';
-import { TokensReqDto, TokensResDto } from '../dto/irita.dto';
+import { TokensReqDto, TokensResDto, } from '../dto/irita.dto';
+import { IbcTraceDto } from '../dto/http.dto';
 import { BaseResDto } from '../dto/base.dto'
 import { SRC_PROTOCOL } from '../constant'
 import md5 from "blueimp-md5"
@@ -29,25 +30,29 @@ export class TokenService {
 
     async doQueryIbcToken(tokenInfo: TokensReqDto): Promise<TokensResDto | null>{
       try {
-        const selTokensData = await this.tokensModel.queryIbcToken(tokenInfo.denom, cfg.currentChain)
+        const selTokensData = await this.tokensModel.queryIbcToken(tokenInfo.denom, tokenInfo.chain || cfg.currentChain)
         if(selTokensData.length > 0){
-          return selTokensData[0]
+          return new TokensResDto(selTokensData[0])
         } else {
           const tracesTokensData = await this.TokensHttp.getIbcTraces(tokenInfo.denom.split('/').pop())
           if(tracesTokensData?.denom_trace) {
-            const retTokensData = await this.doInsertIbcToken(tracesTokensData, tokenInfo)
-            const result = new TokensResDto(retTokensData)
-            return result
+            const { result } = await this.doInsertIbcToken(tracesTokensData, tokenInfo)
+            if(result?.ok === 1){
+              const queryRet = await this.tokensModel.queryIbcToken(tokenInfo.denom, tokenInfo.chain || cfg.currentChain)
+              return new TokensResDto(queryRet[0])  
+            } else {
+              throw new ApiError(ErrorCodes.failed, "query IbcToken failed")
+            } 
           } else {
-            throw new ApiError(ErrorCodes.failed, "request failed")
+            throw new ApiError(ErrorCodes.failed, "get IbcTraces failed")
           }
         }
       } catch (error) {
-        throw new ApiError(ErrorCodes.failed, "queryIbcToken error")
+        throw new ApiError(ErrorCodes.failed, "query IbcToken error")
       }
     }
 
-    async doInsertIbcToken(tracesTokensData: any, tokenInfo: any): Promise<any> {
+    async doInsertIbcToken(tracesTokensData: IbcTraceDto, tokenInfo: TokensReqDto): Promise<any> {
       const data = tracesTokensData
       const Itoken = {
         symbol: data.denom_trace.base_denom,
@@ -59,11 +64,10 @@ export class TokenService {
         mintable: false,
         owner: '',
         name: '',
-        icon: '',
         total_supply: '',
         update_block_height: 0,
         src_protocol: SRC_PROTOCOL.IBC,
-        chain: cfg.currentChain,
+        chain: tokenInfo.chain || cfg.currentChain,
       }
       return await this.tokensModel.insertIbcToken(Itoken)
     }

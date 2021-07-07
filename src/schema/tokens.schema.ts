@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import {ITokens} from "../types/schemaTypes/tokens.interface";
 import { IAssetStruct } from '../types/schemaTypes/asset.interface';
+import { TokensResDto } from '../dto/irita.dto';
 import {SRC_PROTOCOL} from '../constant';
 
 export const TokensSchema = new mongoose.Schema({
@@ -32,10 +33,10 @@ TokensSchema.statics = {
         return await this.find({})
     },
 
-    async insertIbcToken(Token: ITokens) {
-        return await this.insertOne(Token)
+    async insertIbcToken(Token: ITokens): Promise<any> {
+      return await this.bulkWrite([{insertOne: {document: Token} }])
     },
-    async queryIbcToken(denom: string, chain: string) {
+    async queryIbcToken(denom: string, chain: string): Promise<TokensResDto | null> {
         return await this.find({"denom": denom, "chain": chain})
     },
     async queryMainToken() {
