@@ -36,7 +36,7 @@ import { AccountTaskModule } from './module/account.task.module';
 import { AccountModule } from './module/account.module';
 import { TokenModule } from './module/token.module';
 
-const url = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
+const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 const params = {
     imports: [
         MongooseModule.forRoot(url),
