@@ -34,18 +34,23 @@ export class TokenService {
         if(selTokensData.length > 0){
           return new TokensResDto(selTokensData[0])
         } else {
-          const tracesTokensData = await this.TokensHttp.getIbcTraces(tokenInfo.denom.split('/').pop())
-          if(tracesTokensData?.denom_trace) {
-            const { result } = await this.doInsertIbcToken(tracesTokensData, tokenInfo)
-            if(result?.ok === 1){
-              const queryRet = await this.tokensModel.queryIbcToken(tokenInfo.denom, tokenInfo.chain || cfg.currentChain)
-              return new TokensResDto(queryRet[0])  
+          const ibcTest = /ibc\/[0-9A-Z]{54}/
+          if(ibcTest.test(tokenInfo.denom)){
+            const tracesTokensData = await this.TokensHttp.getIbcTraces(tokenInfo.denom.split('/').pop())
+            if(tracesTokensData?.denom_trace) {
+              const { result } = await this.doInsertIbcToken(tracesTokensData, tokenInfo)
+              if(result?.ok === 1){
+                const queryRet = await this.tokensModel.queryIbcToken(tokenInfo.denom, tokenInfo.chain || cfg.currentChain)
+                return new TokensResDto(queryRet[0])  
+              } else {
+                throw new ApiError(ErrorCodes.failed, "query IbcToken failed")
+              } 
             } else {
-              throw new ApiError(ErrorCodes.failed, "query IbcToken failed")
-            } 
+              throw new ApiError(ErrorCodes.failed, "get IbcTraces failed")
+            }
           } else {
-            throw new ApiError(ErrorCodes.failed, "get IbcTraces failed")
-          }
+            throw new ApiError(ErrorCodes.InvalidParameter, "denom pattern should be 'ibc/XXX'")
+          }    
         }
       } catch (error) {
         throw new ApiError(ErrorCodes.failed, "query IbcToken error")
