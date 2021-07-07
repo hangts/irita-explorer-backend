@@ -32,7 +32,7 @@ export class TokensHttp {
         }
     }
 
-    async getIbcTraces(hash: string): Promise<Record<string, any>> {
+    async getIbcTraces(hash: string): Promise<IbcTraceDto> {
       const ibcTracesUrl = `${cfg.serverCfg.lcdAddr}/ibc/applications/transfer/v1beta1/denom_traces/${hash}`
       try {
         const TracesData: any = await new HttpService().get(ibcTracesUrl).toPromise().then(result => result.data)
