@@ -31,8 +31,9 @@ export class StakingValidatorMoreInfoTaskService {
     private async updateSelfBond(dbValidators) {
         if (dbValidators.operator_address) {
             let valTranDelAddr = addressTransform(dbValidators.operator_address, addressPrefix.iaa);
-            let [selfBondData, delegatorNum] = await Promise.all([this.stakingHttp.queryValidatorSelfBondFromLcd(dbValidators.operator_address, valTranDelAddr), this.stakingHttp.queryValidatordelegatorNumFromLcd(dbValidators.operator_address)]);
-            dbValidators.delegator_num = delegatorNum;
+            // let [selfBondData, delegatorNum] = await Promise.all([this.stakingHttp.queryValidatorSelfBondFromLcd(dbValidators.operator_address, valTranDelAddr), this.stakingHttp.queryValidatordelegatorNumFromLcd(dbValidators.operator_address)]);
+            // dbValidators.delegator_num = delegatorNum;
+            let selfBondData:any = await this.stakingHttp.queryValidatorSelfBondFromLcd(dbValidators.operator_address, valTranDelAddr);
             dbValidators.self_bond = (selfBondData && selfBondData.balance) || {};
         }
     }
