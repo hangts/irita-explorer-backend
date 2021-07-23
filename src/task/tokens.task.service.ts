@@ -7,7 +7,6 @@ import {Model} from "mongoose"
 import { moduleStaking } from "../constant";
 import { TxType,currentChain, SRC_PROTOCOL } from '../constant';
 import { cfg } from '../config/config'
-import {TokensLcdDto} from "../dto/http.dto";
 @Injectable()
 export class TokensTaskService {
     constructor(
@@ -19,6 +18,7 @@ export class TokensTaskService {
     ) {
         this.doTask = this.doTask.bind(this);
     }
+
     async doTask(): Promise<void> {
         let TokensData;
         switch (cfg.currentChain) {
@@ -38,15 +38,15 @@ export class TokensTaskService {
         if (TokensData && TokensData.length > 0) {
             const TokensFromDB = await (this.tokensModel as any).queryAllTokens()
             const stakingToken = await (this.parametersTaskModel as any).queryStakingToken(moduleStaking)
-            let TokensDbMap = new Map()
-            for (let token of TokensData) {
+            const TokensDbMap = new Map()
+            for (const token of TokensData) {
                 TokensFromDB.map(item => {
                     if (item.symbol === token.symbol) {
                         token.total_supply = item.total_supply;
                         token.update_block_height = item.update_block_height
                     }
                 })
-                let data = await this.txModel.queryTxBySymbol(token.symbol, token.update_block_height)
+                const data = await this.txModel.queryTxBySymbol(token.symbol, token.update_block_height)
                 if (data && data.length) {
                     data.forEach(item => {
                         token.update_block_height = item.height
