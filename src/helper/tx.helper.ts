@@ -99,6 +99,7 @@ const fromTo = {
         'msgs.msg.receiver':1,
         'msgs.msg.owner':1,
         'msgs.msg.delegator_address':1,
+        'msgs.msg.withdraw_address':1,
         'msgs.msg.validator_address':1,
         'msgs.msg.validator_src_address':1,
         'msgs.msg.validator_dst_address':1,
