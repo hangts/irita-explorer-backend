@@ -1,8 +1,45 @@
 import { BaseReqDto, PagingReqDto } from './base.dto';
 import { ApiError } from '../api/ApiResult';
 import { ErrorCodes } from '../api/ResultCodes';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Coin } from './common.res.dto';
+
+export class RangeBlockReqDto {
+
+  @ApiPropertyOptional()
+  start?: number;
+
+  @ApiPropertyOptional()
+  end?: number;
+
+  @ApiPropertyOptional({description:'true/false'})
+  useCount?: boolean;
+
+  static validate(value: any): void {
+      const patt = /^[1-9]\d*$/;
+      if (value.start && (!patt.test(value.start) || value.start < 1)) {
+          throw new ApiError(ErrorCodes.InvalidParameter, 'The start must be a positive integer greater than 0');
+      }
+      if (value.end && (!patt.test(value.end) || value.end < 1)) {
+          throw new ApiError(ErrorCodes.InvalidParameter, 'The end must be a positive integer greater than 0');
+      }
+  }
+
+  static convert(value: any): any {
+      if(!value.useCount){
+          value.useCount = false;
+      }else {
+          if(value.useCount === 'true'){
+              value.useCount = true;
+          }else {
+              value.useCount = false;
+          }
+      }
+      value.start = value.start && Number(value.start);
+      value.end = value.end && Number(value.end);
+      return value;
+  }
+}
 
 export class BlockResDto {
     height?: number;
@@ -118,7 +155,7 @@ export class ValidatorsetsResDto {
     is_proposer: boolean;
 
     constructor(value){
-        let { moniker, address, operator_address, proposer_priority, voting_power, is_proposer } = value;
+        const { moniker, address, operator_address, proposer_priority, voting_power, is_proposer } = value;
         this.moniker = moniker || "" ;
         this.consensus = address || "";
         this.operator_address = operator_address || "";

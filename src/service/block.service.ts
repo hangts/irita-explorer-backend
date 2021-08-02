@@ -5,7 +5,8 @@ import { ListStruct } from '../api/ApiResult';
 import {
     BlockListReqDto,
     BlockDetailReqDto,
-    ValidatorsetsReqDto } from '../dto/block.dto';
+    ValidatorsetsReqDto,
+    RangeBlockReqDto } from '../dto/block.dto';
 import {
     BlockListResDto,
     ValidatorsetsResDto,
@@ -25,6 +26,44 @@ export class BlockService {
         @InjectModel('Block') private blockModel: Model<IBlock>,
         @InjectModel('StakingValidator') private stakingValidatorModel: any) {}
 
+    async queryRangeBlockList(query: RangeBlockReqDto): Promise<ListStruct<BlockListResDto[]>> {
+      const { start, end, useCount } = query;
+      let count = null, res = [];
+
+      if(start && end){
+        const blocks: IBlockStruct[] = await (this.blockModel as any).findListByRange(start, end);
+
+        const allValidators = await this.stakingValidatorModel.queryAllValidators();
+        const validators = new Map();
+        allValidators.forEach(validator => {
+            validators.set(validator.proposer_addr,validator)
+        });
+
+        res = blocks.map(block => {
+        block = JSON.parse(JSON.stringify(block));
+        const proposer = validators.get(block.proposer);
+        let proposer_addr, proposer_moniker;
+        if (proposer) {
+            proposer_moniker = proposer.is_black ?  proposer.moniker_m : (proposer.description || {}).moniker || '';
+            proposer_addr = proposer.operator_address || '';
+        }
+        return {
+            height: block.height,
+            hash: block.hash,
+            txn: block.txn,
+            time: block.time,
+            proposer_addr,
+            proposer_moniker
+        }
+        });
+      }
+
+      if (useCount) {
+        count = await (this.blockModel as any).findCount();
+      }
+      return new ListStruct(res, start, end, count);     
+    }
+
     async queryBlockList(query: BlockListReqDto): Promise<ListStruct<BlockListResDto[]>> {
         const { pageNum, pageSize, useCount } = query;
         let count: number;
@@ -33,13 +72,13 @@ export class BlockService {
             count = await (this.blockModel as any).findCount();
         }
         const allValidators = await this.stakingValidatorModel.queryAllValidators();
-        let validators = new Map();
+        const validators = new Map();
         allValidators.forEach(validator => {
             validators.set(validator.proposer_addr,validator)
         });
-        let res: BlockListResDto[] = blocks.map(block => {
+        const res: BlockListResDto[] = blocks.map(block => {
             block = JSON.parse(JSON.stringify(block));
-            let proposer = validators.get(block.proposer);
+            const proposer = validators.get(block.proposer);
             let proposer_addr, proposer_moniker;
             if (proposer) {
                 proposer_moniker = proposer.is_black ?  proposer.moniker_m : (proposer.description || {}).moniker || '';
@@ -134,10 +173,10 @@ export class BlockService {
         let block_db = await (this.blockModel as any).findOneByHeight(height);
         block_db = JSON.parse(JSON.stringify(block_db));
         if (block_db) {
-            let block_lcd = await BlockHttp.queryBlockFromLcd(height);
-            let latestBlock = await BlockHttp.queryLatestBlockFromLcd();
-            let proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block_db.proposer || '');
-            let allValidatorsets = await this.queryAllValidatorset(height);
+            const block_lcd = await BlockHttp.queryBlockFromLcd(height);
+            const latestBlock = await BlockHttp.queryLatestBlockFromLcd();
+            const proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block_db.proposer || '');
+            const allValidatorsets = await this.queryAllValidatorset(height);
             data = {
                 height: block_db.height,
                 hash: block_db.hash,
@@ -151,14 +190,14 @@ export class BlockService {
                 data.proposer_addr = proposer[0].operator_address || '';
             }
 
-            let signaturesMap:any = {};
+            const signaturesMap:any = {};
             block_lcd.block.last_commit.signatures.forEach((item:any)=>{
-                let address = hexToBech32(item.validator_address, addressPrefix.ica);
+                const address = hexToBech32(item.validator_address, addressPrefix.ica);
                 signaturesMap[address] = item;
             }) 
             if (allValidatorsets) {
                 data.total_validator_num = allValidatorsets ? allValidatorsets.length : 0;
-                let icaAddr = hexToBech32(block_db.proposer, addressPrefix.ica);
+                const icaAddr = hexToBech32(block_db.proposer, addressPrefix.ica);
                 data.total_voting_power = 0;
                 data.precommit_voting_power = 0;
                 allValidatorsets.forEach((item)=>{
@@ -191,21 +230,21 @@ export class BlockService {
     async queryValidatorset(query: ValidatorsetsReqDto): Promise<ListStruct<ValidatorsetsResDto[]>> {
         const { height, pageNum, pageSize, useCount } = query;
 
-        let data_lcd = await this.queryAllValidatorset(height);
-        let data = (data_lcd || []).slice((pageNum - 1) * pageSize, pageNum * pageSize);
+        const data_lcd = await this.queryAllValidatorset(height);
+        const data = (data_lcd || []).slice((pageNum - 1) * pageSize, pageNum * pageSize);
         if (data && data.length) {
             let block = await (this.blockModel as any).findOneByHeight(Number(height));
             block = JSON.parse(JSON.stringify(block || '{}'));
-            let validators = await this.stakingValidatorModel.queryAllValidators();
+            const validators = await this.stakingValidatorModel.queryAllValidators();
             if (validators.length) {
-                let validatorMap = {};
+                const validatorMap = {};
                 validators.forEach((v)=>{
                     validatorMap[v.proposer_addr] = v;
                 });
                 data.forEach((item)=>{
                     item.pub_key = getConsensusPubkey(item.pub_key['value'])
                     const proposer_addr = item.pub_key ? getAddress(item.pub_key).toLocaleUpperCase() : null
-                    let validator = validatorMap[proposer_addr];
+                    const validator = validatorMap[proposer_addr];
                     if (validator) {
                         (item as any).moniker = validator.is_black ? validator.moniker_m : (validator.description || {}).moniker || '';
                         (item as any).operator_address = validator.operator_address || '';
@@ -237,9 +276,15 @@ export class BlockService {
     }
 
     private async queryLatestBlockFromLcd(): Promise<IBlockStruct | null> {
+        const blockStruct: IBlockStruct = {};
+        const block = await (this.blockModel as any).find({}).sort({ height: -1 }).limit(1);
+        console.log(281, block)
+        if(block?.[0]?.height){
+          blockStruct.dbHeight = block?.[0]?.height
+        }
+
         const res = await BlockHttp.queryLatestBlockFromLcd();
-        if(res && res.block_id && res.block && res.block.header && res.block.data){
-            const blockStruct: IBlockStruct = {};
+        if(res && res.block_id && res.block && res.block.header && res.block.data){     
             blockStruct.height = res.block.header.height;
             blockStruct.time = res.block.header.time;
             blockStruct.txn = res.block.data.txs ? res.block.data.txs.length : 0;
