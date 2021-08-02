@@ -278,7 +278,6 @@ export class BlockService {
     private async queryLatestBlockFromLcd(): Promise<IBlockStruct | null> {
         const blockStruct: IBlockStruct = {};
         const block = await (this.blockModel as any).find({}).sort({ height: -1 }).limit(1);
-        console.log(281, block)
         if(block?.[0]?.height){
           blockStruct.dbHeight = block?.[0]?.height
         }
