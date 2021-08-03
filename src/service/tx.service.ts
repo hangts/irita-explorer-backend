@@ -63,21 +63,21 @@ export class TxService {
     }
 
     async addMonikerToTxs(txList) {
-        let validators = await this.stakingValidatorModel.queryAllValidators();
-        let validatorMap = {};
+        const validators = await this.stakingValidatorModel.queryAllValidators();
+        const validatorMap = {};
         validators.forEach((item) => {
             validatorMap[item.operator_address] = item;
         });
 
 
-        let txData = txList.map((tx) => {
-            let item = JSON.parse(JSON.stringify(tx));
-            let monikers = [];
+        const txData = txList.map((tx) => {
+            const item = JSON.parse(JSON.stringify(tx));
+            const monikers = [];
             (item.addrs || []).forEach((addr) => {
                 if (validatorMap[addr] &&
                     validatorMap[addr].description &&
                     validatorMap[addr].description.moniker) {
-                    let moniker = {};
+                    const moniker = {};
                     moniker[addr] = validatorMap[addr].is_black ? validatorMap[addr].moniker_m : validatorMap[addr].description.moniker;
                     monikers.push(moniker);
                 }
@@ -162,7 +162,7 @@ export class TxService {
         if (txListData.data && txListData.data.length > 0) {
             txListData.data = this.handerEvents(txListData.data)
         }
-        let txData = await this.addMonikerToTxs(txListData.data);
+        const txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
@@ -178,7 +178,7 @@ export class TxService {
         await this.cacheTxTypes();
         // }
         const txListData = await this.txModel.queryDeclarationTxList(query);
-        let txData = await this.addMonikerToTxs(txListData.data);
+        const txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
@@ -203,11 +203,11 @@ export class TxService {
         let txList = [];
         if (txListData && txListData.data && txListData.data.length > 0) {
             txList = txListData.data.map(async tx => {
-                let item = JSON.parse(JSON.stringify(tx));
+                const item = JSON.parse(JSON.stringify(tx));
                 const msgs = item && item.msgs && item.msgs[0];
                 const events = item.events
                 if (msgs.type == TxType.vote || msgs.type == TxType.deposit) {
-                    let ex = proposalsMap.get(msgs.msg.proposal_id);
+                    const ex = proposalsMap.get(msgs.msg.proposal_id);
                     item.ex = ex;
                     return item
                 } else {
@@ -223,11 +223,11 @@ export class TxService {
                     });
                     let ex = proposalsMap.get(Number(proposal_id));
                     if (!ex) {
-                        let proposal = await this.govHttp.getProposalById(proposal_id);
-                        let id = proposal && proposal.id;
+                        const proposal = await this.govHttp.getProposalById(proposal_id);
+                        const id = proposal && proposal.id;
                         let type = proposal && proposal.content && proposal.content['@type'] && proposal.content['@type']
                         type ? type = splitString(type, '.').replace(proposalString, '') : '';
-                        let title = proposal && proposal.content && proposal.content['title']
+                        const title = proposal && proposal.content && proposal.content['title']
                         ex = { id, type, title }
                         item.proposal_link = false
                     }
@@ -237,17 +237,17 @@ export class TxService {
             });
         }
         txList = await Promise.all(txList)
-        let txData = await this.addMonikerToTxs(txList);
+        const txData = await this.addMonikerToTxs(txList);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
     // txs/e  供edgeServer调用  返回数据不做过滤
     async queryTxListEdge(query: eTxListReqDto): Promise<ListStruct<any[]>> {
-        let txListData = await this.txModel.queryTxListEdge(query.types, query.height, query.pageNum, query.pageSize, query.useCount,query.status,query.address,query.include_event_addr);
+        const txListData = await this.txModel.queryTxListEdge(query.types, query.height, query.pageNum, query.pageSize, query.useCount,query.status,query.address,query.include_event_addr);
         let txList = [...txListData.data];
         if (txListData.data && txListData.data.length && txListData.data.length == query.pageSize) {
-            let lastItem = txListData.data[txListData.data.length - 1];
-            let lastHeightTxData = await this.txModel.queryTxListByHeightEdge(lastItem.height, 1, 10000,false,query.status);
+            const lastItem = txListData.data[txListData.data.length - 1];
+            const lastHeightTxData = await this.txModel.queryTxListByHeightEdge(lastItem.height, 1, 10000,false,query.status);
             txList.forEach((value, index) => {
                 if (value.height == lastItem.height) {
                     txList.splice(index, 1);
@@ -262,7 +262,7 @@ export class TxService {
     async queryTxWithHeight(query: TxListWithHeightReqDto): Promise<ListStruct<TxResDto[]>> {
         await this.cacheTxTypes();
         const txListData = await this.txModel.queryTxWithHeight(query);
-        let txData = await this.addMonikerToTxs(txListData.data);
+        const txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
@@ -273,7 +273,7 @@ export class TxService {
         if (txListData.data && txListData.data.length > 0) {
             txListData.data = this.handerEvents(txListData.data)
         }
-        let txData = await this.addMonikerToTxs(txListData.data);
+        const txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
@@ -281,14 +281,14 @@ export class TxService {
     async queryTxWithContextId(query: TxListWithContextIdReqDto): Promise<ListStruct<TxResDto[]>> {
         await this.cacheTxTypes();
         const txListData = await this.txModel.queryTxWithContextId(query);
-        let txData = await this.addMonikerToTxs(txListData.data);
+        const txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
     //  txs/nfts
     async queryTxWithNft(query: TxListWithNftReqDto): Promise<ListStruct<TxResDto[]>> {
         const txListData = await this.txModel.queryTxWithNft(query);
-        let txData = await this.addMonikerToTxs(txListData.data);
+        const txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 

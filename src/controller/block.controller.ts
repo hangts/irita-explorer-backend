@@ -5,7 +5,8 @@ import { ListStruct } from '../api/ApiResult';
 import { 
     BlockListReqDto, 
     BlockDetailReqDto,
-    ValidatorsetsReqDto } from '../dto/block.dto';
+    ValidatorsetsReqDto,
+    RangeBlockReqDto } from '../dto/block.dto';
 import { 
     BlockListResDto,
     ValidatorsetsResDto,
@@ -18,6 +19,12 @@ import { ApiTags } from '@nestjs/swagger';
 @Controller('blocks')
 export class BlockController {
     constructor(private readonly blockService: BlockService) {
+    }
+
+    @Get('range')
+    async queryBlockListByRange(@Query() query: RangeBlockReqDto): Promise<Result<ListStruct<BlockListResDto[]>>> {
+        const data: ListStruct<BlockListResDto[]> = await this.blockService.queryRangeBlockList(query);
+        return new Result<ListStruct<BlockListResDto[]>>(data);
     }
 
     @Get()
