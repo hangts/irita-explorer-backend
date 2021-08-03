@@ -6,10 +6,10 @@ import { Coin } from './common.res.dto';
 
 export class RangeBlockReqDto extends BaseReqDto{
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({description:'The start must be a positive integer greater than 0'})
   start?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({description:'The end must be a positive integer greater than 0'})
   end?: number;
 
   @ApiPropertyOptional({description:'true/false'})
