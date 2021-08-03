@@ -89,7 +89,7 @@ export class TxListWithAddressReqDto extends DeepPagingReqDto {
 }
 
 // txs/relevance
-export class TxListWithContextIdReqDto extends PagingReqDto {
+export class TxListWithContextIdReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     contextId?: string;
 

@@ -433,52 +433,57 @@ TxSchema.statics.queryTxWithAddress = async function(query: ITxsWithAddressQuery
         .limit(Number(query.pageSize));
     return result;
 };
-TxSchema.statics.queryTxWithAddressCount = async function(query: ITxsWithHeightQuery): Promise<number> {
+TxSchema.statics.queryTxWithAddressCount = async function(query: ITxsWithAddressQuery): Promise<number> {
   const queryParameters = await TxWithAddressParamsHelper(query) 
   return await this.find(queryParameters).countDocuments();
 }
 
+async function TxWithContextIdParamsHelper(query: ITxsWithContextIdQuery){
+  let queryParameters: any = {};
+  if (query.contextId && query.contextId.length) {
+      queryParameters = {
+          $or: [
+              { 'events.attributes.value': query.contextId },
+              { 'msgs.msg.ex.request_context_id': query.contextId },
+              { 'msgs.msg.request_context_id': query.contextId },
+          ],
+      };
+  }
+  if (query.type && query.type.length) {
+      queryParameters['msgs.type'] = query.type;
+  } else {
+      // queryParameters.$or = [{ 'msgs.type': filterExTxTypeRegExp() }];
+      queryParameters['msgs.type'] = {
+          $in: Cache.supportTypes || []
+      }
+  }
+
+  if (query.status && query.status.length) {
+      switch (query.status) {
+          case '1':
+              queryParameters.status = TxStatus.SUCCESS;
+              break;
+          case '2':
+              queryParameters.status = TxStatus.FAILED;
+              break;
+      }
+  }
+  return queryParameters
+}
 //  txs/relevance
 TxSchema.statics.queryTxWithContextId = async function(query: ITxsWithContextIdQuery): Promise<IListStruct> {
     const result: IListStruct = {};
-    let queryParameters: any = {};
-    if (query.contextId && query.contextId.length) {
-        queryParameters = {
-            $or: [
-                { 'events.attributes.value': query.contextId },
-                { 'msgs.msg.ex.request_context_id': query.contextId },
-                { 'msgs.msg.request_context_id': query.contextId },
-            ],
-        };
-    }
-    if (query.type && query.type.length) {
-        queryParameters['msgs.type'] = query.type;
-    } else {
-        // queryParameters.$or = [{ 'msgs.type': filterExTxTypeRegExp() }];
-        queryParameters['msgs.type'] = {
-            $in: Cache.supportTypes || []
-        }
-    }
-
-    if (query.status && query.status.length) {
-        switch (query.status) {
-            case '1':
-                queryParameters.status = TxStatus.SUCCESS;
-                break;
-            case '2':
-                queryParameters.status = TxStatus.FAILED;
-                break;
-        }
-    }
+    const queryParameters = await TxWithContextIdParamsHelper(query) 
     result.data = await this.find(queryParameters, dbRes.service)
         .sort({ height: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
-    if (query.useCount && query.useCount == true) {
-        result.count = await this.find(queryParameters).countDocuments();
-    }
     return result;
 };
+TxSchema.statics.queryTxWithContextIdCount = async function(query: ITxsWithContextIdQuery): Promise<number> {
+  const queryParameters = await TxWithContextIdParamsHelper(query) 
+  return await this.find(queryParameters).countDocuments();
+}
 
 //  txs/nfts
 TxSchema.statics.queryTxWithNft = async function(query: ITxsWithNftQuery): Promise<IListStruct> {

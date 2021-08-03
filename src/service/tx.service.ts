@@ -360,15 +360,25 @@ export class TxService {
         }
       }    
         
-        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
+      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     //  txs/relevance
     async queryTxWithContextId(query: TxListWithContextIdReqDto): Promise<ListStruct<TxResDto[]>> {
+      const { pageNum, pageSize, useCount } = query;
+      let txListData, txData = [],count = null;
+      if(pageNum && pageSize || useCount){
         await this.cacheTxTypes();
-        const txListData = await this.txModel.queryTxWithContextId(query);
-        const txData = await this.addMonikerToTxs(txListData.data);
-        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
+
+        if(pageNum && pageSize){
+          txListData = await this.txModel.queryTxWithContextId(query);
+          txData = await this.addMonikerToTxs(txListData.data);
+        }
+        if(useCount){
+          count = await this.txModel.queryTxWithContextIdCount(query);
+        }
+      }   
+      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     //  txs/nfts
