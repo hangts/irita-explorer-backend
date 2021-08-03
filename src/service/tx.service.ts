@@ -143,14 +143,27 @@ export class TxService {
     // txs
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        await this.cacheTxTypes();
-        // }
-        const txListData = await this.txModel.queryTxList(query);
-        if (txListData.data && txListData.data.length > 0) {
-            txListData.data = this.handerEvents(txListData.data)
+        const { pageNum, pageSize, useCount } = query;
+        let txListData , txData, count = null;
+
+        if(pageNum && pageSize || useCount){
+          await this.cacheTxTypes();
+
+          if(pageNum && pageSize){
+            
+            txListData = await this.txModel.queryTxList(query);
+            if (txListData.data && txListData.data.length > 0) {
+                txListData.data = this.handerEvents(txListData.data)
+            }
+            txData = await this.addMonikerToTxs(txListData.data);
+          }
+          if(useCount){
+            count = await this.txModel.queryTxListCount(query);
+          }
         }
-        let txData = await this.addMonikerToTxs(txListData.data);
-        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
+        // }
+       
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     // txs/staking
@@ -296,7 +309,7 @@ export class TxService {
     async queryTxWithServiceName(query: TxListWithServicesNameReqDto): Promise<ListStruct<TxResDto[]>> {
         await this.cacheTxTypes();
         const txListData = await this.txModel.queryTxWithServiceName(query);
-        let txData = await this.addMonikerToTxs(txListData.data);
+        const txData = await this.addMonikerToTxs(txListData.data);
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
     }
 
@@ -596,7 +609,7 @@ export class TxService {
             if (txData.msgs[0] && txData.msgs[0].type && txData.msgs[0].type === TxType.create_validator && txData.msgs[0].msg && txData.msgs[0].msg.pubkey) {
                 txData.msgs[0].msg.pubkey = getConsensusPubkey(JSON.parse(txData.msgs[0].msg.pubkey).key);
             }
-            let tx = await this.addMonikerToTxs([txData]);
+            const tx = await this.addMonikerToTxs([txData]);
             result = new TxResDto(tx[0] || {});
         }
         return result;
