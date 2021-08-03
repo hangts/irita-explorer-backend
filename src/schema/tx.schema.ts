@@ -381,11 +381,15 @@ TxSchema.statics.queryTxWithHeight = async function(query: ITxsWithHeightQuery):
         .sort({ height: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
-    if (query.useCount && query.useCount == true) {
-        result.count = await this.find(queryParameters).countDocuments();
-    }
     return result;
 };
+TxSchema.statics.queryTxWithHeighCount = async function(query: ITxsWithHeightQuery): Promise<number> {
+  const queryParameters: { height?: number, 'msgs.type': object } = { 'msgs.type': { $in: Cache.supportTypes || [] } };
+  if (query.height) {
+      queryParameters.height = Number(query.height);
+  }
+  return await this.find(queryParameters).countDocuments();
+}
 
 //  txs/addresses
 TxSchema.statics.queryTxWithAddress = async function(query: ITxsWithAddressQuery): Promise<IListStruct> {

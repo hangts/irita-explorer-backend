@@ -64,7 +64,7 @@ export class eTxListReqDto extends DeepPagingReqDto {
 }
 
 //txs/blocks request dto
-export class TxListWithHeightReqDto extends PagingReqDto {
+export class TxListWithHeightReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     height?: string;
 }
