@@ -4,7 +4,7 @@ import { ErrorCodes } from '../api/ResultCodes';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Coin } from './common.res.dto';
 
-export class RangeBlockReqDto {
+export class RangeBlockReqDto extends BaseReqDto{
 
   @ApiPropertyOptional()
   start?: number;
