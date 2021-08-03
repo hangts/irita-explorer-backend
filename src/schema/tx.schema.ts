@@ -315,37 +315,41 @@ TxSchema.statics.queryGovTxListCount = async function(query: ITxsQuery): Promise
 
 
 
-
+async function TxListEdgeParamsHelper(types, gt_height, status, address, include_event_addr){
+  const queryParameters: any = {};
+  if (types && types.length) {
+      queryParameters['msgs.type'] = {'$in':types.split(',')};
+  }
+  if (gt_height) {
+      queryParameters['height'] = {'$gt':gt_height};
+  }
+  if (status || status === 0) {
+      queryParameters['status'] = status;
+  }
+  if (include_event_addr && include_event_addr == true && address && address.length) {
+      queryParameters['$or'] = [
+          { 'events.attributes.value': address },
+          { 'addrs': { $elemMatch: {'$in': address.split(',')} }}
+      ]
+  } else if (address && address.length) {
+      queryParameters['addrs'] = { $elemMatch: { '$in': address.split(',') } };
+  }
+  return queryParameters
+}
 //  txs/e 供edgeServer调用  返回数据不做过滤
-TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, useCount:boolean,status?:number,address?:string,include_event_addr?:boolean): Promise<IListStruct> {
+TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, status?:number, address?:string, include_event_addr?:boolean): Promise<IListStruct> {
     const result: IListStruct = {};
-    const queryParameters: any = {};
-    if (types && types.length) {
-        queryParameters['msgs.type'] = {'$in':types.split(',')};
-    }
-    if (gt_height) {
-        queryParameters['height'] = {'$gt':gt_height};
-    }
-    if (status || status === 0) {
-        queryParameters['status'] = status;
-    }
-    if (include_event_addr && include_event_addr == true && address && address.length) {
-        queryParameters['$or'] = [
-            { 'events.attributes.value': address },
-            { 'addrs': { $elemMatch: {'$in': address.split(',')} }}
-        ]
-    } else if (address && address.length) {
-        queryParameters['addrs'] = { $elemMatch: { '$in': address.split(',') } };
-    }
+    const queryParameters = await TxListEdgeParamsHelper(types, gt_height, status, address, include_event_addr)
     result.data = await this.find(queryParameters)
     .sort({ height: 1 })
     .skip((Number(pageNum) - 1) * Number(pageSize))
-    .limit(Number(pageSize));
-    if (useCount && useCount == true) {
-        result.count = await this.find(queryParameters).countDocuments();
-    }
+    .limit(Number(pageSize));  
     return result;
 };
+TxSchema.statics.queryTxListEdgeCount = async function(types:string, gt_height:number, status?:number, address?:string, include_event_addr?:boolean): Promise<number> {
+  const queryParameters = await TxListEdgeParamsHelper(types, gt_height, status, address, include_event_addr)
+  return await this.find(queryParameters).countDocuments();
+}
 
 //  供edgeServer调用  返回数据不做过滤
 TxSchema.statics.queryTxListByHeightEdge = async function(height:number, pageNum:number, pageSize:number, useCount:boolean,status?:number): Promise<IListStruct> {

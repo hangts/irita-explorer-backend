@@ -32,7 +32,7 @@ export class TxListReqDto extends DeepPagingReqDto {
 }
 
 // txs/e
-export class eTxListReqDto extends PagingReqDto {
+export class eTxListReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     types?: string;
 

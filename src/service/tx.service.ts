@@ -298,19 +298,28 @@ export class TxService {
 
     // txs/e  供edgeServer调用  返回数据不做过滤
     async queryTxListEdge(query: eTxListReqDto): Promise<ListStruct<any[]>> {
-        const txListData = await this.txModel.queryTxListEdge(query.types, query.height, query.pageNum, query.pageSize, query.useCount,query.status,query.address,query.include_event_addr);
-        let txList = [...txListData.data];
+      const { pageNum, pageSize, useCount } = query;
+      let txListData, txData = [],count = null;
+
+      if(pageNum && pageSize){
+        txListData = await this.txModel.queryTxListEdge(query.types, query.height, query.pageNum, query.pageSize, query.status, query.address, query.include_event_addr);
+        txData = [...txListData.data];
         if (txListData.data && txListData.data.length && txListData.data.length == query.pageSize) {
             const lastItem = txListData.data[txListData.data.length - 1];
             const lastHeightTxData = await this.txModel.queryTxListByHeightEdge(lastItem.height, 1, 10000,false,query.status);
-            txList.forEach((value, index) => {
+            txData.forEach((value, index) => {
                 if (value.height == lastItem.height) {
-                    txList.splice(index, 1);
+                  txData.splice(index, 1);
                 }
             });
-            txList = txList.concat(lastHeightTxData.data);
+            txData = txData.concat(lastHeightTxData.data);
         }
-        return new ListStruct(txList, Number(query.pageNum), Number(query.pageSize), txListData.count);
+      }
+      if(useCount){
+        count = await this.txModel.queryTxListEdgeCount(query.types, query.height, query.status, query.address, query.include_event_addr);
+      }
+
+      return new ListStruct(txData, Number(query.pageNum), Number(query.pageSize), count);
     }
 
     // txs/blocks
