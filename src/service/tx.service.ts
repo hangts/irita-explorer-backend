@@ -228,60 +228,72 @@ export class TxService {
     // txs/gov 
     async queryGovTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        await this.cacheTxTypes();
-        // }
-        if (query.address) {
-            query.address = addressTransform(query.address, addressPrefix.iaa)
-        }
-        const txListData = await this.txModel.queryGovTxList(query);
-        const proposalsData = await this.proposalModel.queryAllProposalsSelect();
-        const proposalsMap = new Map();
-        if (proposalsData && proposalsData.length > 0) {
-            proposalsData.forEach(proposal => {
-                proposal.content.id = proposal.id;
-                proposal.content.proposal_link = !proposal.is_deleted
-                proposalsMap.set(proposal.id, proposal.content);
-            });
-        }
-        let txList = [];
-        if (txListData && txListData.data && txListData.data.length > 0) {
-            txList = txListData.data.map(async tx => {
-                const item = JSON.parse(JSON.stringify(tx));
-                const msgs = item && item.msgs && item.msgs[0];
-                const events = item.events
-                if (msgs.type == TxType.vote || msgs.type == TxType.deposit) {
-                    const ex = proposalsMap.get(msgs.msg.proposal_id);
-                    item.ex = ex;
-                    return item
-                } else {
-                    let proposal_id;
-                    events.forEach(event => {
-                        if (event.type == TxType.submit_proposal) {
-                            event.attributes.forEach(element => {
-                                if (element.key == 'proposal_id') {
-                                    proposal_id = element.value
-                                }
-                            });
+        const { pageNum, pageSize, useCount } = query;
+        let txListData, txData = [], txList = [], count = null;
+  
+        if(pageNum && pageSize || useCount){
+          await this.cacheTxTypes();
+
+          if(pageNum && pageSize){
+            if (query.address) {
+              query.address = addressTransform(query.address, addressPrefix.iaa)
+            }
+            const txListData = await this.txModel.queryGovTxList(query);
+            const proposalsData = await this.proposalModel.queryAllProposalsSelect();
+            const proposalsMap = new Map();
+            if (proposalsData && proposalsData.length > 0) {
+                proposalsData.forEach(proposal => {
+                    proposal.content.id = proposal.id;
+                    proposal.content.proposal_link = !proposal.is_deleted
+                    proposalsMap.set(proposal.id, proposal.content);
+                });
+            }
+            if (txListData && txListData.data && txListData.data.length > 0) {
+                txList = txListData.data.map(async tx => {
+                    const item = JSON.parse(JSON.stringify(tx));
+                    const msgs = item && item.msgs && item.msgs[0];
+                    const events = item.events
+                    if (msgs.type == TxType.vote || msgs.type == TxType.deposit) {
+                        const ex = proposalsMap.get(msgs.msg.proposal_id);
+                        item.ex = ex;
+                        return item
+                    } else {
+                        let proposal_id;
+                        events.forEach(event => {
+                            if (event.type == TxType.submit_proposal) {
+                                event.attributes.forEach(element => {
+                                    if (element.key == 'proposal_id') {
+                                        proposal_id = element.value
+                                    }
+                                });
+                            }
+                        });
+                        let ex = proposalsMap.get(Number(proposal_id));
+                        if (!ex) {
+                            const proposal = await this.govHttp.getProposalById(proposal_id);
+                            const id = proposal && proposal.id;
+                            let type = proposal && proposal.content && proposal.content['@type'] && proposal.content['@type']
+                            type ? type = splitString(type, '.').replace(proposalString, '') : '';
+                            const title = proposal && proposal.content && proposal.content['title']
+                            ex = { id, type, title }
+                            item.proposal_link = false
                         }
-                    });
-                    let ex = proposalsMap.get(Number(proposal_id));
-                    if (!ex) {
-                        const proposal = await this.govHttp.getProposalById(proposal_id);
-                        const id = proposal && proposal.id;
-                        let type = proposal && proposal.content && proposal.content['@type'] && proposal.content['@type']
-                        type ? type = splitString(type, '.').replace(proposalString, '') : '';
-                        const title = proposal && proposal.content && proposal.content['title']
-                        ex = { id, type, title }
-                        item.proposal_link = false
+                        item.ex = ex;
+                        return item
                     }
-                    item.ex = ex;
-                    return item
-                }
-            });
-        }
-        txList = await Promise.all(txList)
-        const txData = await this.addMonikerToTxs(txList);
-        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
+                });
+            }
+            txList = await Promise.all(txList)
+            txData = await this.addMonikerToTxs(txList);
+          }
+          if(useCount){
+            count = await this.txModel.queryGovTxListCount(query);
+          }
+        }     
+
+        // }
+        
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     // txs/e  供edgeServer调用  返回数据不做过滤
