@@ -207,11 +207,22 @@ export class TxService {
     // txs/declaration 
     async queryDeclarationTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        await this.cacheTxTypes();
+        const { pageNum, pageSize, useCount } = query;
+        let txListData, txData = [],count = null;
+  
+        if(pageNum && pageSize || useCount){
+          await this.cacheTxTypes();
+
+          if(pageNum && pageSize){
+            txListData = await this.txModel.queryDeclarationTxList(query);
+            txData = await this.addMonikerToTxs(txListData.data);
+          }
+          if(useCount){
+            count = await this.txModel.queryDeclarationTxListCount(query);
+          }
+        }     
         // }
-        const txListData = await this.txModel.queryDeclarationTxList(query);
-        const txData = await this.addMonikerToTxs(txListData.data);
-        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     // txs/gov 
