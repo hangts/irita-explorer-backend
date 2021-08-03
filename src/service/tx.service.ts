@@ -172,7 +172,7 @@ export class TxService {
 
         if(pageNum && pageSize || useCount){
           await this.cacheTxTypes();
-          
+
           if(pageNum && pageSize){
             txListData = await this.txModel.queryStakingTxList(query);
             if (txListData.data && txListData.data.length > 0) {
@@ -191,8 +191,17 @@ export class TxService {
 
     // txs/coinswap
     async queryCoinswapTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
-        const txListData = await this.txModel.queryCoinswapTxList(query);
-        return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), txListData.count);
+      const { pageNum, pageSize, useCount } = query;
+      let txListData, txData = [],count = null;
+
+      if(pageNum && pageSize){
+        txListData = await this.txModel.queryCoinswapTxList(query);
+        txData = txListData?.data
+      }
+      if(useCount){
+        count = await this.txModel.queryCoinswapTxListCount(query);
+      }
+      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     // txs/declaration 

@@ -169,51 +169,55 @@ TxSchema.statics.queryStakingTxListCount = async function(query: ITxsQuery): Pro
   return await this.find(queryParameters).countDocuments();
 }
 
-
+async function CoinswapTxListParamsHelper(query: ITxsQuery){
+  const queryParameters: any = {};
+  const { type } = query;
+  if (query.type && query.type.length) {
+      const typeArr = type.split(",");
+      queryParameters['msgs.type'] = {
+          $in: typeArr
+      }
+  } else {
+      queryParameters['msgs.type'] = {'$in':coinswapTypes()};
+  }
+  if (query.status && query.status.length) {
+      switch (query.status) {
+          case '1':
+              queryParameters.status = TxStatus.SUCCESS;
+              break;
+          case '2':
+              queryParameters.status = TxStatus.FAILED;
+              break;
+      }
+  }
+  if (query.address && query.address.length) {
+      queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
+  }
+  if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
+      queryParameters.time = {};
+  }
+  if (query.beginTime && query.beginTime.length) {
+      queryParameters.time.$gte = Number(query.beginTime);
+  }
+  if (query.endTime && query.endTime.length) {
+      queryParameters.time.$lte = Number(query.endTime);
+  }
+  return queryParameters
+}
 //  txs/coinswap
 TxSchema.statics.queryCoinswapTxList = async function(query: ITxsQuery): Promise<IListStruct> {
     const result: IListStruct = {};
-    const queryParameters: any = {};
-    const { type } = query;
-    if (query.type && query.type.length) {
-        const typeArr = type.split(",");
-        queryParameters['msgs.type'] = {
-            $in: typeArr
-        }
-    } else {
-        queryParameters['msgs.type'] = {'$in':coinswapTypes()};
-    }
-    if (query.status && query.status.length) {
-        switch (query.status) {
-            case '1':
-                queryParameters.status = TxStatus.SUCCESS;
-                break;
-            case '2':
-                queryParameters.status = TxStatus.FAILED;
-                break;
-        }
-    }
-    if (query.address && query.address.length) {
-        queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
-    }
-    if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
-        queryParameters.time = {};
-    }
-    if (query.beginTime && query.beginTime.length) {
-        queryParameters.time.$gte = Number(query.beginTime);
-    }
-    if (query.endTime && query.endTime.length) {
-        queryParameters.time.$lte = Number(query.endTime);
-    }
+    const queryParameters = await CoinswapTxListParamsHelper(query)
     result.data = await this.find(queryParameters)
         .sort({ time: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
-    if (query.useCount && query.useCount == true) {
-        result.count = await this.find(queryParameters).countDocuments();
-    }
     return result;
 };
+TxSchema.statics.queryCoinswapTxListCount = async function(query: ITxsQuery): Promise<number> {
+  const queryParameters = await CoinswapTxListParamsHelper(query)
+  return await this.find(queryParameters).countDocuments();
+}
 
 //  txs/declaration
 TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Promise<IListStruct> {
