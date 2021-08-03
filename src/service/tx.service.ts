@@ -1,4 +1,4 @@
-import { PagingReqDto } from './../dto/base.dto';
+import { PagingReqDto, DeepPagingReqDto } from './../dto/base.dto';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -508,42 +508,45 @@ export class TxService {
     }
 
     // e/services
-    async externalFindServiceList(query: PagingReqDto): Promise<ListStruct<ExternalServiceResDto[]>> {
+    async externalFindServiceList(query: DeepPagingReqDto): Promise<ListStruct<ExternalServiceResDto[]>> {
         const { pageNum, pageSize, useCount } = query;
+        let count = null, res = [];
         // 查询出所有服务
-        const serviceTxList: ITxStruct[] = await (this.txModel as any).findServiceAllList(pageNum, pageSize, useCount);
-        const serviceNameList: ExternalIServiceName[] = serviceTxList.map((item: any) => {
-            const ex: any = item.msgs[0].msg.ex || {};
-            return {
-                serviceName: getServiceNameFromMsgs(item.msgs),
-                description: item.msgs[0].msg.description,
-                bind: ex.bind || 0,
-            };
-        });
-        for (const name of serviceNameList) {
-            if (name.bind && name.bind > 0) {
-                // 通过服务名，查询出该服务下的所有提供者
-                const bindServiceTxList: ITxStruct[] = await (this.txModel as any).findBindServiceTxList(name.serviceName);
-                const bindTxList: ExternalIBindTx[] = bindServiceTxList.map((item: any) => {
-                    return {
-                        provider: item.msgs[0].msg.provider,
-                    };
-                });
-                //查出每个provider在当前绑定的serviceName下的绑定次数
-                for (const bindTx of bindTxList) {
-                    bindTx.respondTimes = await (this.txModel as any).findProviderRespondTimesForService(name.serviceName, bindTx.provider);
-                }
-                name.bindList = bindTxList;
-            } else {
-                name.bindList = [];
-            }
+        if(pageNum && pageSize){
+          const serviceTxList: ITxStruct[] = await (this.txModel as any).findServiceAllList(pageNum, pageSize);
+          const serviceNameList: ExternalIServiceName[] = serviceTxList.map((item: any) => {
+              const ex: any = item.msgs[0].msg.ex || {};
+              return {
+                  serviceName: getServiceNameFromMsgs(item.msgs),
+                  description: item.msgs[0].msg.description,
+                  bind: ex.bind || 0,
+              };
+          });
+          for (const name of serviceNameList) {
+              if (name.bind && name.bind > 0) {
+                  // 通过服务名，查询出该服务下的所有提供者
+                  const bindServiceTxList: ITxStruct[] = await (this.txModel as any).findBindServiceTxList(name.serviceName);
+                  const bindTxList: ExternalIBindTx[] = bindServiceTxList.map((item: any) => {
+                      return {
+                          provider: item.msgs[0].msg.provider,
+                      };
+                  });
+                  //查出每个provider在当前绑定的serviceName下的绑定次数
+                  for (const bindTx of bindTxList) {
+                      bindTx.respondTimes = await (this.txModel as any).findProviderRespondTimesForService(name.serviceName, bindTx.provider);
+                  }
+                  name.bindList = bindTxList;
+              } else {
+                  name.bindList = [];
+              }
+          }
+          res = serviceNameList.map((service: IServiceName) => {
+              return new ExternalServiceResDto(service.serviceName,service.description,service.bindList);
+          });
         }
-        const res: ExternalServiceResDto[] = serviceNameList.map((service: IServiceName) => {
-            return new ExternalServiceResDto(service.serviceName,service.description,service.bindList);
-        });
-        let count = 0;
+          
         if (useCount) {
-            count = await (this.txModel as any).findAllServiceCount();
+          count = await (this.txModel as any).findAllServiceCount();
         }
         return new ListStruct(res, pageNum, pageSize, count);
     }

@@ -726,7 +726,6 @@ TxSchema.statics.queryDefineServiceTxHashByServiceName = async function(serviceN
 TxSchema.statics.findServiceAllList = async function(
     pageNum: number,
     pageSize: number,
-    useCount: boolean | undefined,
     nameOrDescription?: string,
 ): Promise<ITxStruct> {
 
