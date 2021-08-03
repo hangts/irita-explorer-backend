@@ -69,8 +69,7 @@ export class TxService {
             validatorMap[item.operator_address] = item;
         });
 
-
-        const txData = txList.map((tx) => {
+        const txData = (txList || []).map((tx) => {
             const item = JSON.parse(JSON.stringify(tx));
             const monikers = [];
             (item.addrs || []).forEach((addr) => {
@@ -144,13 +143,12 @@ export class TxService {
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
         const { pageNum, pageSize, useCount } = query;
-        let txListData , txData, count = null;
+        let txListData, txData = [], count = null;
 
         if(pageNum && pageSize || useCount){
           await this.cacheTxTypes();
 
-          if(pageNum && pageSize){
-            
+          if(pageNum && pageSize){  
             txListData = await this.txModel.queryTxList(query);
             if (txListData.data && txListData.data.length > 0) {
                 txListData.data = this.handerEvents(txListData.data)
@@ -169,14 +167,26 @@ export class TxService {
     // txs/staking
     async queryStakingTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        await this.cacheTxTypes();
-        // }
-        const txListData = await this.txModel.queryStakingTxList(query);
-        if (txListData.data && txListData.data.length > 0) {
-            txListData.data = this.handerEvents(txListData.data)
+        const { pageNum, pageSize, useCount } = query;
+        let txListData , txData = [], count = null;
+
+        if(pageNum && pageSize || useCount){
+          await this.cacheTxTypes();
+          
+          if(pageNum && pageSize){
+            txListData = await this.txModel.queryStakingTxList(query);
+            if (txListData.data && txListData.data.length > 0) {
+                txListData.data = this.handerEvents(txListData.data)
+            }
+            txData = await this.addMonikerToTxs(txListData.data);
+          }
+          if(useCount){
+            count = await this.txModel.queryStakingTxListCount(query);
+          }
         }
-        const txData = await this.addMonikerToTxs(txListData.data);
-        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
+        // }
+       
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     // txs/coinswap
