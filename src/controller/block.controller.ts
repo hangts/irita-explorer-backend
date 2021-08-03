@@ -22,7 +22,7 @@ export class BlockController {
     }
 
     @Get('range')
-    async queryBlockListByHeight(@Query() query: RangeBlockReqDto): Promise<Result<ListStruct<BlockListResDto[]>>> {
+    async queryBlockListByRange(@Query() query: RangeBlockReqDto): Promise<Result<ListStruct<BlockListResDto[]>>> {
         const data: ListStruct<BlockListResDto[]> = await this.blockService.queryRangeBlockList(query);
         return new Result<ListStruct<BlockListResDto[]>>(data);
     }
