@@ -70,7 +70,7 @@ export class TxListWithHeightReqDto extends DeepPagingReqDto {
 }
 
 //txs/addresses request dto
-export class TxListWithAddressReqDto extends PagingReqDto {
+export class TxListWithAddressReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     address?: string;
 

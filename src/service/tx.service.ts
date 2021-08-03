@@ -343,13 +343,24 @@ export class TxService {
 
     //  txs/addresses
     async queryTxWithAddress(query: TxListWithAddressReqDto): Promise<ListStruct<TxResDto[]>> {
+      const { pageNum, pageSize, useCount } = query;
+      let txListData, txData = [],count = null;
+      if(pageNum && pageSize || useCount){
         await this.cacheTxTypes();
-        const txListData = await this.txModel.queryTxWithAddress(query);
-        if (txListData.data && txListData.data.length > 0) {
-            txListData.data = this.handerEvents(txListData.data)
+
+        if(pageNum && pageSize){
+          txListData = await this.txModel.queryTxWithAddress(query);
+          if (txListData.data && txListData.data.length > 0) {
+              txListData.data = this.handerEvents(txListData.data)
+          }
+          txData = await this.addMonikerToTxs(txListData.data);
         }
-        const txData = await this.addMonikerToTxs(txListData.data);
-        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), txListData.count);
+        if(useCount){
+          count = await this.txModel.queryTxWithAddressCount(query);
+        }
+      }    
+        
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     //  txs/relevance
