@@ -2,8 +2,11 @@ import {
   ITxsQuery,
   ITxsWithAddressQuery,
   ITxsWithContextIdQuery,
+  ITxsWithNftQuery,
+  IIdentityTx,
+  ITxsWithAssetQuery,
 } from '../types/schemaTypes/tx.interface';
-import { TxStatus } from '../constant';
+import { TxStatus,TxType } from '../constant';
 import { ITxsQueryParams } from '../types/tx.interface';
 import {
   stakingTypes,
@@ -264,3 +267,57 @@ export function TxWithContextIdParamsHelper(query: ITxsWithContextIdQuery){
   }
   return queryParameters
 }
+
+export function queryTxWithNftHelper(query: ITxsWithNftQuery){
+  const nftTypesList = [
+    TxType.mint_nft,
+    TxType.edit_nft,
+    TxType.transfer_nft,
+    TxType.burn_nft,
+  ];
+  // let queryParameters: { 'msgs.msg.denom'?: string, 'msgs.msg.id'?: string, $or: object[] } = { $or: [{ 'msgs.type': filterTxTypeRegExp(nftTypesList) }] };
+  const queryParameters: { 'msgs.msg.denom'?: string, 'msgs.msg.id'?: string, 'msgs.type': object } = { 'msgs.type': { $in: nftTypesList || [] }};
+  if (query.denomId && query.denomId.length) {
+      queryParameters['msgs.msg.denom'] = query.denomId;
+  }
+  if (query.tokenId && query.tokenId.length) {
+      queryParameters['msgs.msg.id'] = query.tokenId;
+  }
+  return queryParameters
+}
+
+export function queryTxListByIdentityHelper(query: IIdentityTx){
+  const typesList: TxType[] = [
+    TxType.create_identity,
+    TxType.update_identity
+  ];
+  const params =  {
+      'msgs.msg.id':query.id,
+      // $or:[
+      //     {
+      //         'msgs.type': TxType.create_identity,
+      //     },
+      //     {
+      //         'msgs.type': TxType.update_identity,
+      //     }
+      // ],
+      'msgs.type': {
+          $in: typesList
+      }
+  }
+  return params
+}
+
+export function queryTxWithAssetCountHelper(query: ITxsWithAssetQuery){
+  const queryParameters: {'msgs.type':string,'msgs.msg.symbol'?:string} = {
+    'msgs.type': query.type,
+  };
+  if (query.symbol) {
+      queryParameters['msgs.msg.symbol'] = query.symbol;
+  }
+  return queryParameters
+}
+
+
+
+
