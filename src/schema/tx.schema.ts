@@ -18,7 +18,7 @@ import {
     ITxVoteALL
 } from '../types/schemaTypes/tx.interface';
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
-import { IListStruct,IQueryBase } from '../types';
+import { IListStruct,IQueryBase,ListStruct } from '../types';
 import { INCREASE_HEIGHT, TxStatus, TxType,MAX_OPERATE_TX_COUNT } from '../constant';
 import Cache from '../helper/cache';
 import { dbRes } from '../helper/tx.helper';
@@ -31,6 +31,16 @@ import {
     govTypes,
     coinswapTypes
 } from '../helper/txTypes.helper';
+import {
+  txListParamsHelper,
+  StakingTxListParamsHelper,
+  CoinswapTxListParamsHelper,
+  DeclarationTxListParamsHelper,
+  GovTxListParamsHelper,
+  TxListEdgeParamsHelper,
+  TxWithAddressParamsHelper,
+  TxWithContextIdParamsHelper
+} from '../helper/params.helper';
 
 export const TxSchema = new mongoose.Schema({
     time: Number,
@@ -77,41 +87,11 @@ TxSchema.index({"msgs.type": -1,height:-1,"msgs.msg.ex.service_name":-1 }, { bac
 //     return new RegExp(typeStr);
 // }
 
-async function txListParamsHelper(query: ITxsQuery){
-  const queryParameters: ITxsQueryParams = {};
-  if (query.type && query.type.length) {
-      queryParameters['msgs.type'] = query.type;
-  } else {
-      queryParameters['msgs.type'] = {'$in':stakingTypes()};
-  }
-  if (query.status && query.status.length) {
-      switch (query.status) {
-          case '1':
-              queryParameters.status = TxStatus.SUCCESS;
-              break;
-          case '2':
-              queryParameters.status = TxStatus.FAILED;
-              break;
-      }
-  }
-  if (query.address && query.address.length) {
-      queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
-  }
-  if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
-      queryParameters.time = {};
-  }
-  if (query.beginTime && query.beginTime.length) {
-      queryParameters.time.$gte = Number(query.beginTime);
-  }
-  if (query.endTime && query.endTime.length) {
-      queryParameters.time.$lte = Number(query.endTime);
-  }
-  return queryParameters
-}
+
 // 	txs
-TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<IListStruct> {
+TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<ListStruct> {
     const result: IListStruct = {};
-    const queryParameters = await txListParamsHelper(query)
+    const queryParameters = txListParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.txList)
         .sort({ time: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
@@ -119,45 +99,15 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<IListSt
     return result;
 };
 TxSchema.statics.queryTxListCount = async function(query: ITxsQuery): Promise<number> {
-  const queryParameters = await txListParamsHelper(query)
+  const queryParameters = txListParamsHelper(query)
   return await this.find(queryParameters).countDocuments();
 }
 
-async function StakingTxListParamsHelper(query: ITxsQuery){
-  const queryParameters: any = {};
-  if (query.type && query.type.length) {
-      queryParameters['msgs.type'] = query.type;
-  } else {
-      queryParameters['msgs.type'] = {'$in':stakingTypes()};
-  }
-  if (query.status && query.status.length) {
-      switch (query.status) {
-          case '1':
-              queryParameters.status = TxStatus.SUCCESS;
-              break;
-          case '2':
-              queryParameters.status = TxStatus.FAILED;
-              break;
-      }
-  }
-  if (query.address && query.address.length) {
-      queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
-  }
-  if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
-      queryParameters.time = {};
-  }
-  if (query.beginTime && query.beginTime.length) {
-      queryParameters.time.$gte = Number(query.beginTime);
-  }
-  if (query.endTime && query.endTime.length) {
-      queryParameters.time.$lte = Number(query.endTime);
-  }
-  return queryParameters
-}
+
 //  txs/staking
-TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<IListStruct> {
+TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<ListStruct> {
     const result: IListStruct = {};
-    const queryParameters = await StakingTxListParamsHelper(query)
+    const queryParameters = StakingTxListParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.delegations)
         .sort({ time: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
@@ -165,49 +115,14 @@ TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<
     return result;
 };
 TxSchema.statics.queryStakingTxListCount = async function(query: ITxsQuery): Promise<number> {
-  const queryParameters = await StakingTxListParamsHelper(query)
+  const queryParameters = StakingTxListParamsHelper(query)
   return await this.find(queryParameters).countDocuments();
 }
 
-async function CoinswapTxListParamsHelper(query: ITxsQuery){
-  const queryParameters: any = {};
-  const { type } = query;
-  if (query.type && query.type.length) {
-      const typeArr = type.split(",");
-      queryParameters['msgs.type'] = {
-          $in: typeArr
-      }
-  } else {
-      queryParameters['msgs.type'] = {'$in':coinswapTypes()};
-  }
-  if (query.status && query.status.length) {
-      switch (query.status) {
-          case '1':
-              queryParameters.status = TxStatus.SUCCESS;
-              break;
-          case '2':
-              queryParameters.status = TxStatus.FAILED;
-              break;
-      }
-  }
-  if (query.address && query.address.length) {
-      queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
-  }
-  if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
-      queryParameters.time = {};
-  }
-  if (query.beginTime && query.beginTime.length) {
-      queryParameters.time.$gte = Number(query.beginTime);
-  }
-  if (query.endTime && query.endTime.length) {
-      queryParameters.time.$lte = Number(query.endTime);
-  }
-  return queryParameters
-}
 //  txs/coinswap
-TxSchema.statics.queryCoinswapTxList = async function(query: ITxsQuery): Promise<IListStruct> {
+TxSchema.statics.queryCoinswapTxList = async function(query: ITxsQuery): Promise<ListStruct> {
     const result: IListStruct = {};
-    const queryParameters = await CoinswapTxListParamsHelper(query)
+    const queryParameters = CoinswapTxListParamsHelper(query)
     result.data = await this.find(queryParameters)
         .sort({ time: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
@@ -215,46 +130,14 @@ TxSchema.statics.queryCoinswapTxList = async function(query: ITxsQuery): Promise
     return result;
 };
 TxSchema.statics.queryCoinswapTxListCount = async function(query: ITxsQuery): Promise<number> {
-  const queryParameters = await CoinswapTxListParamsHelper(query)
+  const queryParameters = CoinswapTxListParamsHelper(query)
   return await this.find(queryParameters).countDocuments();
 }
 
-
-async function DeclarationTxListParamsHelper(query: ITxsQuery){
-  const queryParameters: any = {};
-  if (query.type && query.type.length) {
-      queryParameters['msgs.type'] = query.type;
-  } else {
-      queryParameters['msgs.type'] = { '$in': declarationTypes() };
-  }
-  if (query.status && query.status.length) {
-      switch (query.status) {
-          case '1':
-              queryParameters.status = TxStatus.SUCCESS;
-              break;
-          case '2':
-              queryParameters.status = TxStatus.FAILED;
-              break;
-      }
-  }
-  if (query.address && query.address.length) {
-      queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
-  }
-  if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
-      queryParameters.time = {};
-  }
-  if (query.beginTime && query.beginTime.length) {
-      queryParameters.time.$gte = Number(query.beginTime);
-  }
-  if (query.endTime && query.endTime.length) {
-      queryParameters.time.$lte = Number(query.endTime);
-  }
-  return queryParameters
-}
 //  txs/declaration
-TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Promise<IListStruct> {
+TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Promise<ListStruct> {
     const result: IListStruct = {};
-    const queryParameters = await DeclarationTxListParamsHelper(query)
+    const queryParameters = DeclarationTxListParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.validations)
         .sort({time: -1})
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
@@ -262,45 +145,14 @@ TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Prom
     return result;
 };
 TxSchema.statics.queryDeclarationTxListCount = async function(query: ITxsQuery): Promise<number> {
-  const queryParameters = await DeclarationTxListParamsHelper(query)
+  const queryParameters = DeclarationTxListParamsHelper(query)
   return await this.find(queryParameters).countDocuments();
 }
 
-async function GovTxListParamsHelper(query: ITxsQuery){
-  const queryParameters: any = {};
-  if (query.type && query.type.length) {
-      queryParameters['msgs.type'] = query.type;
-  } else {
-      queryParameters['msgs.type'] = { '$in': govTypes() };
-  }
-  if (query.status && query.status.length) {
-      switch (query.status) {
-          case '1':
-              queryParameters.status = TxStatus.SUCCESS;
-              break;
-          case '2':
-              queryParameters.status = TxStatus.FAILED;
-              break;
-      }
-  }
-  if (query.address && query.address.length) {
-      queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
-  }
-  if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
-      queryParameters.time = {};
-  }
-  if (query.beginTime && query.beginTime.length) {
-      queryParameters.time.$gte = Number(query.beginTime);
-  }
-  if (query.endTime && query.endTime.length) {
-      queryParameters.time.$lte = Number(query.endTime);
-  }
-  return queryParameters
-}
 //  txs/gov
-TxSchema.statics.queryGovTxList = async function(query: ITxsQuery): Promise<IListStruct> {
+TxSchema.statics.queryGovTxList = async function(query: ITxsQuery): Promise<ListStruct> {
     const result: IListStruct = {};
-    const queryParameters = await GovTxListParamsHelper(query)
+    const queryParameters = GovTxListParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.govs)
         .sort({time: -1})
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
@@ -308,38 +160,15 @@ TxSchema.statics.queryGovTxList = async function(query: ITxsQuery): Promise<ILis
     return result;
 };
 TxSchema.statics.queryGovTxListCount = async function(query: ITxsQuery): Promise<number> {
-  const queryParameters = await GovTxListParamsHelper(query)
+  const queryParameters = GovTxListParamsHelper(query)
   return await this.find(queryParameters).countDocuments();
 }
 
 
-
-
-async function TxListEdgeParamsHelper(types, gt_height, status, address, include_event_addr){
-  const queryParameters: any = {};
-  if (types && types.length) {
-      queryParameters['msgs.type'] = {'$in':types.split(',')};
-  }
-  if (gt_height) {
-      queryParameters['height'] = {'$gt':gt_height};
-  }
-  if (status || status === 0) {
-      queryParameters['status'] = status;
-  }
-  if (include_event_addr && include_event_addr == true && address && address.length) {
-      queryParameters['$or'] = [
-          { 'events.attributes.value': address },
-          { 'addrs': { $elemMatch: {'$in': address.split(',')} }}
-      ]
-  } else if (address && address.length) {
-      queryParameters['addrs'] = { $elemMatch: { '$in': address.split(',') } };
-  }
-  return queryParameters
-}
 //  txs/e 供edgeServer调用  返回数据不做过滤
-TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, status?:number, address?:string, include_event_addr?:boolean): Promise<IListStruct> {
+TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, status?:number, address?:string, include_event_addr?:boolean): Promise<ListStruct> {
     const result: IListStruct = {};
-    const queryParameters = await TxListEdgeParamsHelper(types, gt_height, status, address, include_event_addr)
+    const queryParameters = TxListEdgeParamsHelper(types, gt_height, status, address, include_event_addr)
     result.data = await this.find(queryParameters)
     .sort({ height: 1 })
     .skip((Number(pageNum) - 1) * Number(pageSize))
@@ -347,7 +176,7 @@ TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number
     return result;
 };
 TxSchema.statics.queryTxListEdgeCount = async function(types:string, gt_height:number, status?:number, address?:string, include_event_addr?:boolean): Promise<number> {
-  const queryParameters = await TxListEdgeParamsHelper(types, gt_height, status, address, include_event_addr)
+  const queryParameters = TxListEdgeParamsHelper(types, gt_height, status, address, include_event_addr)
   return await this.find(queryParameters).countDocuments();
 }
 
@@ -370,7 +199,7 @@ TxSchema.statics.queryTxListByHeightEdge = async function(height:number, pageNum
 
 
 // 	txs/blocks
-TxSchema.statics.queryTxWithHeight = async function(query: ITxsWithHeightQuery): Promise<IListStruct> {
+TxSchema.statics.queryTxWithHeight = async function(query: ITxsWithHeightQuery): Promise<ListStruct> {
     const result: IListStruct = {};
     // let queryParameters: { height?: number, $or: object[] } = { $or: [{ 'msgs.type': filterExTxTypeRegExp() }] };
     const queryParameters: { height?: number, 'msgs.type': object } = { 'msgs.type': { $in: Cache.supportTypes || [] } };
@@ -391,40 +220,8 @@ TxSchema.statics.queryTxWithHeighCount = async function(query: ITxsWithHeightQue
   return await this.find(queryParameters).countDocuments();
 }
 
-async function TxWithAddressParamsHelper(query: ITxsWithAddressQuery){
-  let queryParameters: any = {};
-  if (query.address && query.address.length) {
-      queryParameters = {
-          // $or:[
-          // 	{"from":query.address},
-          // 	{"to":query.address},
-          // 	{"signer":query.address},
-          // ],
-          addrs: { $elemMatch: { $eq: query.address } },
-      };
-  }
-  if (query.type && query.type.length) {
-      queryParameters['msgs.type'] = query.type;
-  } else {
-      // queryParameters.$or = [{ 'msgs.type': filterExTxTypeRegExp() }];
-      queryParameters['msgs.type'] = {
-          $in: Cache.supportTypes || []
-      }
-  }
-  if (query.status && query.status.length) {
-      switch (query.status) {
-          case '1':
-              queryParameters.status = TxStatus.SUCCESS;
-              break;
-          case '2':
-              queryParameters.status = TxStatus.FAILED;
-              break;
-      }
-  }
-  return queryParameters
-}
 //  txs/addresses
-TxSchema.statics.queryTxWithAddress = async function(query: ITxsWithAddressQuery): Promise<IListStruct> {
+TxSchema.statics.queryTxWithAddress = async function(query: ITxsWithAddressQuery): Promise<ListStruct> {
     const result: IListStruct = {};
     const queryParameters = await TxWithAddressParamsHelper(query) 
     result.data = await this.find(queryParameters, dbRes.txList)
@@ -438,42 +235,10 @@ TxSchema.statics.queryTxWithAddressCount = async function(query: ITxsWithAddress
   return await this.find(queryParameters).countDocuments();
 }
 
-async function TxWithContextIdParamsHelper(query: ITxsWithContextIdQuery){
-  let queryParameters: any = {};
-  if (query.contextId && query.contextId.length) {
-      queryParameters = {
-          $or: [
-              { 'events.attributes.value': query.contextId },
-              { 'msgs.msg.ex.request_context_id': query.contextId },
-              { 'msgs.msg.request_context_id': query.contextId },
-          ],
-      };
-  }
-  if (query.type && query.type.length) {
-      queryParameters['msgs.type'] = query.type;
-  } else {
-      // queryParameters.$or = [{ 'msgs.type': filterExTxTypeRegExp() }];
-      queryParameters['msgs.type'] = {
-          $in: Cache.supportTypes || []
-      }
-  }
-
-  if (query.status && query.status.length) {
-      switch (query.status) {
-          case '1':
-              queryParameters.status = TxStatus.SUCCESS;
-              break;
-          case '2':
-              queryParameters.status = TxStatus.FAILED;
-              break;
-      }
-  }
-  return queryParameters
-}
 //  txs/relevance
-TxSchema.statics.queryTxWithContextId = async function(query: ITxsWithContextIdQuery): Promise<IListStruct> {
+TxSchema.statics.queryTxWithContextId = async function(query: ITxsWithContextIdQuery): Promise<ListStruct> {
     const result: IListStruct = {};
-    const queryParameters = await TxWithContextIdParamsHelper(query) 
+    const queryParameters = TxWithContextIdParamsHelper(query) 
     result.data = await this.find(queryParameters, dbRes.service)
         .sort({ height: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
@@ -481,7 +246,7 @@ TxSchema.statics.queryTxWithContextId = async function(query: ITxsWithContextIdQ
     return result;
 };
 TxSchema.statics.queryTxWithContextIdCount = async function(query: ITxsWithContextIdQuery): Promise<number> {
-  const queryParameters = await TxWithContextIdParamsHelper(query) 
+  const queryParameters = TxWithContextIdParamsHelper(query) 
   return await this.find(queryParameters).countDocuments();
 }
 
