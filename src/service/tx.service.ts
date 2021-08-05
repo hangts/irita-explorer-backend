@@ -407,10 +407,10 @@ export class TxService {
     //  txs/services/call-service
     async queryTxWithCallService(query: TxListWithCallServiceReqDto): Promise<ListStruct<callServiceResDto[]>> {
       const { pageNum, pageSize, useCount } = query;
-      let txListData, count = null;
+      let txListData, txData = [], count = null;
 
       if(pageNum && pageSize){
-        txListData = await this.txModel.queryCallServiceWithConsumerAddr(query.consumerAddr, query.pageNum, query.pageSize);
+        txListData = await this.txModel.queryCallServiceWithConsumerAddr(query.consumerAddr, pageNum, pageSize);
         if (txListData.data && txListData.data.length > 0) {
           for (const item of txListData.data) {
               const context_id: string = getReqContextIdFromEvents(item.events);
@@ -422,18 +422,19 @@ export class TxService {
               }
           }
         }
+        txData = txListData.data
       }
       if(useCount){
         count = await this.txModel.queryCallServiceWithConsumerAddrCount(query.consumerAddr);
       }
       
-      return new ListStruct(callServiceResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), count);
+      return new ListStruct(callServiceResDto.bundleData(txData), Number(pageNum), Number(pageSize), count);
     }
 
     //  txs/services/respond-service
     async queryTxWithRespondService(query: TxListWithRespondServiceReqDto): Promise<ListStruct<TxResDto[]>> {
       const { pageNum, pageSize, useCount } = query;
-      let txListData, count = null;
+      let txListData, txData = [], count = null;
 
       if(pageNum && pageSize){
         txListData = await this.txModel.queryBindServiceWithProviderAddr(query.providerAddr, query.pageNum, query.pageSize, query.useCount);
@@ -452,12 +453,13 @@ export class TxService {
             }
           }
         }
+        txData = txListData.data
       }
       if(useCount){
         count = await this.txModel.queryBindServiceWithProviderAddrCount(query.providerAddr);
       }
 
-      return new ListStruct(RespondServiceResDto.bundleData(txListData.data), Number(pageNum), Number(pageSize), count);
+      return new ListStruct(RespondServiceResDto.bundleData(txData), Number(pageNum), Number(pageSize), count);
     }
 
     //  txs/services/detail/{serviceName}
@@ -737,29 +739,31 @@ export class TxService {
     //tx/identity
     async queryIdentityTx(query: IdentityTxReqDto): Promise<ListStruct<TxResDto[]>> {
       const { pageNum, pageSize, useCount } = query;
-      let txListData,count = null;
+      let txListData,txData = [],count = null;
       if(pageNum && pageSize){
         txListData = await this.txModel.queryTxListByIdentity(query);
+        txData = txListData.data
       }
       if(useCount){
         count = await this.txModel.queryTxListByIdentityCount(query);
       }
 
-      return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), count);
+      return new ListStruct(TxResDto.bundleData(txData), Number(pageNum), Number(pageSize), count);
     }
 
     // txs/asset
     async queryTxWithAsset(query: TxListWithAssetReqDto): Promise<ListStruct<TxResDto[]>> {
       const { pageNum, pageSize, useCount } = query;
-      let txListData, count = null;
+      let txListData, txData = [], count = null;
       if(pageNum && pageSize){
         txListData = await this.txModel.queryTxWithAsset(query);
+        txData = txListData.data
       }
       if(useCount){
         count = await this.txModel.queryTxWithAssetCount(query);
       }
 
-      return new ListStruct(TxResDto.bundleData(txListData.data), Number(query.pageNum), Number(query.pageSize), count);
+      return new ListStruct(TxResDto.bundleData(txData), Number(pageNum), Number(pageSize), count);
     }
 
     // txs/types/gov
