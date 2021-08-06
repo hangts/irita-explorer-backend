@@ -1,4 +1,4 @@
-import { BaseReqDto, PagingReqDto } from './base.dto';
+import { BaseReqDto, PagingReqDto, DeepPagingReqDto } from './base.dto';
 import { ApiError } from '../api/ApiResult';
 import { ErrorCodes } from '../api/ResultCodes';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -53,6 +53,27 @@ export class BlockResDto {
         this.txn = txn;
         this.time = time;
     }
+}
+
+export class LatestBlockListResDto extends BlockResDto {
+  dbHeight?:number;
+  proposer?: string;
+  total_validator_num?: number;
+  total_voting_power?: number;
+  precommit_voting_power?: number;
+  precommit_validator_num?: number;
+  proposer_moniker?: string;
+  proposer_addr?: string;
+
+  constructor(value) {
+      super(value.height, value.hash, value.txn, value.time);
+      this.total_validator_num = value.total_validator_num;
+      this.total_voting_power = value.total_voting_power;
+      this.precommit_voting_power = value.precommit_voting_power;
+      this.precommit_validator_num = value.precommit_validator_num;
+      this.proposer_moniker = value.proposer_moniker;
+      this.proposer_addr = value.proposer_addr;
+  }
 }
 
 export class BlockListResDto extends BlockResDto {
@@ -133,7 +154,7 @@ export class BlockDetailReqDto extends BaseReqDto {
 }
 
 // blocks/validatorset/{height}  req dto
-export class ValidatorsetsReqDto extends PagingReqDto {
+export class ValidatorsetsReqDto extends DeepPagingReqDto {
     @ApiProperty()
     height: number;
 
