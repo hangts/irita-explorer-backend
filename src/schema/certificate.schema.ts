@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose'
-import { IListStruct } from '../types';
+import { IListStruct,ListStruct } from '../types';
 import {
   IIdentityPubKeyAndCertificateQuery,
 } from '../types/schemaTypes/identity.interface';
@@ -24,16 +24,18 @@ CertificateSchema.statics = {
       certificate_hash:certificateData.certificate_hash}
     await this.findOneAndUpdate(query,certificateData,{upsert:true,new: true})
   },
-  async queryCertificate(query:IIdentityPubKeyAndCertificateQuery):Promise<IListStruct>{
-    const result: IListStruct = {}
+  async queryCertificate(query:IIdentityPubKeyAndCertificateQuery):Promise<ListStruct>{
+    const result: ListStruct = {}
     const queryParameters: any = {};
     queryParameters.identities_id = query.id
     result.data = await this.find(queryParameters)
       .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
       .limit(Number(query.pageSize)).sort({'height':-1});
-    if (query.useCount && query.useCount == true) {
-      result.count = await this.find(queryParameters).countDocuments();
-    }
     return result
-  }
+  },
+  async queryCertificateCount(query:IIdentityPubKeyAndCertificateQuery):Promise<number> {
+    const queryParameters: any = {};
+    queryParameters.identities_id = query.id
+    return await this.find(queryParameters).countDocuments();
+  },
 }

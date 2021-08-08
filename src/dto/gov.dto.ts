@@ -1,19 +1,10 @@
-import { BaseReqDto, PagingReqDto, BaseResDto } from './base.dto';
+import { BaseReqDto, PagingReqDto, BaseResDto, DeepPagingReqDto } from './base.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Coin } from './common.res.dto';
 
 /***************Req***********************/
 
-export class proposalsReqDto {
-    @ApiPropertyOptional()
-    pageNum?: number;
-
-    @ApiPropertyOptional()
-    pageSize?: number;
-
-    @ApiPropertyOptional({description:'true/false'})
-    useCount?: boolean;
-
+export class proposalsReqDto extends DeepPagingReqDto{
     @ApiPropertyOptional({description: 'status: "DepositPeriod,VotingPeriod,Passed,Rejected" 以,分割的字符串'})
     status?: string;
 }
@@ -23,7 +14,7 @@ export class ProposalDetailReqDto extends BaseReqDto {
     id: number;
 }
 
-export class proposalsVoterReqDto extends PagingReqDto {
+export class proposalsVoterReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional({description: 'type: all/validator/delegator'})
     voterType?: string;
 }

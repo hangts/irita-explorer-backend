@@ -76,7 +76,7 @@ export class PagingReqDto extends BaseReqDto {
     useCount?: boolean;
 
     static validate(value: any): void {
-        let patt = /^[1-9]\d*$/;
+        const patt = /^[1-9]\d*$/;
         if (value.pageNum && (!patt.test(value.pageNum) || value.pageNum < 1)) {
             throw new ApiError(ErrorCodes.InvalidParameter, 'The pageNum must be a positive integer greater than 0');
         }

@@ -1,4 +1,4 @@
-import {BaseResDto, PagingReqDto} from './base.dto';
+import {BaseResDto, PagingReqDto, DeepPagingReqDto} from './base.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {ArrayNotEmpty} from 'class-validator';
 import { Coin } from './common.res.dto';
@@ -12,7 +12,7 @@ import { Coin } from './common.res.dto';
 //     address?: string
 // }
 
-export class CommissionInfoReqDto extends PagingReqDto {
+export class CommissionInfoReqDto extends DeepPagingReqDto {
 
 }
 
@@ -21,7 +21,7 @@ export class ValidatorDelegationsReqDto {
     address: string
 }
 
-export class ValidatorDelegationsQueryReqDto extends PagingReqDto {
+export class ValidatorDelegationsQueryReqDto extends DeepPagingReqDto {
 }
 
 export class ValidatorUnBondingDelegationsReqDto {
@@ -29,7 +29,7 @@ export class ValidatorUnBondingDelegationsReqDto {
     address: string
 }
 
-export class ValidatorUnBondingDelegationsQueryReqDto extends PagingReqDto {
+export class ValidatorUnBondingDelegationsQueryReqDto extends DeepPagingReqDto {
 }
 
 export class allValidatorReqDto extends PagingReqDto {
@@ -47,7 +47,7 @@ export class AccountAddrReqDto {
     address: string
 }
 
-export class DelegatorsDelegationsReqDto extends PagingReqDto {
+export class DelegatorsDelegationsReqDto extends DeepPagingReqDto {
 }
 
 export class DelegatorsDelegationsParamReqDto {
@@ -55,7 +55,7 @@ export class DelegatorsDelegationsParamReqDto {
     delegatorAddr: string
 }
 
-export class DelegatorsUndelegationsReqDto extends PagingReqDto {
+export class DelegatorsUndelegationsReqDto extends DeepPagingReqDto {
 }
 
 export class DelegatorsUndelegationsParamReqDto {

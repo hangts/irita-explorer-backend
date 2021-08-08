@@ -1,14 +1,14 @@
 
-import { BaseReqDto, BaseResDto, PagingReqDto } from './base.dto';
+import { BaseReqDto, BaseResDto, PagingReqDto, DeepPagingReqDto } from './base.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 /****************Req******************/
-export class IdentityPubKeyAndCertificateReqDto extends PagingReqDto{
+export class IdentityPubKeyAndCertificateReqDto extends DeepPagingReqDto{
     @ApiPropertyOptional()
     @ApiProperty()
     id:string
 }
 //tx identity
-export class IdentityReqDto extends PagingReqDto {
+export class IdentityReqDto extends DeepPagingReqDto {
   @ApiPropertyOptional()
   search?: string;
 }
@@ -17,7 +17,7 @@ export class IdentityInfoReqDto extends BaseReqDto {
   @ApiProperty()
   id: string;
 }
-export class IdentityByAddressReqDto extends PagingReqDto{
+export class IdentityByAddressReqDto extends DeepPagingReqDto {
   @ApiProperty()
   address: string;
 }

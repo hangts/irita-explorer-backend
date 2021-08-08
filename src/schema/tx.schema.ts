@@ -43,6 +43,8 @@ import {
   queryTxWithNftHelper,
   queryTxListByIdentityHelper,
   queryTxWithAssetCountHelper,
+  queryVoteByTxhashsAndAddressHelper,
+  queryDepositorByIdHelper,
 } from '../helper/params.helper';
 
 export const TxSchema = new mongoose.Schema({
@@ -1047,50 +1049,38 @@ TxSchema.statics.queryVoteByTxhashsAndOptoin = async function (hash: string[], o
     return await this.find(queryParameters).countDocuments();
 };
 
-TxSchema.statics.queryVoteByTxhashsAndAddress = async function (hash: string[], address:string[],query?: PagingReqDto): Promise<IListStruct>  {
-    const queryParameters =  {
-        'tx_hash': {
-            $in: hash
-        },
-        status: TxStatus.SUCCESS,
-        'msgs.msg.voter': {
-            $in: address
-        }
-    }
-    let data:IListStruct={};
+TxSchema.statics.queryVoteByTxhashsAndAddress = async function (hash: string[], address:string[],query?: PagingReqDto): Promise<ListStruct>  {
+    const queryParameters = queryVoteByTxhashsAndAddressHelper(hash, address)
+    let data:ListStruct={};
     if (query) {
         data.data = await this.find(queryParameters, dbRes.voteList)
         .sort({ height: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
-        if (query.useCount && query.useCount == true) {
-            data.count = await this.find(queryParameters).countDocuments();
-        }
     } else {
         data = await this.find(queryParameters,dbRes.voteList).sort({ height: -1 })
     }
     return data;
 };
+TxSchema.statics.queryVoteByTxhashsAndAddressCount = async function (hash: string[], address:string[]): Promise<number>  {
+  const queryParameters = queryVoteByTxhashsAndAddressHelper(hash, address)
+  return await this.find(queryParameters).countDocuments();
+};
 
 
-TxSchema.statics.queryDepositorById = async function (id:number,query: PagingReqDto): Promise<IListStruct>  {
-    const queryParameters =  {
-        'msgs.type': { $in: [TxType.deposit, TxType.submit_proposal] },
-        $or: [
-            { 'msgs.msg.proposal_id': Number(id) },
-            { 'events.attributes.key': 'proposal_id', 'events.attributes.value': String(id) }
-        ],
-        status:TxStatus.SUCCESS 
-    }
-    const result: IListStruct = {};
+
+TxSchema.statics.queryDepositorById = async function (id:number,query: PagingReqDto): Promise<ListStruct>  {
+    const queryParameters = queryDepositorByIdHelper(id)
+    const result: ListStruct = {};
     result.data = await this.find(queryParameters, dbRes.depositorList)
         .sort({ height: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
-    if (query.useCount && query.useCount == true) {
-        result.count = await this.find(queryParameters).countDocuments();
-    }
     return result;
+};
+TxSchema.statics.queryDepositorByIdCount = async function (id:number): Promise<number>  {
+  const queryParameters = queryDepositorByIdHelper(id)
+  return await this.find(queryParameters).countDocuments();
 };
 
 TxSchema.statics.queryVoteByAddr = async function (address:string): Promise<ITxVoteALL[]>  {

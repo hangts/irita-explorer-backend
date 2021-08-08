@@ -46,7 +46,7 @@ export default class StakingService {
 
     async getAllValidatorMonikerMap() {
         const allValidators = await (this.stakingValidatorsModel as any).queryAllValidators()
-        let allValidatorsMonikerMap = new Map()
+        const allValidatorsMonikerMap = new Map()
         allValidators.forEach(item => {
             allValidatorsMonikerMap.set(item.operator_address, item)
         })
@@ -55,7 +55,7 @@ export default class StakingService {
 
     async getTotalVotingPower() {
         const allValidators = await (this.stakingValidatorsModel as any).queryAllValidators()
-        let totalVotingPower: number = 0;
+        let totalVotingPower = 0;
         allValidators.forEach(item => {
             if (item.status === ValidatorStatus['bonded'] && item.jailed === false) {
                 totalVotingPower += Number(item.voting_power);
@@ -65,19 +65,28 @@ export default class StakingService {
     }
 
 
-    async getAllValCommission(q: CommissionInfoReqDto): Promise<ListStruct<CommissionInfoResDto>> {
-        const allValCommissionInfo: any = await (this.stakingValidatorsModel as any).queryAllValCommission(q)
-        allValCommissionInfo.data = CommissionInfoResDto.bundleData(allValCommissionInfo.data)
-        return allValCommissionInfo
+    async getAllValCommission(query: CommissionInfoReqDto): Promise<ListStruct<CommissionInfoResDto>> {
+        const { pageNum, pageSize, useCount } = query;
+        let allValCommissionInfo, count = null;
+        if(pageNum && pageSize){
+          allValCommissionInfo = await (this.stakingValidatorsModel as any).queryAllValCommission(query)
+          allValCommissionInfo.data = CommissionInfoResDto.bundleData(allValCommissionInfo.data)
+        }
+        if(useCount){
+          count = await this.stakingValidatorsModel.queryAllValCommissionCount();
+        }
+
+        return new ListStruct(allValCommissionInfo, pageNum, pageSize, count)
     }
 
     async getValidatorDelegationList(p: ValidatorDelegationsReqDto, q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorDelegationsResDto>> {
         const validatorAddr = p.address
         const { pageNum,pageSize,useCount } = q
+        let delegationData: any = [], count = null
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const validatorDelegationsFromLcd = await this.stakingHttp.queryValidatorDelegationsFromLcd(validatorAddr, pageNum, pageSize, useCount)
-        let resultData = (validatorDelegationsFromLcd.result || []).map(item => {
-            let validator = allValidatorsMap.get(item.delegation.validator_address);
+        const resultData = (validatorDelegationsFromLcd?.result || []).map(item => {
+            const validator = allValidatorsMap.get(item.delegation.validator_address);
             return {
                 moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
                 address: item.delegation.delegator_address || '',
@@ -86,13 +95,9 @@ export default class StakingService {
                 total_shares: validator && Number(validator.delegator_shares) || 0,
             }
         })
-        const count = validatorDelegationsFromLcd.total
-        let result: any = {}
-        if (useCount) {
-            result.count = count
-        }
-        result.data = ValidatorDelegationsResDto.bundleData(resultData)
-        return new ListStruct(result.data, pageNum, pageSize, count)
+        count = validatorDelegationsFromLcd?.total
+        delegationData = ValidatorDelegationsResDto.bundleData(resultData)
+        return new ListStruct(delegationData, pageNum, pageSize, count)
     }
 
     async getValidatorUnBondingDelegations(p: ValidatorUnBondingDelegationsReqDto,q: ValidatorUnBondingDelegationsQueryReqDto): Promise<ListStruct<ValidatorUnBondingDelegationsResDto>> {
@@ -100,8 +105,8 @@ export default class StakingService {
         const { pageNum,pageSize,useCount } = q
         const allValidatorsMoniker = await this.getAllValidatorMonikerMap()
         const valUnBondingDelegationsFromLcd = await this.stakingHttp.queryValidatorUnBondingDelegations(validatorAddr, pageNum, pageSize, useCount)
-        let resultData = (valUnBondingDelegationsFromLcd.result || []).map(item => {
-            let validator = allValidatorsMoniker.get(item.validator_address);
+        const resultData = (valUnBondingDelegationsFromLcd?.result || []).map(item => {
+            const validator = allValidatorsMoniker.get(item.validator_address);
             return {
                 moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
                 address: item.delegator_address || '',
@@ -110,8 +115,8 @@ export default class StakingService {
                 until: item.entries[0].completion_time || '',
             }
         })
-        const count = resultData.length
-        let result: any = {}
+        const count = resultData?.length
+        const result: any = {}
         if (useCount) {
             result.count = count
         }
@@ -130,7 +135,7 @@ export default class StakingService {
             item.icon = item.is_black ? '' : item.icon;
             item.voting_rate = item.voting_power / totalVotingPower;
         })
-        let result: any = {}
+        const result: any = {}
         result.data = stakingValidatorResDto.bundleData(validatorList.data)
         result.count = validatorList.count
         return new ListStruct(result.data, q.pageNum, q.pageSize, result.count)
@@ -140,7 +145,7 @@ export default class StakingService {
 
         const validatorAddress = q.address
         let result: any = null;
-        let validatorDetail = await (this.stakingValidatorsModel as any).queryDetailByValidator(validatorAddress);
+        const validatorDetail = await (this.stakingValidatorsModel as any).queryDetailByValidator(validatorAddress);
         if (validatorDetail) {
             const moduleName = moduleSlashing;
             const signedBlocksWindow = await (this.parametersModel as any).querySignedBlocksWindow(moduleName);
@@ -181,13 +186,13 @@ export default class StakingService {
         const validator = allValidatorsMap.get(operatorAddress)
         // const deposits = await (this.txModel as any).queryDepositsAndSubmitByAddress(address)
 
-        let profilerAddressMap = new Map()
+        const profilerAddressMap = new Map()
         if (allProfilerAddress && allProfilerAddress.length > 0) {
             allProfilerAddress.forEach(item => {
                 profilerAddressMap.set(item.address, item)
             })
         }
-        let result: any = {}
+        const result: any = {}
         result.amount = balancesArray || []
         result.withdrawAddress =  withdrawAddress && withdrawAddress.address
         result.address = address
@@ -216,7 +221,7 @@ export default class StakingService {
         const count = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.total : 0;
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const resultData = (dataLcd || []).map(item => {
-            let validator = allValidatorsMap.get(item.delegation.validator_address);
+            const validator = allValidatorsMap.get(item.delegation.validator_address);
             return {
                 address: item.delegation.validator_address || '',
                 moniker: validator && validator.is_black  ? validator.moniker_m : validator && validator.description && validator.description.moniker,
@@ -243,9 +248,9 @@ export default class StakingService {
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         const resultData = (dataLcd || []).map(item => {
             const denom:string = (aminToken || {}).denom || '';
-            let entries:any = item && item.entries || []
+            const entries:any = item && item.entries || []
             const amount =  entries && entries.length > 0 ? entries[0].balance : ''
-            let validator = allValidatorsMap.get(item.validator_address);
+            const validator = allValidatorsMap.get(item.validator_address);
             return {
                 address: item.validator_address || '',
                 moniker: validator && validator.is_black  ? validator.moniker_m : validator && validator.description && validator.description.moniker,
@@ -267,7 +272,7 @@ export default class StakingService {
 
     async getValidatorVotesList(p: ValidatorDelegationsReqDto,q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorVotesResDto>> {
         const { address } = p;
-        let iaaAddress = addressTransform(address, addressPrefix.iaa);
+        const iaaAddress = addressTransform(address, addressPrefix.iaa);
         const votesAll = await (this.txModel as any).queryVoteByAddr(iaaAddress);
         const votes = new Map();
         if (votesAll && votesAll.length > 0) {
@@ -275,7 +280,7 @@ export default class StakingService {
                 votes.set(voter.msgs[0].msg.proposal_id, voter.tx_hash);
             });
         }
-        let votesList = [];
+        const votesList = [];
         let count;
         if (votes.size > 0) {
             const hashs = [...votes.values()];
@@ -300,7 +305,7 @@ export default class StakingService {
                 }
             }
         }
-        let result: any = {};
+        const result: any = {};
         if (q.useCount) {
             result.count = count;
         }
@@ -310,19 +315,19 @@ export default class StakingService {
 
     async getValidatorDepositsList(p: ValidatorDelegationsReqDto,q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorDepositsResDto>> {
         const { address } = p;
-        let iaaAddress = addressTransform(address, addressPrefix.iaa);
+        const iaaAddress = addressTransform(address, addressPrefix.iaa);
         const depositsData = await (this.txModel as any).queryDepositsByAddress(iaaAddress, q);
-        let depositsList = [];
-        let proposalsListFromDb = await this.proposalModel.queryAllProposalsDeletedID();
-        let proposalsDeletedId = proposalsListFromDb && proposalsListFromDb.length > 0 ? proposalsListFromDb.map(id => id.id) : [];
+        const depositsList = [];
+        const proposalsListFromDb = await this.proposalModel.queryAllProposalsDeletedID();
+        const proposalsDeletedId = proposalsListFromDb && proposalsListFromDb.length > 0 ? proposalsListFromDb.map(id => id.id) : [];
         if (depositsData && depositsData.data && depositsData.data.length > 0) {
             for (const depost of depositsData.data) {
                 if (depost.msgs && depost.msgs[0] && depost.msgs[0].msg) {
                     const msg = depost.msgs[0].msg;
                     const proposal = await (this.txModel as any).querySubmitProposalById(String(msg.proposal_id));
                     const proposer = proposal && proposal.msgs && proposal.msgs[0] && proposal.msgs[0].msg && proposal.msgs[0].msg.proposer;
-                    let ivaProposer = addressTransform(proposer, addressPrefix.iva);
-                    let { moniker } = await this.addMonikerAndIva(ivaProposer);
+                    const ivaProposer = addressTransform(proposer, addressPrefix.iva);
+                    const { moniker } = await this.addMonikerAndIva(ivaProposer);
                     depositsList.push({
                         proposal_id: msg.proposal_id,
                         proposer,
@@ -335,7 +340,7 @@ export default class StakingService {
                 }
             }
         }
-        let result: any = {};
+        const result: any = {};
         if (q.useCount) {
             result.count = depositsData.count;
         }
@@ -344,13 +349,13 @@ export default class StakingService {
     }
 
     async addMonikerAndIva(address) {
-        let validators = await (this.stakingValidatorsModel as any).queryAllValidators();
-        let validatorMap = {};
+        const validators = await (this.stakingValidatorsModel as any).queryAllValidators();
+        const validatorMap = {};
         validators.forEach((item) => {
             validatorMap[item.operator_address] = item;
         });
         let moniker: string;
-        let isValidator: boolean = Boolean(validatorMap[address]);
+        const isValidator = Boolean(validatorMap[address]);
         if (validatorMap[address] &&
             validatorMap[address].description &&
             validatorMap[address].description.moniker) {
@@ -359,14 +364,14 @@ export default class StakingService {
         return {moniker,isValidator};
     }
 
-    async insertBlacks(params: PostBlacksReqDto): Promise<Boolean> {
+    async insertBlacks(params: PostBlacksReqDto): Promise<boolean> {
         try {
             const { blacks } = params;
             if (blacks && blacks.length > 0) {
                 for (const black of blacks) {
-                    let ivaAddr = (black as any).iva_addr || '';
-                    let monikerM = (black as any).moniker_m || '';
-                    let isBlack = (black as any).is_block === true ? true : false;
+                    const ivaAddr = (black as any).iva_addr || '';
+                    const monikerM = (black as any).moniker_m || '';
+                    const isBlack = (black as any).is_block === true ? true : false;
                     await (this.stakingValidatorsModel as any).updateBlcakValidator({ivaAddr,monikerM,isBlack})
                 }
             }

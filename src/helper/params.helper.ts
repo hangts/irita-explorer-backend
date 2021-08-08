@@ -5,6 +5,7 @@ import {
   ITxsWithNftQuery,
   IIdentityTx,
   ITxsWithAssetQuery,
+  ITXWithIdentity,
 } from '../types/schemaTypes/tx.interface';
 import { TxStatus,TxType } from '../constant';
 import { ITxsQueryParams } from '../types/tx.interface';
@@ -317,6 +318,61 @@ export function queryTxWithAssetCountHelper(query: ITxsWithAssetQuery){
   }
   return queryParameters
 }
+
+
+export function queryIdentityListHelper(query: ITXWithIdentity){
+  const queryParameters: any = {};
+  if(query.search && query.search !== ''){
+    //单条件模糊查询使用$regex $options为'i' 不区分大小写
+    queryParameters.$or = [
+      {identities_id:{ $regex: query.search,$options:'i' }},
+      {owner:{ $regex: query.search,$options:'i' }}
+    ]
+  }
+  return queryParameters
+}
+
+export function findListHelper(denomId, nftId, owner){
+  const queryParameters:any = {};
+  if (denomId || nftId || owner) {
+      if (denomId) queryParameters.denom_id = denomId;
+      if (nftId) queryParameters['$or']= [
+          {'nft_name': nftId},
+          {'nft_id': nftId},
+      ];
+      if (owner) queryParameters.owner = owner;
+      // condition.push({'$match': queryParameters});
+  }
+  return queryParameters
+}
+
+export function queryVoteByTxhashsAndAddressHelper(hash, address){
+  const queryParameters =  {
+    'tx_hash': {
+        $in: hash
+    },
+    status: TxStatus.SUCCESS,
+    'msgs.msg.voter': {
+        $in: address
+    }
+  }
+  return queryParameters
+}
+
+export function queryDepositorByIdHelper(id){
+  const queryParameters =  {
+    'msgs.type': { $in: [TxType.deposit, TxType.submit_proposal] },
+    $or: [
+        { 'msgs.msg.proposal_id': Number(id) },
+        { 'events.attributes.key': 'proposal_id', 'events.attributes.value': String(id) }
+    ],
+    status:TxStatus.SUCCESS 
+}
+  return queryParameters
+}
+
+
+
 
 
 

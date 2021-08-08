@@ -2,8 +2,11 @@ import * as mongoose from 'mongoose'
 import { IIdentityInfoQuery,IIdentityInfoResponse, IIdentityByAddressQuery} from '../types/schemaTypes/identity.interface';
 import { Logger } from '../logger';
 import { ITXWithIdentity } from '../types/schemaTypes/tx.interface';
-import { IListStruct } from '../types';
+import { IListStruct, ListStruct } from '../types';
 import {hubDefaultEmptyValue} from "../constant";
+import {
+  queryIdentityListHelper
+} from '../helper/params.helper';
 
 export const IdentitySchema = new mongoose.Schema({
   identities_id: String,
@@ -21,23 +24,17 @@ export const IdentitySchema = new mongoose.Schema({
 IdentitySchema.index({identities_id: 1},{unique: true})
 IdentitySchema.index({update_block_height: -1,owner:-1})
 IdentitySchema.statics = {
-  async queryIdentityList(query:ITXWithIdentity):Promise<IListStruct> {
-    const result: IListStruct = {}
-    const queryParameters: any = {};
-    if(query.search && query.search !== ''){
-      //单条件模糊查询使用$regex $options为'i' 不区分大小写
-      queryParameters.$or = [
-        {identities_id:{ $regex: query.search,$options:'i' }},
-        {owner:{ $regex: query.search,$options:'i' }}
-      ]
-    }
-    if (query.useCount && query.useCount == true) {
-      result.count = await this.find(queryParameters).countDocuments();
-    }
+  async queryIdentityList(query:ITXWithIdentity):Promise<ListStruct> {
+    const result: ListStruct = {}
+    const queryParameters = queryIdentityListHelper(query);
     result.data = await this.find(queryParameters)
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize)).sort({'update_block_height':-1});
     return result;
+  },
+  async queryIdentityListCount(query:ITXWithIdentity):Promise<number> {
+    const queryParameters = queryIdentityListHelper(query);
+    return await this.find(queryParameters).countDocuments();
   },
 
   async queryIdentityCount(query:any){
@@ -69,18 +66,19 @@ IdentitySchema.statics = {
     return  infoData
   },
   // owner
-  async queryIdentityByAddress(query: IIdentityByAddressQuery):Promise<IListStruct>{
-    const result: IListStruct = {}
+  async queryIdentityByAddress(query: IIdentityByAddressQuery):Promise<ListStruct>{
+    const result: ListStruct = {}
     const queryParameters: any = {};
     queryParameters.owner = query.address
-
     result.data = await this.find(queryParameters)
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize)).sort({'update_block_height':-1});
-    if (query.useCount && query.useCount == true) {
-      result.count = await this.find(queryParameters).countDocuments();
-    }
     return result
-  }
+  },
+  async queryIdentityByAddressCount(query: IIdentityByAddressQuery):Promise<number> {
+    const queryParameters: any = {};
+    queryParameters.owner = query.address
+    return await this.find(queryParameters).countDocuments();
+  },
 }
 

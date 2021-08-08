@@ -25,17 +25,23 @@ export class GovService {
         @InjectModel('StakingValidator') private stakingValidatorModel: any) { }
 
     async getProposals(query: proposalsReqDto): Promise<ListStruct<govProposalResDto>> {
-        const proposalList = await this.proposalModel.queryProposals(query)
-        for (const proposal of proposalList.data) {
-            if (proposal.status == proposalStatus['PROPOSAL_STATUS_VOTING_PERIOD']) {
-                const proposalsDetail = await this.proposalDetailModel.queryProposalsDetail(proposal.id)
-                proposal.tally_details = proposalsDetail && proposalsDetail.tally_details || []
-            }
+        const { pageNum, pageSize, useCount } = query;
+        let proposalListData, proposalsData, count = null
+        if(pageNum && pageSize){
+          proposalListData = await this.proposalModel.queryProposals(query)
+          for (const proposal of proposalListData.data) {
+              if (proposal.status == proposalStatus['PROPOSAL_STATUS_VOTING_PERIOD']) {
+                  const proposalsDetail = await this.proposalDetailModel.queryProposalsDetail(proposal.id)
+                  proposal.tally_details = proposalsDetail && proposalsDetail.tally_details || []
+              }
+          }
+          proposalsData = govProposalResDto.bundleData(proposalListData?.data)
         }
-        let result: any = {}
-        result.data = govProposalResDto.bundleData(proposalList.data)
-        result.count = proposalList.count
-        return new ListStruct(result.data, query.pageNum, query.pageSize, result.count)
+        if(useCount){
+          count = proposalListData.count
+        }
+        
+        return new ListStruct(proposalsData, pageNum, pageSize, count)
     }
 
     async getProposalDetail(param: ProposalDetailReqDto): Promise<govProposalDetailResDto> {
@@ -71,6 +77,9 @@ export class GovService {
     }
 
     async getProposalsVoter(param: ProposalDetailReqDto, query: proposalsVoterReqDto): Promise<ListStruct<govProposalVoterResDto>> {
+      const { pageNum, pageSize, useCount } = query; 
+      let result, count, votersData: any, voteList, statistical;
+      if(pageNum && pageSize){
         const votesAll = await this.txModel.queryVoteByProposalIdAll(Number(param.id));
         const votes = new Map();
         if (votesAll && votesAll.length > 0) {
@@ -78,9 +87,7 @@ export class GovService {
                 votes.set(voter.msgs[0].msg.voter, voter.tx_hash);
             });
         }
-        let voteList = [];
-        let votersData: any;
-        let statistical = {
+        statistical = {
             all: 0,
             validator: 0,
             delegator: 0,
@@ -89,34 +96,41 @@ export class GovService {
             no_with_veto: 0,
             abstain: 0
         };
-        let result: any = {};
         if (votes.size > 0) {
             const hashs = [...votes.values()];
             const allAddress = [...votes.keys()];
-            let validators = await this.stakingValidatorModel.queryAllValidators();
-            let validatorMap = {};
+            const validators = await this.stakingValidatorModel.queryAllValidators();
+            const validatorMap = {};
             validators.forEach((item) => {
                 validatorMap[addressTransform(item.operator_address,addressPrefix.iaa)] = item;
             });
             [statistical.yes, statistical.abstain, statistical.no, statistical.no_with_veto] = await Promise.all([this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.yes), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.abstain), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no_with_veto)]);
             statistical.all = hashs.length;
-            let validatorAdd = Object.keys(validatorMap);
-            let delegatorAdd = uniqueArr(allAddress, validatorAdd);
+            const validatorAdd = Object.keys(validatorMap);
+            const delegatorAdd = uniqueArr(allAddress, validatorAdd);
             switch (query.voterType) {
                 case 'validator':
                     votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, validatorAdd, query);
-                    statistical.validator = votersData.count;
+                    if(useCount){
+                      count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
+                      statistical.validator = count
+                    }   
                     statistical.delegator = statistical.all - statistical.validator;
                     break;
                 case 'delegator':
                     votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, delegatorAdd, query);
-                    statistical.delegator = votersData.count;
+                    if(useCount){
+                      count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, delegatorAdd)
+                      statistical.delegator = count
+                    }   
                     statistical.validator = statistical.all - statistical.delegator;
                     break;
                 default:
-                    let count;
-                    [votersData, count] = await Promise.all([this.txModel.queryVoteByTxhashs(hashs, query),this.txModel.queryVoteByTxhashsAndAddress(hashs, validatorAdd, query)]);
-                    statistical.validator = count.count;
+                    votersData = await this.txModel.queryVoteByTxhashs(hashs, query)
+                    if(useCount){
+                      count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
+                      statistical.validator = count;
+                    } 
                     statistical.delegator = statistical.all - statistical.validator;
                     break;
             }
@@ -146,9 +160,10 @@ export class GovService {
             }
         }
         result.data = govProposalVoterResDto.bundleData(voteList);
-        result.count = votersData.count;
         result.statistical = statistical;
-        return new ListStruct(result.data, query.pageNum, query.pageSize, result.count, result.statistical);
+      }
+     
+      return new ListStruct(result.data, pageNum, pageSize, count, result.statistical);
     }
     async addMonikerAndIva(address) {
         let validators = await this.stakingValidatorModel.queryAllValidators();
@@ -167,42 +182,47 @@ export class GovService {
     }
 
     async getProposalsDepositor(param: ProposalDetailReqDto, query: proposalsReqDto): Promise<ListStruct<govProposalDepositorResDto>> {
-        const depositorData = await await this.txModel.queryDepositorById(Number(param.id),query);
-        let depositorList = [];
-        if (depositorData && depositorData.data && depositorData.data.length > 0) {
-            for (const deposotor of depositorData.data) {
-                if (deposotor.msgs && deposotor.msgs[0] && deposotor.msgs[0].msg) {
-                    let msg = deposotor.msgs[0].msg;
-                    let type = deposotor.msgs[0].type;
-                    if (type == 'deposit') {
-                        let ivaAddress = addressTransform(msg.depositor, addressPrefix.iva)
-                        let { moniker } = await this.addMonikerAndIva(ivaAddress)
-                        depositorList.push({
-                            hash: deposotor['tx_hash'],
-                            moniker,
-                            address: msg.depositor,
-                            amount: msg.amount,
-                            type,
-                            timestamp: deposotor.time
-                        })
-                    } else {
-                        let ivaAddress = addressTransform(msg.proposer, addressPrefix.iva)
-                        let { moniker } = await this.addMonikerAndIva(ivaAddress)
-                        depositorList.push({
-                            hash: deposotor['tx_hash'],
-                            moniker,
-                            address: msg.proposer,
-                            amount: msg.initial_deposit,
-                            type,
-                            timestamp: deposotor.time
-                        })
-                    }
-                }
-            }
+        const { pageNum, pageSize, useCount } = query; 
+        let count = null, proposals, depositorList;
+        if(pageNum && pageSize){
+          const depositorData = await await this.txModel.queryDepositorById(Number(param.id),query);
+          if (depositorData && depositorData.data && depositorData.data.length > 0) {
+              for (const deposotor of depositorData.data) {
+                  if (deposotor.msgs && deposotor.msgs[0] && deposotor.msgs[0].msg) {
+                      let msg = deposotor.msgs[0].msg;
+                      let type = deposotor.msgs[0].type;
+                      if (type == 'deposit') {
+                          let ivaAddress = addressTransform(msg.depositor, addressPrefix.iva)
+                          let { moniker } = await this.addMonikerAndIva(ivaAddress)
+                          depositorList.push({
+                              hash: deposotor['tx_hash'],
+                              moniker,
+                              address: msg.depositor,
+                              amount: msg.amount,
+                              type,
+                              timestamp: deposotor.time
+                          })
+                      } else {
+                          let ivaAddress = addressTransform(msg.proposer, addressPrefix.iva)
+                          let { moniker } = await this.addMonikerAndIva(ivaAddress)
+                          depositorList.push({
+                              hash: deposotor['tx_hash'],
+                              moniker,
+                              address: msg.proposer,
+                              amount: msg.initial_deposit,
+                              type,
+                              timestamp: deposotor.time
+                          })
+                      }
+                  }
+              }
+          }
+          proposals = govProposalDepositorResDto.bundleData(depositorList);
         }
-        let result: any = {};
-        result.data = govProposalDepositorResDto.bundleData(depositorList);
-        result.count = depositorData.count;
-        return new ListStruct(result.data, query.pageNum, query.pageSize, result.count)
+        if(useCount){ 
+          count = await await this.txModel.queryDepositorByIdCount(Number(param.id));
+        }
+
+        return new ListStruct(proposals, pageNum, pageSize, count)
     }
 }
