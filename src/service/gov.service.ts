@@ -172,10 +172,11 @@ export class GovService {
                 
                 break;
           }
+          return new ListStruct(proposalsVoterData, pageNum, pageSize, count, statistical);
         }
       }
-     
-      return new ListStruct(proposalsVoterData, pageNum, pageSize, count, statistical);
+      
+      return new ListStruct(proposalsVoterData, pageNum, pageSize);
     }
     async addMonikerAndIva(address) {
         const validators = await this.stakingValidatorModel.queryAllValidators();
