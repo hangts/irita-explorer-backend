@@ -53,16 +53,16 @@ export class GovService {
             // todo: duanjie 使用大数计算
             if (proposal.current_tally_result) {
                 if (proposal.status === proposalStatus.PROPOSAL_STATUS_REJECTED) {
-                    let tally = proposal.current_tally_result;
-                    let cond1 = (tally.total_voting_power / tally.system_voting_power) < proposal[govParams.quorum];
-                    let cond2 = (tally.no_with_veto / tally.total_voting_power) > proposal[govParams.veto_threshold];
+                    const tally = proposal.current_tally_result;
+                    const cond1 = (tally.total_voting_power / tally.system_voting_power) < proposal[govParams.quorum];
+                    const cond2 = (tally.no_with_veto / tally.total_voting_power) > proposal[govParams.veto_threshold];
                     if (cond1 || cond2) {
                         proposal.burned_rate = '1';
                     } else {
                         proposal.burned_rate = '0';
                     }
                 } else if (proposal.status === proposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD) {
-                    let cond1 = proposal.total_deposit.amount < proposal.min_deposit;
+                    const cond1 = proposal.total_deposit.amount < proposal.min_deposit;
                     if (cond1) {
                         proposal.burned_rate = '1';
                     } else {
@@ -78,7 +78,7 @@ export class GovService {
 
     async getProposalsVoter(param: ProposalDetailReqDto, query: proposalsVoterReqDto): Promise<ListStruct<govProposalVoterResDto>> {
       const { pageNum, pageSize, useCount } = query; 
-      let result, count, votersData: any, voteList, statistical, hashs, validatorAdd, delegatorAdd, validatorMap;
+      let proposalsVoterData, count = 0, votersData: any, voteList = [], statistical, hashs, validatorAdd, delegatorAdd, validatorMap;
       if(pageNum && pageSize || useCount){
         const votesAll = await this.txModel.queryVoteByProposalIdAll(Number(param.id));
         const votes = new Map();
@@ -126,8 +126,8 @@ export class GovService {
           if (votersData && votersData.data && votersData.data.length > 0) {
               for (const item of votersData.data) {
                   if (item.msgs && item.msgs[0] && item.msgs[0].msg) {
-                      let msg = item.msgs[0].msg;
-                      let isValidator: boolean = Boolean(validatorMap[msg.voter]);
+                      const msg = item.msgs[0].msg;
+                      const isValidator = Boolean(validatorMap[msg.voter]);
                       let moniker;
                       if (validatorMap[msg.voter] &&
                           validatorMap[msg.voter].description &&
@@ -147,8 +147,7 @@ export class GovService {
                   }
               }
           }
-          result.data = govProposalVoterResDto.bundleData(voteList);
-          result.statistical = statistical;
+          proposalsVoterData = govProposalVoterResDto.bundleData(voteList);
         }
         if(useCount && votes.size > 0){
           switch (query.voterType) {
@@ -174,16 +173,16 @@ export class GovService {
         }
       }
      
-      return new ListStruct(result.data, pageNum, pageSize, count, result.statistical);
+      return new ListStruct(proposalsVoterData, pageNum, pageSize, count, statistical);
     }
     async addMonikerAndIva(address) {
-        let validators = await this.stakingValidatorModel.queryAllValidators();
-        let validatorMap = {};
+        const validators = await this.stakingValidatorModel.queryAllValidators();
+        const validatorMap = {};
         validators.forEach((item) => {
             validatorMap[item.operator_address] = item;
         });
         let moniker: string;
-        let isValidator: boolean = Boolean(validatorMap[address]);
+        const isValidator = Boolean(validatorMap[address]);
         if (validatorMap[address] &&
             validatorMap[address].description &&
             validatorMap[address].description.moniker) {
@@ -194,17 +193,17 @@ export class GovService {
 
     async getProposalsDepositor(param: ProposalDetailReqDto, query: proposalsReqDto): Promise<ListStruct<govProposalDepositorResDto>> {
         const { pageNum, pageSize, useCount } = query; 
-        let count = null, proposals, depositorList;
+        let count = null, proposals, depositorList = [];
         if(pageNum && pageSize){
           const depositorData = await await this.txModel.queryDepositorById(Number(param.id),query);
           if (depositorData && depositorData.data && depositorData.data.length > 0) {
               for (const deposotor of depositorData.data) {
                   if (deposotor.msgs && deposotor.msgs[0] && deposotor.msgs[0].msg) {
-                      let msg = deposotor.msgs[0].msg;
-                      let type = deposotor.msgs[0].type;
+                      const msg = deposotor.msgs[0].msg;
+                      const type = deposotor.msgs[0].type;
                       if (type == 'deposit') {
-                          let ivaAddress = addressTransform(msg.depositor, addressPrefix.iva)
-                          let { moniker } = await this.addMonikerAndIva(ivaAddress)
+                          const ivaAddress = addressTransform(msg.depositor, addressPrefix.iva)
+                          const { moniker } = await this.addMonikerAndIva(ivaAddress)
                           depositorList.push({
                               hash: deposotor['tx_hash'],
                               moniker,
@@ -214,8 +213,8 @@ export class GovService {
                               timestamp: deposotor.time
                           })
                       } else {
-                          let ivaAddress = addressTransform(msg.proposer, addressPrefix.iva)
-                          let { moniker } = await this.addMonikerAndIva(ivaAddress)
+                          const ivaAddress = addressTransform(msg.proposer, addressPrefix.iva)
+                          const { moniker } = await this.addMonikerAndIva(ivaAddress)
                           depositorList.push({
                               hash: deposotor['tx_hash'],
                               moniker,
