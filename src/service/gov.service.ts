@@ -78,7 +78,7 @@ export class GovService {
 
     async getProposalsVoter(param: ProposalDetailReqDto, query: proposalsVoterReqDto): Promise<ListStruct<govProposalVoterResDto>> {
       const { pageNum, pageSize, useCount } = query; 
-      let proposalsVoterData, count = 0, votersData: any, voteList = [], statistical, hashs, validatorAdd, delegatorAdd, validatorMap;
+      let proposalsVoterData, count = null, votersData: any, voteList = [], statistical, hashs, validatorAdd, delegatorAdd, validatorMap;
       if(pageNum && pageSize || useCount){
         const votesAll = await this.txModel.queryVoteByProposalIdAll(Number(param.id));
         const votes = new Map();
@@ -87,15 +87,7 @@ export class GovService {
                 votes.set(voter.msgs[0].msg.voter, voter.tx_hash);
             });
         }
-        statistical = {
-            all: 0,
-            validator: 0,
-            delegator: 0,
-            yes: 0,
-            no: 0,
-            no_with_veto: 0,
-            abstain: 0
-        };
+        
         if(votes.size > 0){
           hashs = [...votes.values()];
           const allAddress = [...votes.keys()];
@@ -104,8 +96,6 @@ export class GovService {
           validators.forEach((item) => {
               validatorMap[addressTransform(item.operator_address,addressPrefix.iaa)] = item;
           });
-          [statistical.yes, statistical.abstain, statistical.no, statistical.no_with_veto] = await Promise.all([this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.yes), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.abstain), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no_with_veto)]);
-          statistical.all = hashs.length;
           validatorAdd = Object.keys(validatorMap);
           delegatorAdd = uniqueArr(allAddress, validatorAdd);
         }
@@ -123,33 +113,46 @@ export class GovService {
                   votersData = await this.txModel.queryVoteByTxhashs(hashs, query)             
                   break;
           }
+         
           if (votersData && votersData.data && votersData.data.length > 0) {
-              for (const item of votersData.data) {
-                  if (item.msgs && item.msgs[0] && item.msgs[0].msg) {
-                      const msg = item.msgs[0].msg;
-                      const isValidator = Boolean(validatorMap[msg.voter]);
-                      let moniker;
-                      if (validatorMap[msg.voter] &&
-                          validatorMap[msg.voter].description &&
-                          validatorMap[msg.voter].description.moniker) {
-                          moniker = validatorMap[msg.voter].is_black ? validatorMap[msg.voter].moniker_m :validatorMap[msg.voter].description.moniker
-                      }
-                      voteList.push({
-                          voter:msg.voter,
-                          address: validatorMap[msg.voter] && validatorMap[msg.voter].operator_address,
-                          moniker,
-                          option: voteOptions[msg.option],
-                          hash: item['tx_hash'],
-                          timestamp: item['time'],
-                          height: item['height'],
-                          isValidator
-                      })
-                  }
-              }
+            for (const item of votersData.data) {
+                if (item.msgs && item.msgs[0] && item.msgs[0].msg) {
+                    const msg = item.msgs[0].msg;
+                    const isValidator = Boolean(validatorMap[msg.voter]);
+                    let moniker;
+                    if (validatorMap[msg.voter] &&
+                        validatorMap[msg.voter].description &&
+                        validatorMap[msg.voter].description.moniker) {
+                        moniker = validatorMap[msg.voter].is_black ? validatorMap[msg.voter].moniker_m :validatorMap[msg.voter].description.moniker
+                    }
+                    voteList.push({
+                        voter:msg.voter,
+                        address: validatorMap[msg.voter] && validatorMap[msg.voter].operator_address,
+                        moniker,
+                        option: voteOptions[msg.option],
+                        hash: item['tx_hash'],
+                        timestamp: item['time'],
+                        height: item['height'],
+                        isValidator
+                    })
+                }
+            }
           }
           proposalsVoterData = govProposalVoterResDto.bundleData(voteList);
         }
         if(useCount && votes.size > 0){
+          statistical = {
+            all: 0,
+            validator: 0,
+            delegator: 0,
+            yes: 0,
+            no: 0,
+            no_with_veto: 0,
+            abstain: 0
+          };
+          [statistical.yes, statistical.abstain, statistical.no, statistical.no_with_veto] = await Promise.all([this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.yes), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.abstain), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no_with_veto)]);
+          statistical.all = hashs.length;
+          
           switch (query.voterType) {
             case 'validator':
                 count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
@@ -172,11 +175,10 @@ export class GovService {
                 
                 break;
           }
-          return new ListStruct(proposalsVoterData, pageNum, pageSize, count, statistical);
-        }
+        }  
       }
       
-      return new ListStruct(proposalsVoterData, pageNum, pageSize);
+      return new ListStruct(proposalsVoterData, pageNum, pageSize, count, statistical);
     }
     async addMonikerAndIva(address) {
         const validators = await this.stakingValidatorModel.queryAllValidators();
