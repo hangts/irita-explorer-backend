@@ -164,8 +164,9 @@ export class GovService {
                 
                 break;
             default:
-                count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
-                statistical.validator = count;
+                count = this.txModel.queryVoteByTxhashs(hashs, query)
+                const calcCount: number = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
+                statistical.validator = calcCount;
                 statistical.delegator = statistical.all - statistical.validator;
                 
                 break;
