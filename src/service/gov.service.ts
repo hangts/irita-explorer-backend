@@ -114,30 +114,16 @@ export class GovService {
         if(pageNum && pageSize && votes.size > 0){       
           switch (query.voterType) {
               case 'validator':
-                  votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, validatorAdd, query);
-                  if(useCount){
-                    count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
-                    statistical.validator = count;
-                    statistical.delegator = statistical.all - statistical.validator;
-                  }   
-                  
+                  votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, validatorAdd, query); 
+                
                   break;
               case 'delegator':
-                  votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, delegatorAdd, query);
-                  if(useCount){
-                    count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, delegatorAdd)
-                    statistical.delegator = count;
-                    statistical.validator = statistical.all - statistical.delegator;
-                  }   
+                  votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, delegatorAdd, query);              
                   
                   break;
               default:
                   votersData = await this.txModel.queryVoteByTxhashs(hashs, query)
-                  if(useCount){
-                    count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
-                    statistical.validator = count;
-                    statistical.delegator = statistical.all - statistical.validator;
-                  } 
+                  
                   break;
           }
           if (votersData && votersData.data && votersData.data.length > 0) {
