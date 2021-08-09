@@ -78,8 +78,8 @@ export class GovService {
 
     async getProposalsVoter(param: ProposalDetailReqDto, query: proposalsVoterReqDto): Promise<ListStruct<govProposalVoterResDto>> {
       const { pageNum, pageSize, useCount } = query; 
-      let result, count, votersData: any, voteList, statistical;
-      if(pageNum && pageSize){
+      let result, count, votersData: any, voteList, statistical, hashs, validatorAdd, delegatorAdd, validatorMap;
+      if(pageNum && pageSize || useCount){
         const votesAll = await this.txModel.queryVoteByProposalIdAll(Number(param.id));
         const votes = new Map();
         if (votesAll && votesAll.length > 0) {
@@ -96,71 +96,99 @@ export class GovService {
             no_with_veto: 0,
             abstain: 0
         };
-        if (votes.size > 0) {
-            const hashs = [...votes.values()];
-            const allAddress = [...votes.keys()];
-            const validators = await this.stakingValidatorModel.queryAllValidators();
-            const validatorMap = {};
-            validators.forEach((item) => {
-                validatorMap[addressTransform(item.operator_address,addressPrefix.iaa)] = item;
-            });
-            [statistical.yes, statistical.abstain, statistical.no, statistical.no_with_veto] = await Promise.all([this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.yes), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.abstain), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no_with_veto)]);
-            statistical.all = hashs.length;
-            const validatorAdd = Object.keys(validatorMap);
-            const delegatorAdd = uniqueArr(allAddress, validatorAdd);
-            switch (query.voterType) {
-                case 'validator':
-                    votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, validatorAdd, query);
-                    if(useCount){
-                      count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
-                      statistical.validator = count
-                    }   
-                    statistical.delegator = statistical.all - statistical.validator;
-                    break;
-                case 'delegator':
-                    votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, delegatorAdd, query);
-                    if(useCount){
-                      count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, delegatorAdd)
-                      statistical.delegator = count
-                    }   
-                    statistical.validator = statistical.all - statistical.delegator;
-                    break;
-                default:
-                    votersData = await this.txModel.queryVoteByTxhashs(hashs, query)
-                    if(useCount){
-                      count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
-                      statistical.validator = count;
-                    } 
-                    statistical.delegator = statistical.all - statistical.validator;
-                    break;
-            }
-            if (votersData && votersData.data && votersData.data.length > 0) {
-                for (const item of votersData.data) {
-                    if (item.msgs && item.msgs[0] && item.msgs[0].msg) {
-                        let msg = item.msgs[0].msg;
-                        let isValidator: boolean = Boolean(validatorMap[msg.voter]);
-                        let moniker;
-                        if (validatorMap[msg.voter] &&
-                            validatorMap[msg.voter].description &&
-                            validatorMap[msg.voter].description.moniker) {
-                            moniker = validatorMap[msg.voter].is_black ? validatorMap[msg.voter].moniker_m :validatorMap[msg.voter].description.moniker
-                        }
-                        voteList.push({
-                            voter:msg.voter,
-                            address: validatorMap[msg.voter] && validatorMap[msg.voter].operator_address,
-                            moniker,
-                            option: voteOptions[msg.option],
-                            hash: item['tx_hash'],
-                            timestamp: item['time'],
-                            height: item['height'],
-                            isValidator
-                        })
-                    }
-                }
-            }
+        if(votes.size > 0){
+          hashs = [...votes.values()];
+          const allAddress = [...votes.keys()];
+          const validators = await this.stakingValidatorModel.queryAllValidators();
+          validatorMap = {};
+          validators.forEach((item) => {
+              validatorMap[addressTransform(item.operator_address,addressPrefix.iaa)] = item;
+          });
+          [statistical.yes, statistical.abstain, statistical.no, statistical.no_with_veto] = await Promise.all([this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.yes), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.abstain), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no_with_veto)]);
+          statistical.all = hashs.length;
+          validatorAdd = Object.keys(validatorMap);
+          delegatorAdd = uniqueArr(allAddress, validatorAdd);
         }
-        result.data = govProposalVoterResDto.bundleData(voteList);
-        result.statistical = statistical;
+        
+
+        if(pageNum && pageSize && votes.size > 0){       
+          switch (query.voterType) {
+              case 'validator':
+                  votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, validatorAdd, query);
+                  if(useCount){
+                    count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
+                    statistical.validator = count;
+                    statistical.delegator = statistical.all - statistical.validator;
+                  }   
+                  
+                  break;
+              case 'delegator':
+                  votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, delegatorAdd, query);
+                  if(useCount){
+                    count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, delegatorAdd)
+                    statistical.delegator = count;
+                    statistical.validator = statistical.all - statistical.delegator;
+                  }   
+                  
+                  break;
+              default:
+                  votersData = await this.txModel.queryVoteByTxhashs(hashs, query)
+                  if(useCount){
+                    count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
+                    statistical.validator = count;
+                    statistical.delegator = statistical.all - statistical.validator;
+                  } 
+                  break;
+          }
+          if (votersData && votersData.data && votersData.data.length > 0) {
+              for (const item of votersData.data) {
+                  if (item.msgs && item.msgs[0] && item.msgs[0].msg) {
+                      let msg = item.msgs[0].msg;
+                      let isValidator: boolean = Boolean(validatorMap[msg.voter]);
+                      let moniker;
+                      if (validatorMap[msg.voter] &&
+                          validatorMap[msg.voter].description &&
+                          validatorMap[msg.voter].description.moniker) {
+                          moniker = validatorMap[msg.voter].is_black ? validatorMap[msg.voter].moniker_m :validatorMap[msg.voter].description.moniker
+                      }
+                      voteList.push({
+                          voter:msg.voter,
+                          address: validatorMap[msg.voter] && validatorMap[msg.voter].operator_address,
+                          moniker,
+                          option: voteOptions[msg.option],
+                          hash: item['tx_hash'],
+                          timestamp: item['time'],
+                          height: item['height'],
+                          isValidator
+                      })
+                  }
+              }
+          }
+          result.data = govProposalVoterResDto.bundleData(voteList);
+          result.statistical = statistical;
+        }
+        if(useCount && votes.size > 0){
+          switch (query.voterType) {
+            case 'validator':
+                count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
+                statistical.validator = count;
+                statistical.delegator = statistical.all - statistical.validator;
+                
+                break;
+            case 'delegator':
+                count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, delegatorAdd)
+                statistical.delegator = count;
+                statistical.validator = statistical.all - statistical.delegator;              
+                
+                break;
+            default:
+                count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
+                statistical.validator = count;
+                statistical.delegator = statistical.all - statistical.validator;
+                
+                break;
+          }
+        }
       }
      
       return new ListStruct(result.data, pageNum, pageSize, count, result.statistical);
