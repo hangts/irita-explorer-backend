@@ -36,7 +36,7 @@ ProposalSchema.statics = {
         return await this.updateMany({id: { $in: ids } }, {$set: {is_deleted: true}})
     },
     async insertProposal(insertProposal:IGovProposal) {
-        let { id } = insertProposal
+        const { id } = insertProposal
         const options = {upsert: true, new: false, setDefaultsOnInsert: true}
         await this.findOneAndUpdate({id}, insertProposal, options)
     },
@@ -53,7 +53,7 @@ ProposalSchema.statics = {
             };
         }
         const result: IListStruct = {}
-        if (query.useCount && query.useCount == 'true') {
+        if (query.useCount) {
             result.count = await this.find(queryParameters).countDocuments();
         }
         if (query.status) {
@@ -67,7 +67,7 @@ ProposalSchema.statics = {
         return result
     },
     async findOneById(id: number, is_deleted: boolean): Promise<IGovProposal> {
-        let queryParameters = typeof is_deleted === 'undefined' ? { id: id } : { id: id, is_deleted };
+        const queryParameters = typeof is_deleted === 'undefined' ? { id: id } : { id: id, is_deleted };
         return await this.findOne(queryParameters).select({ '_id': 0, '__v': 0 });
     },
     async queryAllProposalsSelect() {

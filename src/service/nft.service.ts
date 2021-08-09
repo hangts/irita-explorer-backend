@@ -14,24 +14,30 @@ export class NftService {
 
     async queryList(query: NftListReqDto): Promise<ListStruct<NftListResDto[]>> {
         const { pageNum, pageSize, denomId, nftId, useCount, owner } = query;
-        const nftData = await (this.nftModel as any).findList(pageNum, pageSize, denomId, nftId, owner, useCount);
-        const res: NftListResDto[] = [];
-        for (let nft of nftData.data) {
-            // let denomDetail = nft.denomDetail&&(nft.denomDetail as any).length > 0 ? nft.denomDetail[0] : null;
-            let result = new NftListResDto(
-                nft.denom_id,
-                nft.nft_id, 
-                nft.owner, 
-                nft.uri, 
-                nft.data, 
-                null,
-                nft.denom_name,
-                nft.nft_name,
-                nft.last_block_time,
-            );
-            res.push(result);
+        let nftData , res: NftListResDto[], count = null;
+        if(pageNum && pageSize){
+          nftData = await (this.nftModel as any).findList(pageNum, pageSize, denomId, nftId, owner);
+          for (const nft of nftData?.data) {
+              // let denomDetail = nft.denomDetail&&(nft.denomDetail as any).length > 0 ? nft.denomDetail[0] : null;
+              const result = new NftListResDto(
+                  nft.denom_id,
+                  nft.nft_id, 
+                  nft.owner, 
+                  nft.uri, 
+                  nft.data, 
+                  null,
+                  nft.denom_name,
+                  nft.nft_name,
+                  nft.last_block_time,
+              );
+              res.push(result);
+          }       
         }
-        return new ListStruct(res, pageNum, pageSize, nftData.count);
+        if(useCount){
+          count = await (this.nftModel as any).findListCount(denomId, nftId, owner);
+        }
+        
+        return new ListStruct(res, pageNum, pageSize, count);
     }
 
     // nfts/details

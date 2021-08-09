@@ -15,20 +15,22 @@ export class DenomService {
 
     async queryList(q: DenomListReqDto): Promise<ListStruct<DenomListResDto[]>> {
         const {pageNum, pageSize, denomNameOrId, useCount, needAll} = q;
-        const denomList: IDenomStruct[] = await (this.denomModel as any).findList(pageNum, pageSize, denomNameOrId, needAll);
-        const res: DenomListResDto[] = [];
-        for (let d of denomList) {
-            const count = await (this.nftModel as any).queryNftCount(d.denom_id)
-            res.push(new DenomListResDto(
-                d.name,
-                d.denom_id,
-                d.tx_hash,
-                count,
-                d.creator,
-                d.time,
-            ))
+        let res: DenomListResDto[], count = 0;
+        if(pageNum && pageSize){
+          const denomList: IDenomStruct[] = await (this.denomModel as any).findList(pageNum, pageSize, denomNameOrId, needAll);
+          const res: DenomListResDto[] = [];
+          for (const d of denomList) {
+              const count = await (this.nftModel as any).queryNftCount(d.denom_id)
+              res.push(new DenomListResDto(
+                  d.name,
+                  d.denom_id,
+                  d.tx_hash,
+                  count,
+                  d.creator,
+                  d.time,
+              ))
+          }
         }
-        let count: number = 0;
         if(useCount && !needAll){
             count = await (this.denomModel as any).queryDenomCount(denomNameOrId);
         }

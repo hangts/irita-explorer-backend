@@ -1,9 +1,9 @@
 import { IsString, IsNotEmpty } from 'class-validator';
-import { PagingReqDto } from './base.dto';
+import { PagingReqDto, DeepPagingReqDto } from './base.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 
-export class DenomListReqDto extends PagingReqDto{
+export class DenomListReqDto extends DeepPagingReqDto{
     @ApiPropertyOptional()
     denomNameOrId?: string;
 

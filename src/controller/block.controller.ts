@@ -10,7 +10,8 @@ import {
 import { 
     BlockListResDto,
     ValidatorsetsResDto,
-    BlockStakingResDto
+    BlockStakingResDto,
+    LatestBlockListResDto
      } from '../dto/block.dto';
 
 import { ApiTags } from '@nestjs/swagger';
@@ -34,9 +35,9 @@ export class BlockController {
     }
 
     @Get('latest')
-    async queryLatestBlock(): Promise<Result<BlockListResDto | null>> {
-        const data: BlockListResDto | null = await this.blockService.queryLatestBlock();
-        return new Result<BlockListResDto | null>(data);
+    async queryLatestBlock(): Promise<Result<LatestBlockListResDto | null>> {
+        const data: LatestBlockListResDto | null = await this.blockService.queryLatestBlock();
+        return new Result<LatestBlockListResDto | null>(data);
     }
 
     @Get('validatorset')

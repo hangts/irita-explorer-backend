@@ -1,13 +1,13 @@
 import { IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty, validate } from 'class-validator';
 import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
-import {BaseReqDto, BaseResDto, PagingReqDto} from './base.dto';
+import {BaseReqDto, BaseResDto, PagingReqDto, DeepPagingReqDto} from './base.dto';
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
 import {IBindTx,ExternalIBindTx} from '../types/tx.interface';
 
 /************************   request dto   ***************************/
 //txs request dto
-export class TxListReqDto extends PagingReqDto {
+export class TxListReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     type?: string;
 
@@ -32,7 +32,7 @@ export class TxListReqDto extends PagingReqDto {
 }
 
 // txs/e
-export class eTxListReqDto extends PagingReqDto {
+export class eTxListReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     types?: string;
 
@@ -64,13 +64,13 @@ export class eTxListReqDto extends PagingReqDto {
 }
 
 //txs/blocks request dto
-export class TxListWithHeightReqDto extends PagingReqDto {
+export class TxListWithHeightReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     height?: string;
 }
 
 //txs/addresses request dto
-export class TxListWithAddressReqDto extends PagingReqDto {
+export class TxListWithAddressReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     address?: string;
 
@@ -89,7 +89,7 @@ export class TxListWithAddressReqDto extends PagingReqDto {
 }
 
 // txs/relevance
-export class TxListWithContextIdReqDto extends PagingReqDto {
+export class TxListWithContextIdReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     contextId?: string;
 
@@ -108,7 +108,7 @@ export class TxListWithContextIdReqDto extends PagingReqDto {
 }
 
 //txs/nfts request dto
-export class TxListWithNftReqDto extends PagingReqDto {
+export class TxListWithNftReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     denom?: string;
 
@@ -129,7 +129,7 @@ export class ServicesDetailReqDto extends BaseReqDto {
 }
 
 //txs/service/call-service
-export class TxListWithCallServiceReqDto extends PagingReqDto {
+export class TxListWithCallServiceReqDto extends DeepPagingReqDto {
     @ApiProperty()
     @MinLength(1, {message: "consumerAddr is too short"})
     consumerAddr: string;
@@ -146,7 +146,7 @@ export class ExternalQueryRespondServiceReqDto {
 }
 
 //txs/service/respond-service
-export class TxListWithRespondServiceReqDto extends PagingReqDto {
+export class TxListWithRespondServiceReqDto extends DeepPagingReqDto {
     @ApiProperty()
     @MinLength(1, {message: "providerAddr is too short"})
     providerAddr: string;
@@ -183,19 +183,19 @@ export class TxWithHashReqDto extends BaseReqDto {
     hash: string;
 }
 
-export class ServiceListReqDto extends PagingReqDto {
+export class ServiceListReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     nameOrDescription?: string;
 }
 
 
-export class ServiceProvidersReqDto extends PagingReqDto {
+export class ServiceProvidersReqDto extends DeepPagingReqDto {
     @ApiProperty()
     serviceName: string;
 }
 
 
-export class ServiceTxReqDto extends PagingReqDto {
+export class ServiceTxReqDto extends DeepPagingReqDto {
     @ApiProperty()
     serviceName: string;
 
@@ -251,7 +251,7 @@ export class ServiceTxResDto {
     }
 }
 
-export class ServiceRespondReqDto extends PagingReqDto {
+export class ServiceRespondReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     serviceName: string;
 
@@ -259,7 +259,7 @@ export class ServiceRespondReqDto extends PagingReqDto {
     provider?: string;
 }
 
-export class IdentityTxReqDto extends PagingReqDto {
+export class IdentityTxReqDto extends DeepPagingReqDto {
     @ApiProperty()
     id: string
 }
@@ -483,7 +483,7 @@ export class ServiceBindInfoResDto {
 }
 
 //txs/blocks request dto
-export class TxListWithAssetReqDto extends PagingReqDto {
+export class TxListWithAssetReqDto extends DeepPagingReqDto {
     @ApiProperty()
     type: string;
 
