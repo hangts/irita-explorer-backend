@@ -22,7 +22,7 @@ export function txListParamsHelper(query: ITxsQuery){
   if (query.type && query.type.length) {
       queryParameters['msgs.type'] = query.type;
   } else {
-      queryParameters['msgs.type'] = {'$in':stakingTypes()};
+      queryParameters['msgs.type'] = {'$in': Cache.supportTypes || []};
   }
   if (query.status && query.status.length) {
       switch (query.status) {
