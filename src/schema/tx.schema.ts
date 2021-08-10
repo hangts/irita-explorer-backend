@@ -95,7 +95,7 @@ TxSchema.index({"msgs.type": -1,height:-1,"msgs.msg.ex.service_name":-1 }, { bac
 
 // 	txs
 TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     const queryParameters = txListParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.txList)
         .sort({ time: -1 })
@@ -111,7 +111,7 @@ TxSchema.statics.queryTxListCount = async function(query: ITxsQuery): Promise<nu
 
 //  txs/staking
 TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     const queryParameters = StakingTxListParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.delegations)
         .sort({ time: -1 })
@@ -126,7 +126,7 @@ TxSchema.statics.queryStakingTxListCount = async function(query: ITxsQuery): Pro
 
 //  txs/coinswap
 TxSchema.statics.queryCoinswapTxList = async function(query: ITxsQuery): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     const queryParameters = CoinswapTxListParamsHelper(query)
     result.data = await this.find(queryParameters)
         .sort({ time: -1 })
@@ -141,7 +141,7 @@ TxSchema.statics.queryCoinswapTxListCount = async function(query: ITxsQuery): Pr
 
 //  txs/declaration
 TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     const queryParameters = DeclarationTxListParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.validations)
         .sort({time: -1})
@@ -156,7 +156,7 @@ TxSchema.statics.queryDeclarationTxListCount = async function(query: ITxsQuery):
 
 //  txs/gov
 TxSchema.statics.queryGovTxList = async function(query: ITxsQuery): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     const queryParameters = GovTxListParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.govs)
         .sort({time: -1})
@@ -164,15 +164,10 @@ TxSchema.statics.queryGovTxList = async function(query: ITxsQuery): Promise<List
         .limit(Number(query.pageSize));
     return result;
 };
-TxSchema.statics.queryGovTxListCount = async function(query: ITxsQuery): Promise<number> {
-  const queryParameters = GovTxListParamsHelper(query)
-  return await this.find(queryParameters).countDocuments();
-}
-
 
 //  txs/e 供edgeServer调用  返回数据不做过滤
 TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, status?:number, address?:string, include_event_addr?:boolean): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     const queryParameters = TxListEdgeParamsHelper(types, gt_height, status, address, include_event_addr)
     result.data = await this.find(queryParameters)
     .sort({ height: 1 })
@@ -205,7 +200,7 @@ TxSchema.statics.queryTxListByHeightEdge = async function(height:number, pageNum
 
 // 	txs/blocks
 TxSchema.statics.queryTxWithHeight = async function(query: ITxsWithHeightQuery): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     // let queryParameters: { height?: number, $or: object[] } = { $or: [{ 'msgs.type': filterExTxTypeRegExp() }] };
     const queryParameters: { height?: number, 'msgs.type': object } = { 'msgs.type': { $in: Cache.supportTypes || [] } };
     if (query.height) {
@@ -227,7 +222,7 @@ TxSchema.statics.queryTxWithHeighCount = async function(query: ITxsWithHeightQue
 
 //  txs/addresses
 TxSchema.statics.queryTxWithAddress = async function(query: ITxsWithAddressQuery): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     const queryParameters = await TxWithAddressParamsHelper(query) 
     result.data = await this.find(queryParameters, dbRes.txList)
         .sort({ height: -1 })
@@ -242,7 +237,7 @@ TxSchema.statics.queryTxWithAddressCount = async function(query: ITxsWithAddress
 
 //  txs/relevance
 TxSchema.statics.queryTxWithContextId = async function(query: ITxsWithContextIdQuery): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     const queryParameters = TxWithContextIdParamsHelper(query) 
     result.data = await this.find(queryParameters, dbRes.service)
         .sort({ height: -1 })
@@ -257,7 +252,7 @@ TxSchema.statics.queryTxWithContextIdCount = async function(query: ITxsWithConte
 
 //  txs/nfts
 TxSchema.statics.queryTxWithNft = async function(query: ITxsWithNftQuery): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     const queryParameters = queryTxWithNftHelper(query) 
     result.data = await this.find(queryParameters, dbRes.txList)
         .sort({ height: -1 })
@@ -299,7 +294,7 @@ TxSchema.statics.queryTxDetailWithServiceName = async function(serviceName: stri
 
 // ==> txs/services/call-service
 TxSchema.statics.queryCallServiceWithConsumerAddr = async function(consumerAddr: string, pageNum: string, pageSize: string): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     const queryParameters: any = {
         'msgs.msg.consumer': consumerAddr,
         'msgs.type': TxType.call_service,
@@ -329,7 +324,7 @@ TxSchema.statics.queryRespondServiceWithContextId = async function(ContextId: st
 
 // ==> txs/services/respond-service
 TxSchema.statics.queryBindServiceWithProviderAddr = async function(ProviderAddr: string, pageNum: string, pageSize: string): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     const queryParameters: any = {
         'msgs.msg.provider': ProviderAddr,
         'msgs.type': TxType.bind_service,
@@ -897,7 +892,7 @@ TxSchema.statics.queryTxBySymbol = async function(
 
 // 	txs/asset
 TxSchema.statics.queryTxWithAsset = async function(query: ITxsWithAssetQuery): Promise<ListStruct> {
-    const result: IListStruct = {};
+    const result: ListStruct = {};
     const queryParameters = queryTxWithAssetCountHelper(query)
     result.data = await this.find(queryParameters, dbRes.assetList)
         .sort({ height: -1 })
