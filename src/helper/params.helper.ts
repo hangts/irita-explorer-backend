@@ -25,9 +25,7 @@ export function txListParamsHelper(query: ITxsQuery){
           $in: typeArr
       }
   } else {
-      queryParameters['msgs.type'] = {
-          $in: Cache.supportTypes || []
-      }
+      queryParameters['msgs.type'] = {'$in': Cache.supportTypes || []};
   }
 
   if (query.status && query.status.length) {
