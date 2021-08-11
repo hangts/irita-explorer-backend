@@ -95,70 +95,70 @@ export class NftTaskService {
     }
 
     async handleNftTx(nftTxList: ITxStruct[], denomMap: Map<string, string>): Promise<void> {
-        return new Promise((resolve) => {
-            const promiseList: Promise<any>[] = [];
-            const nftObj = {};
-            nftTxList.forEach((tx) => {
-                const { msg } = (tx.msgs as any);
-                const idStr = `${msg.denom}-${msg.id}`;
-                if (!nftObj[idStr]) nftObj[idStr] = {};
-                if ((tx.msgs as any).type === TxType.mint_nft) {
-                    nftObj[idStr].denom_name = denomMap.get(msg.denom);
+        const promiseList: Promise<any>[] = [];
+        const nftObj = {};
+        let last_block_height = 0;
+        nftTxList.forEach((tx) => {
+            const { msg } = (tx.msgs as any);
+            const idStr = `${msg.denom}-${msg.id}`;
+            if (!nftObj[idStr]) nftObj[idStr] = {};
+            if ((tx.msgs as any).type === TxType.mint_nft) {
+                nftObj[idStr].denom_name = denomMap.get(msg.denom);
+                nftObj[idStr].nft_name = msg.name;
+                nftObj[idStr].owner = msg.recipient;//mint_nft如果传一个recipient参数, 那么这个nft的owner就被转移到此地址下
+                nftObj[idStr].uri = msg.uri;
+                nftObj[idStr].data = msg.data;
+                nftObj[idStr].is_deleted = false;
+                nftObj[idStr].create_time = getTimestamp();
+            } else if ((tx.msgs as any).type === TxType.edit_nft) {
+                if(msg.name !== NFT_INFO_DO_NOT_MODIFY){
                     nftObj[idStr].nft_name = msg.name;
-                    nftObj[idStr].owner = msg.recipient;//mint_nft如果传一个recipient参数, 那么这个nft的owner就被转移到此地址下
+                }
+                if(msg.uri !== NFT_INFO_DO_NOT_MODIFY){
                     nftObj[idStr].uri = msg.uri;
+                }
+                if(msg.data !== NFT_INFO_DO_NOT_MODIFY){
                     nftObj[idStr].data = msg.data;
-                    nftObj[idStr].is_deleted = false;
-                    nftObj[idStr].create_time = getTimestamp();
-                } else if ((tx.msgs as any).type === TxType.edit_nft) {
-                    if(msg.name !== NFT_INFO_DO_NOT_MODIFY){
-                        nftObj[idStr].nft_name = msg.name;
-                    }
-                    if(msg.uri !== NFT_INFO_DO_NOT_MODIFY){
-                        nftObj[idStr].uri = msg.uri;
-                    }
-                    if(msg.data !== NFT_INFO_DO_NOT_MODIFY){
-                        nftObj[idStr].data = msg.data;
-                    }
-                } else if ((tx.msgs as any).type === TxType.transfer_nft) {
-                    nftObj[idStr].owner = msg.recipient;
-                    //转让的时候, 可以对可编辑的信息重新赋值
-                    if(msg.name !== NFT_INFO_DO_NOT_MODIFY){
-                        nftObj[idStr].nft_name = msg.name;
-                    }
-                    if(msg.uri !== NFT_INFO_DO_NOT_MODIFY){
-                        nftObj[idStr].uri = msg.uri;
-                    }
-                    if(msg.data !== NFT_INFO_DO_NOT_MODIFY){
-                        nftObj[idStr].data = msg.data;
-                    }
-                } else if ((tx.msgs as any).type === TxType.burn_nft) {
-                    nftObj[idStr].is_deleted = true;
                 }
-                nftObj[idStr].denom_id = msg.denom;
-                nftObj[idStr].nft_id = msg.id;
-                nftObj[idStr].last_block_height = tx.height;
-                nftObj[idStr].last_block_time = tx.time;
-                nftObj[idStr].update_time = getTimestamp();
-            });
-
-            for (let idStr in nftObj) {
-                if (nftObj[idStr].is_deleted) {
-                    delete nftObj[idStr].is_deleted;
-                    promiseList.push((this.nftModel as any).deleteNft(nftObj[idStr]));
-                } else {
-                    promiseList.push((this.nftModel as any).updateNft(nftObj[idStr]));
+            } else if ((tx.msgs as any).type === TxType.transfer_nft) {
+                nftObj[idStr].owner = msg.recipient;
+                //转让的时候, 可以对可编辑的信息重新赋值
+                if(msg.name !== NFT_INFO_DO_NOT_MODIFY){
+                    nftObj[idStr].nft_name = msg.name;
                 }
+                if(msg.uri !== NFT_INFO_DO_NOT_MODIFY){
+                    nftObj[idStr].uri = msg.uri;
+                }
+                if(msg.data !== NFT_INFO_DO_NOT_MODIFY){
+                    nftObj[idStr].data = msg.data;
+                }
+            } else if ((tx.msgs as any).type === TxType.burn_nft) {
+                nftObj[idStr].is_deleted = true;
             }
-            Promise.all(promiseList).then(res => {
-                if (res) {
-                    resolve();
-                }
-            });
-
+            nftObj[idStr].denom_id = msg.denom;
+            nftObj[idStr].nft_id = msg.id;
+            nftObj[idStr].last_block_height = tx.height;
+            nftObj[idStr].last_block_time = tx.time;
+            nftObj[idStr].update_time = getTimestamp();
+            last_block_height = Math.max(tx.height,last_block_height);
         });
+
+        for (let idStr in nftObj) {
+            if (nftObj[idStr].is_deleted) {
+                delete nftObj[idStr].is_deleted;
+                promiseList.push((this.nftModel as any).deleteNft(nftObj[idStr]));
+            } else {
+                promiseList.push((this.nftModel as any).updateNft(nftObj[idStr]));
+            }
+        }
+        await Promise.all(promiseList);
+        if(last_block_height){
+            let lastNft =  await (this.nftModel as any).queryLastNft();
+            if(lastNft.last_block_height < last_block_height){
+                lastNft.last_block_height = last_block_height;
+                await (this.nftModel as any).updateNft(lastNft);
+            }
+        }
     }
-
-
 }
 

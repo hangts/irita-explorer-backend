@@ -143,6 +143,10 @@ NftSchema.statics = {
     async queryLastBlockHeight(): Promise<INftStruct>{
         return await this.find({},{last_block_height: 1}).sort({last_block_height: -1}).limit(1);
     },
+    
+    queryLastNft(): Promise<INftStruct>{
+        return this.findOne({}).sort({last_block_height: -1}).limit(1);
+    },
 
     updateNft(nft: INftStruct): Promise<INftStruct>{
         let cond = {
