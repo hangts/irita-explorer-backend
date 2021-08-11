@@ -164,6 +164,10 @@ TxSchema.statics.queryGovTxList = async function(query: ITxsQuery): Promise<List
         .limit(Number(query.pageSize));
     return result;
 };
+TxSchema.statics.queryGovTxListCount = async function(query: ITxsQuery): Promise<number> {
+  const queryParameters = GovTxListParamsHelper(query)
+  return await this.find(queryParameters).countDocuments();
+}
 
 //  txs/e 供edgeServer调用  返回数据不做过滤
 TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, status?:number, address?:string, include_event_addr?:boolean): Promise<ListStruct> {
