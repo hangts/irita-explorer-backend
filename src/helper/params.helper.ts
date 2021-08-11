@@ -20,10 +20,14 @@ import Cache from '../helper/cache';
 export function txListParamsHelper(query: ITxsQuery){
   const queryParameters: ITxsQueryParams = {};
   if (query.type && query.type.length) {
-      queryParameters['msgs.type'] = query.type;
+      let typeArr = query.type.split(",");
+      queryParameters['msgs.type'] = {
+          $in: typeArr
+      }
   } else {
       queryParameters['msgs.type'] = {'$in': Cache.supportTypes || []};
   }
+
   if (query.status && query.status.length) {
       switch (query.status) {
           case '1':

@@ -231,14 +231,14 @@ export class TxService {
         const { pageNum, pageSize, useCount } = query;
         let txListData, txData = [], txList = [], count = null;
   
-        if(pageNum && pageSize || useCount){
+        if(pageNum && pageSize){
           await this.cacheTxTypes();
 
           if(pageNum && pageSize){
             if (query.address) {
               query.address = addressTransform(query.address, addressPrefix.iaa)
             }
-            const txListData = await this.txModel.queryGovTxList(query);
+            txListData = await this.txModel.queryGovTxList(query);
             const proposalsData = await this.proposalModel.queryAllProposalsSelect();
             const proposalsMap = new Map();
             if (proposalsData && proposalsData.length > 0) {
@@ -284,13 +284,12 @@ export class TxService {
                 });
             }
             txList = await Promise.all(txList)
-            txData = await this.addMonikerToTxs(txList);
+            txData = await this.addMonikerToTxs(txList); 
           }
-          if(useCount){
-            count = await this.txModel.queryGovTxListCount(query);
-          }
-        }     
-
+        } 
+        if(useCount){
+          count = await this.txModel.queryGovTxListCount(query);
+        }    
         // }
         
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
