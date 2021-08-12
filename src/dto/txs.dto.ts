@@ -4,6 +4,7 @@ import {BaseReqDto, BaseResDto, PagingReqDto, DeepPagingReqDto} from './base.dto
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
 import {IBindTx,ExternalIBindTx} from '../types/tx.interface';
+import { DefaultPaging } from '../constant';
 
 /************************   request dto   ***************************/
 //txs request dto
@@ -50,6 +51,9 @@ export class eTxListReqDto extends DeepPagingReqDto {
 
     static convert(value: any): any {
         super.convert(value);
+        if (!value.pageNum) {
+          value.pageNum = DefaultPaging.pageNum;
+        }
         if(!value.include_event_addr){
             value.include_event_addr = false;
         }else {
