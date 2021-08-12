@@ -25,9 +25,9 @@ export class GovService {
         @InjectModel('StakingValidator') private stakingValidatorModel: any) { }
 
     async getProposals(query: proposalsReqDto): Promise<ListStruct<govProposalResDto>> {
-        const { pageNum, pageSize, useCount } = query;
+        const { pageNum, pageSize, useCount, status } = query;
         let proposalListData, proposalsData, count = null
-        if(pageNum && pageSize){
+        if(pageNum && pageSize || status){
           proposalListData = await this.proposalModel.queryProposals(query)
           for (const proposal of proposalListData.data) {
               if (proposal.status == proposalStatus['PROPOSAL_STATUS_VOTING_PERIOD']) {
@@ -38,7 +38,7 @@ export class GovService {
           proposalsData = govProposalResDto.bundleData(proposalListData?.data)
         }
         if(useCount){
-          count = proposalListData.count
+          count = await this.proposalModel.queryProposalsCount(query)
         }
         
         return new ListStruct(proposalsData, pageNum, pageSize, count)
