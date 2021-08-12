@@ -7,6 +7,9 @@ import {
   ITxsWithAssetQuery,
   ITXWithIdentity,
 } from '../types/schemaTypes/tx.interface';
+import {
+  IGovProposalQuery
+} from '../types/schemaTypes/proposal.interface'
 import { TxStatus,TxType } from '../constant';
 import { ITxsQueryParams } from '../types/tx.interface';
 import {
@@ -372,6 +375,21 @@ export function queryDepositorByIdHelper(id){
     ],
     status:TxStatus.SUCCESS 
 }
+  return queryParameters
+}
+
+export function queryProposalsCountHelper(query: IGovProposalQuery){
+  let queryParameters: any = {
+    is_deleted: false
+  };
+  if (query.status) {
+      queryParameters = {
+          status: {
+              $in: query.status.split(",")
+          },
+          is_deleted: false
+      };
+  }
   return queryParameters
 }
 

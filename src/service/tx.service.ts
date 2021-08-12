@@ -297,10 +297,10 @@ export class TxService {
 
     // txs/e  供edgeServer调用  返回数据不做过滤
     async queryTxListEdge(query: eTxListReqDto): Promise<ListStruct<any[]>> {
-      const { pageNum, pageSize, useCount } = query;
+      const { pageSize, useCount } = query;
       let txListData, txData = [],count = null;
 
-      if(pageNum && pageSize){
+      if(pageSize){
         txListData = await this.txModel.queryTxListEdge(query.types, query.height, query.pageNum, query.pageSize, query.status, query.address, query.include_event_addr);
         txData = [...txListData.data];
         if (txListData.data && txListData.data.length && txListData.data.length == query.pageSize) {
