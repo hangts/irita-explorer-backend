@@ -222,11 +222,8 @@ export default class StakingService {
             }
         })
         const result: any = {}
-        if (useCount) {
-            result.count = count
-        }
         result.data = DelegatorsDelegationsResDto.bundleData(resultData)
-        return new ListStruct(result.data, pageNum, pageSize, result.count)
+        return new ListStruct(result.data, pageNum, pageSize, count)
     }
 
     async getDelegatorsUndelegations(p:DelegatorsUndelegationsParamReqDto,q: DelegatorsUndelegationsReqDto): Promise<ListStruct<DelegatorsUndelegationsResDto>> {
@@ -254,11 +251,8 @@ export default class StakingService {
             }
         })
         const result: any = {}
-        if (useCount) {
-            result.count = count
-        }
         result.data = DelegatorsUndelegationsResDto.bundleData(resultData)
-        return new ListStruct(result.data, pageNum, pageSize, result.count)
+        return new ListStruct(result.data, pageNum, pageSize, count)
     }
 
     async getValidatorVotesList(p: ValidatorDelegationsReqDto,q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorVotesResDto>> {
@@ -297,11 +291,8 @@ export default class StakingService {
             }
         }
         const result: any = {};
-        if (q.useCount) {
-            result.count = count;
-        }
         result.data = ValidatorVotesResDto.bundleData(votesList);
-        return new ListStruct(result.data, q.pageNum, q.pageSize, result.count);
+        return new ListStruct(result.data, q.pageNum, q.pageSize, count);
     }
 
     async getValidatorDepositsList(p: ValidatorDelegationsReqDto,q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorDepositsResDto>> {
