@@ -12,7 +12,7 @@ import { Coin } from './common.res.dto';
 //     address?: string
 // }
 
-export class CommissionInfoReqDto extends DeepPagingReqDto {
+export class CommissionInfoReqDto extends PagingReqDto {
 
 }
 
