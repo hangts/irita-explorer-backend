@@ -65,18 +65,10 @@ export default class StakingService {
     }
 
 
-    async getAllValCommission(query: CommissionInfoReqDto): Promise<ListStruct<CommissionInfoResDto>> {
-        const { pageNum, pageSize, useCount } = query;
-        let allValCommissionInfo, count = null;
-        if(pageNum && pageSize){
-          allValCommissionInfo = await (this.stakingValidatorsModel as any).queryAllValCommission(query)
-          allValCommissionInfo.data = CommissionInfoResDto.bundleData(allValCommissionInfo.data)
-        }
-        if(useCount){
-          count = await this.stakingValidatorsModel.queryAllValCommissionCount();
-        }
-
-        return new ListStruct(allValCommissionInfo, pageNum, pageSize, count)
+    async getAllValCommission(): Promise<ListStruct<CommissionInfoResDto>> {
+        const allValCommissionInfo: any = await (this.stakingValidatorsModel as any).queryAllValCommission()
+        allValCommissionInfo.data = CommissionInfoResDto.bundleData(allValCommissionInfo.data)
+        return allValCommissionInfo
     }
 
     async getValidatorDelegationList(p: ValidatorDelegationsReqDto, q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorDelegationsResDto>> {

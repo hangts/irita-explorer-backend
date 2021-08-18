@@ -69,9 +69,6 @@ StakingValidatorSchema.statics = {
         result.data = await this.find({}).select({'_id': 0, '__v': 0})
         return result
     },
-    async queryAllValCommissionCount():Promise<number> {
-      return await this.find({}).countDocuments();
-    },
 
 
     async queryValidatorsByStatus(query: IQueryValidatorByStatus): Promise<IListStruct> {
