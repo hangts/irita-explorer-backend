@@ -43,7 +43,7 @@ export class AccountAddrReqDto {
     address: string
 }
 
-export class DelegatorsDelegationsReqDto extends DeepPagingReqDto {
+export class DelegatorsDelegationsReqDto extends PagingReqDto {
 }
 
 export class DelegatorsDelegationsParamReqDto {
@@ -51,7 +51,7 @@ export class DelegatorsDelegationsParamReqDto {
     delegatorAddr: string
 }
 
-export class DelegatorsUndelegationsReqDto extends DeepPagingReqDto {
+export class DelegatorsUndelegationsReqDto extends PagingReqDto {
 }
 
 export class DelegatorsUndelegationsParamReqDto {
