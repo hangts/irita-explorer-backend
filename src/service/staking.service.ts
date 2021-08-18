@@ -16,7 +16,6 @@ import {
     AccountAddrReqDto,
     AccountAddrResDto,
     allValidatorReqDto,
-    CommissionInfoReqDto,
     CommissionInfoResDto, stakingValidatorResDto,
     ValidatorDelegationsReqDto,ValidatorDelegationsQueryReqDto,
     ValidatorDelegationsResDto, ValidatorDetailResDto,

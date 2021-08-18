@@ -4,7 +4,6 @@ import {ListStruct, Result} from "../api/ApiResult";
 import StakingService from "../service/staking.service";
 import {
     // ValCommissionRewReqDto,
-    CommissionInfoReqDto,
     // ValCommissionRewResDto,
     CommissionInfoResDto,
     ValidatorDelegationsReqDto,
