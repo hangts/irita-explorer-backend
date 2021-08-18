@@ -65,8 +65,8 @@ export default class StakingService {
     }
 
 
-    async getAllValCommission(query: CommissionInfoReqDto): Promise<ListStruct<CommissionInfoResDto>> {
-        const allValCommissionInfo: any = await (this.stakingValidatorsModel as any).queryAllValCommission(query)
+    async getAllValCommission(): Promise<ListStruct<CommissionInfoResDto>> {
+        const allValCommissionInfo: any = await (this.stakingValidatorsModel as any).queryAllValCommission()
         allValCommissionInfo.data = CommissionInfoResDto.bundleData(allValCommissionInfo.data)
         return allValCommissionInfo
     }

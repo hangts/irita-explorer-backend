@@ -12,10 +12,6 @@ import { Coin } from './common.res.dto';
 //     address?: string
 // }
 
-export class CommissionInfoReqDto extends PagingReqDto {
-
-}
-
 export class ValidatorDelegationsReqDto {
     @ApiProperty()
     address: string

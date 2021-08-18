@@ -64,11 +64,8 @@ StakingValidatorSchema.statics = {
         await this.deleteOne({operator_address})
     },
 
-    async queryAllValCommission(query): Promise<IListStruct> {
-        const result: IListStruct = {}
-        if (query.useCount && query.useCount == true) {
-            result.count = await this.find({}).countDocuments();
-        }
+    async queryAllValCommission(): Promise<ListStruct> {
+        const result: ListStruct = {}
         result.data = await this.find({}).select({'_id': 0, '__v': 0})
         return result
     },
