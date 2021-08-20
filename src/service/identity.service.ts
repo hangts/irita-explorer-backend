@@ -17,8 +17,17 @@ export class IdentityService {
     ) {}
     //identity list
     async queryTxIdentities(query: IdentityReqDto): Promise<ListStruct<IdentityResDto[]>> {
-      const txIdentitiesData = await this.identityModel.queryIdentityList(query)
-      return new ListStruct(IdentityResDto.bundleData(txIdentitiesData.data), Number(query.pageNum), Number(query.pageSize), txIdentitiesData.count);
+      const { pageNum, pageSize, useCount } = query;
+      let txIdentityListData, txIdentityData = [], count = null;
+      if(pageNum && pageSize){
+        txIdentityListData = await this.identityModel.queryIdentityList(query)
+        txIdentityData = txIdentityListData.data
+      }
+      if(useCount){
+        count = await this.identityModel.queryIdentityListCount(query);
+      }
+
+      return new ListStruct(IdentityResDto.bundleData(txIdentityData), Number(pageNum), Number(pageSize), count);
     }
     // identity Info
     async queryIdentityInfoById(params:IdentityInfoReqDto): Promise<IdentityInfoResDto>{
@@ -31,17 +40,44 @@ export class IdentityService {
     }
     // identity pubkey
     async queryPubkey(query:IdentityPubKeyAndCertificateReqDto): Promise<ListStruct<IdentityPubKeyResDto[]>>{
-      const pubKeyList = await this.pubkeyModel.queryPubkeyList(query)
-      return new ListStruct(IdentityPubKeyResDto.bundleData(pubKeyList.data), Number(query.pageNum), Number(query.pageSize), pubKeyList.count);
+      const { pageNum, pageSize, useCount } = query;
+      let pubKeyListData, pubKeyData = [], count = null;
+      if(pageNum && pageSize){
+        pubKeyListData = await this.pubkeyModel.queryPubkeyList(query)
+        pubKeyData = pubKeyListData.data
+      }
+      if(useCount){
+        count = await this.pubkeyModel.queryPubkeyListCount(query);
+      }
+
+      return new ListStruct(IdentityPubKeyResDto.bundleData(pubKeyData), Number(pageNum), Number(pageSize), count);
     }
     // identity Certificate
     async queryCertificate(query:IdentityPubKeyAndCertificateReqDto): Promise<ListStruct<IdentityCertificateResDto[]>>{
-      const certificateList = await this.certificateModel.queryCertificate(query)
-      return new ListStruct(IdentityCertificateResDto.bundleData(certificateList.data), Number(query.pageNum), Number(query.pageSize), certificateList.count);
+      const { pageNum, pageSize, useCount } = query;
+      let certificateListData, certificateData = [], count = null;
+      if(pageNum && pageSize){
+        certificateListData = await this.certificateModel.queryCertificate(query)
+        certificateData = certificateListData.data
+      }
+      if(useCount){
+        count = await this.certificateModel.queryCertificateCount(query);
+      }
+
+      return new ListStruct(IdentityCertificateResDto.bundleData(certificateData), Number(pageNum), Number(pageSize), count);
     }
     //identity Address
     async queryIdentityListByAddress(query:IdentityByAddressReqDto):Promise<ListStruct<IdentityResDto[]>>{
-      const txIdentitiesData = await this.identityModel.queryIdentityByAddress(query)
-      return new ListStruct(IdentityResDto.bundleData(txIdentitiesData.data), Number(query.pageNum), Number(query.pageSize), txIdentitiesData.count);
+      const { pageNum, pageSize, useCount } = query;
+      let txIdentitiesListData, txIdentitiesData = [], count = null;
+      if(pageNum && pageSize){
+        txIdentitiesListData = await this.identityModel.queryIdentityByAddress(query)
+        txIdentitiesData = txIdentitiesListData.data
+      }
+      if(useCount){
+        count = await this.identityModel.queryIdentityByAddressCount(query);
+      }
+
+      return new ListStruct(IdentityResDto.bundleData(txIdentitiesData), Number(pageNum), Number(pageSize), count);
     }
 }

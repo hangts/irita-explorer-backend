@@ -16,6 +16,10 @@ export interface IListStruct {
     count?: number
 }
 
+export interface ListStruct {
+  data?: any[]
+}
+
 export interface IResultBase {
     code: number;
     data?: any;

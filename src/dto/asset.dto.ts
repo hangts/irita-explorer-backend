@@ -1,4 +1,4 @@
-import { BaseReqDto, PagingReqDto } from './base.dto';
+import { BaseReqDto, DeepPagingReqDto } from './base.dto';
 import { ApiError } from '../api/ApiResult';
 import { ErrorCodes } from '../api/ResultCodes';
 import { ApiProperty } from '@nestjs/swagger';
@@ -54,7 +54,7 @@ export class AssetDetailResDto {
 }
 
 
-export class AssetListReqDto extends PagingReqDto{
+export class AssetListReqDto extends DeepPagingReqDto{
     static validate(value: any): void {
         super.validate(value);
     }

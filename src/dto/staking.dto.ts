@@ -1,4 +1,4 @@
-import {BaseResDto, PagingReqDto} from './base.dto';
+import {BaseResDto, PagingReqDto, DeepPagingReqDto} from './base.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {ArrayNotEmpty} from 'class-validator';
 import { Coin } from './common.res.dto';
@@ -12,16 +12,12 @@ import { Coin } from './common.res.dto';
 //     address?: string
 // }
 
-export class CommissionInfoReqDto extends PagingReqDto {
-
-}
-
 export class ValidatorDelegationsReqDto {
     @ApiProperty()
     address: string
 }
 
-export class ValidatorDelegationsQueryReqDto extends PagingReqDto {
+export class ValidatorDelegationsQueryReqDto extends DeepPagingReqDto {
 }
 
 export class ValidatorUnBondingDelegationsReqDto {
@@ -29,7 +25,7 @@ export class ValidatorUnBondingDelegationsReqDto {
     address: string
 }
 
-export class ValidatorUnBondingDelegationsQueryReqDto extends PagingReqDto {
+export class ValidatorUnBondingDelegationsQueryReqDto extends DeepPagingReqDto {
 }
 
 export class allValidatorReqDto extends PagingReqDto {

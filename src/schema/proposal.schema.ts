@@ -3,7 +3,10 @@ import {
     IGovProposal,
     IGovProposalQuery
 } from "../types/schemaTypes/proposal.interface";
-import {IListStruct} from "../types";
+import {ListStruct} from "../types";
+import {
+  queryProposalsCountHelper
+} from '../helper/params.helper';
 export const ProposalSchema = new mongoose.Schema({
     id: Number,
     content: Object,
@@ -36,26 +39,13 @@ ProposalSchema.statics = {
         return await this.updateMany({id: { $in: ids } }, {$set: {is_deleted: true}})
     },
     async insertProposal(insertProposal:IGovProposal) {
-        let { id } = insertProposal
+        const { id } = insertProposal
         const options = {upsert: true, new: false, setDefaultsOnInsert: true}
         await this.findOneAndUpdate({id}, insertProposal, options)
     },
-    async queryProposals(query: IGovProposalQuery): Promise<IListStruct> {
-        let queryParameters: any = {
-            is_deleted: false
-        };
-        if (query.status) {
-            queryParameters = {
-                status: {
-                    $in: query.status.split(",")
-                },
-                is_deleted: false
-            };
-        }
-        const result: IListStruct = {}
-        if (query.useCount && query.useCount == 'true') {
-            result.count = await this.find(queryParameters).countDocuments();
-        }
+    async queryProposals(query: IGovProposalQuery): Promise<ListStruct> {
+        const queryParameters = queryProposalsCountHelper(query)
+        const result: ListStruct = {}
         if (query.status) {
             result.data = await this.find(queryParameters).sort({ id: -1 });
         } else {
@@ -66,8 +56,12 @@ ProposalSchema.statics = {
         }
         return result
     },
+    async queryProposalsCount(query: IGovProposalQuery): Promise<number> {
+      const queryParameters = queryProposalsCountHelper(query)
+      return await this.find(queryParameters).countDocuments();
+    },
     async findOneById(id: number, is_deleted: boolean): Promise<IGovProposal> {
-        let queryParameters = typeof is_deleted === 'undefined' ? { id: id } : { id: id, is_deleted };
+        const queryParameters = typeof is_deleted === 'undefined' ? { id: id } : { id: id, is_deleted };
         return await this.findOne(queryParameters).select({ '_id': 0, '__v': 0 });
     },
     async queryAllProposalsSelect() {

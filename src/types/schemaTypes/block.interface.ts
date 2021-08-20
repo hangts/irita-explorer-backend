@@ -1,6 +1,7 @@
 import { Document } from 'mongoose';
 
 export interface IBlockStruct {
+    dbHeight?:number,
     height?:number,
     hash?:string,
     txn?:number,

@@ -4,7 +4,6 @@ import {ListStruct, Result} from "../api/ApiResult";
 import StakingService from "../service/staking.service";
 import {
     // ValCommissionRewReqDto,
-    CommissionInfoReqDto,
     // ValCommissionRewResDto,
     CommissionInfoResDto,
     ValidatorDelegationsReqDto,
@@ -37,8 +36,8 @@ export class StakingController {
     }
 
     @Get('/commission_info')
-    async getAllValCommissionInfo(@Query()q: CommissionInfoReqDto): Promise<Result<ListStruct<CommissionInfoResDto>>> {
-        const allValCommissionData: ListStruct<CommissionInfoResDto> = await this.stakingService.getAllValCommission(q)
+    async getAllValCommissionInfo(): Promise<Result<ListStruct<CommissionInfoResDto>>> {
+        const allValCommissionData: ListStruct<CommissionInfoResDto> = await this.stakingService.getAllValCommission()
         return new Result<ListStruct<CommissionInfoResDto>>(allValCommissionData)
     }
 

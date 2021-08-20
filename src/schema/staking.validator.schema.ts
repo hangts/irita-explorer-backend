@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import {Logger} from "../logger";
-import {IListStruct} from "../types";
+import {IListStruct,ListStruct} from "../types";
 import {
     IQueryValidatorByStatus,
     IStakingValidator,
@@ -64,14 +64,13 @@ StakingValidatorSchema.statics = {
         await this.deleteOne({operator_address})
     },
 
-    async queryAllValCommission(query): Promise<IListStruct> {
-        const result: IListStruct = {}
-        if (query.useCount && query.useCount == true) {
-            result.count = await this.find({}).countDocuments();
-        }
+    async queryAllValCommission(): Promise<ListStruct> {
+        const result: ListStruct = {}
         result.data = await this.find({}).select({'_id': 0, '__v': 0})
         return result
     },
+
+
     async queryValidatorsByStatus(query: IQueryValidatorByStatus): Promise<IListStruct> {
         const queryParameters: any = {};
         const result: IListStruct = {}

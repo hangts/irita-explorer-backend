@@ -2,7 +2,6 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from '../app.module';
 import StakingService from "./staking.service";
 import {
-    CommissionInfoReqDto,
     ValidatorDelegationsReqDto,
     ValidatorUnBondingDelegationsReqDto,
     ValidatorUnBondingDelegationsQueryReqDto,
@@ -25,12 +24,7 @@ describe('stakingValidatorController', () => {
 
     describe('getAllValCommission', () => {
         it('should return an array', async () => {
-            let req:CommissionInfoReqDto = {
-                pageNum:1,
-                pageSize:10,
-                useCount:true
-            };
-            let data:any = await stakingService.getAllValCommission(req);
+            let data:any = await stakingService.getAllValCommission();
             expect(data).toBeDefined();
         });
     });

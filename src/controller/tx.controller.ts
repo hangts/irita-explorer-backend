@@ -1,4 +1,4 @@
-import { PagingReqDto } from './../dto/base.dto';
+import { PagingReqDto, DeepPagingReqDto } from './../dto/base.dto';
 import { Controller, Get, Post, Put, Delete, Param, Query, Res, Req, Body, HttpCode } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { TxService } from '../service/tx.service';
@@ -84,8 +84,8 @@ export class TxController {
 
     // 供外部系统调用的 API,获取服务列表以及被调用次数
     @Get("e/services")
-    async externalQueryServiceList(@Query() query: PagingReqDto):Promise<Result<ListStruct<ExternalServiceResDto[]>>> {
-       const data: ListStruct<ExternalServiceResDto[]> = await this.txService.externalFindServiceList(query);
+    async externalQueryServiceList(@Query() query: DeepPagingReqDto):Promise<Result<ListStruct<ExternalServiceResDto[]>>> {
+        const data: ListStruct<ExternalServiceResDto[]> = await this.txService.externalFindServiceList(query);
         return new Result<ListStruct<ExternalServiceResDto[]>>(data);
     }
 

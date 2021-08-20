@@ -58,7 +58,7 @@ TokensSchema.statics = {
             .limit(pageSize).exec();
     },
     async findCount(): Promise<number> {
-        return await this.find({'is_main_token':false}).countDocuments().exec();
+        return await this.find({'is_main_token':false, 'src_protocol':SRC_PROTOCOL.NATIVE}).countDocuments().exec();
     },
     async findOneBySymbol(symbol: string): Promise<IAssetStruct | null> {
         return await this.findOne({ symbol }).select({
