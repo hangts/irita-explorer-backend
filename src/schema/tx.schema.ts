@@ -229,7 +229,7 @@ TxSchema.statics.queryTxWithAddress = async function(query: ITxsWithAddressQuery
     const result: ListStruct = {};
     const queryParameters = await TxWithAddressParamsHelper(query) 
     result.data = await this.find(queryParameters, dbRes.txList)
-        .sort({ height: -1 })
+        .sort({ time: -1 })
         .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
         .limit(Number(query.pageSize));
     return result;
