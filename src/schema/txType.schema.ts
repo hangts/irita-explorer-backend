@@ -22,7 +22,7 @@ export const TxTypeSchema = new mongoose.Schema({
 
 // txs/types
 TxTypeSchema.statics.queryTxTypeList = async function ():Promise<ITxTypeStruct[]>{
-	return await this.find({},{type_name:1})
+	return await this.find({})
 };
 
 // txs/types/service
