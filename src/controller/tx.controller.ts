@@ -152,7 +152,7 @@ export class TxController {
     }
 
     @Get("/types")
-    async queryTxTypeList(): Promise<Result<Result<TxTypeResDto>>> {
+    async queryTxTypeList(): Promise<Result<TxTypeResDto>> {
         const data: Result<TxTypeResDto[]> = await this.txService.queryTxTypeList();
         return new Result<any>(data);
     }
