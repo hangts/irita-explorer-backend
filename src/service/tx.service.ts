@@ -472,9 +472,9 @@ export class TxService {
     }
 
     //  txs/types
-    async queryTxTypeList(): Promise<ListStruct<TxTypeResDto[]>> {
-        const txTypeListData = await this.txTypeModel.queryTxTypeList();
-        return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
+    async queryTxTypeList(): Promise<Result<TxTypeResDto[]>> {
+      const txTypeListData = await this.txTypeModel.queryTxTypeList();
+      return new Result(TxTypeResDto.bundleData(txTypeListData));
     }
 
     // txs/types/service
