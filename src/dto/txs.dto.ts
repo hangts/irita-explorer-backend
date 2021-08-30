@@ -420,9 +420,9 @@ export class RespondServiceResDto extends TxResDto {
 export class TxTypeResDto extends BaseResDto {
     typeName: string;
     type_cn: string;
-	type_en: string;
-	module_cn: string;
-	module_en: string;
+    type_en: string;
+    module_cn: string;
+    module_en: string;
 
     constructor(value: any) {
         super();
