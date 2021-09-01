@@ -110,10 +110,6 @@ export enum TxType {
     request_rand = 'request_rand',
 }
 
-export enum TxTypeModuleEN {
-    service = 'iService'
-}
-
 export enum TxStatus {
     SUCCESS = 1,
     FAILED = 0,
