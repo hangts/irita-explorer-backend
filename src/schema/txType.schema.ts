@@ -32,10 +32,10 @@ TxTypeSchema.statics.queryServiceTxTypeList = async function ():Promise<ITxTypeS
 
 // txs/types/staking
 TxTypeSchema.statics.queryStakingTxTypeList = async function ():Promise<ITxTypeStruct[]>{
-	let queryParameters: any = {
-			type_name:{'$in':stakingTypes()}
-	};
-	return await this.find(queryParameters,{type_name:1});
+    let queryParameters: any = {
+        type_name:{'$in':stakingTypes()}
+    };
+    return await this.find(queryParameters,{type_name:1});
 };
 
 // txs/types/declaration
