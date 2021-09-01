@@ -7,7 +7,7 @@ import {
 	declarationTypes,
 	govTypes
 } from '../helper/txTypes.helper';
-import { TxType, TxTypeModuleEN } from '../constant';
+import { TxType } from '../constant';
 export const TxTypeSchema = new mongoose.Schema({
     type_name:{type:String, required:true, unique: true},
     create_time:{
@@ -27,7 +27,10 @@ TxTypeSchema.statics.queryTxTypeList = async function ():Promise<ITxTypeStruct[]
 
 // txs/types/service
 TxTypeSchema.statics.queryServiceTxTypeList = async function ():Promise<ITxTypeStruct[]>{
-    return await this.find({'module_en': TxTypeModuleEN.service});
+    let queryParameters: any = {
+        type_name:{'$in':serviceTypes()}
+    };
+    return await this.find(queryParameters,{type_name:1});
 };
 
 // txs/types/staking
