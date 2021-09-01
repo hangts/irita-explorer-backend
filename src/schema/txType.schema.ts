@@ -83,8 +83,8 @@ TxTypeSchema.statics.deleteTxType = async function (type:string):Promise<ITxType
 
 // txs/types/gov
 TxTypeSchema.statics.queryGovTxTypeList = async function ():Promise<ITxTypeStruct[]>{
-	let queryParameters: any = {
-			type_name:{'$in':govTypes()}
-	};
-	return await this.find(queryParameters,{type_name:1});
+    let queryParameters: any = {
+        type_name:{'$in':govTypes()}
+    };
+    return await this.find(queryParameters,{type_name:1});
 };
