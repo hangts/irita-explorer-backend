@@ -344,8 +344,8 @@ export function findListHelper(denomId, nftId, owner){
   if (denomId || nftId || owner) {
       if (denomId) queryParameters.denom_id = denomId;
       if (nftId) queryParameters['$or']= [
-          {'nft_name': nftId},
-          {'nft_id': nftId},
+          {'nft_name': { $regex: nftId,$options:'i' }},
+          {'nft_id': { $regex: nftId,$options:'i' }},
       ];
       if (owner) queryParameters.owner = owner;
       // condition.push({'$match': queryParameters});

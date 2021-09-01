@@ -111,10 +111,7 @@ export enum TxType {
 }
 
 export enum TxTypeModuleEN {
-    staking = 'Staking',
-    coinSwap = 'Coinswap',
-    service = 'iService',
-    gov = 'Gov'
+    service = 'iService'
 }
 
 export enum TxStatus {

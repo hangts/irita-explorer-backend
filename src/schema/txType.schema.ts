@@ -31,8 +31,11 @@ TxTypeSchema.statics.queryServiceTxTypeList = async function ():Promise<ITxTypeS
 };
 
 // txs/types/staking
-TxTypeSchema.statics.queryStakingTxTypeList = async function (): Promise<ITxTypeStruct[]>{
-    return await this.find({'module_en': TxTypeModuleEN.staking});
+TxTypeSchema.statics.queryStakingTxTypeList = async function ():Promise<ITxTypeStruct[]>{
+	let queryParameters: any = {
+			type_name:{'$in':stakingTypes()}
+	};
+	return await this.find(queryParameters,{type_name:1});
 };
 
 // txs/types/declaration
@@ -80,5 +83,8 @@ TxTypeSchema.statics.deleteTxType = async function (type:string):Promise<ITxType
 
 // txs/types/gov
 TxTypeSchema.statics.queryGovTxTypeList = async function ():Promise<ITxTypeStruct[]>{
-    return await this.find({'module_en': TxTypeModuleEN.gov});
+	let queryParameters: any = {
+			type_name:{'$in':govTypes()}
+	};
+	return await this.find(queryParameters,{type_name:1});
 };
