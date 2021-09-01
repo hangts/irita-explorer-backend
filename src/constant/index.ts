@@ -110,6 +110,13 @@ export enum TxType {
     request_rand = 'request_rand',
 }
 
+export enum TxTypeModuleEN {
+    staking = 'Staking',
+    coinSwap = 'Coinswap',
+    service = 'iService',
+    gov = 'Gov'
+}
+
 export enum TxStatus {
     SUCCESS = 1,
     FAILED = 0,

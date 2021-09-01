@@ -7,7 +7,7 @@ import {
 	declarationTypes,
 	govTypes
 } from '../helper/txTypes.helper';
-import { TxType } from '../constant';
+import { TxType, TxTypeModuleEN } from '../constant';
 export const TxTypeSchema = new mongoose.Schema({
     type_name:{type:String, required:true, unique: true},
     create_time:{
@@ -27,18 +27,12 @@ TxTypeSchema.statics.queryTxTypeList = async function ():Promise<ITxTypeStruct[]
 
 // txs/types/service
 TxTypeSchema.statics.queryServiceTxTypeList = async function ():Promise<ITxTypeStruct[]>{
-    let queryParameters: any = {
-        type_name:{'$in':serviceTypes()}
-    };
-    return await this.find(queryParameters,{type_name:1});
+    return await this.find({'module_en': TxTypeModuleEN.service});
 };
 
 // txs/types/staking
-TxTypeSchema.statics.queryStakingTxTypeList = async function ():Promise<ITxTypeStruct[]>{
-    let queryParameters: any = {
-        type_name:{'$in':stakingTypes()}
-    };
-    return await this.find(queryParameters,{type_name:1});
+TxTypeSchema.statics.queryStakingTxTypeList = async function (): Promise<ITxTypeStruct[]>{
+    return await this.find({'module_en': TxTypeModuleEN.staking});
 };
 
 // txs/types/declaration
@@ -84,10 +78,7 @@ TxTypeSchema.statics.deleteTxType = async function (type:string):Promise<ITxType
 	return await this.findOneAndRemove({type_name:type});
 }
 
-// txs/types/staking
+// txs/types/gov
 TxTypeSchema.statics.queryGovTxTypeList = async function ():Promise<ITxTypeStruct[]>{
-    let queryParameters: any = {
-        type_name:{'$in':govTypes()}
-    };
-    return await this.find(queryParameters,{type_name:1});
+    return await this.find({'module_en': TxTypeModuleEN.gov});
 };
