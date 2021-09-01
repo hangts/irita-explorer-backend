@@ -341,11 +341,12 @@ export function queryIdentityListHelper(query: ITXWithIdentity){
 
 export function findListHelper(denomId, nftId, owner){
   const queryParameters:any = {};
-  if (denomId || nftId || owner) {
+    if (denomId || nftId || owner) {
+      const reg = new RegExp(nftId, 'i');
       if (denomId) queryParameters.denom_id = denomId;
       if (nftId) queryParameters['$or']= [
-          {'nft_name': { $regex: nftId,$options:'i' }},
-          {'nft_id': { $regex: nftId,$options:'i' }},
+          {'nft_name': { $regex: reg }},
+          {'nft_id': { $regex: reg }},
       ];
       if (owner) queryParameters.owner = owner;
       // condition.push({'$match': queryParameters});
