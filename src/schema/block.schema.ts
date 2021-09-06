@@ -9,6 +9,14 @@ export const BlockSchema = new mongoose.Schema({
 }, { versionKey: false });
 
 BlockSchema.statics = {
+    async findListByRange(start: number, end: number): Promise<IBlockStruct[]> {
+      if (start > end) {
+        return await this.find({"height": {$lte: start, $gte: end}}).sort({ height: -1 }).exec();
+      } else {
+        return await this.find({"height": {$lte: end, $gte: start}}).sort({ height: 1 }).exec();
+      }
+    },
+
     async findList(pageNum: number, pageSize: number): Promise<IBlockStruct[]> {
         return await this.find({})
             .select({

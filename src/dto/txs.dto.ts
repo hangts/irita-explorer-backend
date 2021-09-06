@@ -1,13 +1,14 @@
-import {IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty} from 'class-validator';
+import { IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty, validate } from 'class-validator';
 import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
-import {BaseReqDto, BaseResDto, PagingReqDto} from './base.dto';
+import {BaseReqDto, BaseResDto, PagingReqDto, DeepPagingReqDto} from './base.dto';
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
-import {IBindTx} from '../types/tx.interface';
+import {IBindTx,ExternalIBindTx} from '../types/tx.interface';
+import { DefaultPaging } from '../constant';
 
 /************************   request dto   ***************************/
 //txs request dto
-export class TxListReqDto extends PagingReqDto {
+export class TxListReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     type?: string;
 
@@ -32,22 +33,48 @@ export class TxListReqDto extends PagingReqDto {
 }
 
 // txs/e
-export class eTxListReqDto extends PagingReqDto {
+export class eTxListReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     types?: string;
 
-    @ApiPropertyOptional({description: 'Greater than or equal to block height'})
-    gt_height?: number;
+    @ApiPropertyOptional({description: 'Greater than block height'})
+    height?: number;
+
+    @ApiPropertyOptional()
+    status?: number;
+
+    @ApiPropertyOptional()
+    address?: string;
+
+    @ApiPropertyOptional({description:'true/false'})
+    include_event_addr?: boolean;
+
+    static convert(value: any): any {
+        super.convert(value);
+        if (!value.pageNum) {
+          value.pageNum = DefaultPaging.pageNum;
+        }
+        if(!value.include_event_addr){
+            value.include_event_addr = false;
+        }else {
+            if(value.include_event_addr === 'true'){
+                value.include_event_addr = true;
+            }else {
+                value.include_event_addr = false;
+            }
+        }
+        return value;
+    }
 }
 
 //txs/blocks request dto
-export class TxListWithHeightReqDto extends PagingReqDto {
+export class TxListWithHeightReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     height?: string;
 }
 
 //txs/addresses request dto
-export class TxListWithAddressReqDto extends PagingReqDto {
+export class TxListWithAddressReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     address?: string;
 
@@ -66,7 +93,7 @@ export class TxListWithAddressReqDto extends PagingReqDto {
 }
 
 // txs/relevance
-export class TxListWithContextIdReqDto extends PagingReqDto {
+export class TxListWithContextIdReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     contextId?: string;
 
@@ -85,7 +112,7 @@ export class TxListWithContextIdReqDto extends PagingReqDto {
 }
 
 //txs/nfts request dto
-export class TxListWithNftReqDto extends PagingReqDto {
+export class TxListWithNftReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     denom?: string;
 
@@ -106,14 +133,24 @@ export class ServicesDetailReqDto extends BaseReqDto {
 }
 
 //txs/service/call-service
-export class TxListWithCallServiceReqDto extends PagingReqDto {
+export class TxListWithCallServiceReqDto extends DeepPagingReqDto {
     @ApiProperty()
     @MinLength(1, {message: "consumerAddr is too short"})
     consumerAddr: string;
 }
 
+//txs/e/services/respond-service
+export class ExternalQueryRespondServiceReqDto {
+    @ApiProperty()
+    serviceName: string;
+
+    @ApiProperty()
+    @MinLength(1, {message: "providerAddr is too short"})
+    providerAddr: string;
+}
+
 //txs/service/respond-service
-export class TxListWithRespondServiceReqDto extends PagingReqDto {
+export class TxListWithRespondServiceReqDto extends DeepPagingReqDto {
     @ApiProperty()
     @MinLength(1, {message: "providerAddr is too short"})
     providerAddr: string;
@@ -150,19 +187,19 @@ export class TxWithHashReqDto extends BaseReqDto {
     hash: string;
 }
 
-export class ServiceListReqDto extends PagingReqDto {
+export class ServiceListReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     nameOrDescription?: string;
 }
 
 
-export class ServiceProvidersReqDto extends PagingReqDto {
+export class ServiceProvidersReqDto extends DeepPagingReqDto {
     @ApiProperty()
     serviceName: string;
 }
 
 
-export class ServiceTxReqDto extends PagingReqDto {
+export class ServiceTxReqDto extends DeepPagingReqDto {
     @ApiProperty()
     serviceName: string;
 
@@ -195,6 +232,7 @@ export class ServiceTxResDto {
     status: number;
     msgs: any;
     events: any;
+    fee: any;
 
     constructor(
         hash: string,
@@ -204,6 +242,7 @@ export class ServiceTxResDto {
         status: number,
         msgs: any,
         events: any,
+        fee: any
     ) {
         this.hash = hash;
         this.type = type;
@@ -212,10 +251,11 @@ export class ServiceTxResDto {
         this.status = status;
         this.msgs = msgs;
         this.events = events;
+        this.fee = fee;
     }
 }
 
-export class ServiceRespondReqDto extends PagingReqDto {
+export class ServiceRespondReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     serviceName: string;
 
@@ -223,7 +263,7 @@ export class ServiceRespondReqDto extends PagingReqDto {
     provider?: string;
 }
 
-export class IdentityTxReqDto extends PagingReqDto {
+export class IdentityTxReqDto extends DeepPagingReqDto {
     @ApiProperty()
     id: string
 }
@@ -285,7 +325,11 @@ export class TxResDto extends BaseResDto {
     msgs: Array<any>;
     signers: Array<any>;
     fee: object;
-    monikers:any[];
+    monikers: any[];
+    addrs?: any[];
+    ex?: object;
+    proposal_link?: boolean;
+    events_new?:any[];
 
     constructor(txData) {
         super();
@@ -302,10 +346,14 @@ export class TxResDto extends BaseResDto {
         this.coins = txData.coins;
         this.signer = txData.signer;
         this.events = txData.events;
+        this.events_new = txData.events_new;
         this.msgs = txData.msgs;
         this.signers = txData.signers;
         this.fee = txData.fee;
         this.monikers = txData.monikers || [];
+        if (txData.ex) this.ex = txData.ex;
+        if (txData.proposal_link) this.proposal_link = true;
+        if (txData.addrs) this.addrs = txData.addrs;
     }
 
     static bundleData(value: any): TxResDto[] {
@@ -339,6 +387,15 @@ export class callServiceResDto extends TxResDto {
     }
 }
 
+//e/services/respond-service
+export class ExternalQueryRespondServiceResDto {
+    respondTimes: number
+
+    constructor(value) {
+        this.respondTimes = value || 0;
+    }
+}
+
 //txs/service/respond-service
 export class RespondServiceResDto extends TxResDto {
     respond_times: number;
@@ -362,10 +419,19 @@ export class RespondServiceResDto extends TxResDto {
 //txs/types response dto
 export class TxTypeResDto extends BaseResDto {
     typeName: string;
+    type_cn: string;
+    type_en: string;
+    module_cn: string;
+    module_en: string;
 
-    constructor(typeData) {
+    constructor(value: any) {
         super();
+        const typeData = JSON.parse(JSON.stringify(value));
         this.typeName = typeData.type_name;
+        this.type_cn = typeData.type_cn;
+        this.type_en = typeData.type_en;
+        this.module_cn = typeData.module_cn;
+        this.module_en = typeData.module_en;
     }
 
     static bundleData(value: any): TxTypeResDto[] {
@@ -383,6 +449,18 @@ export class ServiceResDto {
     bindList: IBindTx[];
 
     constructor(serviceName: string, description: string, bindList: IBindTx[]) {
+        this.serviceName = serviceName;
+        this.description = description;
+        this.bindList = bindList;
+    }
+}
+
+export class ExternalServiceResDto {
+    serviceName: string;
+    description: string;
+    bindList: ExternalIBindTx[];
+
+    constructor(serviceName: string,description: string,  bindList: ExternalIBindTx[]) {
         this.serviceName = serviceName;
         this.description = description;
         this.bindList = bindList;
@@ -418,7 +496,7 @@ export class ServiceBindInfoResDto {
 }
 
 //txs/blocks request dto
-export class TxListWithAssetReqDto extends PagingReqDto {
+export class TxListWithAssetReqDto extends DeepPagingReqDto {
     @ApiProperty()
     type: string;
 

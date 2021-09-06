@@ -24,11 +24,23 @@ export interface IBindTx {
     bindTime: string,
 }
 
+export interface ExternalIBindTx {
+    provider: string;
+    respondTimes?: number,
+}
+
 export interface IServiceName {
     serviceName: string;
     description?: string;
     bind: number;
     bindList?:IBindTx[],
+}
+
+export interface ExternalIServiceName {
+    serviceName: string;
+    description?: string;
+    bind: number;
+    bindList?:ExternalIBindTx[],
 }
 
 export interface IExFieldTx extends ITxStruct{

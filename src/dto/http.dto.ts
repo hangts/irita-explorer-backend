@@ -6,10 +6,19 @@ import { ApiError } from '../api/ApiResult';
 import { ErrorCodes } from '../api/ResultCodes';
 import { IBindTx } from '../types/tx.interface';
 import { IDenomStruct } from '../types/schemaTypes/denom.interface';
-
+import { validatorStatusFromLcd } from '../constant'
 // lcd相关请求返回值数据模型
 
 /************************   response dto   ***************************/
+// /ibc/applications/transfer/v1beta1/denom_traces/{hash} response dto
+export class IbcTraceDto {
+  denom_trace: { path: string, base_denom: string; };
+  constructor(value) {
+    const { denom_trace } = value;
+    this.denom_trace = denom_trace || '';
+  }
+}
+
 // /nft/nfts/denoms response dto
 export class DenomDto {
     id: string;
@@ -55,7 +64,7 @@ export class NftCollectionDto {
     nfts: Nft[];
 
     constructor(value) {
-        let {denom, nfts} = value;
+        const {denom, nfts} = value;
         this.denom = new DenomDto(denom);
         this.nfts = (nfts || []).map(item=>{
             return new Nft(item);
@@ -100,7 +109,7 @@ export class BlockId {
     hash: string;
     parts: { total:number, hash:string};
     constructor(value) {
-        let { hash, parts } = value;
+        const { hash, parts } = value;
         this.hash = hash || '';
         this.parts = parts;
     }
@@ -113,7 +122,7 @@ export class Signatures {
     signature: string;
 
     constructor(value) {
-        let { block_id_flag, validator_address, timestamp, signature } = value;
+        const { block_id_flag, validator_address, timestamp, signature } = value;
         this.block_id_flag = block_id_flag || '';
         this.validator_address = validator_address || '';
         this.timestamp = timestamp || '';
@@ -168,7 +177,7 @@ export class Commit {
     block_id: BlockId;
     signatures: Signatures[];
     constructor(value) {
-        let { height, round, block_id, signatures } = value;
+        const { height, round, block_id, signatures } = value;
         this.height = Number(height);
         this.round = round;
         this.block_id = new BlockId(block_id);
@@ -183,7 +192,7 @@ export class Block {
     last_commit: Commit;
 
     constructor(value) {
-        let { header, data, evidence, last_commit } = value;
+        const { header, data, evidence, last_commit } = value;
         this.header = new BlockHeader(header);
         this.data =  data;
         this.evidence =  evidence;
@@ -195,7 +204,7 @@ export class BlockDto {
     block_id: BlockId;
     block: Block;
     constructor(value) {
-        let { block_id,  block } = value;
+        const { block_id,  block } = value;
         this.block_id = new BlockId(block_id);
         this.block = new Block(block);
     }
@@ -214,7 +223,7 @@ export class DelegatorRewardsDto {
     rewards: Reward[];
     total: Coin[];
     constructor(value) {
-        let { rewards, total } = value;
+        const { rewards, total } = value;
         this.rewards = Reward.bundleData(rewards);
         this.total = Coin.bundleData(total);
     }
@@ -224,7 +233,7 @@ export class Reward {
     validator_address:string;
     reward:Coin[];
     constructor(value) {
-        let { validator_address, reward } = value;
+        const { validator_address, reward } = value;
         this.validator_address = validator_address || '';
         this.reward = reward ? Coin.bundleData(reward) : [];
     }
@@ -242,28 +251,32 @@ export class TokensLcdDto {
     symbol: string;
     name:string;
     scale:number;
-    min_unit:string;
+    denom:string;
     initial_supply: string;
     max_supply: string;
     mintable:boolean;
     owner: string;
     is_main_token: boolean;
     total_supply: string;
-    mint_token_height: number
-    
+    update_block_height: number;
+    src_protocol: string;
+    chain: string;
+
     constructor(value) {
         this['@type'] = value['@type'] || '';
         this.symbol = value.symbol || '';
         this.name = value.name || '';
         this.scale = value.scale || 0;
-        this.min_unit = value.min_unit || '';
+        this.denom = value.min_unit || '';
         this.initial_supply = value.initial_supply || '';
         this.max_supply = value.max_supply || '';
-        this.mintable = value.mintable || true;
+        this.mintable = value.mintable || false;
         this.owner = value.owner || '';
         this.is_main_token = value.is_main_token || false;
         this.total_supply = value.initial_supply || '';
-        this.mint_token_height = value.mint_token_height || 0;
+        this.update_block_height = value.update_block_height || 0;
+        this.src_protocol = value.src_protocol || '';
+        this.chain = value.chain || '';
     }
 
     static bundleData(value: any = []): TokensLcdDto[] {
@@ -292,7 +305,7 @@ export class TokensStakingLcdToken {
 // staking/validators
 export class StakingValidatorLcdDto {
     operator_address: string;
-    consensus_pubkey: string;
+    consensus_pubkey: string | object;
     jailed: boolean;
     status: number;
     tokens: string;
@@ -302,17 +315,17 @@ export class StakingValidatorLcdDto {
     unbonding_time: string;
     commission: object;
     min_self_delegation: string;
-    
+
 
     constructor(value) {
         this.operator_address = value.operator_address || '';
         this.consensus_pubkey = value.consensus_pubkey || '';
         this.jailed = value.jailed || false;
-        this.status = value.status || '';
+        this.status = value.status ?  validatorStatusFromLcd[value.status] : '';
         this.tokens = value.tokens || '';
         this.delegator_shares = value.delegator_shares || '';
         this.description = value.description || '';
-        this.unbonding_height = value.unbonding_height || '';
+        this.unbonding_height = value.unbonding_height || '0';
         this.unbonding_time = value.unbonding_time || '';
         this.commission = value.commission || null;
         this.min_self_delegation = value.min_self_delegation || '';
@@ -348,8 +361,13 @@ export class StakingValidatorSlashLcdDto {
 
 // /staking/validators/${valOperatorAddr}/delegations
 export class StakingValidatorDelegationLcdDto {
+    total: number;
     result: Array<IDelegationLcd>;
 
+    constructor(value) {
+        this.total = value.total || 0;
+        this.result = StakingValidatorDelegationLcdDto.bundleData(value.result) || [];
+    }
     static bundleData(value: any = []): IDelegationLcd[] {
         let data: IDelegationLcd[] = [];
         data = value.map((v: any) => {
@@ -358,6 +376,8 @@ export class StakingValidatorDelegationLcdDto {
         return data;
     }
 }
+
+
 
 export class IDelegationLcd {
     delegation: {
@@ -380,11 +400,11 @@ export class IDelegationLcd {
 // /validatorsets/{height}
 export class Validatorset {
     address:string;
-    pub_key:string;
+    pub_key:string | object;
     proposer_priority:string;
     voting_power:string;
     constructor(value) {
-        let { address, pub_key, proposer_priority, voting_power } = value;
+        const { address, pub_key, proposer_priority, voting_power } = value;
         this.address = address || '';
         this.pub_key = pub_key || '';
         this.proposer_priority = proposer_priority || '';
@@ -432,7 +452,7 @@ export class StakingValidatorParametersLcdDto {
     constructor(value) {
         this.signed_blocks_window = value.signed_blocks_window || '';
         this.min_signed_per_window = value.min_signed_per_window || '';
-        this.downtime_jail_duration = value.downtime_jail_duration || '';
+        this.downtime_jail_duration = value.downtime_jail_duration.replace('s', '000000000') || '';
         this.slash_fraction_double_sign = value.slash_fraction_double_sign || '';
         this.slash_fraction_downtime = value.slash_fraction_downtime || '';
     }
@@ -450,19 +470,42 @@ export class ISelfBondRewards {
 
 // /distribution/validators/${valAddress}
 export class commissionRewardsLcdDto {
-    operator_address: string;
-    self_bond_rewards: [];
+    // operator_address: string;
+    // self_bond_rewards: [];
     val_commission: object;
 
     constructor(value) {
-        this.operator_address = value.operator_address || '';
-        this.self_bond_rewards = value.self_bond_rewards || [];
-        this.val_commission = value.val_commission || {};
+        // this.operator_address = value.operator_address || '';
+        // this.self_bond_rewards = value.self_bond_rewards || [];
+        this.val_commission = value.commission || {};
     }
 }
 
+// /cosmos/distribution/v1beta1/community_pool
+export class communityPoolLcdDto {
+    pool: Coin[];
+
+    constructor(value) {
+        this.pool = value.pool || [];
+    }
+}
+
+
+
 // /staking/validators/${address}/unbonding_delegations
+
+
 export class StakingValUnBondingDelLcdDto {
+    total: number;
+    result: Array<StakingValUnBondingDelLcdResultDto>;
+
+    constructor(value) {
+        this.total = value.total || 0;
+        this.result = StakingValUnBondingDelLcdResultDto.bundleData(value.result) || [];
+    }
+}
+
+export class StakingValUnBondingDelLcdResultDto {
     delegator_address: string;
     validator_address: string;
     entries: Array<UnBondingDel>
@@ -473,10 +516,10 @@ export class StakingValUnBondingDelLcdDto {
         this.entries = value.entries || [];
     }
 
-    static bundleData(value: any = []): StakingValUnBondingDelLcdDto[] {
-        let data: StakingValUnBondingDelLcdDto[] = [];
+    static bundleData(value: any = []): StakingValUnBondingDelLcdResultDto[] {
+        let data: StakingValUnBondingDelLcdResultDto[] = [];
         data = value.map((v: any) => {
-            return new StakingValUnBondingDelLcdDto(v);
+            return new StakingValUnBondingDelLcdResultDto(v);
         });
         return data;
     }
@@ -509,10 +552,14 @@ export class AddressBalancesLcdDto {
 
 export class DelegatorsDelegationLcdDto {
     height: string;
+    total: number;
+    next_key: string | null;
     result: DelegatorsResult[];
     constructor(value) {
-        this.height = value.height || '',
-        this.result = DelegatorsResult.bundleData(value.result)
+        this.height = value.height || '';
+        this.result = DelegatorsResult.bundleData(value.delegation_responses);
+        this.total = (value.pagination && Number(value.pagination.total)) || 0;
+        this.next_key = value.pagination && value.pagination.next_key;
     }
 }
 
@@ -543,10 +590,14 @@ export class DelegatorsResult {
 
 export class DelegatorsUndelegationLcdDto {
     height: string;
+    next_key: string | null;
     result: UndelegatorsResult[];
+    total: number;
     constructor(value) {
-        this.height = value.height || '',
-        this.result = UndelegatorsResult.bundleData(value.result)
+        this.height = value.height || '';
+        this.result = UndelegatorsResult.bundleData(value.unbonding_responses);
+        this.total = (value.pagination && Number(value.pagination.total)) || 0;
+        this.next_key = value.pagination && value.pagination.next_key;
     }
 }
 
@@ -588,7 +639,94 @@ export class BondedTokensLcdDto {
 export class TotalSupplyLcdDto {
     supply: Coin[];
     constructor(value) {
-        let { supply } = value;
+        const { supply } = value;
         this.supply = Coin.bundleData(supply);
+    }
+}
+
+export class GovParamsLcdDto {
+    voting_params: {
+        voting_period: string;
+    };
+    deposit_params: {
+        min_deposit: Coin[],
+        max_deposit_period: string
+    };
+    tally_params: {
+        quorum:string,
+        threshold:string,
+        veto_threshold:string,
+    };
+    constructor(value) {
+        this.voting_params = value.voting_params || {};
+        this.deposit_params = {
+            min_deposit: Coin.bundleData(value.deposit_params.min_deposit) || [],
+            max_deposit_period: value.deposit_params.max_deposit_period || ''
+        }
+        this.tally_params = value.tally_params || {};
+    }
+}
+
+export class GovTallyParamsLcdDto {
+    quorum: string;
+    threshold: string;
+    veto_threshold: string;
+    constructor(value) {
+        this.quorum = value.quorum || '';
+        this.threshold = value.threshold || '';
+        this.veto_threshold = value.veto_threshold || '';
+    }
+}
+
+export class GovDepositParamsLcdDto {
+    min_deposit: Coin[];
+    max_deposit_period: string
+    constructor(value) {
+        this.min_deposit = Coin.bundleData(value.min_deposit),
+        this.max_deposit_period = value.max_deposit_period || '';
+    }
+}
+
+export class GovProposalLcdDto {
+    id: number;
+    content: object;
+    status: string;
+    final_tally_result: {
+        yes: number,
+        abstain: number,
+        no: number,
+        no_with_veto: number
+    };
+    submit_time: string;
+    deposit_end_time: string;
+    total_deposit: Coin[];
+    voting_start_time: string;
+    voting_end_time: string;
+    is_deleted: boolean;
+
+    constructor(value) {
+        this.id = Number(value.proposal_id) || 0;
+        this.content = value.content || {};
+        this.status = value.status || '';
+        this.final_tally_result = {
+            yes: Number(value.final_tally_result && value.final_tally_result.yes) || 0,
+            abstain: Number(value.final_tally_result && value.final_tally_result.abstain) || 0,
+            no: Number(value.final_tally_result && value.final_tally_result.no) || 0,
+            no_with_veto: Number(value.final_tally_result && value.final_tally_result.no_with_veto) || 0,
+        };
+        this.submit_time = value.submit_time || '';
+        this.deposit_end_time = value.deposit_end_time || '';
+        this.total_deposit = Coin.bundleData(value.total_deposit);
+        this.voting_start_time = value.voting_start_time || '';
+        this.voting_end_time = value.voting_end_time || '';
+        this.is_deleted = false;
+    }
+
+    static bundleData(value: any): GovProposalLcdDto[] {
+        let data: GovProposalLcdDto[] = [];
+        data = value.map((v: any) => {
+            return new GovProposalLcdDto(v);
+        });
+        return data;
     }
 }

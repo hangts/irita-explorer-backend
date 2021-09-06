@@ -29,6 +29,12 @@ import {ProfilerModule} from "./module/profiler.module";
 import {StakingModule} from "./module/staking.module";
 import { TokensTaskModule } from "./module/tokens.task.module";
 import { AssetModule } from './module/asset.module';
+import { ProposalTaskModule } from './module/proposal.task.module';
+import { GovModule } from './module/gov.module';
+import { ParameterModule } from './module/parameter.module';
+import { AccountTaskModule } from './module/account.task.module';
+import { AccountModule } from './module/account.module';
+import { TokenModule } from './module/token.module';
 
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 const params = {
@@ -55,7 +61,13 @@ const params = {
         ProfilerModule,
         StakingModule,
         TokensTaskModule,
-        AssetModule
+        AssetModule,
+        ProposalTaskModule,
+        GovModule,
+        ParameterModule,
+        AccountTaskModule,
+        AccountModule,
+        TokenModule
     ],
     providers:<any> [
         {

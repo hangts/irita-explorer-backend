@@ -76,7 +76,6 @@ export function getCtxKey(ctxId:string,type:string){
 
 const common = {
         tx_hash:1,
-        msgs:1,
         type:1,
         'msgs.type':1,
         status:1,
@@ -88,8 +87,8 @@ const common = {
     };
 
 const fromTo = {
-        'msgs.msg.fromaddress':1,
-        'msgs.msg.toaddress':1,
+        'msgs.msg.from_address':1,
+        'msgs.msg.to_address':1,
         'msgs.msg.author':1,
         'msgs.msg.provider':1,
         'msgs.msg.consumer':1,
@@ -97,14 +96,21 @@ const fromTo = {
         'msgs.msg.creator':1,
         'msgs.msg.sender':1,
         'msgs.msg.recipient':1,
+        'msgs.msg.receiver':1,
         'msgs.msg.owner':1,
         'msgs.msg.delegator_address':1,
+        'msgs.msg.withdraw_address':1,
         'msgs.msg.validator_address':1,
         'msgs.msg.validator_src_address':1,
         'msgs.msg.validator_dst_address':1,
         'msgs.msg.to': 1,
         'msgs.msg.src_owner': 1,
         'msgs.msg.dst_owner': 1,
+        'msgs.msg.depositor': 1,
+        'msgs.msg.voter': 1,
+        'msgs.msg.proposer': 1,
+        'msgs.msg.input': 1,
+        'msgs.msg.output':1
     };
 
 export const dbRes = {
@@ -116,6 +122,13 @@ export const dbRes = {
     txList:{
         ...common,
         ...fromTo,
+        // transactions list
+        'events_new': 1,
+        'msgs.msg.amount': 1,
+        'msgs.msg.content.amount': 1,
+        'msgs.msg.initial_deposit':1,
+        'msgs.msg.token':1,//IBC
+        'msgs.msg.packet':1,//IBC
     },
     service:{
         ...common,
@@ -135,19 +148,25 @@ export const dbRes = {
         ...fromTo,
         'msgs.msg.amount':1,
         'msgs.msg.delegation': 1,
-        events:1
+        events_new: 1,
     },
     validations:{
         ...common,
         'msgs.msg.validator_address':1,
         'msgs.msg.address':1,
-        'msgs.msg.min_self_delegation':1
+        'msgs.msg.value':1,
+    },
+    govs:{
+        ...common,
+        'events':1,
+        'msgs.msg':1,
     },
     syncServiceTask:{
         'msgs.type':1,
         'msgs.msg.request_id':1,
         'msgs.msg.request_context_id':1,
         'type':1,
+        'status':1,
         'msgs.msg.service_name':1,
         'msgs.msg.name':1,
         'tx_hash':1
@@ -171,6 +190,22 @@ export const dbRes = {
         'msgs.msg.mintable': 1,
         'msgs.msg.to': 1,
         'msgs.msg.src_owner': 1,
-        'msgs.msg.dst_owner': 1
+        'msgs.msg.dst_owner': 1,
+        'msgs.msg.sender':1,
+    },
+    voteList: {
+        'tx_hash': 1,
+        'msgs.msg': 1,
+        'height': 1,
+        'time': 1
+    },
+    depositorList: {
+        'tx_hash': 1,
+        'msgs': 1,
+        'time': 1
+    },
+    depositList: {
+        'tx_hash': 1,
+        'msgs.msg': 1
     }
 }

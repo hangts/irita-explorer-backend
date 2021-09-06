@@ -5,8 +5,11 @@ import {
     INftCountQueryParams,
     INftStruct,
 } from '../types/schemaTypes/nft.interface';
-import { IListStruct } from '../types';
+import { ListStruct } from '../types';
 import { getTimestamp } from '../util/util';
+import {
+  findListHelper
+} from '../helper/params.helper';
 
 export const NftSchema = new mongoose.Schema({
     denom_id: String,
@@ -34,10 +37,9 @@ NftSchema.statics = {
         pageSize: number,
         denomId?: string,
         nftId?: string,
-        owner?: string,
-        useCount?:boolean,
-    ): Promise<IListStruct> {
-        let result: IListStruct = {};
+        owner?: string
+    ): Promise<ListStruct> {
+        const result: ListStruct = {};
         // const condition: any[] = [
             // {
             //     $lookup: {
@@ -55,16 +57,7 @@ NftSchema.statics = {
             // },
         // ];
 
-        let queryParameters:any = {};
-        if (denomId || nftId || owner) {
-            if (denomId) queryParameters.denom_id = denomId;
-            if (nftId) queryParameters['$or']= [
-                {'nft_name': nftId},
-                {'nft_id': nftId},
-            ];
-            if (owner) queryParameters.owner = owner;
-            // condition.push({'$match': queryParameters});
-        }
+        const queryParameters = findListHelper(denomId, nftId, owner)
         result.data = await this.find(queryParameters)
             .sort({last_block_height:-1})
             .skip((Number(pageNum) - 1) * Number(pageSize))
@@ -74,10 +67,11 @@ NftSchema.statics = {
         //     .sort({create_time:-1, nft_id:-1})
         //     .skip((Number(pageNum) - 1) * Number(pageSize))
         //     .limit(Number(pageSize));
-        if (useCount) {
-            result.count = await this.find(queryParameters).countDocuments();
-        }
         return result; 
+    },
+    async findListCount(denomId?: string, nftId?: string, owner?: string,): Promise<number> {
+      const params = findListHelper(denomId, nftId, owner)
+      return await this.find(params).countDocuments();
     },
 
     async findOneByDenomAndNftId(denomId: string, nftId: string): Promise<INftStruct | null> {
@@ -148,6 +142,10 @@ NftSchema.statics = {
 
     async queryLastBlockHeight(): Promise<INftStruct>{
         return await this.find({},{last_block_height: 1}).sort({last_block_height: -1}).limit(1);
+    },
+    
+    queryLastNft(): Promise<INftStruct>{
+        return this.findOne({}).sort({last_block_height: -1}).limit(1);
     },
 
     updateNft(nft: INftStruct): Promise<INftStruct>{

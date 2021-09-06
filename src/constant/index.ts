@@ -6,9 +6,13 @@ export enum TaskEnum {
     txServiceName = "sync_tx_service_name",
     validators = 'sync_validators',
     identity = 'sync_identity',
-    stakingSyncValidators = 'staking_sync_validators',
+    stakingSyncValidatorsInfo = 'staking_sync_validators_info',
+    stakingSyncValidatorsMoreInfo = 'staking_sync_validators_more_info',
     stakingSyncParameters = 'staking_sync_parameters',
-    Tokens = 'tokens'
+    tokens = 'tokens',
+    proposal = 'ex_sync_proposal',
+    account = 'ex_sync_account',
+    accountInfo =  'ex_sync_account_info'
 }
 
 
@@ -36,7 +40,7 @@ export enum TxType {
     start_request_context = 'start_request_context',
     kill_request_context = 'kill_request_context',
     update_request_context = 'update_request_context',
-    service_set_withdraw_address = 'service/set_withdraw_addres',
+    service_set_withdraw_address = 'service/set_withdraw_address',
     withdraw_earned_fees = 'withdraw_earned_fees',
     // nft
     burn_nft = 'burn_nft',
@@ -44,11 +48,12 @@ export enum TxType {
     edit_nft = 'edit_nft',
     issue_denom = 'issue_denom',
     mint_nft = 'mint_nft',
-    // Asset 
+    // Asset
     issue_token = 'issue_token',
     edit_token = 'edit_token',
     mint_token = 'mint_token',
     transfer_token_owner = 'transfer_token_owner',
+    burn_token= 'burn_token',
     //Transfer
     send = 'send',
     multisend = 'multisend',
@@ -86,6 +91,7 @@ export enum TxType {
     delete_profiler = 'delete_profiler',
     add_trustee = 'add_trustee',
     delete_trustee = 'delete_trustee',
+    add_super = 'add_super',
     // Oracle
     create_feed = 'create_feed',
     start_feed = 'start_feed',
@@ -133,8 +139,9 @@ export const PubKeyAlgorithm = {
 }
 
 export enum currentChain  {
-    cosmos ='COSMOS',
-    iris ='IRIS'
+    cosmos ='cosmos',
+    iris ='iris',
+    binance = 'binance'
 }
 
 export const signedBlocksWindow = 'signed_blocks_window'
@@ -142,6 +149,9 @@ export const hubDefaultEmptyValue = '[do-not-modify]'
 export const moduleSlashing = 'slashing'
 export const moduleStaking = 'staking'
 export const moduleStakingBondDenom = 'bond_denom'
+export const moduleGov = 'gov'
+export const moduleGovDeposit = 'min_deposit'
+
 
 
 export const ValidatorStatus = {
@@ -153,15 +163,21 @@ export const ValidatorStatus = {
 let addressPrefix,validatorStatusStr;
 switch (cfg.currentChain) {
     case currentChain.iris:
+        // validatorStatusStr = {
+        //     'unbonded': 'unbonded',
+        //     'unbonding': 'unbonding',
+        //     'bonded': 'bonded'
+        // };
         validatorStatusStr = {
-            'unbonded': 'unbonded',
-            'unbonding': 'unbonding',
-            'bonded': 'bonded'
+            'unbonded': 'BOND_STATUS_UNBONDED', // 1 关押状态
+            'unbonding': 'BOND_STATUS_UNBONDING', // 2  候选人状态
+            'bonded': 'BOND_STATUS_BONDED' // 3 活跃的验证人状态
         };
         addressPrefix = {
             iaa: 'iaa',
             iva: 'iva',
-            ica: 'ica'
+            ica: 'ica',
+            icp: 'icp'
         }
         break;
     case currentChain.cosmos:
@@ -173,7 +189,8 @@ switch (cfg.currentChain) {
         addressPrefix = {
             iaa: 'cosmos',
             iva: 'cosmosvaloper',
-            ica: 'cosmosvalcons'
+            ica: 'cosmosvalcons',
+            icp: 'cosmosvalconspub'
         }
         break;
     default:
@@ -181,6 +198,12 @@ switch (cfg.currentChain) {
 }
 export {
     validatorStatusStr,addressPrefix
+}
+
+export const validatorStatusFromLcd = {
+    'BOND_STATUS_UNBONDED': 1,
+    'BOND_STATUS_UNBONDING': 2,
+    'BOND_STATUS_BONDED': 3
 }
 
 export const ValidatorNumberStatus = {
@@ -196,3 +219,55 @@ export const INCREASE_HEIGHT = Number(cfg.taskCfg.increaseHeight);
 export const MAX_OPERATE_TX_COUNT = Number(cfg.taskCfg.maxOperateTxCount);
 
 export const NFT_INFO_DO_NOT_MODIFY = '[do-not-modify]';
+
+export const correlationStr = {
+    '200': 'block',
+    '201': 'txCount',
+    '202': 'validatorCount',
+    '203': 'avgBlockTime',
+    '204': 'assetCount',
+    '205': 'denomCount',
+    '206': 'serviceCount',
+    '207': 'identityCount',
+    '208': 'validatorNumCount',
+    '209': 'bondedTokensInformation'
+}
+
+export const proposalStatus = {
+    PROPOSAL_STATUS_DEPOSIT_PERIOD: 'DepositPeriod',
+    PROPOSAL_STATUS_VOTING_PERIOD: 'VotingPeriod',
+    PROPOSAL_STATUS_PASSED: 'Passed',
+    PROPOSAL_STATUS_REJECTED: 'Rejected'
+}
+
+export const govParams = {
+    min_deposit: 'min_deposit',
+    quorum: 'quorum',
+    threshold: 'threshold',
+    veto_threshold:'veto_threshold'
+}
+
+export const voteOptions = {
+    1: 'yes',
+    2: 'abstain',
+    3: 'no',
+    4: 'no_with_veto'
+}
+export const proposal = 'Proposal'
+
+export const queryVoteOptionCount = {
+    yes: 1,
+    abstain: 2,
+    no: 3,
+    no_with_veto: 4,
+}
+
+export const addressAccount = 'xxx'
+
+export const SRC_PROTOCOL = {
+    NATIVE:'native',
+    HTLT:'htlt',
+    IBC:'ibc',
+    SWAP:'swap',
+    PEG:'peg',
+}

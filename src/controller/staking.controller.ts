@@ -1,10 +1,9 @@
-import {Controller, Query, Get, Param} from '@nestjs/common';
+import {Controller, Query, Get, Param, Post, Body} from '@nestjs/common';
 import {ApiTags} from '@nestjs/swagger';
 import {ListStruct, Result} from "../api/ApiResult";
 import StakingService from "../service/staking.service";
 import {
     // ValCommissionRewReqDto,
-    CommissionInfoReqDto,
     // ValCommissionRewResDto,
     CommissionInfoResDto,
     ValidatorDelegationsReqDto,
@@ -24,7 +23,10 @@ import {
     DelegatorsDelegationsParamReqDto,
     DelegatorsUndelegationsReqDto,
     DelegatorsUndelegationsResDto,
-    DelegatorsUndelegationsParamReqDto
+    DelegatorsUndelegationsParamReqDto,
+    ValidatorVotesResDto,
+    ValidatorDepositsResDto,
+    PostBlacksReqDto
 } from "../dto/staking.dto";
 
 @ApiTags('Staking')
@@ -34,8 +36,8 @@ export class StakingController {
     }
 
     @Get('/commission_info')
-    async getAllValCommissionInfo(@Query()q: CommissionInfoReqDto): Promise<Result<ListStruct<CommissionInfoResDto>>> {
-        const allValCommissionData: ListStruct<CommissionInfoResDto> = await this.stakingService.getAllValCommission(q)
+    async getAllValCommissionInfo(): Promise<Result<ListStruct<CommissionInfoResDto>>> {
+        const allValCommissionData: ListStruct<CommissionInfoResDto> = await this.stakingService.getAllValCommission()
         return new Result<ListStruct<CommissionInfoResDto>>(allValCommissionData)
     }
 
@@ -79,5 +81,23 @@ export class StakingController {
     async getDelegatorsUndelegations(@Param()p: DelegatorsUndelegationsParamReqDto,@Query()q: DelegatorsUndelegationsReqDto): Promise<Result<ListStruct<DelegatorsUndelegationsResDto>>> {
         const delegatorsUndelegations = await this.stakingService.getDelegatorsUndelegations(p,q)
         return new Result<ListStruct<DelegatorsUndelegationsResDto>>(delegatorsUndelegations)
+    }
+
+    @Get('/validators/:address/votes')
+    async getValidatorVotes(@Param()p: ValidatorDelegationsReqDto,@Query()q: ValidatorDelegationsQueryReqDto): Promise<Result<ListStruct<ValidatorVotesResDto>>> {
+        const validatorVotes = await this.stakingService.getValidatorVotesList(p,q)
+        return new Result<ListStruct<ValidatorVotesResDto>>(validatorVotes)
+    }
+
+    @Get('/validators/:address/deposit')
+    async getValidatorDeposits(@Param()p: ValidatorDelegationsReqDto,@Query()q: ValidatorDelegationsQueryReqDto): Promise<Result<ListStruct<ValidatorDepositsResDto>>> {
+        const validatorDeposits = await this.stakingService.getValidatorDepositsList(p,q)
+        return new Result<ListStruct<ValidatorDepositsResDto>>(validatorDeposits)
+    }
+
+    @Post('/blacks')
+    async insertBlacksList(@Body() params: PostBlacksReqDto): Promise<Boolean> {
+        const data: Boolean = await this.stakingService.insertBlacks(params);
+        return data;
     }
 }

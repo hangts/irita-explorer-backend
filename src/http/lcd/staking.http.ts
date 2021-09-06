@@ -10,36 +10,25 @@ import {
     DelegatorsDelegationLcdDto,
     DelegatorsUndelegationLcdDto,
     BondedTokensLcdDto,
+    IDelegationLcd,
     TokensStakingLcdToken
 } from "../../dto/http.dto";
-import { currentChain } from '../../constant/index'
 
 @Injectable()
 
 export class StakingHttp {
     async queryValidatorListFromLcd(status: string, pageNum: number, pageSize: number) {
-        let validatorLcdUri;
-        switch (cfg.currentChain) {
-            case currentChain.iris:
-                // iris
-                validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&pageNum=${pageNum}&pageSize=${pageSize}`
-                break;
-            case currentChain.cosmos:
-                // cosmos
-                validatorLcdUri = `${cfg.serverCfg.lcdAddr}/staking/validators?status=${status}&page=${pageNum}&limit=${pageSize}`
-                break;
-            default:
-                break;
-        }
+        let validatorLcdUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators?status=${status}&pagination.limit=${pageSize}`;
         try {
             let stakingValidatorData: any = await new HttpService().get(validatorLcdUri).toPromise().then(result => result.data)
-            if (stakingValidatorData && stakingValidatorData.result) {
-                return StakingValidatorLcdDto.bundleData(stakingValidatorData.result);
+            if (stakingValidatorData && stakingValidatorData.validators) {
+                return StakingValidatorLcdDto.bundleData(stakingValidatorData.validators);
             } else {
                 Logger.warn('api-error:', 'there is no result of validators from lcd');
             }
         } catch (e) {
             Logger.warn(`api-error from ${validatorLcdUri}`, e)
+            throw new Error(e);
         }
     }
 
@@ -55,21 +44,11 @@ export class StakingHttp {
                 Logger.warn('api-error:', 'there is no result of validators from lcd');
             }
         } catch (e) {
-            Logger.warn(`api-error from ${slashValidatorUri}`, e)
-        }
-    }
-
-    async querySelfBondFromLcd(valOperatorAddr) {
-        const selfBondUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${valOperatorAddr}/delegations`
-        try {
-            const selfBondData: any = await new HttpService().get(selfBondUri).toPromise().then(result => result.data)
-            if (selfBondData && selfBondData.result) {
-                return StakingValidatorDelegationLcdDto.bundleData(selfBondData.result);
+            if (e && e.response && e.response.data && e.response.data.code == 2) {
+                Logger.warn(`api-error from ${slashValidatorUri}`, e.response.data)
             } else {
-                Logger.warn('api-error:', 'there is no result of validators from lcd');
+                Logger.warn(`api-error from ${slashValidatorUri}`, e)
             }
-        } catch (e) {
-            Logger.warn(`api-error from ${selfBondUri}`, e)
         }
     }
 
@@ -89,11 +68,11 @@ export class StakingHttp {
     }
 
     async queryParametersFromSlashing() {
-        const parameterUri = `${cfg.serverCfg.lcdAddr}/slashing/parameters`
+        const parameterUri = `${cfg.serverCfg.lcdAddr}/cosmos/slashing/v1beta1/params`
         try {
             const parameterData: any = await new HttpService().get(parameterUri).toPromise().then(result => result.data)
-            if (parameterData && parameterData.result) {
-                return new StakingValidatorParametersLcdDto(parameterData.result)
+            if (parameterData && parameterData.params) {
+                return new StakingValidatorParametersLcdDto(parameterData.params)
             } else {
                 Logger.warn('api-error:', 'there is no result of validators from lcd');
             }
@@ -103,12 +82,15 @@ export class StakingHttp {
         }
     }
 
-    async queryValidatorDelegationsFromLcd(address) {
-        const getValidatorDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/delegations`
+    async queryValidatorDelegationsFromLcd(address, pageNum=1, pageSize=1000, useCount=false) {
+        // const getValidatorDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/delegations`;
+        let offset = (Number(pageNum) - 1) * Number(pageSize);
+        const getValidatorDelegationsUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators/${address}/delegations?pagination.offset=${offset}&pagination.limit=${pageSize}&pagination.count_total=${useCount}`;
         try {
             let validatorDelegationsData: any = await new HttpService().get(getValidatorDelegationsUri).toPromise().then(result => result.data)
-            if (validatorDelegationsData && validatorDelegationsData.result) {
-                return StakingValidatorDelegationLcdDto.bundleData(validatorDelegationsData.result);
+            if (validatorDelegationsData && validatorDelegationsData.delegation_responses) {
+                let data = { total: validatorDelegationsData.pagination && Number(validatorDelegationsData.pagination.total), result: validatorDelegationsData.delegation_responses };
+                return new StakingValidatorDelegationLcdDto(data);
             } else {
                 Logger.warn('api-error:', 'there is no result of validator delegations from lcd');
             }
@@ -117,12 +99,46 @@ export class StakingHttp {
         }
     }
 
-    async queryValidatorUnBondingDelegations(address) {
-        const getValidatorUnBondingDelUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/unbonding_delegations`
+    async queryValidatordelegatorNumFromLcd(address) {
+        // const getValidatorDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/delegations`
+        const getValidatorDelegationsUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators/${address}/delegations?pagination.limit=1&pagination.count_total=true`
+        try {
+            let validatorDelegationsData: any = await new HttpService().get(getValidatorDelegationsUri).toPromise().then(result => result.data)
+            if (validatorDelegationsData && validatorDelegationsData.pagination && validatorDelegationsData.pagination.total) {
+                return Number(validatorDelegationsData.pagination.total);
+            } else {
+                Logger.warn('api-error:', 'there is no result of validator delegatorNum from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${getValidatorDelegationsUri}`, e)
+        }
+    }
+
+    async queryValidatorSelfBondFromLcd(address_iva,address_iaa) {
+        const getValidatorDelegationsUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators/${address_iva}/delegations/${address_iaa}`
+        try {
+            let validatorDelegationsData: any = await new HttpService().get(getValidatorDelegationsUri).toPromise().then(result => result.data)
+            if (validatorDelegationsData && validatorDelegationsData.delegation_response) {
+                return new IDelegationLcd(validatorDelegationsData.delegation_response);
+            } else {
+                Logger.warn('api-error:', 'there is no result of validator delegations from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${getValidatorDelegationsUri}`, e)
+        }
+    }
+
+
+
+    async queryValidatorUnBondingDelegations(address, pageNum=1, pageSize=1000, useCount=false) {
+        // const getValidatorUnBondingDelUri = `${cfg.serverCfg.lcdAddr}/staking/validators/${address}/unbonding_delegations`
+        let offset = (Number(pageNum) - 1) * Number(pageSize);
+        const getValidatorUnBondingDelUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators/${address}/unbonding_delegations?pagination.offset=${offset}&pagination.limit=${pageSize}&pagination.count_total=${useCount}`
         try {
             let validatorUnBondingDelegationsData: any = await new HttpService().get(getValidatorUnBondingDelUri).toPromise().then(result => result.data)
-            if (validatorUnBondingDelegationsData && validatorUnBondingDelegationsData.result) {
-                return StakingValUnBondingDelLcdDto.bundleData(validatorUnBondingDelegationsData.result);
+            if (validatorUnBondingDelegationsData && validatorUnBondingDelegationsData.unbonding_responses) {
+                let data = { total: validatorUnBondingDelegationsData.pagination && Number(validatorUnBondingDelegationsData.pagination.total), result: validatorUnBondingDelegationsData.unbonding_responses };
+                return new StakingValUnBondingDelLcdDto(data);
             } else {
                 Logger.warn('api-error:', 'there is no result of validator unBonding delegations from lcd');
             }
@@ -132,54 +148,65 @@ export class StakingHttp {
     }
 
     async queryBalanceByAddress(address) {
-        const getBalancesUri = `${cfg.serverCfg.lcdAddr}/bank/balances/${address}`
+        const getBalancesUri = `${cfg.serverCfg.lcdAddr}/cosmos/bank/v1beta1/balances/${address}`
         try {
             let addressBalancesData: any = await new HttpService().get(getBalancesUri).toPromise().then(result => result.data)
-            if (addressBalancesData && addressBalancesData.result) {
-                return AddressBalancesLcdDto.bundleData(addressBalancesData.result);
+            if (addressBalancesData && addressBalancesData.balances) {
+                return AddressBalancesLcdDto.bundleData(addressBalancesData.balances);
             } else {
                 Logger.warn('api-error:', 'there is no result of validator unBonding delegations from lcd');
             }
-
         } catch (e) {
             Logger.warn(`api-error from ${getBalancesUri}`, e)
         }
     }
 
-    async queryDelegatorsDelegationsFromLcd(address) {
-        const getDelegatorsDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/delegators/${address}/delegations`
+    async queryDelegatorsDelegationsFromLcd(address, pageNum=1, pageSize=1000, useCount=false) {
+        // const getDelegatorsDelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/delegators/${address}/delegations`;
+        let offset = (Number(pageNum) - 1) * Number(pageSize);
+        const getDelegatorsDelegationsUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/delegations/${address}?pagination.offset=${offset}&pagination.limit=${pageSize}&pagination.count_total=${useCount}`
         try {
             const delegatorsDelegationsData: any = await new HttpService().get(getDelegatorsDelegationsUri).toPromise().then(result => result.data)
-            if (delegatorsDelegationsData && delegatorsDelegationsData.result) {
+            if (delegatorsDelegationsData && delegatorsDelegationsData.delegation_responses) {
                 return new DelegatorsDelegationLcdDto(delegatorsDelegationsData);
             } else {
                 Logger.warn('api-error:', 'there is no result of delegators delegations from lcd');
             }
         } catch (e) {
-            Logger.warn(`api-error from ${getDelegatorsDelegationsUri}`, e)
+            if (e && e.response && e.response.data && e.response.data.code == 2) {
+                Logger.warn(`api-error from ${getDelegatorsDelegationsUri}`, e.response.data)
+            } else {
+                Logger.warn(`api-error from ${getDelegatorsDelegationsUri}`, e)
+            }
         }
     }
 
-    async queryDelegatorsUndelegationsFromLcd(address) {
-        const getDelegatorsUndelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/delegators/${address}/unbonding_delegations`
+    async queryDelegatorsUndelegationsFromLcd(address, pageNum=1, pageSize=1000, useCount=false) {
+        // const getDelegatorsUndelegationsUri = `${cfg.serverCfg.lcdAddr}/staking/delegators/${address}/unbonding_delegations`
+        let offset = (Number(pageNum) - 1) * Number(pageSize);
+        const getDelegatorsUndelegationsUri = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/delegators/${address}/unbonding_delegations?pagination.offset=${offset}&pagination.limit=${pageSize}&pagination.count_total=${useCount}`
         try {
             const delegatorsUndelegationsData: any = await new HttpService().get(getDelegatorsUndelegationsUri).toPromise().then(result => result.data)
-            if (delegatorsUndelegationsData && delegatorsUndelegationsData.result) {
+            if (delegatorsUndelegationsData && delegatorsUndelegationsData.unbonding_responses) {
                 return new DelegatorsUndelegationLcdDto(delegatorsUndelegationsData);
             } else {
                 Logger.warn('api-error:', 'there is no result of delegators delegations from lcd');
             }
         } catch (e) {
-            Logger.warn(`api-error from ${getDelegatorsUndelegationsUri}`, e)
+            if (e && e.response && e.response.data && e.response.data.code == 2) {
+                Logger.warn(`api-error from ${getDelegatorsUndelegationsUri}`, e.response.data)
+            } else {
+                Logger.warn(`api-error from ${getDelegatorsUndelegationsUri}`, e)
+            }
         }
     }
 
     static async getBondedTokens () {
-        const BondedTokensUrl = `${cfg.serverCfg.lcdAddr}/staking/pool`
+        const BondedTokensUrl = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/pool`
         try {
             let BondedTokens: any = await new HttpService().get(BondedTokensUrl).toPromise().then(result => result.data)
-            if (BondedTokens && BondedTokens.result) {
-                return new BondedTokensLcdDto(BondedTokens.result);
+            if (BondedTokens && BondedTokens.pool) {
+                return new BondedTokensLcdDto(BondedTokens.pool);
             } else {
                 Logger.warn('api-error:', 'there is no result of bonded_tokens from lcd');
             }

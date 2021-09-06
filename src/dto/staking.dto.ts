@@ -1,5 +1,7 @@
-import {BaseResDto, PagingReqDto} from './base.dto';
+import {BaseResDto, PagingReqDto, DeepPagingReqDto} from './base.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {ArrayNotEmpty} from 'class-validator';
+import { Coin } from './common.res.dto';
 
 /***************Req***********************/
 
@@ -10,16 +12,12 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 //     address?: string
 // }
 
-export class CommissionInfoReqDto extends PagingReqDto {
-
-}
-
 export class ValidatorDelegationsReqDto {
     @ApiProperty()
     address: string
 }
 
-export class ValidatorDelegationsQueryReqDto extends PagingReqDto {
+export class ValidatorDelegationsQueryReqDto extends DeepPagingReqDto {
 }
 
 export class ValidatorUnBondingDelegationsReqDto {
@@ -27,7 +25,7 @@ export class ValidatorUnBondingDelegationsReqDto {
     address: string
 }
 
-export class ValidatorUnBondingDelegationsQueryReqDto extends PagingReqDto {
+export class ValidatorUnBondingDelegationsQueryReqDto extends DeepPagingReqDto {
 }
 
 export class allValidatorReqDto extends PagingReqDto {
@@ -61,6 +59,13 @@ export class DelegatorsUndelegationsParamReqDto {
     delegatorAddr: string
 }
 
+//Post staking/blacks request dto
+export class PostBlacksReqDto {
+    @ApiProperty({description:`{"blacks": [{"iva_addr": "iva176dd0tgn38grpc8hpxfmwl6sl8jfmkneak3emy","moniker_m":"test1","is_block":true}]}`})
+    @ArrayNotEmpty()
+    blacks: String;
+}
+
 /***************Res*************************/
 
 export class stakingValidatorResDto extends BaseResDto {
@@ -81,7 +86,7 @@ export class stakingValidatorResDto extends BaseResDto {
     proposer_addr: string;
     voting_power: number;
     icons: string;
-    voting_rate: number
+    voting_rate: number;
 
     constructor(validator) {
         super();
@@ -242,7 +247,7 @@ export class ValidatorDetailResDto {
         this.bond_height = validatorDetail.start_height || '0'
         this.unbonding_height = validatorDetail.unbonding_height || ''
         this.jailed_until = validatorDetail.jailed_until || ''
-        this.missed_blocks_count = validatorDetail.missed_blocks_count || '0'
+        this.missed_blocks_count = validatorDetail.missed_blocks_counter || '0'
         this.operator_addr = validatorDetail.operator_address || ''
         this.owner_addr = validatorDetail.owner_addr || ''
         this.consensus_pubkey = validatorDetail.consensus_pubkey || ''
@@ -329,6 +334,62 @@ export class DelegatorsUndelegationsResDto extends BaseResDto {
         let data: DelegatorsUndelegationsResDto[] = [];
         data = value.map((v: any) => {
             return new DelegatorsUndelegationsResDto(v);
+        });
+        return data;
+    }
+}
+
+export class ValidatorVotesResDto extends BaseResDto {
+    title: string;
+    proposal_id: number;
+    status: string;
+    voted: string;
+    tx_hash: string;
+    proposal_link: boolean;
+
+    constructor(vote) {
+        super();
+        this.title = vote.title || ''
+        this.proposal_id = vote.proposal_id || ''
+        this.status = vote.status || ''
+        this.voted = vote.voted || ''
+        this.tx_hash = vote.tx_hash || ''
+        this.proposal_link = vote.proposal_link
+    }
+
+    static bundleData(value: any): ValidatorVotesResDto[] {
+        let data: ValidatorVotesResDto[] = [];
+        data = value.map((v: any) => {
+            return new ValidatorVotesResDto(v);
+        });
+        return data;
+    }
+}
+
+export class ValidatorDepositsResDto extends BaseResDto {
+    proposal_id: number;
+    proposer: string;
+    amount: Coin[];
+    submited: boolean;
+    tx_hash: string;
+    moniker: string;
+    proposal_link: boolean;
+
+    constructor(deposit) {
+        super();
+        this.proposal_id = deposit.proposal_id || 0;
+        this.proposer = deposit.proposer || '';
+        this.amount = Coin.bundleData(deposit.amount) || [];
+        this.submited = deposit.submited || false;
+        this.tx_hash = deposit.tx_hash || '';
+        this.moniker = deposit.moniker || '';
+        this.proposal_link = deposit.proposal_link;
+    }
+
+    static bundleData(value: any): ValidatorDepositsResDto[] {
+        let data: ValidatorDepositsResDto[] = [];
+        data = value.map((v: any) => {
+            return new ValidatorDepositsResDto(v);
         });
         return data;
     }

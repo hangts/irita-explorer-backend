@@ -20,14 +20,16 @@ export class AssetService {
 
     async queryTokensList(query: AssetListReqDto): Promise<ListStruct<AssetListResDto[]>> {
         const { pageNum, pageSize, useCount } = query;
-        let count: number;
-        const b: IAssetStruct[] = await (this.tokensModel as any).findList(pageNum, pageSize);
-        if (useCount) {
-            count = await (this.tokensModel as any).findCount();
+        let count: number, res: AssetListResDto[];
+        if(pageNum && pageSize){
+          const b: IAssetStruct[] = await (this.tokensModel as any).findList(pageNum, pageSize);
+          res = b.map((b) => {
+              return new AssetListResDto(b);
+          });
         }
-        const res: AssetListResDto[] = b.map((b) => {
-            return new AssetListResDto(b);
-        });
+        if (useCount) {
+          count = await (this.tokensModel as any).findCount();
+        }
         return new ListStruct(res, pageNum, pageSize, count);
     }
 
@@ -46,7 +48,10 @@ export class AssetService {
                 initial_supply: token_db.initial_supply,
                 max_supply: token_db.max_supply,
                 mintable: token_db.mintable,
-                scale: token_db.scale
+                scale: token_db.scale,
+                denom: token_db.denom,
+                src_protocol:token_db.src_protocol,
+                chain:token_db.chain,
             };
             result = new AssetDetailResDto(data);
         }

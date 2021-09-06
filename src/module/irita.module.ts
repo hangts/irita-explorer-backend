@@ -6,13 +6,15 @@ import {IritaService} from '../service/irita.service';
 import {MongooseModule} from '@nestjs/mongoose';
 import {NetworkSchema} from '../schema/network.schema';
 import {TokensSchema} from "../schema/tokens.schema";
-import {TokensTaskService} from "../task/tokens.service";
+import {TokensTaskService} from "../task/tokens.task.service";
 import {TokensHttp} from "../http/lcd/tokens.http";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {ParametersTaskService} from "../task/parameters.task.service";
 import {StakingHttp} from "../http/lcd/staking.http";
 import { TxSchema } from '../schema/tx.schema';
 import { SyncTaskSchema } from '../schema/sync.task.schema';
+import {GovHttp} from "../http/lcd/gov.http";
+import { TokenService } from 'src/service/token.service';
 @Module({
     imports: [
         MongooseModule.forFeature([
@@ -41,7 +43,7 @@ import { SyncTaskSchema } from '../schema/sync.task.schema';
             }
         ])
     ],
-    providers: [IritaService, TokensTaskService, TokensHttp,ParametersTaskService,StakingHttp],
+    providers: [IritaService,TokenService, TokensTaskService, TokensHttp,ParametersTaskService,StakingHttp,GovHttp],
     controllers: [IritaController],
 })
 export class IritaModule {

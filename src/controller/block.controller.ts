@@ -5,11 +5,13 @@ import { ListStruct } from '../api/ApiResult';
 import { 
     BlockListReqDto, 
     BlockDetailReqDto,
-    ValidatorsetsReqDto } from '../dto/block.dto';
+    ValidatorsetsReqDto,
+    RangeBlockReqDto } from '../dto/block.dto';
 import { 
     BlockListResDto,
     ValidatorsetsResDto,
-    BlockStakingResDto
+    BlockStakingResDto,
+    LatestBlockListResDto
      } from '../dto/block.dto';
 
 import { ApiTags } from '@nestjs/swagger';
@@ -20,6 +22,12 @@ export class BlockController {
     constructor(private readonly blockService: BlockService) {
     }
 
+    @Get('range')
+    async queryBlockListByRange(@Query() query: RangeBlockReqDto): Promise<Result<ListStruct<BlockListResDto[]>>> {
+        const data: ListStruct<BlockListResDto[]> = await this.blockService.queryRangeBlockList(query);
+        return new Result<ListStruct<BlockListResDto[]>>(data);
+    }
+
     @Get()
     async queryBlockList(@Query() query: BlockListReqDto): Promise<Result<ListStruct<BlockListResDto[]>>> {
         const data: ListStruct<BlockListResDto[]> = await this.blockService.queryBlockList(query);
@@ -27,9 +35,9 @@ export class BlockController {
     }
 
     @Get('latest')
-    async queryLatestBlock(): Promise<Result<BlockListResDto | null>> {
-        const data: BlockListResDto | null = await this.blockService.queryLatestBlock();
-        return new Result<BlockListResDto | null>(data);
+    async queryLatestBlock(): Promise<Result<LatestBlockListResDto | null>> {
+        const data: LatestBlockListResDto | null = await this.blockService.queryLatestBlock();
+        return new Result<LatestBlockListResDto | null>(data);
     }
 
     @Get('validatorset')
