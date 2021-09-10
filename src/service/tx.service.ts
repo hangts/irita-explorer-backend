@@ -306,12 +306,8 @@ export class TxService {
         if (txListData.data && txListData.data.length && txListData.data.length == query.pageSize) {
             const lastItem = txListData.data[txListData.data.length - 1];
             const lastHeightTxData = await this.txModel.queryTxListByHeightEdge(lastItem.height, 1, 10000,false,query.status);
-            txData.forEach((value, index) => {
-                if (value.height == lastItem.height) {
-                  txData.splice(index, 1);
-                }
-            });
-            txData = txData.concat(lastHeightTxData.data);
+            txData = txData.filter((item)=>item.height != lastItem.height).concat(lastHeightTxData.data);
+
         }
       }
       if(useCount){
