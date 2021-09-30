@@ -153,6 +153,11 @@ export const dbRes = {
         'msgs.msg.content.title':1,
         'msgs.msg.client_id':1,
         'msgs.msg.connection_id':1,
+        'msgs.msg.service_name':1,
+        'msgs.msg.request_context_id':1,
+        'msgs.msg.port_id':1,
+        'msgs.msg.channel_id':1,
+        'msgs.msg.name':1
     },
     service:{
         ...common,
