@@ -218,6 +218,23 @@ export class TxService {
                         }
                     })
                 }
+                if(msg.type === TxType.add_liquidity || msg.type=== TxType.swap_order || msg.type === TxType.remove_liquidity){
+                    (tx.events_new || []).forEach((eventNew) => {
+                        if (eventNew.msg_index === index) {
+                            let swapAddLiudityAmount = [];
+                            (eventNew.events || []).forEach(event => {
+                                if(event.type === "transfer") {
+                                    (event.attributes || []).forEach(item => {
+                                        if(item.key === 'amount')  {
+                                            swapAddLiudityAmount.push(item.value)
+                                        }
+                                    })
+                                }
+                            })
+                            msg.msg['swap_amount'] = swapAddLiudityAmount;
+                        }
+                    })
+                }
             });
             tx.events_new = undefined;
         });
