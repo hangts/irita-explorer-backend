@@ -159,6 +159,16 @@ export const dbRes = {
         'msgs.msg.channel_id':1,
         'msgs.msg.name':1,
         'msgs.msg.ex':1,
+        'msgs.msg.dest_chain':1,
+        'msgs.msg.packet.data.id':1,
+        'msgs.msg.packet.data.receiver':1,
+        'msgs.msg.packet.source_chain':1,
+        'msgs.msg.packet.destination_chain':1,
+        'msgs.msg.clean_packet.sequence':1,
+        'msgs.msg.clean_packet.source_chain':1,
+        'msgs.msg.signer':1,
+        'msgs.msg.chain_name':1,
+
     },
     service:{
         ...common,
