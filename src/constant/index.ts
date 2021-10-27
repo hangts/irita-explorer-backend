@@ -108,6 +108,13 @@ export enum TxType {
     create_record = 'create_record',
     // Random
     request_rand = 'request_rand',
+    channel_open_init = 'channel_open_init',
+    channel_open_confirm = 'channel_open_confirm',
+    channel_open_try = 'channel_open_try',
+    connection_open_init = 'connection_open_init',
+    connection_open_confirm = 'connection_open_confirm',
+    connection_open_try = 'connection_open_try',
+    connection_open_ack = 'connection_open_ack',
 }
 
 export enum TxStatus {

@@ -78,16 +78,16 @@ export function splitString(str,symbol) {
 export function uniqueArr(arr, brr) {
     let temp:string[] = [];
     let temparray:string[] = [];
-    for (var i = 0; i < brr.length; i++) {  
+    for (var i = 0; i < brr.length; i++) {
         temp[brr[i]] = typeof brr[i];;
     }
-    for (var i = 0; i < arr.length; i++) {  
+    for (var i = 0; i < arr.length; i++) {
         var type = typeof arr[i];
-        if (!temp[arr[i]]) {  
+        if (!temp[arr[i]]) {
             temparray.push(arr[i]);
-        } else if (temp[arr[i]].indexOf(type) < 0) { 
-            temparray.push(arr[i]); 
-        }  
+        } else if (temp[arr[i]].indexOf(type) < 0) {
+            temparray.push(arr[i]);
+        }
     }
     return temparray
 }
@@ -100,15 +100,15 @@ export function BigNumberPlus(num1, num2) {
 export function BigNumberDivision(num1, num2) {
     const x = new BigNumber(num1)
     const y = new BigNumber(num2)
-    return x.dividedBy(y).toFixed()  
+    return x.dividedBy(y).toFixed()
 }
 
 export function BigNumberMinus(num1, num2) {
     const x = new BigNumber(num1)
-    return x.minus(num2).toNumber()  
+    return x.minus(num2).toNumber()
 }
 
 export function BigNumberMultiplied(num1, num2) {
     const x = new BigNumber(num1)
-    return x.multipliedBy(num2).toNumber()  
+    return x.multipliedBy(num2).toNumber()
 }
