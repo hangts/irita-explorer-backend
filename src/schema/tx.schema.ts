@@ -509,29 +509,48 @@ TxSchema.statics.findServiceAllList = async function(
     pageSize: number,
     nameOrDescription?: string,
 ): Promise<ITxStruct> {
+    const cond = [
+        {
+            $match:{}
+        },
+        {
+            $sort: {
+                'msgs.msg.ex.bind': -1,
+                height: -1,
+            },
+        },
+        {
+            $project:{
+                'msgs.msg.ex':1,
+                'msgs.msg.description':1,
+                'msgs.msg.service_name':1,
+                'msgs.msg.name':1
+            }
+        },
+        {
+            $skip: (Number(pageNum) - 1) * Number(pageSize)
+        },
+        {
+            $limit: Number(pageSize)
+        },
+    ];
 
-    const queryParameters: any = {
-        'msgs.type': TxType.define_service,
-        status: TxStatus.SUCCESS,
-    };
-    if (nameOrDescription) {
+    if(nameOrDescription){
         const reg = new RegExp(nameOrDescription, 'i');
-        queryParameters['$or'] = [
-            { 'msgs.msg.name': { $regex: reg } },
-            { 'msgs.msg.description': { $regex: reg } },
-        ];
+        cond[0].$match = {
+            'msgs.type': TxType.define_service,
+            'status': TxStatus.SUCCESS,
+            $or: [{ 'msgs.msg.name': { $regex: reg } }, { 'msgs.msg.description': { $regex: reg } }]
+        }
+    } else {
+        cond[0].$match = {
+            'msgs.type': TxType.define_service,
+            'status': TxStatus.SUCCESS,
+        }
     }
-    return await this.find(queryParameters, {
-        'msgs.msg.ex':1,
-        'msgs.msg.description':1,
-        'msgs.msg.service_name':1,
-        'msgs.msg.name':1})
-        .sort({
-            'msgs.msg.ex.bind': -1,
-            height: -1,
-        })
-        .skip((Number(pageNum) - 1) * Number(pageSize))
-        .limit(Number(pageSize));
+
+    return await this.aggregate(cond).allowDiskUse(true)
+
 };
 
 // /txs/services/providers 

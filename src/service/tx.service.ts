@@ -128,6 +128,113 @@ export class TxService {
                         }
                     })
                 }
+                if(msg.type === TxType.call_service){
+                    (tx.events_new || []).forEach((eventNew) => {
+                        if (eventNew.msg_index === index) {
+                            let requestContextId;
+                            (eventNew.events || []).forEach(event => {
+                                if(event.type === "create_context") {
+                                    (event.attributes || []).forEach(item => {
+                                        if(item.key === 'request_context_id')  {
+                                            requestContextId = item.value
+                                        }
+                                    })
+                                }
+                            })
+                            msg.msg['request_context_id'] = requestContextId;
+                        }
+                    })
+                }
+                if(msg.type === TxType.respond_service){
+                    (tx.events_new || []).forEach((eventNew) => {
+                        if (eventNew.msg_index === index) {
+                            let serviceName;
+                            (eventNew.events || []).forEach(event => {
+                                if(event.type === "respond_service") {
+                                    (event.attributes || []).forEach(item => {
+                                        if(item.key === 'service_name')  {
+                                            serviceName = item.value
+                                        }
+                                    })
+                                }
+                            })
+                            msg.msg['service_name'] = serviceName;
+                        }
+                    })
+                }
+                if(msg.type === TxType.create_client
+                    ||  msg.type === TxType.connection_open_confirm
+                    ||  msg.type === TxType.connection_open_ack) {
+                    (tx.events_new || []).forEach((eventNew) => {
+                        if (eventNew.msg_index === index) {
+                            let clientId;
+                            (eventNew.events || []).forEach(event => {
+                                if(event.type === "create_client"
+                                    || event.type === "connection_open_confirm"
+                                    || event.type === "connection_open_ack") {
+                                    (event.attributes || []).forEach(item => {
+                                        if(item.key === 'client_id')  {
+                                            clientId = item.value
+                                        }
+                                    })
+                                }
+                            })
+                            msg.msg['client_id'] = clientId;
+                        }
+                    })
+                }
+                if(msg.type === TxType.channel_open_init
+                    || msg.type === TxType.channel_open_try){
+                    (tx.events_new || []).forEach((eventNew) => {
+                        if (eventNew.msg_index === index) {
+                            let channelId;
+                            (eventNew.events || []).forEach(event => {
+                                if(event.type === "channel_open_init" || event.type === "channel_open_try") {
+                                    (event.attributes || []).forEach(item => {
+                                        if(item.key === 'channel_id')  {
+                                            channelId = item.value
+                                        }
+                                    })
+                                }
+                            })
+                            msg.msg['channel_id'] = channelId;
+                        }
+                    })
+                }
+                if(msg.type === TxType.connection_open_init || msg.type === TxType.connection_open_try){
+                    (tx.events_new || []).forEach((eventNew) => {
+                        if (eventNew.msg_index === index) {
+                            let connectionId;
+                            (eventNew.events || []).forEach(event => {
+                                if(event.type === "connection_open_init" || event.type === "connection_open_try" ) {
+                                    (event.attributes || []).forEach(item => {
+                                        if(item.key === 'connection_id')  {
+                                            connectionId = item.value
+                                        }
+                                    })
+                                }
+                            })
+                            msg.msg['connection_id'] = connectionId;
+                        }
+                    })
+                }
+                if(msg.type === TxType.add_liquidity || msg.type=== TxType.swap_order || msg.type === TxType.remove_liquidity){
+                    (tx.events_new || []).forEach((eventNew) => {
+                        if (eventNew.msg_index === index) {
+                            let swapAddLiudityAmount = [];
+                            (eventNew.events || []).forEach(event => {
+                                if(event.type === "transfer") {
+                                    (event.attributes || []).forEach(item => {
+                                        if(item.key === 'amount')  {
+                                            swapAddLiudityAmount.push(item.value)
+                                        }
+                                    })
+                                }
+                            })
+                            msg.msg['swap_amount'] = swapAddLiudityAmount;
+                        }
+                    })
+                }
             });
             tx.events_new = undefined;
         });
@@ -306,12 +413,8 @@ export class TxService {
         if (txListData.data && txListData.data.length && txListData.data.length == query.pageSize) {
             const lastItem = txListData.data[txListData.data.length - 1];
             const lastHeightTxData = await this.txModel.queryTxListByHeightEdge(lastItem.height, 1, 10000,false,query.status);
-            txData.forEach((value, index) => {
-                if (value.height == lastItem.height) {
-                  txData.splice(index, 1);
-                }
-            });
-            txData = txData.concat(lastHeightTxData.data);
+            txData = txData.filter((item)=>item.height != lastItem.height).concat(lastHeightTxData.data);
+
         }
       }
       if(useCount){
@@ -472,9 +575,9 @@ export class TxService {
     }
 
     //  txs/types
-    async queryTxTypeList(): Promise<ListStruct<TxTypeResDto[]>> {
-        const txTypeListData = await this.txTypeModel.queryTxTypeList();
-        return new ListStruct(TxTypeResDto.bundleData(txTypeListData), Number(0), Number(0));
+    async queryTxTypeList(): Promise<Result<TxTypeResDto[]>> {
+      const txTypeListData = await this.txTypeModel.queryTxTypeList();
+      return new Result(TxTypeResDto.bundleData(txTypeListData));
     }
 
     // txs/types/service

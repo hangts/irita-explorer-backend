@@ -419,10 +419,19 @@ export class RespondServiceResDto extends TxResDto {
 //txs/types response dto
 export class TxTypeResDto extends BaseResDto {
     typeName: string;
+    type_cn: string;
+    type_en: string;
+    module_cn: string;
+    module_en: string;
 
-    constructor(typeData) {
+    constructor(value: any) {
         super();
+        const typeData = JSON.parse(JSON.stringify(value));
         this.typeName = typeData.type_name;
+        this.type_cn = typeData.type_cn;
+        this.type_en = typeData.type_en;
+        this.module_cn = typeData.module_cn;
+        this.module_en = typeData.module_en;
     }
 
     static bundleData(value: any): TxTypeResDto[] {
