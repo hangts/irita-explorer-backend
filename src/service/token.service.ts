@@ -30,7 +30,7 @@ export class TokenService {
 
     async doQueryIbcToken(tokenInfo: TokensReqDto): Promise<TokensResDto | null>{
       try {
-        const selTokensData = await this.tokensModel.queryIbcToken(tokenInfo.denom, tokenInfo.chain || cfg.currentChain)
+        const selTokensData = await (this.tokensModel as any).queryIbcToken(tokenInfo.denom, tokenInfo.chain || cfg.currentChain)
         if(selTokensData.length > 0){
           return new TokensResDto(selTokensData[0])
         } else {
@@ -40,7 +40,7 @@ export class TokenService {
             if(tracesTokensData?.denom_trace) {
               const { result } = await this.doInsertIbcToken(tracesTokensData, tokenInfo)
               if(result?.ok === 1){
-                const queryRet = await this.tokensModel.queryIbcToken(tokenInfo.denom, tokenInfo.chain || cfg.currentChain)
+                const queryRet = await (this.tokensModel as any).queryIbcToken(tokenInfo.denom, tokenInfo.chain || cfg.currentChain)
                 return new TokensResDto(queryRet[0])  
               } else {
                 throw new ApiError(ErrorCodes.failed, "query IbcToken failed")
@@ -74,6 +74,6 @@ export class TokenService {
         src_protocol: SRC_PROTOCOL.IBC,
         chain: tokenInfo.chain || cfg.currentChain,
       }
-      return await this.tokensModel.insertIbcToken(Itoken)
+      return await (this.tokensModel as any).insertIbcToken(Itoken)
     }
 }
