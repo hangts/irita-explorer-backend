@@ -161,6 +161,7 @@ export const dbRes = {
         'msgs.msg.ex':1,
         'msgs.msg.dest_chain':1,
         'msgs.msg.chain_name':1,
+        'msgs.msg.clean_packet':1,
 
     },
     service:{
