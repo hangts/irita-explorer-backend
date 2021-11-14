@@ -46,6 +46,8 @@ export class StakingHttp {
         } catch (e) {
             if (e && e.response && e.response.data && e.response.data.code == 2) {
                 Logger.warn(`api-error from ${slashValidatorUri}`, e.response.data)
+            }else if(e && e.response && e.response.data && e.response.data.code == 5){
+                Logger.debug('api-error:', 'there is no result of validators delegations from lcd');
             } else {
                 Logger.warn(`api-error from ${slashValidatorUri}`, e)
             }
@@ -107,7 +109,7 @@ export class StakingHttp {
             if (validatorDelegationsData && validatorDelegationsData.pagination && validatorDelegationsData.pagination.total) {
                 return Number(validatorDelegationsData.pagination.total);
             } else {
-                Logger.warn('api-error:', 'there is no result of validator delegatorNum from lcd');
+                Logger.debug('api-error:', 'there is no result of validator delegatorNum from lcd');
             }
         } catch (e) {
             Logger.warn(`api-error from ${getValidatorDelegationsUri}`, e)
@@ -170,12 +172,14 @@ export class StakingHttp {
             if (delegatorsDelegationsData && delegatorsDelegationsData.delegation_responses) {
                 return new DelegatorsDelegationLcdDto(delegatorsDelegationsData);
             } else {
-                Logger.warn('api-error:', 'there is no result of delegators delegations from lcd');
+                Logger.debug('api-error:', 'there is no result of delegators delegations from lcd');
             }
         } catch (e) {
             if (e && e.response && e.response.data && e.response.data.code == 2) {
                 Logger.warn(`api-error from ${getDelegatorsDelegationsUri}`, e.response.data)
-            } else {
+            }else if(e && e.response && e.response.data && e.response.data.code == 5){
+                Logger.debug('api-error:', 'there is no result of delegators delegations from lcd');
+            }else {
                 Logger.warn(`api-error from ${getDelegatorsDelegationsUri}`, e)
             }
         }
@@ -195,6 +199,8 @@ export class StakingHttp {
         } catch (e) {
             if (e && e.response && e.response.data && e.response.data.code == 2) {
                 Logger.warn(`api-error from ${getDelegatorsUndelegationsUri}`, e.response.data)
+            }else if(e && e.response && e.response.data && e.response.data.code == 5){
+                Logger.debug('api-error:', 'there is no result of delegators unDelegations from lcd');
             } else {
                 Logger.warn(`api-error from ${getDelegatorsUndelegationsUri}`, e)
             }
