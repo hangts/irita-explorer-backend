@@ -34,6 +34,7 @@ TaskDispatchSchema.statics = {
                 device_ip: getIpAddress(),
             }, null, (error,effect)=>{
                 if(error) {
+
                     res(false);
                     return;
                 }
@@ -41,7 +42,7 @@ TaskDispatchSchema.statics = {
                     res(true);
                     Logger.log(`From task.dispatch.schema ${name} task begin time: ${new Date().getTime()}`);
                 }else {
-                    res(false);
+                    res(true);
                 }
             }).exec();
         });
