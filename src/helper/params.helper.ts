@@ -223,7 +223,10 @@ export function TxWithAddressParamsHelper(query: ITxsWithAddressQuery){
       };
   }
   if (query.type && query.type.length) {
-      queryParameters['msgs.type'] = query.type;
+      let typeArr = query.type.split(",");
+      queryParameters['msgs.type'] = {
+          $in: typeArr
+      }
   } else {
       // queryParameters.$or = [{ 'msgs.type': filterExTxTypeRegExp() }];
       queryParameters['msgs.type'] = {
