@@ -10,6 +10,7 @@ import { IdentitySchema } from '../schema/identity.schema';
 import { DenomSchema } from '../schema/denom.schema';
 import { StakingValidatorSchema } from "../schema/staking.validator.schema";
 import {TokensSchema} from "../schema/tokens.schema";
+import { StatisticsSchema } from '../schema/statistics.schema';
 
 @Module({
     imports: [
@@ -46,6 +47,10 @@ import {TokensSchema} from "../schema/tokens.schema";
             name:'Tokens',
             schema: TokensSchema,
             collection:'ex_tokens'
+        },{
+                name: 'Statistics',
+                schema: StatisticsSchema,
+                collection: 'ex_statistics'
         }]),
     ],
     providers: [StatisticsService],
