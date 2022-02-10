@@ -65,7 +65,7 @@ export const cfg = {
             proplsal: PROPLSAL || '25 * * * * *',
             account: ACCOUNT_EXECUTE_TIME || '35 * * * * *',
             accountInfo: ACCOUNT_INFO_EXECUTE_TIME || '* */10 * * * *',
-            statistics: STATISTICS_EXECUTE_TIME || '*/10 * * * * *',
+            statistics: STATISTICS_EXECUTE_TIME || '*/30 * * * * *',
         },
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
         increaseHeight: INCREASE_HEIGHT || 1000,

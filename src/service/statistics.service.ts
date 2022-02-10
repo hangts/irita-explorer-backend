@@ -163,7 +163,7 @@ export class StatisticsService {
         return serviceCnt?.count
     }
 
-    async queryIdentityCount(query:any):Promise<any>{
+    async queryIdentityCount():Promise<any>{
         const identityCnt = await this.statisticsModel.findStatisticsRecord("identity_all")
         return identityCnt?.count
     }
