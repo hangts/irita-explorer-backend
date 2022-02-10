@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { StatisticsResDto,NetworkStatisticsResDto } from '../dto/statistics.dto';
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
-import { INft } from '../types/schemaTypes/nft.interface';
 import { BlockHttp } from '../http/lcd/block.http';
 import { StakingHttp } from '../http/lcd/staking.http';
 import { BankHttp } from '../http/lcd/bank.http';
@@ -15,13 +14,9 @@ export class StatisticsService {
 
     constructor(
         @InjectModel('Block') private blockModel: Model<IBlock>,
-        @InjectModel('Nft') private nftModel: Model<INft>,
-        @InjectModel('Tx') private txModel: any,
-        @InjectModel('Validators') private validatorModel: any,
-        @InjectModel('Identity') private identityModel: any,
-        @InjectModel('Denom') private denomModel: any,
         @InjectModel('StakingSyncValidators') private stakingValidatorsModel: any,
         @InjectModel('Tokens') private tokensModel: Model<any>,
+        @InjectModel('Statistics') private statisticsModel: any,
     ) {
     }
 
@@ -149,31 +144,38 @@ export class StatisticsService {
     }
 
     async queryAssetCount(): Promise<number | null>{
-        return await (this.nftModel as any).findCount();
+        const assetCnt = await this.statisticsModel.findStatisticsRecord("nft_all")
+        return assetCnt?.count;
     }
 
     async queryConsensusValidatorCount(): Promise<number | null>{
-        return await (this.validatorModel as any).findCount(false);
+        const consensusValidatorCnt = await this.statisticsModel.findStatisticsRecord("validator_all")
+        return consensusValidatorCnt?.count
     }
 
     async queryTxCount():Promise<any>{
-        return await (this.txModel as any).queryTxCountStatistics();
+        const txCnt = await this.statisticsModel.findStatisticsRecord("tx_all")
+        return txCnt?.count
     }
 
     async queryServiceCount():Promise<any>{
-        return await (this.txModel as any).queryServiceCountStatistics();
+        const serviceCnt = await this.statisticsModel.findStatisticsRecord("service_all")
+        return serviceCnt?.count
     }
 
-    async queryIdentityCount(query:any):Promise<any>{
-        return await this.identityModel.queryIdentityCount(query);
+    async queryIdentityCount():Promise<any>{
+        const identityCnt = await this.statisticsModel.findStatisticsRecord("identity_all")
+        return identityCnt?.count
     }
 
     async queryDenomCount():Promise<any>{
-        return await this.denomModel.queryAllCount();
+        const denomCnt = await this.statisticsModel.findStatisticsRecord("denom_all")
+        return denomCnt?.count
     }
 
     async queryValidatorNumCount():Promise<any>{
-        return await this.stakingValidatorsModel.queryActiveValCount();
+        const validatorActiveCnt = await this.statisticsModel.findStatisticsRecord("validator_active")
+        return validatorActiveCnt?.count
     }
 
     async queryBondedTokensInformation(): Promise<any>{
