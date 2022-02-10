@@ -49,7 +49,6 @@ export class StatisticsTaskService {
         await this.statisticsModel.insertManyStatisticsRecord({
           statistics_name,
           count: parseCount[statistics_name],
-          statistics_info:'',
           create_at: getTimestamp(),
           update_at: getTimestamp(),
         });

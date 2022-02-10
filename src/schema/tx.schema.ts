@@ -71,8 +71,6 @@ export const TxSchema = new mongoose.Schema({
 TxSchema.index({ time: -1, "msgs.type": -1,status:-1 }, { background: true });
 TxSchema.index({ addrs: -1, time: -1, status:-1 }, { background: true });
 TxSchema.index({"msgs.type": -1,height:-1,"msgs.msg.ex.service_name":-1 }, { background: true });
-TxSchema.index({"msgs.type": -1, status:-1}, { background: true });
-TxSchema.index({"msgs.msg.ex.service_name":-1, "msgs.type": -1}, { background: true });
 TxSchema.index({"msgs.msg.id": -1, "msgs.msg.denom": -1, "msgs.type": -1, "height": -1}, { background: true });
 
 //	csrb 浏览器交易记录过滤正则表达式
