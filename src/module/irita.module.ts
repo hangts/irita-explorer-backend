@@ -14,7 +14,7 @@ import {StakingHttp} from "../http/lcd/staking.http";
 import { TxSchema } from '../schema/tx.schema';
 import { SyncTaskSchema } from '../schema/sync.task.schema';
 import {GovHttp} from "../http/lcd/gov.http";
-import { TokenService } from 'src/service/token.service';
+import { TokenService } from '../service/token.service';
 @Module({
     imports: [
         MongooseModule.forFeature([

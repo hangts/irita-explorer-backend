@@ -18,6 +18,7 @@ import {TokensTaskService} from "./tokens.task.service";
 import {ProposalTaskService} from "./proposal.task.service";
 import {AccountTaskService} from "./account.task.service";
 import {AccountInfoTaskService} from "./account.info.task.service";
+import {StatisticsTaskService} from "./statistics.task.service";
 import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
 
@@ -38,6 +39,7 @@ export class TasksService {
         private readonly proposalTaskService: ProposalTaskService,
         private readonly accountTaskService: AccountTaskService,
         private readonly accountInfoTaskService: AccountInfoTaskService,
+        private readonly statisticsTaskService: StatisticsTaskService,
         private schedulerRegistry: SchedulerRegistry,
     ) {
         this[`${TaskEnum.denom}_timer`] = null;
@@ -141,6 +143,14 @@ export class TasksService {
     })
     async syncProposal() {
         this.handleDoTask(TaskEnum.proposal, this.proposalTaskService.doTask)
+    }
+
+    // @Cron('*/5 * * * * *')
+    @Cron(cfg.taskCfg.executeTime.statistics, {
+        name: TaskEnum.statistics
+    })
+    async syncStatistics() {
+        this.handleDoTask(TaskEnum.statistics, this.statisticsTaskService.doTask)
     }
 
     // @Cron('*/5 * * * * *')

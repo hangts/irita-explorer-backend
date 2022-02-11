@@ -47,6 +47,7 @@ describe('statistics module', () => {
     describe('queryConsensusValidatorCount', () => {
         it('should return validator count', async () => {
             const data: number | null = await statisticsService.queryConsensusValidatorCount();
+            console.log(data)
             expect(data).toBeDefined();
         });
     });
@@ -54,6 +55,7 @@ describe('statistics module', () => {
     describe('queryTxCount', () => {
         it('should return tx count', async () => {
             const data: any = await statisticsService.queryTxCount();
+            console.log(data)
             expect(data).toBeDefined();
         });
     });

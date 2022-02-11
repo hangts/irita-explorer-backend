@@ -10,6 +10,7 @@ import { IdentitySchema } from '../schema/identity.schema';
 import {StakingValidatorSchema} from "../schema/staking.validator.schema";
 import { ProposalSchema } from '../schema/proposal.schema';
 import { GovHttp } from "../http/lcd/gov.http";
+import { StatisticsSchema } from '../schema/statistics.schema';
 @Module({
     imports:[
         MongooseModule.forFeature([{
@@ -46,7 +47,11 @@ import { GovHttp } from "../http/lcd/gov.http";
             name: 'Proposal',
             schema: ProposalSchema,
             collection: 'ex_sync_proposal'
-        },])
+        },{
+                name: 'Statistics',
+                schema: StatisticsSchema,
+                collection: 'ex_statistics'
+            }])
     ],
     providers:[TxService,GovHttp],
     controllers:[TxController],

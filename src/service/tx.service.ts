@@ -57,6 +57,7 @@ export class TxService {
         @InjectModel('Identity') private identityModel: any,
         @InjectModel('StakingValidator') private stakingValidatorModel: any,
         @InjectModel('Proposal') private proposalModel: any,
+        @InjectModel('Statistics') private statisticsModel: any,
         private readonly govHttp: GovHttp
     ) {
         this.cacheTxTypes();
@@ -263,7 +264,15 @@ export class TxService {
             txData = await this.addMonikerToTxs(txListData.data);
           }
           if(useCount){
-            count = await this.txModel.queryTxListCount(query);
+            if (!query?.pageNum && !query?.pageSize && !query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
+              //default count with no filter conditions
+
+              const txCnt = await this.statisticsModel.findStatisticsRecord("tx_all")
+              count = txCnt?.count
+            }else{
+
+              count = await this.txModel.queryTxListCount(query);
+            }
           }
         }
         // }

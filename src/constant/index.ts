@@ -11,10 +11,20 @@ export enum TaskEnum {
     stakingSyncParameters = 'staking_sync_parameters',
     tokens = 'tokens',
     proposal = 'ex_sync_proposal',
+    statistics = 'ex_statistics',
     account = 'ex_sync_account',
     accountInfo =  'ex_sync_account_info'
 }
 
+export const StatisticsNames = [
+    'tx_all',
+    'service_all',
+    'validator_all',
+    'validator_active',
+    'identity_all',
+    'nft_all',
+    'denom_all',
+];
 
 export const DefaultPaging = {
     pageNum: 1,
