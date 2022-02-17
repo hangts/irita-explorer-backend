@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from "mongoose";
-import {StatisticsNames} from '../constant';
+import { StatisticsNames } from '../constant';
 import { INft } from '../types/schemaTypes/nft.interface';
 import { StatisticsType } from '../types/schemaTypes/statistics.interface';
 import { getTimestamp } from '../util/util';
+import { StakingHttp } from '../http/lcd/staking.http';
+import { BankHttp } from '../http/lcd/bank.http';
+import { DistributionHttp } from '../http/lcd/distribution.http';
+import { cfg } from '../config/config';
 
 
 
@@ -18,17 +22,31 @@ export class StatisticsTaskService {
     @InjectModel('Identity') private identityModel: any,
     @InjectModel('Denom') private denomModel: any,
     @InjectModel('StakingSyncValidators') private stakingValidatorsModel: any,
+    @InjectModel('Tokens') private tokensModel: Model<any>,
   ) {
     this.doTask = this.doTask.bind(this);
   }
   async doTask(): Promise<void> {
-    const tx_all = await this.queryTxCount()
-    const service_all = await this.queryServiceCount()
-    const nft_all = await this.queryAssetCount()
-    const validator_all = await this.queryConsensusValidatorCount()
-    const validator_active = await this.queryValidatorNumCount()
-    const identity_all = await this.queryIdentityCount()
-    const denom_all = await this.queryDenomCount()
+    // const tx_all = await this.queryTxCount()
+    // const service_all = await this.queryServiceCount()
+    // const nft_all = await this.queryAssetCount()
+    // const validator_all = await this.queryConsensusValidatorCount()
+    // const validator_active = await this.queryValidatorNumCount()
+    // const identity_all = await this.queryIdentityCount()
+    // const denom_all = await this.queryDenomCount()
+    const { bonded_tokens, total_supply } = await this.queryBondedTokensInformation()
+
+    const [
+      tx_all, service_all, nft_all,
+      validator_all, validator_active,
+      identity_all, denom_all
+    ] = await Promise.all([
+      this.queryTxCount(), this.queryServiceCount(), this.queryAssetCount(),
+        this.queryConsensusValidatorCount(), this.queryValidatorNumCount(),
+        this.queryIdentityCount(), this.queryDenomCount()
+      ]);
+
+    const community_pool = await this.queryCommunityPool(cfg.taskCfg.communityPoolDenom)
 
     const parseCount = {
       tx_all,
@@ -38,6 +56,9 @@ export class StatisticsTaskService {
       validator_active,
       identity_all,
       denom_all,
+      bonded_tokens,
+      total_supply,
+      community_pool,
     };
 
     for (const statistics_name of StatisticsNames) {
@@ -98,4 +119,34 @@ export class StatisticsTaskService {
   async queryValidatorNumCount():Promise<number | null>{
     return await this.stakingValidatorsModel.queryActiveValCount();
   }
+
+  async queryBondedTokensInformation(): Promise<any>{
+    const [bondedTokensLcd,totalSupplyLcd] = await Promise.all([StakingHttp.getBondedTokens(),BankHttp.getTotalSupply()])
+    const bonded_tokens = bondedTokensLcd && bondedTokensLcd.bonded_tokens || '0'
+    const mainToken = await (this.tokensModel as any).queryMainToken()
+    let total_supply: string = '0';
+    if (mainToken) {
+      if (totalSupplyLcd && totalSupplyLcd.supply && totalSupplyLcd.supply.length > 0) {
+        totalSupplyLcd.supply.map(item => {
+          if (item.denom === mainToken.denom) {
+            total_supply = item.amount
+          }
+        })
+      }
+    }
+    return { bonded_tokens, total_supply };
+  }
+
+  async queryCommunityPool(denom): Promise<string> {
+    const communityPools = await DistributionHttp.getCommunityPool()
+    if (communityPools && communityPools.pool) {
+      for (const pool of communityPools.pool) {
+        if (denom == pool.denom) {
+          return pool.amount
+        }
+      }
+    }
+    return '0'
+  }
+
 }

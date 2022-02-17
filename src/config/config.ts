@@ -30,6 +30,7 @@ const {
     CRON_JOBS,
     PROPLSAL,
     PROPOSALS_LIMIT,
+    COMMUNITY_POOL_DENOM,
     ACCOUNT_EXECUTE_TIME,
     ACCOUNT_INFO_EXECUTE_TIME
 } = process.env;
@@ -72,6 +73,7 @@ export const cfg = {
         maxOperateTxCount: MAX_OPERATE_TX_COUNT || 100,
         CRON_JOBS: CRON_JOBS ? JSON.parse(CRON_JOBS) : [],
         proposalsLimit: PROPOSALS_LIMIT || 1000,
+        communityPoolDenom:COMMUNITY_POOL_DENOM || 'uiris',
     },
     currentChain: CURRENT_CHAIN || 'iris',
    // MAIN_TOKEN: MAIN_TOKEN ? JSON.parse(MAIN_TOKEN) : {"min_unit":"umuon","scale":"6","symbol":"muon"}

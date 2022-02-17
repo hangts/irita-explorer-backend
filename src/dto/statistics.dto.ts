@@ -1,3 +1,5 @@
+import { Coin } from './common.res.dto';
+
 export class StatisticsResDto {
     private avgBlockTime: number;
     private serviceCount: number;
@@ -30,6 +32,7 @@ export class NetworkStatisticsResDto {
     txCount: number;
     bonded_tokens: string;
     total_supply: string;
+    community_pool: Coin;
     constructor(Detail) {
         this.blockHeight = Detail.block && Detail.block.height;
         this.moniker = Detail.block && Detail.block.moniker;
@@ -39,5 +42,6 @@ export class NetworkStatisticsResDto {
         this.txCount = Detail.txCount;
         this.bonded_tokens = Detail.bondedTokensInformation && Detail.bondedTokensInformation.bonded_tokens;
         this.total_supply = Detail.bondedTokensInformation && Detail.bondedTokensInformation.total_supply;
+        this.community_pool = Detail.communityPoolInformation;
     }
 }

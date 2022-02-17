@@ -24,6 +24,9 @@ export const StatisticsNames = [
     'identity_all',
     'nft_all',
     'denom_all',
+    'bonded_tokens',
+    'total_supply',
+    'community_pool',
 ];
 
 export const DefaultPaging = {
@@ -247,7 +250,8 @@ export const correlationStr = {
     '206': 'serviceCount',
     '207': 'identityCount',
     '208': 'validatorNumCount',
-    '209': 'bondedTokensInformation'
+    '209': 'bondedTokensInformation',
+    '210': 'communityPoolInformation'
 }
 
 export const proposalStatus = {
