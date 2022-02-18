@@ -51,6 +51,8 @@ $ npm run start:prod
 - MAX_OPERATE_TX_COUNT `Optional` `number` limit operate tx count (default 100)
 - CRON_JOBS `Optional` `array` name of the synchronization task performed (example: ["ex_sync_denom","ex_sync_nft","sync_tx_service_name","sync_validators","sync_identity","staking_sync_validators_info","staking_sync_validators_more_info","staking_sync_parameters","tokens","ex_sync_proposal"])
 - PROPOSALS_LIMIT `Optional` `number` proposals limit for sync proposal (default 1000)
+- STATISTICS_EXECUTE_TIME `Optional` `string` execute time for denom pull (default: "* */1 * * * *")
+- COMMUNITY_POOL_DENOM `Optional` `string`  only display denom info in community_pool (default ')
 
 ### Chain config
 - CURRENT_CHAIN `Optional` `string` chain name (example: iris/cosmos/binance)

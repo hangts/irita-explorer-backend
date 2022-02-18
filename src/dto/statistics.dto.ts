@@ -32,7 +32,7 @@ export class NetworkStatisticsResDto {
     txCount: number;
     bonded_tokens: string;
     total_supply: string;
-    community_pool: Coin;
+    community_pool: Coin[];
     constructor(Detail) {
         this.blockHeight = Detail.block && Detail.block.height;
         this.moniker = Detail.block && Detail.block.moniker;
