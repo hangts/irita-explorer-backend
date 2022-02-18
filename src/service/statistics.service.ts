@@ -187,9 +187,19 @@ export class StatisticsService {
     }
     async queryCommunityPoolInformation(): Promise<any>{
         let communityPool = await this.statisticsModel.findStatisticsRecord("community_pool")
-        return {
-            denom: cfg.taskCfg.communityPoolDenom,
-            amount: communityPool?.count,
+        if (communityPool?.data) {
+            const pools =  JSON.parse(communityPool?.data)
+            if (cfg.taskCfg.communityPoolDenom) {
+                for (const pool of pools) {
+                    if (cfg.taskCfg.communityPoolDenom == pool?.denom) {
+                        return [pool]
+                    }
+                }
+            }else{
+                return pools
+            }
         }
+
+        return []
     }
 }

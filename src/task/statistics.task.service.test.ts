@@ -51,7 +51,7 @@ describe('StatisticsTaskService', () => {
     });
 
     it('queryCommunityPool', async () => {
-      const pool = await statisticsTaskService.queryCommunityPool("uiris");
+      const pool = await statisticsTaskService.queryCommunityPool();
       console.log("=====>queryCommunityPoolInformation:",pool)
     });
   });

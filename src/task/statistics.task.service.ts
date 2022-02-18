@@ -8,7 +8,6 @@ import { getTimestamp } from '../util/util';
 import { StakingHttp } from '../http/lcd/staking.http';
 import { BankHttp } from '../http/lcd/bank.http';
 import { DistributionHttp } from '../http/lcd/distribution.http';
-import { cfg } from '../config/config';
 
 
 
@@ -46,7 +45,7 @@ export class StatisticsTaskService {
         this.queryIdentityCount(), this.queryDenomCount()
       ]);
 
-    const community_pool = await this.queryCommunityPool(cfg.taskCfg.communityPoolDenom)
+    const community_pool = await this.queryCommunityPool()
 
     const parseCount = {
       tx_all,
@@ -58,10 +57,13 @@ export class StatisticsTaskService {
       denom_all,
       bonded_tokens,
       total_supply,
-      community_pool,
     };
+    let data = ''
 
     for (const statistics_name of StatisticsNames) {
+      if (statistics_name === 'community_pool' && community_pool) {
+        data = JSON.stringify(community_pool)
+      }
 
       const statisticsRecord = await this.findStatisticsRecord(
         statistics_name,
@@ -70,12 +72,14 @@ export class StatisticsTaskService {
         await this.statisticsModel.insertManyStatisticsRecord({
           statistics_name,
           count: parseCount[statistics_name],
+          data,
           create_at: getTimestamp(),
           update_at: getTimestamp(),
         });
       } else {
         statisticsRecord.count = parseCount[statistics_name];
         statisticsRecord.update_at = getTimestamp();
+        statisticsRecord.data = data
         await this.updateStatisticsRecord(statisticsRecord);
       }
     }
@@ -137,16 +141,12 @@ export class StatisticsTaskService {
     return { bonded_tokens, total_supply };
   }
 
-  async queryCommunityPool(denom): Promise<string> {
+  async queryCommunityPool(): Promise<any> {
     const communityPools = await DistributionHttp.getCommunityPool()
     if (communityPools && communityPools.pool) {
-      for (const pool of communityPools.pool) {
-        if (denom == pool.denom) {
-          return pool.amount
-        }
-      }
+      return communityPools.pool
     }
-    return '0'
+    return []
   }
 
 }
