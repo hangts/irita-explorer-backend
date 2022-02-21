@@ -8,6 +8,7 @@ import { ValidatorSchema } from '../schema/validators.schema';
 import { IdentitySchema } from '../schema/identity.schema';
 import { StakingValidatorSchema } from "../schema/staking.validator.schema";
 import { StatisticsSchema } from '../schema/statistics.schema';
+import { TokensSchema } from '../schema/tokens.schema';
 
 @Module({
   imports:[
@@ -36,6 +37,10 @@ import { StatisticsSchema } from '../schema/statistics.schema';
         schema: StakingValidatorSchema,
         collection: 'ex_staking_validator'
       },{
+      name:'Tokens',
+      schema: TokensSchema,
+      collection:'ex_tokens'
+    },{
         name: 'Statistics',
         schema: StatisticsSchema,
         collection: 'ex_statistics'

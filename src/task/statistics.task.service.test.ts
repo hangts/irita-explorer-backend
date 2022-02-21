@@ -49,5 +49,10 @@ describe('StatisticsTaskService', () => {
       const count = await statisticsTaskService.queryValidatorNumCount();
       console.log("=====>ValidatorNumCount:",count)
     });
+
+    it('queryCommunityPool', async () => {
+      const pool = await statisticsTaskService.queryCommunityPool();
+      console.log("=====>queryCommunityPoolInformation:",pool)
+    });
   });
 });

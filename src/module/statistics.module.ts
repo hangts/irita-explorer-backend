@@ -4,7 +4,6 @@ import { StatisticsService } from '../service/statistics.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BlockSchema } from '../schema/block.schema';
 import { StakingValidatorSchema } from "../schema/staking.validator.schema";
-import {TokensSchema} from "../schema/tokens.schema";
 import { StatisticsSchema } from '../schema/statistics.schema';
 
 @Module({
@@ -18,10 +17,6 @@ import { StatisticsSchema } from '../schema/statistics.schema';
             name: 'StakingSyncValidators',
             schema: StakingValidatorSchema,
             collection: 'ex_staking_validator'
-        },{
-            name:'Tokens',
-            schema: TokensSchema,
-            collection:'ex_tokens'
         },{
                 name: 'Statistics',
                 schema: StatisticsSchema,

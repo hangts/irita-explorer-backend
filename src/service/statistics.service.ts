@@ -1,21 +1,18 @@
-import { IconUriLcdDto } from './../dto/http.dto';
 import { Injectable, Query } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { StatisticsResDto,NetworkStatisticsResDto } from '../dto/statistics.dto';
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { BlockHttp } from '../http/lcd/block.http';
-import { StakingHttp } from '../http/lcd/staking.http';
-import { BankHttp } from '../http/lcd/bank.http';
 import { StatisticsStruct } from '../types/statistics.interface'
 import { correlationStr } from '../constant'
+import { cfg } from '../config/config';
 @Injectable()
 export class StatisticsService {
 
     constructor(
         @InjectModel('Block') private blockModel: Model<IBlock>,
         @InjectModel('StakingSyncValidators') private stakingValidatorsModel: any,
-        @InjectModel('Tokens') private tokensModel: Model<any>,
         @InjectModel('Statistics') private statisticsModel: any,
     ) {
     }
@@ -77,6 +74,9 @@ export class StatisticsService {
                 break;
                 case '209':
                     indicators.push(this.queryBondedTokensInformation.bind(that))
+                    break;
+                case '210':
+                    indicators.push(this.queryCommunityPoolInformation.bind(that))
                     break;
                 default:
                     break;
@@ -179,19 +179,27 @@ export class StatisticsService {
     }
 
     async queryBondedTokensInformation(): Promise<any>{
-        const [bondedTokensLcd,totalSupplyLcd] = await Promise.all([StakingHttp.getBondedTokens(),BankHttp.getTotalSupply()])
-        const bonded_tokens = bondedTokensLcd && bondedTokensLcd.bonded_tokens || '0'
-        const mainToken = await (this.tokensModel as any).queryMainToken()
-        let total_supply: string = '0';
-        if (mainToken) {
-            if (totalSupplyLcd && totalSupplyLcd.supply && totalSupplyLcd.supply.length > 0) {
-                totalSupplyLcd.supply.map(item => {
-                    if (item.denom === mainToken.denom) {
-                        total_supply = item.amount
+        const bondedTokens = await this.statisticsModel.findStatisticsRecord("bonded_tokens")
+        const totalSupply = await this.statisticsModel.findStatisticsRecord("total_supply")
+        const bonded_tokens = bondedTokens?.count
+        const total_supply = totalSupply?.count
+        return { bonded_tokens, total_supply };
+    }
+    async queryCommunityPoolInformation(): Promise<any>{
+        let communityPool = await this.statisticsModel.findStatisticsRecord("community_pool")
+        if (communityPool?.data) {
+            const pools =  JSON.parse(communityPool?.data)
+            if (cfg.taskCfg.communityPoolDenom) {
+                for (const pool of pools) {
+                    if (cfg.taskCfg.communityPoolDenom == pool?.denom) {
+                        return [pool]
                     }
-                })
+                }
+            }else{
+                return pools
             }
         }
-        return { bonded_tokens, total_supply };
+
+        return []
     }
 }

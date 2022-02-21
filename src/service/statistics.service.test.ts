@@ -59,6 +59,20 @@ describe('statistics module', () => {
             expect(data).toBeDefined();
         });
     });
+    describe('queryBondedTokensInformation', () => {
+        it('should return BondedTokens', async () => {
+            const data: any = await statisticsService.queryBondedTokensInformation();
+            console.log(data)
+            expect(data).toBeDefined();
+        });
+    });
+    describe('queryCommunityPoolInformation', () => {
+        it('should return CommunityPool', async () => {
+            const data: any = await statisticsService.queryCommunityPoolInformation();
+            console.log(data)
+            expect(data).toBeDefined();
+        });
+    });
 
     describe('queryNetworkStatistics', () => {
         it('should return NetworkStatistics', async () => {
