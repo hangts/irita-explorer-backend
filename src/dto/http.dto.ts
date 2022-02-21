@@ -486,7 +486,14 @@ export class communityPoolLcdDto {
     pool: Coin[];
 
     constructor(value) {
-        this.pool = value.pool || [];
+        const pool = value?.pool.map(item => {
+            const data = item.amount.split(".")
+            if (data.length > 1) {
+                item.amount = data[0]
+            }
+            return  item
+        });
+        this.pool = pool || [];
     }
 }
 
