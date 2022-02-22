@@ -44,6 +44,15 @@ export class StatisticsService {
                 case '208':
                     indicators.push(this.queryValidatorNumCount.bind(that))
                     break;
+                case '201':
+                    indicators.push(this.queryTxCount.bind(that))
+                    break;
+                case '209':
+                    indicators.push(this.queryBondedTokensInformation.bind(that))
+                    break;
+                case '210':
+                    indicators.push(this.queryCommunityPoolInformation.bind(that))
+                    break;
                 default:
                     break;
             }
@@ -69,15 +78,15 @@ export class StatisticsService {
                 case '200':
                     indicators.push(this.queryLatestHeightAndTimeAndValidator.bind(that,latestBlock))
                     break;
-                case '201':
-                    indicators.push(this.queryTxCount.bind(that))
-                break;
-                case '209':
-                    indicators.push(this.queryBondedTokensInformation.bind(that))
-                    break;
-                case '210':
-                    indicators.push(this.queryCommunityPoolInformation.bind(that))
-                    break;
+                // case '201':
+                //     indicators.push(this.queryTxCount.bind(that))
+                // break;
+                // case '209':
+                //     indicators.push(this.queryBondedTokensInformation.bind(that))
+                //     break;
+                // case '210':
+                //     indicators.push(this.queryCommunityPoolInformation.bind(that))
+                //     break;
                 default:
                     break;
             }
