@@ -164,6 +164,7 @@ export const dbRes = {
         'msgs.msg.clean_packet':1,
         'msgs.msg.total_reward':1,
         'msgs.msg.pool_id':1,
+        'msgs.msg.hash':1,
 
     },
     service:{

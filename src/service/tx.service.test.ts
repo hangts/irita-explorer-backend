@@ -40,38 +40,40 @@ describe('TxController', () => {
 
     describe('queryTxList', () => {
         it('should return an array of txs', async () => {
+            jest.setTimeout(1000000000)
             let req:TxListReqDto = {};
             req.pageNum = 1;
             req.pageSize = 2;
-            req.useCount = true;
-            if (parseInt(String((Math.random()*10)%2))) {
-                req.type = [
-                TxType.create_record,
-                TxType.mint_token,
-                TxType.burn_nft,
-                TxType.send,
-                TxType.respond_service,
-                TxType.transfer_nft,
-                TxType.edit_nft,
-                TxType.define_service,
-                TxType.bind_service,
-                TxType.call_service,
-                TxType.issue_denom,
-                TxType.mint_nft,
-                TxType.transfer_token_owner,
-                TxType.issue_token,
-                TxType.edit_token][parseInt(String(Math.random()*100))%15];
-            }
-            if (parseInt(String((Math.random()*10)%2))) {
-                req.status = ['1','2'][parseInt(String(Math.random()*100))%2];
-            }
-            if (parseInt(String((Math.random()*10)%2))) {
-                req.beginTime = parseInt(String((new Date().getTime()/1000 - 3600*24*30))) + '';
-            }
-            if (parseInt(String((Math.random()*10)%2))) {
-                req.endTime = parseInt(String(new Date().getTime()/1000)) + '';
-            }
-            Logger.log('===>req:',req);
+            req.useCount = false;
+            req.type = TxType.ethereum_tx
+            // if (parseInt(String((Math.random()*10)%2))) {
+            //     req.type = [
+            //     TxType.ethereum_tx,
+            //     TxType.mint_token,
+            //     TxType.burn_nft,
+            //     TxType.send,
+            //     TxType.respond_service,
+            //     TxType.transfer_nft,
+            //     TxType.edit_nft,
+            //     TxType.define_service,
+            //     TxType.bind_service,
+            //     TxType.call_service,
+            //     TxType.issue_denom,
+            //     TxType.mint_nft,
+            //     TxType.transfer_token_owner,
+            //     TxType.issue_token,
+            //     TxType.edit_token][parseInt(String(Math.random()*100))%15];
+            // }
+            // if (parseInt(String((Math.random()*10)%2))) {
+            //     req.status = ['1','2'][parseInt(String(Math.random()*100))%2];
+            // }
+            // if (parseInt(String((Math.random()*10)%2))) {
+            //     req.beginTime = parseInt(String((new Date().getTime()/1000 - 3600*24*30))) + '';
+            // }
+            // if (parseInt(String((Math.random()*10)%2))) {
+            //     req.endTime = parseInt(String(new Date().getTime()/1000)) + '';
+            // }
+            // Logger.log('===>req:',req);
             let data = await txService.queryTxList(req);
             Logger.log('===>queryTxListCount:',data.data.length);
             expect(data).toBeDefined();
@@ -303,7 +305,7 @@ describe('TxController', () => {
 
     describe('queryTxWithHash', () => {
         it('should return an tx object', async () => {
-            let req:TxWithHashReqDto = {hash:'34144A4E6B171E651682967DB9D43D2F0A105FD45E1AD48EA90D002ACE04C204'};
+            let req:TxWithHashReqDto = {hash:'00BBCA17C26B570BE77E382D2B1E0853BE950902132B27350E3B1FD7F96348C2'};
 
             let data:any = await txService.queryTxWithHash(req);
             if (data) {

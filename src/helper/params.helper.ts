@@ -357,6 +357,21 @@ export function findListHelper(denomId, nftId, owner){
   return queryParameters
 }
 
+export function findDdcListHelper(contract_address, ddcId, owner){
+  const queryParameters:any = {};
+  if (contract_address || ddcId || owner) {
+    const reg = new RegExp(ddcId, 'i');
+    if (contract_address) queryParameters.contract_address = contract_address;
+    if (ddcId) queryParameters['$or']= [
+      {'ddc_name': { $regex: reg }},
+      {'ddc_id': { $regex: reg }},
+    ];
+    if (owner) queryParameters.owner = owner;
+    // condition.push({'$match': queryParameters});
+  }
+  return queryParameters
+}
+
 export function queryVoteByTxhashsAndAddressHelper(hash, address){
   const queryParameters =  {
     'tx_hash': {
