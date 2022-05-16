@@ -39,6 +39,11 @@ export enum ENV {
     production = 'production',
 };
 
+export enum DDCType {
+    ddc721 = 'DDC721',
+    ddc1155 = 'DDC1155',
+}
+
 export enum TxType {
     // service
     define_service = 'define_service',

@@ -19,7 +19,7 @@ describe('ddc module', () => {
 
   describe('queryList', () => {
     it('should return ddc list', async () => {
-      const data: ListStruct<DdcListResDto[]> = await ddcService.queryList({contract_address:"0x74b6114d011891Ac21FD1d586bc7F3407c63c216",pageSize:4,pageNum:1});
+      const data: ListStruct<DdcListResDto[]> = await ddcService.queryList({pageSize:4,pageNum:1,useCount:true});
       expect(data).toBeDefined();
       console.log(data)
     });

@@ -1,23 +1,17 @@
 import {
+  IIdentityTx,
   ITxsQuery,
   ITxsWithAddressQuery,
-  ITxsWithContextIdQuery,
-  ITxsWithNftQuery,
-  IIdentityTx,
   ITxsWithAssetQuery,
+  ITxsWithContextIdQuery,
+  ITxsWithDdcQuery,
+  ITxsWithNftQuery,
   ITXWithIdentity,
 } from '../types/schemaTypes/tx.interface';
-import {
-  IGovProposalQuery
-} from '../types/schemaTypes/proposal.interface'
-import { TxStatus,TxType } from '../constant';
+import { IGovProposalQuery } from '../types/schemaTypes/proposal.interface';
+import { DDCType, TxStatus, TxType } from '../constant';
 import { ITxsQueryParams } from '../types/tx.interface';
-import {
-  stakingTypes,
-  declarationTypes,
-  govTypes,
-  coinswapTypes
-} from '../helper/txTypes.helper';
+import { coinswapTypes, declarationTypes, govTypes, stakingTypes } from '../helper/txTypes.helper';
 import Cache from '../helper/cache';
 
 export function txListParamsHelper(query: ITxsQuery){
@@ -297,6 +291,22 @@ export function queryTxWithNftHelper(query: ITxsWithNftQuery){
   return queryParameters
 }
 
+export function queryTxWithDdcHelper(query: ITxsWithDdcQuery){
+  const ddcTypesList = [
+    DDCType.ddc721,
+    DDCType.ddc1155,
+  ];
+  const queryParameters: { 'evm_datas.contract_address'?: string, 'ex_ddc_infos.ddc_id'?: string, 'ex_ddc_infos.ddc_type'?: object } = {};
+  queryParameters['ex_ddc_infos.ddc_type'] = {  $in: ddcTypesList || [] }
+  if (query.contract_address && query.contract_address.length) {
+    queryParameters['evm_datas.contract_address'] = query.contract_address;
+  }
+  if (query.ddc_id && query.ddc_id.length) {
+    queryParameters['ex_ddc_infos.ddc_id'] = query.ddc_id;
+  }
+  return queryParameters
+}
+
 export function queryTxListByIdentityHelper(query: IIdentityTx){
   const typesList: TxType[] = [
     TxType.create_identity,
@@ -392,7 +402,7 @@ export function queryDepositorByIdHelper(id){
         { 'msgs.msg.proposal_id': Number(id) },
         { 'events.attributes.key': 'proposal_id', 'events.attributes.value': String(id) }
     ],
-    status:TxStatus.SUCCESS 
+    status:TxStatus.SUCCESS
 }
   return queryParameters
 }

@@ -7,6 +7,7 @@ import { Logger } from '../logger';
 import { TxStatus, TxType } from '../constant';
 import {
     TxListReqDto,
+    TxListWithDdcReqDto,
     TxListWithHeightReqDto,
     TxListWithAddressReqDto,
     TxListWithContextIdReqDto,
@@ -86,7 +87,7 @@ describe('TxController', () => {
             req.pageNum = 1;
             req.pageSize = 10;
             req.useCount = true;
-            req.height = '20223';
+            req.height = '814808';
             let data = await txService.queryTxWithHeight(req);
             if (data && data.data.length) {
                 data.data.forEach((item)=>{
@@ -95,6 +96,22 @@ describe('TxController', () => {
             }else{
                 expect(data.data).toBeDefined();
             }
+        });
+    });
+    describe('queryTxWithDdc', () => {
+        it('should return an array of height', async () => {
+            let reqDdc:TxListWithDdcReqDto = {pageNum:1,pageSize:4,useCount:true,
+                contract_address:'0x74b6114d011891Ac21FD1d586bc7F3407c63c216',ddc_id:''};
+            let data = await txService.queryTxWithDdc(reqDdc);
+            console.log(data)
+        });
+    });
+    describe('queryTxWithHash', () => {
+        it('should return an array of height', async () => {
+            let reqDdc:TxWithHashReqDto = {
+                hash:'00BBCA17C26B570BE77E382D2B1E0853BE950902132B27350E3B1FD7F96348C2'};
+            let data = await txService.queryTxWithHash(reqDdc);
+            console.log(data)
         });
     });
 

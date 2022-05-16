@@ -120,6 +120,15 @@ export class TxListWithNftReqDto extends DeepPagingReqDto {
     tokenId?: string;
 }
 
+//txs/ddcs request dto
+export class TxListWithDdcReqDto extends DeepPagingReqDto {
+    @ApiPropertyOptional()
+    contract_address: string;
+
+    @ApiPropertyOptional()
+    ddc_id: string;
+}
+
 //txs/services request dto
 export class TxListWithServicesNameReqDto extends PagingReqDto {
     @ApiPropertyOptional()
@@ -330,6 +339,7 @@ export class TxResDto extends BaseResDto {
     ex?: object;
     proposal_link?: boolean;
     events_new?:any[];
+    contract_addrs?: any[];
 
     constructor(txData) {
         super();
@@ -354,6 +364,7 @@ export class TxResDto extends BaseResDto {
         if (txData.ex) this.ex = txData.ex;
         if (txData.proposal_link) this.proposal_link = true;
         if (txData.addrs) this.addrs = txData.addrs;
+        this.contract_addrs = txData.contract_addrs || [];
     }
 
     static bundleData(value: any): TxResDto[] {

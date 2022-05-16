@@ -1,53 +1,52 @@
-import { PagingReqDto, DeepPagingReqDto } from './../dto/base.dto';
+import { DeepPagingReqDto } from './../dto/base.dto';
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct, Result } from '../api/ApiResult';
 import {
-    TxListReqDto,
-    eTxListReqDto,
-    TxListWithHeightReqDto,
-    TxListWithAddressReqDto,
-    TxListWithContextIdReqDto,
-    TxListWithNftReqDto,
-    TxListWithServicesNameReqDto,
-    ServicesDetailReqDto,
-    TxListWithCallServiceReqDto,
-    TxListWithRespondServiceReqDto,
-    PostTxTypesReqDto,
-    PutTxTypesReqDto,
-    DeleteTxTypesReqDto,
-    TxWithHashReqDto,
-    ServiceListReqDto,
-    ServiceProvidersReqDto,
-    ServiceTxReqDto,
-    ServiceBindInfoReqDto,
-    ServiceRespondReqDto, IdentityTxReqDto,
-    TxListWithAssetReqDto,
-    ExternalQueryRespondServiceReqDto,
-    ExternalQueryRespondServiceResDto
+  callServiceResDto,
+  DeleteTxTypesReqDto,
+  eTxListReqDto,
+  ExternalQueryRespondServiceReqDto,
+  ExternalQueryRespondServiceResDto,
+  ExternalServiceResDto,
+  IdentityTxReqDto,
+  PostTxTypesReqDto,
+  PutTxTypesReqDto,
+  RespondServiceResDto,
+  ServiceBindInfoReqDto,
+  ServiceBindInfoResDto,
+  ServiceListReqDto,
+  ServiceProvidersReqDto,
+  ServiceProvidersResDto,
+  ServiceResDto,
+  ServiceRespondReqDto,
+  ServiceRespondResDto,
+  ServicesDetailReqDto,
+  ServiceTxReqDto,
+  ServiceTxResDto,
+  TxListReqDto,
+  TxListWithAddressReqDto,
+  TxListWithAssetReqDto,
+  TxListWithCallServiceReqDto,
+  TxListWithContextIdReqDto,
+  TxListWithDdcReqDto,
+  TxListWithHeightReqDto,
+  TxListWithNftReqDto,
+  TxListWithRespondServiceReqDto,
+  TxListWithServicesNameReqDto,
+  TxResDto,
+  TxTypeResDto,
+  TxWithHashReqDto,
 } from '../dto/txs.dto';
-import {
-    TxResDto,
-    TxTypeResDto,
-    callServiceResDto,
-    ServiceResDto,
-    RespondServiceResDto,
-    ServiceProvidersResDto,
-    ServiceTxResDto,
-    ServiceBindInfoResDto,
-    ServiceRespondResDto,
-    ExternalServiceResDto
-} from '../dto/txs.dto';
-import { IBindTx, IServiceName,ExternalIBindTx,ExternalIServiceName } from '../types/tx.interface';
+import { ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName } from '../types/tx.interface';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
-import { INftMapStruct } from '../types/schemaTypes/nft.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 import Cache from '../helper/cache';
-import { TxType, addressPrefix, proposal as proposalString } from '../constant';
-import { addressTransform, splitString } from "../util/util";
-import { GovHttp } from "../http/lcd/gov.http";
-import { getConsensusPubkey } from "../helper/staking.helper"
+import { addressPrefix, proposal as proposalString, TxType } from '../constant';
+import { addressTransform, splitString } from '../util/util';
+import { GovHttp } from '../http/lcd/gov.http';
+import { getConsensusPubkey } from '../helper/staking.helper';
+
 @Injectable()
 export class TxService {
     constructor(@InjectModel('Tx') private txModel: any,
@@ -73,7 +72,7 @@ export class TxService {
 
         const txData = (txList || []).map((tx) => {
             const item = JSON.parse(JSON.stringify(tx));
-            const monikers = [];
+            let monikers = [];
             (item.addrs || []).forEach((addr) => {
                 if (validatorMap[addr] &&
                     validatorMap[addr].description &&
@@ -242,7 +241,7 @@ export class TxService {
         });
         return txList
     }
-    async handerEvmTxs(txList) {
+    async addContractAddrsToTxs(txList) {
           let txHashes = []
           for (const tx of txList) {
             txHashes.push(tx.tx_hash)
@@ -260,22 +259,37 @@ export class TxService {
             }
           }
 
-        (txList).forEach(tx => {
+      return (txList || []).map((tx) => {
+            const item = JSON.parse(JSON.stringify(tx));
+            let contractAddrs = [];
             if (tx.msgs?.length) {
-              tx.msgs?.forEach((msg,index) => {
+              tx.msgs?.forEach((msg, index) => {
                 if (msg.type === TxType.ethereum_tx) {
                   if (mapEvmContract.has(msg?.msg?.hash)) {
-                    msg.msg.ex={
-                      'contract_address':mapEvmContract.get(msg?.msg?.hash)
-                    }
+                    contractAddrs.push(mapEvmContract.get(msg?.msg?.hash))
                   }
                 }
               })
             }
-          });
-          return txList
+            item.contract_addrs = contractAddrs;
+            return item
+          })
       }
-
+    async addContractAddrsToEvmTxs(txEvms) {
+      if (!txEvms?.length) {
+        return txEvms
+      }
+      for( const evmTx of txEvms) {
+        let contractAddrs = [];
+        if (evmTx?.evm_datas?.length){
+          for (const data of evmTx.evm_datas) {
+            contractAddrs.push(data?.contract_address)
+          }
+        }
+        evmTx.contract_addrs = contractAddrs
+      }
+      return txEvms
+    }
     async cacheTxTypes() {
         const txTypes = await this.txTypeModel.queryTxTypeList();
         Cache.supportTypes = txTypes.map((item) => item.type_name);
@@ -294,10 +308,10 @@ export class TxService {
             txListData = await this.txModel.queryTxList(query);
             if (txListData.data && txListData.data.length > 0) {
                 txListData.data = this.handerEvents(txListData.data)
-              // add evm info about contract_address
-              txListData.data = await this.handerEvmTxs(txListData.data)
+                // add evm info about contract_address
+                txListData.data = await this.addContractAddrsToTxs(txListData.data)
+                txData = await this.addMonikerToTxs(txListData.data);
             }
-            txData = await this.addMonikerToTxs(txListData.data);
           }
           if(useCount){
             if (!query?.pageNum && !query?.pageSize && !query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
@@ -480,6 +494,7 @@ export class TxService {
         if(pageNum && pageSize){
           txListData = await this.txModel.queryTxWithHeight(query);
           txData = await this.addMonikerToTxs(txListData.data);
+          txData = await this.addContractAddrsToTxs(txListData.data);
         }
         if(useCount){
           count = await this.txModel.queryTxWithHeighCount(query);
@@ -538,6 +553,21 @@ export class TxService {
       }
       if(useCount){
         count = await this.txModel.queryTxWithNftCount(query);
+      }
+
+      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
+    }
+
+    //  txs/ddcs
+    async queryTxWithDdc(query: TxListWithDdcReqDto): Promise<ListStruct<TxResDto[]>> {
+      const { pageNum, pageSize, useCount } = query;
+      let txListData, txData = [],count = null;
+      if(pageNum && pageSize){
+        txListData = await this.txEvmModel.queryTxWithDdc(query);
+        txData = await this.addContractAddrsToEvmTxs(txListData.data);
+      }
+      if(useCount){
+        count = await this.txEvmModel.queryTxWithDdcCount(query);
       }
 
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
@@ -879,52 +909,60 @@ export class TxService {
                 txData.msgs[0].msg.pubkey = getConsensusPubkey(JSON.parse(txData.msgs[0].msg.pubkey).key);
             }
             const txEvms = await this.txEvmModel.findEvmTxsByHashes([query.hash])
-            let mapEvmContract = new Map()
-            let mapEvmDdc = new Map()
-            if (txEvms?.length) {
-              for( const evmTx of txEvms) {
-                if (evmTx?.evm_datas?.length){
-                  for (const data of evmTx.evm_datas) {
-                    mapEvmContract.set(data?.evm_tx_hash, data)
-                  }
-                }
-                if (evmTx?.ex_ddc_infos?.length){
-                  for (const data of evmTx.ex_ddc_infos) {
-                    mapEvmDdc.set(data?.evm_tx_hash, data)
-                  }
-                }
-              }
-
-              txData?.msgs?.forEach((msg,index) => {
-                switch (msg.type) {
-                  case TxType.ethereum_tx:
-                    msg.msg.ex={}
-                    if (mapEvmContract.has(msg?.msg?.hash)) {
-                      const evmCt = mapEvmContract.get(msg?.msg?.hash);
-                      if (evmCt?.data_type != "DDC" ){
-                        return
-                      }
-                      msg.msg.ex['contract_address'] = evmCt?.contract_address
-                      msg.msg.ex['ddc_method'] = evmCt?.evm_method
-                    }
-                    if (mapEvmDdc.has(msg?.msg?.hash)) {
-                      const data = mapEvmDdc.get(msg?.msg?.hash)
-                      if (data?.ddc_type != "DDC721" && data?.ddc_type != "DDC1155" ){
-                        return
-                      }
-                      msg.msg.ex['ddc_id'] = data?.ddc_id;
-                      msg.msg.ex['ddc_type'] = data?.ddc_type;
-                      msg.msg.ex['ddc_name'] = data?.ddc_name;
-                      msg.msg.ex['ddc_uri'] = data?.ddc_uri;
-                    }
-                }
-              });
-            }
+            txData = this.handleEvmTx(txEvms,txData)
 
             const tx = await this.addMonikerToTxs([txData]);
             result = new TxResDto(tx[0] || {});
         }
         return result;
+    }
+    handleEvmTx(txEvms,txData) {
+      let mapEvmContract = new Map()
+      let mapEvmDdc = new Map()
+      let contractAddrs = [];
+      if (txEvms?.length) {
+        for( const evmTx of txEvms) {
+          if (evmTx?.evm_datas?.length){
+            for (const data of evmTx.evm_datas) {
+              mapEvmContract.set(data?.evm_tx_hash, data)
+            }
+          }
+          if (evmTx?.ex_ddc_infos?.length){
+            for (const data of evmTx.ex_ddc_infos) {
+              mapEvmDdc.set(data?.evm_tx_hash, data)
+            }
+          }
+        }
+
+        txData?.msgs?.forEach((msg,index) => {
+          switch (msg.type) {
+            case TxType.ethereum_tx:
+              msg.msg.ex={}
+              if (mapEvmContract.has(msg?.msg?.hash)) {
+                const evmCt = mapEvmContract.get(msg?.msg?.hash);
+                if (evmCt?.data_type != "DDC" ){
+                  return
+                }
+                contractAddrs.push(evmCt?.contract_address)
+                msg.msg.ex['contract_address'] = evmCt?.contract_address
+                msg.msg.ex['ddc_method'] = evmCt?.evm_method
+              }
+              if (mapEvmDdc.has(msg?.msg?.hash)) {
+                const data = mapEvmDdc.get(msg?.msg?.hash)
+                if (data?.ddc_type != "DDC721" && data?.ddc_type != "DDC1155" ){
+                  return
+                }
+                msg.msg.ex['ddc_id'] = data?.ddc_id;
+                msg.msg.ex['ddc_type'] = data?.ddc_type;
+                msg.msg.ex['ddc_name'] = data?.ddc_name;
+                msg.msg.ex['ddc_uri'] = data?.ddc_uri;
+              }
+          }
+        });
+      }
+      const item = JSON.parse(JSON.stringify(txData));
+      item.contract_addrs= contractAddrs
+      return item
     }
     //tx/identity
     async queryIdentityTx(query: IdentityTxReqDto): Promise<ListStruct<TxResDto[]>> {
