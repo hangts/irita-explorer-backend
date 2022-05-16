@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { IritaModule } from './module/irita.module';
 import { DenomModule } from './module/denom.module';
 import { NftModule } from './module/nft.module';
+import { DdcModule } from './module/ddc.module';
 import { BlockModule } from './module/block.module';
 import { StatisticsModule } from './module/statistics.module';
 import { TxModule } from './module/tx.module';
@@ -45,6 +46,7 @@ const params = {
         IritaModule,
         DenomModule,
         NftModule,
+        DdcModule,
         BlockModule,
         StatisticsModule,
         StatisticsTaskModule,

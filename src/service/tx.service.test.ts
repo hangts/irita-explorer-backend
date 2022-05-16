@@ -7,6 +7,7 @@ import { Logger } from '../logger';
 import { TxStatus, TxType } from '../constant';
 import {
     TxListReqDto,
+    TxListWithDdcReqDto,
     TxListWithHeightReqDto,
     TxListWithAddressReqDto,
     TxListWithContextIdReqDto,
@@ -40,38 +41,40 @@ describe('TxController', () => {
 
     describe('queryTxList', () => {
         it('should return an array of txs', async () => {
+            jest.setTimeout(1000000000)
             let req:TxListReqDto = {};
             req.pageNum = 1;
             req.pageSize = 2;
-            req.useCount = true;
-            if (parseInt(String((Math.random()*10)%2))) {
-                req.type = [
-                TxType.create_record,
-                TxType.mint_token,
-                TxType.burn_nft,
-                TxType.send,
-                TxType.respond_service,
-                TxType.transfer_nft,
-                TxType.edit_nft,
-                TxType.define_service,
-                TxType.bind_service,
-                TxType.call_service,
-                TxType.issue_denom,
-                TxType.mint_nft,
-                TxType.transfer_token_owner,
-                TxType.issue_token,
-                TxType.edit_token][parseInt(String(Math.random()*100))%15];
-            }
-            if (parseInt(String((Math.random()*10)%2))) {
-                req.status = ['1','2'][parseInt(String(Math.random()*100))%2];
-            }
-            if (parseInt(String((Math.random()*10)%2))) {
-                req.beginTime = parseInt(String((new Date().getTime()/1000 - 3600*24*30))) + '';
-            }
-            if (parseInt(String((Math.random()*10)%2))) {
-                req.endTime = parseInt(String(new Date().getTime()/1000)) + '';
-            }
-            Logger.log('===>req:',req);
+            req.useCount = false;
+            req.type = TxType.ethereum_tx
+            // if (parseInt(String((Math.random()*10)%2))) {
+            //     req.type = [
+            //     TxType.ethereum_tx,
+            //     TxType.mint_token,
+            //     TxType.burn_nft,
+            //     TxType.send,
+            //     TxType.respond_service,
+            //     TxType.transfer_nft,
+            //     TxType.edit_nft,
+            //     TxType.define_service,
+            //     TxType.bind_service,
+            //     TxType.call_service,
+            //     TxType.issue_denom,
+            //     TxType.mint_nft,
+            //     TxType.transfer_token_owner,
+            //     TxType.issue_token,
+            //     TxType.edit_token][parseInt(String(Math.random()*100))%15];
+            // }
+            // if (parseInt(String((Math.random()*10)%2))) {
+            //     req.status = ['1','2'][parseInt(String(Math.random()*100))%2];
+            // }
+            // if (parseInt(String((Math.random()*10)%2))) {
+            //     req.beginTime = parseInt(String((new Date().getTime()/1000 - 3600*24*30))) + '';
+            // }
+            // if (parseInt(String((Math.random()*10)%2))) {
+            //     req.endTime = parseInt(String(new Date().getTime()/1000)) + '';
+            // }
+            // Logger.log('===>req:',req);
             let data = await txService.queryTxList(req);
             Logger.log('===>queryTxListCount:',data.data.length);
             expect(data).toBeDefined();
@@ -84,7 +87,7 @@ describe('TxController', () => {
             req.pageNum = 1;
             req.pageSize = 10;
             req.useCount = true;
-            req.height = '20223';
+            req.height = '814808';
             let data = await txService.queryTxWithHeight(req);
             if (data && data.data.length) {
                 data.data.forEach((item)=>{
@@ -93,6 +96,22 @@ describe('TxController', () => {
             }else{
                 expect(data.data).toBeDefined();
             }
+        });
+    });
+    describe('queryTxWithDdc', () => {
+        it('should return an array of height', async () => {
+            let reqDdc:TxListWithDdcReqDto = {pageNum:1,pageSize:4,useCount:true,
+                contract_address:'0x74b6114d011891Ac21FD1d586bc7F3407c63c216',ddc_id:''};
+            let data = await txService.queryTxWithDdc(reqDdc);
+            console.log(data)
+        });
+    });
+    describe('queryTxWithHash', () => {
+        it('should return an array of height', async () => {
+            let reqDdc:TxWithHashReqDto = {
+                hash:'00BBCA17C26B570BE77E382D2B1E0853BE950902132B27350E3B1FD7F96348C2'};
+            let data = await txService.queryTxWithHash(reqDdc);
+            console.log(data)
         });
     });
 
@@ -303,7 +322,7 @@ describe('TxController', () => {
 
     describe('queryTxWithHash', () => {
         it('should return an tx object', async () => {
-            let req:TxWithHashReqDto = {hash:'34144A4E6B171E651682967DB9D43D2F0A105FD45E1AD48EA90D002ACE04C204'};
+            let req:TxWithHashReqDto = {hash:'00BBCA17C26B570BE77E382D2B1E0853BE950902132B27350E3B1FD7F96348C2'};
 
             let data:any = await txService.queryTxWithHash(req);
             if (data) {

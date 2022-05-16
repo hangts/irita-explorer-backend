@@ -1,59 +1,59 @@
-import { PagingReqDto, DeepPagingReqDto } from './../dto/base.dto';
+import { DeepPagingReqDto } from './../dto/base.dto';
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct, Result } from '../api/ApiResult';
 import {
-    TxListReqDto,
-    eTxListReqDto,
-    TxListWithHeightReqDto,
-    TxListWithAddressReqDto,
-    TxListWithContextIdReqDto,
-    TxListWithNftReqDto,
-    TxListWithServicesNameReqDto,
-    ServicesDetailReqDto,
-    TxListWithCallServiceReqDto,
-    TxListWithRespondServiceReqDto,
-    PostTxTypesReqDto,
-    PutTxTypesReqDto,
-    DeleteTxTypesReqDto,
-    TxWithHashReqDto,
-    ServiceListReqDto,
-    ServiceProvidersReqDto,
-    ServiceTxReqDto,
-    ServiceBindInfoReqDto,
-    ServiceRespondReqDto, IdentityTxReqDto,
-    TxListWithAssetReqDto,
-    ExternalQueryRespondServiceReqDto,
-    ExternalQueryRespondServiceResDto
+  callServiceResDto,
+  DeleteTxTypesReqDto,
+  eTxListReqDto,
+  ExternalQueryRespondServiceReqDto,
+  ExternalQueryRespondServiceResDto,
+  ExternalServiceResDto,
+  IdentityTxReqDto,
+  PostTxTypesReqDto,
+  PutTxTypesReqDto,
+  RespondServiceResDto,
+  ServiceBindInfoReqDto,
+  ServiceBindInfoResDto,
+  ServiceListReqDto,
+  ServiceProvidersReqDto,
+  ServiceProvidersResDto,
+  ServiceResDto,
+  ServiceRespondReqDto,
+  ServiceRespondResDto,
+  ServicesDetailReqDto,
+  ServiceTxReqDto,
+  ServiceTxResDto,
+  TxListReqDto,
+  TxListWithAddressReqDto,
+  TxListWithAssetReqDto,
+  TxListWithCallServiceReqDto,
+  TxListWithContextIdReqDto,
+  TxListWithDdcReqDto,
+  TxListWithHeightReqDto,
+  TxListWithNftReqDto,
+  TxListWithRespondServiceReqDto,
+  TxListWithServicesNameReqDto,
+  TxResDto,
+  TxTypeResDto,
+  TxWithHashReqDto,
 } from '../dto/txs.dto';
-import {
-    TxResDto,
-    TxTypeResDto,
-    callServiceResDto,
-    ServiceResDto,
-    RespondServiceResDto,
-    ServiceProvidersResDto,
-    ServiceTxResDto,
-    ServiceBindInfoResDto,
-    ServiceRespondResDto,
-    ExternalServiceResDto
-} from '../dto/txs.dto';
-import { IBindTx, IServiceName,ExternalIBindTx,ExternalIServiceName } from '../types/tx.interface';
+import { ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName } from '../types/tx.interface';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
-import { INftMapStruct } from '../types/schemaTypes/nft.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 import Cache from '../helper/cache';
-import { TxType, addressPrefix, proposal as proposalString } from '../constant';
-import { addressTransform, splitString } from "../util/util";
-import { GovHttp } from "../http/lcd/gov.http";
-import { getConsensusPubkey } from "../helper/staking.helper"
+import { addressPrefix, proposal as proposalString, TxType } from '../constant';
+import { addressTransform, splitString } from '../util/util';
+import { GovHttp } from '../http/lcd/gov.http';
+import { getConsensusPubkey } from '../helper/staking.helper';
+
 @Injectable()
 export class TxService {
     constructor(@InjectModel('Tx') private txModel: any,
         @InjectModel('TxType') private txTypeModel: any,
         @InjectModel('Denom') private denomModel: any,
         @InjectModel('Nft') private nftModel: any,
+        @InjectModel('TxEvm') private txEvmModel: any,
         @InjectModel('Identity') private identityModel: any,
         @InjectModel('StakingValidator') private stakingValidatorModel: any,
         @InjectModel('Proposal') private proposalModel: any,
@@ -72,7 +72,7 @@ export class TxService {
 
         const txData = (txList || []).map((tx) => {
             const item = JSON.parse(JSON.stringify(tx));
-            const monikers = [];
+            let monikers = [];
             (item.addrs || []).forEach((addr) => {
                 if (validatorMap[addr] &&
                     validatorMap[addr].description &&
@@ -241,7 +241,55 @@ export class TxService {
         });
         return txList
     }
+    async addContractAddrsToTxs(txList) {
+          let txHashes = []
+          for (const tx of txList) {
+            txHashes.push(tx.tx_hash)
+          }
+          const txEvms = await this.txEvmModel.findEvmTxsByHashes(txHashes)
+          let mapEvmContract = new Map()
+          if (!txEvms?.length) {
+            return txList
+          }
+          for( const evmTx of txEvms) {
+            if (evmTx?.evm_datas?.length){
+              for (const data of evmTx.evm_datas) {
+                mapEvmContract.set(data?.evm_tx_hash, data?.contract_address)
+              }
+            }
+          }
 
+      return (txList || []).map((tx) => {
+            const item = JSON.parse(JSON.stringify(tx));
+            let contractAddrs = [];
+            if (tx.msgs?.length) {
+              tx.msgs?.forEach((msg, index) => {
+                if (msg.type === TxType.ethereum_tx) {
+                  if (mapEvmContract.has(msg?.msg?.hash)) {
+                    contractAddrs.push(mapEvmContract.get(msg?.msg?.hash))
+                  }
+                }
+              })
+            }
+            item.contract_addrs = contractAddrs;
+            return item
+          })
+      }
+    async addContractAddrsToEvmTxs(txEvms) {
+      if (!txEvms?.length) {
+        return txEvms
+      }
+      for( const evmTx of txEvms) {
+        let contractAddrs = [];
+        if (evmTx?.evm_datas?.length){
+          for (const data of evmTx.evm_datas) {
+            contractAddrs.push(data?.contract_address)
+          }
+        }
+        evmTx.contract_addrs = contractAddrs
+      }
+      return txEvms
+    }
     async cacheTxTypes() {
         const txTypes = await this.txTypeModel.queryTxTypeList();
         Cache.supportTypes = txTypes.map((item) => item.type_name);
@@ -256,12 +304,14 @@ export class TxService {
         if(pageNum && pageSize || useCount){
           await this.cacheTxTypes();
 
-          if(pageNum && pageSize){  
+          if(pageNum && pageSize){
             txListData = await this.txModel.queryTxList(query);
             if (txListData.data && txListData.data.length > 0) {
                 txListData.data = this.handerEvents(txListData.data)
+                // add evm info about contract_address
+                txListData.data = await this.addContractAddrsToTxs(txListData.data)
+                txData = await this.addMonikerToTxs(txListData.data);
             }
-            txData = await this.addMonikerToTxs(txListData.data);
           }
           if(useCount){
             if (!query?.pageNum && !query?.pageSize && !query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
@@ -276,7 +326,7 @@ export class TxService {
           }
         }
         // }
-       
+
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -301,7 +351,7 @@ export class TxService {
           }
         }
         // }
-       
+
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -320,12 +370,12 @@ export class TxService {
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
-    // txs/declaration 
+    // txs/declaration
     async queryDeclarationTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
         const { pageNum, pageSize, useCount } = query;
         let txListData, txData = [],count = null;
-  
+
         if(pageNum && pageSize || useCount){
           await this.cacheTxTypes();
 
@@ -336,17 +386,17 @@ export class TxService {
           if(useCount){
             count = await this.txModel.queryDeclarationTxListCount(query);
           }
-        }     
+        }
         // }
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
-    // txs/gov 
+    // txs/gov
     async queryGovTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
         const { pageNum, pageSize, useCount } = query;
         let txListData, txData = [], txList = [], count = null;
-  
+
         if(pageNum && pageSize){
           await this.cacheTxTypes();
 
@@ -400,14 +450,14 @@ export class TxService {
                 });
             }
             txList = await Promise.all(txList)
-            txData = await this.addMonikerToTxs(txList); 
+            txData = await this.addMonikerToTxs(txList);
           }
-        } 
+        }
         if(useCount){
           count = await this.txModel.queryGovTxListCount(query);
-        }    
+        }
         // }
-        
+
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -444,11 +494,12 @@ export class TxService {
         if(pageNum && pageSize){
           txListData = await this.txModel.queryTxWithHeight(query);
           txData = await this.addMonikerToTxs(txListData.data);
+          txData = await this.addContractAddrsToTxs(txListData.data);
         }
         if(useCount){
           count = await this.txModel.queryTxWithHeighCount(query);
         }
-      }     
+      }
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -469,8 +520,8 @@ export class TxService {
         if(useCount){
           count = await this.txModel.queryTxWithAddressCount(query);
         }
-      }    
-        
+      }
+
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -488,7 +539,7 @@ export class TxService {
         if(useCount){
           count = await this.txModel.queryTxWithContextIdCount(query);
         }
-      }   
+      }
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -503,7 +554,22 @@ export class TxService {
       if(useCount){
         count = await this.txModel.queryTxWithNftCount(query);
       }
- 
+
+      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
+    }
+
+    //  txs/ddcs
+    async queryTxWithDdc(query: TxListWithDdcReqDto): Promise<ListStruct<TxResDto[]>> {
+      const { pageNum, pageSize, useCount } = query;
+      let txListData, txData = [],count = null;
+      if(pageNum && pageSize){
+        txListData = await this.txEvmModel.queryTxWithDdc(query);
+        txData = await this.addContractAddrsToEvmTxs(txListData.data);
+      }
+      if(useCount){
+        count = await this.txEvmModel.queryTxWithDdcCount(query);
+      }
+
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -538,7 +604,7 @@ export class TxService {
       if(useCount){
         count = await this.txModel.queryCallServiceWithConsumerAddrCount(query.consumerAddr);
       }
-      
+
       return new ListStruct(callServiceResDto.bundleData(txData), Number(pageNum), Number(pageSize), count);
     }
 
@@ -673,7 +739,7 @@ export class TxService {
               res = serviceNameList.map((service: IServiceName) => {
               return new ServiceResDto(service.serviceName, service.description, service.bindList);
           });
-        }        
+        }
         if (useCount) {
             count = await (this.txModel as any).findAllServiceCount(nameOrDescription);
         }
@@ -730,8 +796,8 @@ export class TxService {
         const res =  await (this.txModel as any).findProviderRespondTimesForService(serviceName, providerAddr);
         return new ExternalQueryRespondServiceResDto(res)
     }
-    
-    // /txs/services/providers 
+
+    // /txs/services/providers
     async queryServiceProviders(query: ServiceProvidersReqDto): Promise<ListStruct<ServiceProvidersResDto[]>> {
         const { serviceName, pageNum, pageSize, useCount } = query;
         let res: ServiceProvidersResDto[], count = null;
@@ -768,7 +834,7 @@ export class TxService {
           res = txList.map((service: ITxStruct) => {
               return new ServiceTxResDto(service.tx_hash, service.type, service.height, service.time, service.status, service.msgs, service.events,service.fee);
           });
-        }  
+        }
         if (useCount) {
           count = await (this.txModel as any).findServiceTxCount(serviceName, type, status);
         }
@@ -790,7 +856,7 @@ export class TxService {
         }
     }
 
-    // /txs/services/respond   
+    // /txs/services/respond
     async queryServiceRespondTx(query: ServiceRespondReqDto): Promise<ListStruct<ServiceRespondResDto[]>> {
         const { serviceName, provider, pageNum, pageSize, useCount } = query;
         let count = null, res: ServiceRespondResDto[]
@@ -810,7 +876,7 @@ export class TxService {
                   service.status,
               );
           });
-        } 
+        }
         if (useCount) {
             count = await (this.txModel as any).findRespondServiceCount(serviceName, provider);
         }
@@ -821,7 +887,7 @@ export class TxService {
     //  txs/{hash}
     async queryTxWithHash(query: TxWithHashReqDto): Promise<TxResDto> {
         let result: TxResDto | null = null;
-        const txData: any = await this.txModel.queryTxWithHash(query.hash);
+        let txData: any = await this.txModel.queryTxWithHash(query.hash);
         if (txData) {
             if (txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.denom && txData.msgs[0].msg.denom.length) {
                 const nftNameInfo: { denom_name: string, nft_name: string } = {
@@ -842,10 +908,61 @@ export class TxService {
             if (txData.msgs[0] && txData.msgs[0].type && txData.msgs[0].type === TxType.create_validator && txData.msgs[0].msg && txData.msgs[0].msg.pubkey) {
                 txData.msgs[0].msg.pubkey = getConsensusPubkey(JSON.parse(txData.msgs[0].msg.pubkey).key);
             }
+            const txEvms = await this.txEvmModel.findEvmTxsByHashes([query.hash])
+            txData = this.handleEvmTx(txEvms,txData)
+
             const tx = await this.addMonikerToTxs([txData]);
             result = new TxResDto(tx[0] || {});
         }
         return result;
+    }
+    handleEvmTx(txEvms,txData) {
+      let mapEvmContract = new Map()
+      let mapEvmDdc = new Map()
+      let contractAddrs = [];
+      if (txEvms?.length) {
+        for( const evmTx of txEvms) {
+          if (evmTx?.evm_datas?.length){
+            for (const data of evmTx.evm_datas) {
+              mapEvmContract.set(data?.evm_tx_hash, data)
+            }
+          }
+          if (evmTx?.ex_ddc_infos?.length){
+            for (const data of evmTx.ex_ddc_infos) {
+              mapEvmDdc.set(data?.evm_tx_hash, data)
+            }
+          }
+        }
+
+        txData?.msgs?.forEach((msg,index) => {
+          switch (msg.type) {
+            case TxType.ethereum_tx:
+              msg.msg.ex={}
+              if (mapEvmContract.has(msg?.msg?.hash)) {
+                const evmCt = mapEvmContract.get(msg?.msg?.hash);
+                if (evmCt?.data_type != "DDC" ){
+                  return
+                }
+                contractAddrs.push(evmCt?.contract_address)
+                msg.msg.ex['contract_address'] = evmCt?.contract_address
+                msg.msg.ex['ddc_method'] = evmCt?.evm_method
+              }
+              if (mapEvmDdc.has(msg?.msg?.hash)) {
+                const data = mapEvmDdc.get(msg?.msg?.hash)
+                if (data?.ddc_type != "DDC721" && data?.ddc_type != "DDC1155" ){
+                  return
+                }
+                msg.msg.ex['ddc_id'] = data?.ddc_id;
+                msg.msg.ex['ddc_type'] = data?.ddc_type;
+                msg.msg.ex['ddc_name'] = data?.ddc_name;
+                msg.msg.ex['ddc_uri'] = data?.ddc_uri;
+              }
+          }
+        });
+      }
+      const item = JSON.parse(JSON.stringify(txData));
+      item.contract_addrs= contractAddrs
+      return item
     }
     //tx/identity
     async queryIdentityTx(query: IdentityTxReqDto): Promise<ListStruct<TxResDto[]>> {

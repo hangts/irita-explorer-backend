@@ -11,6 +11,7 @@ import {
     TxListWithAddressReqDto,
     TxListWithContextIdReqDto,
     TxListWithNftReqDto,
+    TxListWithDdcReqDto,
     TxListWithServicesNameReqDto,
     ServicesDetailReqDto,
     TxListWithCallServiceReqDto,
@@ -120,6 +121,11 @@ export class TxController {
     @Get("/nfts")
     async queryTxWithNft(@Query() query: TxListWithNftReqDto):Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithNft(query);
+        return new Result<any>(data);
+    }
+    @Get("/ddcs")
+    async queryTxWithDdc(@Query() query: TxListWithDdcReqDto):Promise<Result<ListStruct<TxResDto>>> {
+        const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithDdc(query);
         return new Result<any>(data);
     }
 

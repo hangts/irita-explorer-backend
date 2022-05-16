@@ -29,6 +29,11 @@ export interface ITxsWithNftQuery extends IQueryBase {
 	tokenId?:string,
 }
 
+export interface ITxsWithDdcQuery extends IQueryBase {
+    contract_address?:string,
+    ddc_id?:string,
+}
+
 export interface ITxsWithServiceNameQuery extends IQueryBase {
 	serviceName?:string,
 }
