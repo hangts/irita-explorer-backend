@@ -19,7 +19,8 @@ describe('ddc module', () => {
 
   describe('queryList', () => {
     it('should return ddc list', async () => {
-      const data: ListStruct<DdcListResDto[]> = await ddcService.queryList({pageSize:4,pageNum:1,useCount:true});
+      const data: ListStruct<DdcListResDto[]> = await ddcService.queryList({
+        pageSize:4,pageNum:1,useCount:true,ddc_id:"1809"});
       expect(data).toBeDefined();
       console.log(data)
     });
