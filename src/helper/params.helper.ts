@@ -370,12 +370,14 @@ export function findListHelper(denomId, nftId, owner){
 export function findDdcListHelper(contract_address, ddcId, owner){
   const queryParameters:any = {};
   if (contract_address || ddcId || owner) {
-    const reg = new RegExp(ddcId, 'i');
     if (contract_address) queryParameters.contract_address = contract_address;
-    if (ddcId) queryParameters['$or']= [
-      {'ddc_name': { $regex: reg }},
-      {'ddc_id': { $regex: reg }},
-    ];
+    if (Number(ddcId)) {
+        queryParameters.ddc_id = Number(ddcId)
+    }else{
+        const reg = new RegExp(ddcId, 'i');
+        queryParameters.ddc_name = { $regex: reg }
+    }
+
     if (owner) queryParameters.owner = owner;
     // condition.push({'$match': queryParameters});
   }

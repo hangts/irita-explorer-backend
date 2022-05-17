@@ -29,7 +29,7 @@ export const DdcSchema = new mongoose.Schema({
 
 // 新增
 DdcSchema.index({ latest_tx_height: 1, contract_address: 1, ddc_id: 1 }, { background: true });
-DdcSchema.index({ owner: 1, latest_tx_height: 1 }, { background: true });
+DdcSchema.index({ owner: 1, latest_tx_height: 1,ddc_name:1 }, { background: true });
 
 DdcSchema.statics = {
   async findList(
@@ -58,38 +58,6 @@ DdcSchema.statics = {
     return await this.findOne({ contract_address: contractAddr, ddc_id: ddcId });
   },
 
-  async findCount(contractAddr: string,
-                  ddcIdOrName: string,
-                  ddcName: string,
-                  owner: string,
-  ): Promise<number> {
-
-    let query: any = {};
-    if (contractAddr) {
-      query.contract_address = contractAddr;
-    }
-    if (ddcIdOrName) {
-      const reg = new RegExp(ddcIdOrName, 'i');
-      query['$or'] = [
-        { 'ddc_name': ddcIdOrName },
-        { 'ddc_id': ddcIdOrName },
-      ];
-    }
-    if (owner) {
-      query.owner = owner;
-    }
-
-    return await this.find(query).countDocuments();
-  },
-
-  async findDdcListByContractAddr(contractAddr: string): Promise<IDdcStruct> {
-    return await this.find({ contract_address: contractAddr }).exec();
-  },
-
-
-  async queryDdcCount(contractAddr: string): Promise<IDdcStruct> {
-    return await this.find({ contract_address: contractAddr }).countDocuments().exec();
-  },
 
 
 };
