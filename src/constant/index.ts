@@ -40,6 +40,7 @@ export enum ENV {
 };
 
 export enum DDCType {
+    dataDdc = 'DDC',
     ddc721 = 'DDC721',
     ddc1155 = 'DDC1155',
 }
