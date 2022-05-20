@@ -42,7 +42,7 @@ import { ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName } from '..
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 import Cache from '../helper/cache';
-import { addressPrefix, proposal as proposalString, TxType } from '../constant';
+import { addressPrefix, proposal as proposalString, TxType, DDCType } from '../constant';
 import { addressTransform, splitString } from '../util/util';
 import { GovHttp } from '../http/lcd/gov.http';
 import { getConsensusPubkey } from '../helper/staking.helper';
@@ -917,7 +917,7 @@ export class TxService {
         return result;
     }
     handleEvmTx(txEvms,txData) {
-      let mapEvmContract = new Map()
+      let mapEvmContract = new Map(),batchEvmMap = new Map()
       let mapEvmDdc = new Map()
       let contractAddrs = [];
       if (txEvms?.length) {
@@ -925,11 +925,19 @@ export class TxService {
           if (evmTx?.evm_datas?.length){
             for (const data of evmTx.evm_datas) {
               mapEvmContract.set(data?.evm_tx_hash, data)
+                if (data?.evm_method?.includes("Batch")) {
+                    batchEvmMap.set(data?.evm_tx_hash,[])
+                }
             }
           }
           if (evmTx?.ex_ddc_infos?.length){
             for (const data of evmTx.ex_ddc_infos) {
               mapEvmDdc.set(data?.evm_tx_hash, data)
+                if (batchEvmMap.has(data?.evm_tx_hash)) {
+                    let ddcIdsOfBatch = batchEvmMap.get(data?.evm_tx_hash)
+                    ddcIdsOfBatch.push(data?.ddc_id)
+                    batchEvmMap.set(data?.evm_tx_hash,ddcIdsOfBatch)
+                }
             }
           }
         }
@@ -940,7 +948,7 @@ export class TxService {
               msg.msg.ex={}
               if (mapEvmContract.has(msg?.msg?.hash)) {
                 const evmCt = mapEvmContract.get(msg?.msg?.hash);
-                if (evmCt?.data_type != "DDC" ){
+                if (evmCt?.data_type != DDCType.dataDdc ){
                   return
                 }
                 contractAddrs.push(evmCt?.contract_address)
@@ -949,10 +957,14 @@ export class TxService {
               }
               if (mapEvmDdc.has(msg?.msg?.hash)) {
                 const data = mapEvmDdc.get(msg?.msg?.hash)
-                if (data?.ddc_type != "DDC721" && data?.ddc_type != "DDC1155" ){
+                if (data?.ddc_type != DDCType.ddc721 && data?.ddc_type != DDCType.ddc1155 ){
                   return
                 }
-                msg.msg.ex['ddc_id'] = data?.ddc_id;
+                if (batchEvmMap.has(msg?.msg?.hash)) {
+                    msg.msg.ex['ddc_id'] = batchEvmMap.get(msg?.msg?.hash)
+                }else{
+                    msg.msg.ex['ddc_id'] = data?.ddc_id
+                }
                 msg.msg.ex['ddc_type'] = data?.ddc_type;
                 msg.msg.ex['ddc_name'] = data?.ddc_name;
                 msg.msg.ex['ddc_uri'] = data?.ddc_uri;

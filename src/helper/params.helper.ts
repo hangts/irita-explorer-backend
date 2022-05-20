@@ -296,13 +296,13 @@ export function queryTxWithDdcHelper(query: ITxsWithDdcQuery){
     DDCType.ddc721,
     DDCType.ddc1155,
   ];
-  const queryParameters: { 'evm_datas.contract_address'?: string, 'ex_ddc_infos.ddc_id'?: string, 'ex_ddc_infos.ddc_type'?: object } = {};
+  const queryParameters: { 'evm_datas.contract_address'?: string, 'ex_ddc_infos.ddc_id'?: number, 'ex_ddc_infos.ddc_type'?: object } = {};
   queryParameters['ex_ddc_infos.ddc_type'] = {  $in: ddcTypesList || [] }
   if (query.contract_address && query.contract_address.length) {
     queryParameters['evm_datas.contract_address'] = query.contract_address;
   }
-  if (query.ddc_id && query.ddc_id.length) {
-    queryParameters['ex_ddc_infos.ddc_id'] = query.ddc_id;
+  if (Number(query.ddc_id)) {
+    queryParameters['ex_ddc_infos.ddc_id'] = Number(query.ddc_id);
   }
   return queryParameters
 }
