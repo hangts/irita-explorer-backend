@@ -513,9 +513,10 @@ export class TxService {
         if(pageNum && pageSize){
           txListData = await this.txModel.queryTxWithAddress(query);
           if (txListData.data && txListData.data.length > 0) {
-              txListData.data = this.handerEvents(txListData.data)
+              txListData.data = this.handerEvents(txListData.data);
+              txData = await this.addMonikerToTxs(txListData.data);
+              txData = await this.addContractAddrsToTxs(txListData.data);
           }
-          txData = await this.addMonikerToTxs(txListData.data);
         }
         if(useCount){
           count = await this.txModel.queryTxWithAddressCount(query);
@@ -968,6 +969,9 @@ export class TxService {
                 msg.msg.ex['ddc_type'] = data?.ddc_type;
                 msg.msg.ex['ddc_name'] = data?.ddc_name;
                 msg.msg.ex['ddc_uri'] = data?.ddc_uri;
+                msg.msg.ex['ddc_symbol'] = data?.ddc_symbol;
+                msg.msg.ex['sender'] = data?.sender;
+                msg.msg.ex['recipient'] = data?.recipient;
               }
           }
         });
