@@ -510,6 +510,11 @@ export class TxService {
       let txListData, txData = [],count = null;
       if(pageNum && pageSize || useCount){
         await this.cacheTxTypes();
+          const { type } = query;
+          //search ex_evm_tx when type is ethereum_tx with address
+          if (type === TxType.ethereum_tx) {
+              return await this.queryTxWithDdcAddr(query)
+          }
 
         if(pageNum && pageSize){
           txListData = await this.txModel.queryTxWithAddress(query);
@@ -574,6 +579,21 @@ export class TxService {
       }
 
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
+    }
+
+    //search ex_tx_evm with address for evm txs
+    async queryTxWithDdcAddr(query): Promise<ListStruct<TxResDto[]>> {
+        const { pageNum, pageSize, useCount } = query;
+        let txListData, txData = [],count = null;
+        if(pageNum && pageSize){
+            txListData = await this.txEvmModel.queryTxWithDdcAddr(query);
+            txData = await this.addContractAddrsToEvmTxs(txListData.data);
+        }
+        if(useCount){
+            count = await this.txEvmModel.queryTxWithDdcAddrCount(query);
+        }
+
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     //废弃
