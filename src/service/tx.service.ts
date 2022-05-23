@@ -493,8 +493,9 @@ export class TxService {
 
         if(pageNum && pageSize){
           txListData = await this.txModel.queryTxWithHeight(query);
+          // add evm info about contract_address
+          txListData.data = await this.addContractAddrsToTxs(txListData.data)
           txData = await this.addMonikerToTxs(txListData.data);
-          txData = await this.addContractAddrsToTxs(txListData.data);
         }
         if(useCount){
           count = await this.txModel.queryTxWithHeighCount(query);
@@ -514,8 +515,9 @@ export class TxService {
           txListData = await this.txModel.queryTxWithAddress(query);
           if (txListData.data && txListData.data.length > 0) {
               txListData.data = this.handerEvents(txListData.data);
+              // add evm info about contract_address
+              txListData.data = await this.addContractAddrsToTxs(txListData.data)
               txData = await this.addMonikerToTxs(txListData.data);
-              txData = await this.addContractAddrsToTxs(txListData.data);
           }
         }
         if(useCount){
