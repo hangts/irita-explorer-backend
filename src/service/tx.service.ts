@@ -920,7 +920,7 @@ export class TxService {
         return result;
     }
     handleEvmTx(txEvms,txData) {
-      let mapEvmContract = new Map(),batchEvmMap = new Map()
+      let mapEvmContract = new Map(),batchEvmDdcIdsMap = new Map(),batchEvmDdcUrisMap = new Map()
       let mapEvmDdc = new Map()
       let contractAddrs = [];
       if (txEvms?.length) {
@@ -929,17 +929,21 @@ export class TxService {
             for (const data of evmTx.evm_datas) {
               mapEvmContract.set(data?.evm_tx_hash, data)
                 if (data?.evm_method?.includes("Batch")) {
-                    batchEvmMap.set(data?.evm_tx_hash,[])
+                    batchEvmDdcIdsMap.set(data?.evm_tx_hash,[])
+                    batchEvmDdcUrisMap.set(data?.evm_tx_hash,[])
                 }
             }
           }
           if (evmTx?.ex_ddc_infos?.length){
             for (const data of evmTx.ex_ddc_infos) {
               mapEvmDdc.set(data?.evm_tx_hash, data)
-                if (batchEvmMap.has(data?.evm_tx_hash)) {
-                    let ddcIdsOfBatch = batchEvmMap.get(data?.evm_tx_hash)
+                if (batchEvmDdcIdsMap.has(data?.evm_tx_hash)) {
+                    let ddcIdsOfBatch = batchEvmDdcIdsMap.get(data?.evm_tx_hash)
+                    let ddcUrisOfBatch = batchEvmDdcUrisMap.get(data?.evm_tx_hash)
                     ddcIdsOfBatch.push(data?.ddc_id)
-                    batchEvmMap.set(data?.evm_tx_hash,ddcIdsOfBatch)
+                    ddcUrisOfBatch.push(data?.ddc_uri)
+                    batchEvmDdcIdsMap.set(data?.evm_tx_hash,ddcIdsOfBatch)
+                    batchEvmDdcUrisMap.set(data?.evm_tx_hash,ddcUrisOfBatch)
                 }
             }
           }
@@ -963,14 +967,15 @@ export class TxService {
                 if (data?.ddc_type != DDCType.ddc721 && data?.ddc_type != DDCType.ddc1155 ){
                   return
                 }
-                if (batchEvmMap.has(msg?.msg?.hash)) {
-                    msg.msg.ex['ddc_id'] = batchEvmMap.get(msg?.msg?.hash)
+                if (batchEvmDdcIdsMap.has(msg?.msg?.hash)) {
+                    msg.msg.ex['ddc_id'] = batchEvmDdcIdsMap.get(msg?.msg?.hash)
+                    msg.msg.ex['ddc_uri'] = batchEvmDdcUrisMap.get(msg?.msg?.hash)
                 }else{
                     msg.msg.ex['ddc_id'] = data?.ddc_id
+                    msg.msg.ex['ddc_uri'] = data?.ddc_uri;
                 }
                 msg.msg.ex['ddc_type'] = data?.ddc_type;
                 msg.msg.ex['ddc_name'] = data?.ddc_name;
-                msg.msg.ex['ddc_uri'] = data?.ddc_uri;
                 msg.msg.ex['ddc_symbol'] = data?.ddc_symbol;
                 msg.msg.ex['sender'] = data?.sender;
                 msg.msg.ex['recipient'] = data?.recipient;
