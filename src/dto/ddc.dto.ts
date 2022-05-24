@@ -32,6 +32,7 @@ export class DdcResDto {
   ddc_id: number;
   contract_address: string;
   owner: string;
+  creator: string;
   ddc_uri: string;
   ddc_data: string;
   ddc_type: number;
@@ -42,6 +43,7 @@ export class DdcResDto {
     contract_address: string,
     ddc_id: number,
     owner: string,
+    creator: string,
     ddc_uri: string,
     ddc_data: string,
     ddc_type: number,
@@ -51,6 +53,7 @@ export class DdcResDto {
     this.ddc_id = ddc_id;
     this.contract_address = contract_address;
     this.owner = owner;
+    this.creator = creator;
     this.ddc_uri = ddc_uri;
     this.ddc_data = ddc_data;
     this.ddc_type = ddc_type;
@@ -68,6 +71,7 @@ export class DdcListResDto extends DdcResDto {
     ddc_id: number,
     contract_address: string,
     owner: string,
+    creator: string,
     ddc_uri: string,
     ddc_data: string,
     ddc_type: number,
@@ -77,7 +81,7 @@ export class DdcListResDto extends DdcResDto {
     is_delete: boolean,
     is_freeze: boolean
   ) {
-    super(contract_address, ddc_id, owner, ddc_uri, ddc_data, ddc_type, ddc_name,amount);
+    super(contract_address, ddc_id, owner,creator, ddc_uri, ddc_data, ddc_type, ddc_name,amount);
     this.lastest_tx_time = lastest_tx_time;
     this.is_delete = is_delete;
     this.is_freeze = is_freeze;
@@ -91,12 +95,13 @@ export class DdcDetailResDto extends DdcResDto {
     ddc_id: number,
     contract_address: string,
     owner: string,
+    creator: string,
     ddc_uri: string,
     ddc_data: string,
     ddc_type: number,
     ddc_name: string,
     amount: number,
   ) {
-    super(contract_address, ddc_id, owner, ddc_uri, ddc_data, ddc_type, ddc_name,amount);
+    super(contract_address, ddc_id, owner, creator, ddc_uri, ddc_data, ddc_type, ddc_name,amount);
   }
 }

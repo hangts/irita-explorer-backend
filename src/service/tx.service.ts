@@ -287,6 +287,9 @@ export class TxService {
           }
         }
         evmTx.contract_addrs = contractAddrs
+        if (evmTx?.types?.length) {
+            evmTx.type = evmTx.types[0]
+        }
       }
       return txEvms
     }
