@@ -87,7 +87,7 @@ DenomSchema.statics = {
     },
 
     async findOneByDenomAndNftIdFromDenom(denomId: string): Promise<IDenomStruct> {
-        return await this.findOne({ denom_id: denomId}, {'_id': 0,'update_time': 0,'create_time': 0})
+        return await this.findOne({ denom_id: denomId}, { json_schema: 1 })
     },
 
     async findLastBlockHeight(): Promise<IDenomStruct[]> {
