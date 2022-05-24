@@ -942,67 +942,66 @@ export class TxService {
         }
         return result;
     }
-
-    handleEvmTx(txEvms, txData) {
-        let mapEvmContract = new Map()
-        let mapEvmDdc = new Map()
-        let contractAddrs = [], ddcIdsOfBatch = [], ddcUrisOfBatch = [], isBatch = false
-        if (txEvms?.length) {
-            for (const evmTx of txEvms) {
-                if (evmTx?.evm_datas?.length) {
-                    for (const data of evmTx.evm_datas) {
-                        mapEvmContract.set(data?.evm_tx_hash, data)
-                        if (data?.evm_method?.includes("Batch")) {
-                            isBatch = true
-                        }
-                    }
-                }
-                if (evmTx?.ex_ddc_infos?.length) {
-                    for (const data of evmTx.ex_ddc_infos) {
-                        mapEvmDdc.set(data?.evm_tx_hash, data)
-                        ddcIdsOfBatch.push(data?.ddc_id)
-                        ddcUrisOfBatch.push(data?.ddc_uri)
-                    }
+    handleEvmTx(txEvms,txData) {
+      let mapEvmContract = new Map()
+      let mapEvmDdc = new Map()
+      let contractAddrs = [], ddcIdsOfBatch = [], ddcUrisOfBatch = [], isBatch = false
+      if (txEvms?.length) {
+        for( const evmTx of txEvms) {
+          if (evmTx?.evm_datas?.length){
+            for (const data of evmTx.evm_datas) {
+              mapEvmContract.set(data?.evm_tx_hash, data)
+                if (data?.evm_method?.includes("Batch")) {
+                    isBatch = true
                 }
             }
-
-            txData?.msgs?.forEach((msg, index) => {
-                switch (msg.type) {
-                    case TxType.ethereum_tx:
-                        msg.msg.ex = {}
-                        if (mapEvmContract.has(msg?.msg?.hash)) {
-                            const evmCt = mapEvmContract.get(msg?.msg?.hash);
-                            if (evmCt?.data_type != DDCType.dataDdc) {
-                                return
-                            }
-                            contractAddrs.push(evmCt?.contract_address)
-                            msg.msg.ex['contract_address'] = evmCt?.contract_address
-                            msg.msg.ex['ddc_method'] = evmCt?.evm_method
-                        }
-                        if (mapEvmDdc.has(msg?.msg?.hash)) {
-                            const data = mapEvmDdc.get(msg?.msg?.hash)
-                            if (data?.ddc_type != DDCType.ddc721 && data?.ddc_type != DDCType.ddc1155) {
-                                return
-                            }
-                            if (isBatch) {
-                                msg.msg.ex['ddc_id'] = ddcIdsOfBatch
-                                msg.msg.ex['ddc_uri'] = ddcUrisOfBatch
-                            } else {
-                                msg.msg.ex['ddc_id'] = data?.ddc_id
-                                msg.msg.ex['ddc_uri'] = data?.ddc_uri;
-                            }
-                            msg.msg.ex['ddc_type'] = data?.ddc_type;
-                            msg.msg.ex['ddc_name'] = data?.ddc_name;
-                            msg.msg.ex['ddc_symbol'] = data?.ddc_symbol;
-                            msg.msg.ex['sender'] = data?.sender;
-                            msg.msg.ex['recipient'] = data?.recipient;
-                        }
-                }
-            });
+          }
+          if (evmTx?.ex_ddc_infos?.length){
+            for (const data of evmTx.ex_ddc_infos) {
+                mapEvmDdc.set(data?.evm_tx_hash, data)
+                ddcIdsOfBatch.push(data?.ddc_id)
+                ddcUrisOfBatch.push(data?.ddc_uri)
+            }
+          }
         }
-        const item = JSON.parse(JSON.stringify(txData));
-        item.contract_addrs = contractAddrs
-        return item
+
+        txData?.msgs?.forEach((msg,index) => {
+          switch (msg.type) {
+            case TxType.ethereum_tx:
+              msg.msg.ex={}
+              if (mapEvmContract.has(msg?.msg?.hash)) {
+                const evmCt = mapEvmContract.get(msg?.msg?.hash);
+                if (evmCt?.data_type != DDCType.dataDdc ){
+                  return
+                }
+                contractAddrs.push(evmCt?.contract_address)
+                msg.msg.ex['contract_address'] = evmCt?.contract_address
+                msg.msg.ex['ddc_method'] = evmCt?.evm_method
+              }
+              if (mapEvmDdc.has(msg?.msg?.hash)) {
+                const data = mapEvmDdc.get(msg?.msg?.hash)
+                if (data?.ddc_type != DDCType.ddc721 && data?.ddc_type != DDCType.ddc1155 ){
+                  return
+                }
+                  if (isBatch) {
+                      msg.msg.ex['ddc_id'] = ddcIdsOfBatch
+                      msg.msg.ex['ddc_uri'] = ddcUrisOfBatch
+                }else{
+                    msg.msg.ex['ddc_id'] = data?.ddc_id
+                    msg.msg.ex['ddc_uri'] = data?.ddc_uri;
+                }
+                msg.msg.ex['ddc_type'] = data?.ddc_type;
+                msg.msg.ex['ddc_name'] = data?.ddc_name;
+                msg.msg.ex['ddc_symbol'] = data?.ddc_symbol;
+                msg.msg.ex['sender'] = data?.sender;
+                msg.msg.ex['recipient'] = data?.recipient;
+              }
+          }
+        });
+      }
+      const item = JSON.parse(JSON.stringify(txData));
+      item.contract_addrs= contractAddrs
+      return item
     }
     //tx/identity
     async queryIdentityTx(query: IdentityTxReqDto): Promise<ListStruct<TxResDto[]>> {
