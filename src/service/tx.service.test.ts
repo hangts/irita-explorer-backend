@@ -118,11 +118,13 @@ describe('TxController', () => {
 
     describe('queryTxWithAddress', () => {
         it('should return an array of address', async () => {
+            jest.setTimeout(1000000000)
             let req:TxListWithAddressReqDto = {};
             req.pageNum = 1;
             req.pageSize = 10;
             req.useCount = true;
-            req.address = 'csrb199v0qu28ynmjr2q3a0nqgcp9pyy5almmj4laec';
+            req.type = 'ethereum_tx'
+            req.address = 'iaa14zpuue6n06le3f2j4xlnfg255d5n08hx7dl6pl';
             let data = await txService.queryTxWithAddress(req);
             if (data && data.data.length) {
                 data.data.forEach((item)=>{
