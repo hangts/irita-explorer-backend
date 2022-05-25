@@ -317,7 +317,7 @@ export class TxService {
                 endTime: query.endTime,
             }
             //search contract_address when type is ethereum_tx
-            if (type.includes(DDCType.contractTag)) {
+            if (type && type.includes(DDCType.contractTag)) {
                 queryDb.type = TxType.ethereum_tx
                 const ddcType = ContractType[type]
                 if (ddcType) {
@@ -541,7 +541,7 @@ export class TxService {
               pageSize: `${pageSize}`,
           }
           //search contract_address when type is ethereum_tx
-          if (type.includes(DDCType.contractTag)) {
+          if (type && type.includes(DDCType.contractTag)) {
               queryDb.type = TxType.ethereum_tx
               const ddcType = ContractType[type]
               if (ddcType) {
