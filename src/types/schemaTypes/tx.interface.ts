@@ -4,6 +4,7 @@ export interface ITxsQuery extends IQueryBase {
 	type?:string,
 	status?:string,
     address?:string,
+    contract_addr?:string,
 	beginTime?:string,
   	endTime?:string,
 }
@@ -13,6 +14,7 @@ export interface ITxsWithHeightQuery extends IQueryBase {
 }
 
 export interface ITxsWithAddressQuery extends IQueryBase {
+    contract_addr?:string,
 	address?:string,
     type?:string,
     status?:string,

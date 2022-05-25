@@ -38,6 +38,9 @@ export function txListParamsHelper(query: ITxsQuery){
   if (query.address && query.address.length) {
       queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
   }
+  if (query.contract_addr && query.contract_addr.length) {
+      queryParameters['contract_addrs'] = { $elemMatch: { $eq: query.contract_addr } };
+  }
   if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
       queryParameters.time = {};
   }
@@ -215,6 +218,9 @@ export function TxWithAddressParamsHelper(query: ITxsWithAddressQuery){
           // ],
           addrs: { $elemMatch: { $eq: query.address } },
       };
+  }
+  if (query.contract_addr && query.contract_addr.length) {
+      queryParameters['contract_addrs'] = { $elemMatch: { $eq: query.contract_addr } };
   }
   if (query.type && query.type.length) {
       let typeArr = query.type.split(",");

@@ -10,7 +10,7 @@ import { ListStruct } from "../api/ApiResult";
     }
     async queryValidators(query: ValidatorsReqDto): Promise<ListStruct<ValidatorsResDto[]>> {
         if (cfg.serverCfg.validatorsApiClose === 'true') {
-            return new ListStruct<ValidatorsResDto[]>(null, query.pageNum, query.pageSize, 0)
+            return new ListStruct<ValidatorsResDto[]>([], query.pageNum, query.pageSize, 0)
         }
       let validatorsData = await this.validatorModel.findValidators(query)
       return new ListStruct(ValidatorsResDto.bundleData(validatorsData.data), query.pageNum, query.pageSize, validatorsData.count);

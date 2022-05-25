@@ -46,7 +46,7 @@ describe('TxController', () => {
             req.pageNum = 1;
             req.pageSize = 2;
             req.useCount = false;
-            req.type = TxType.ethereum_tx
+            req.type = 'ddc_721'
             // if (parseInt(String((Math.random()*10)%2))) {
             //     req.type = [
             //     TxType.ethereum_tx,

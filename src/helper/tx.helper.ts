@@ -83,6 +83,7 @@ const common = {
         signers:1,
         time:1,
         addrs:1,
+        contract_addrs:1,
         fee:1,
     };
 
