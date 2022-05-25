@@ -8,6 +8,7 @@ const {
     DB_PASSWD,
     DB_ADDR,
     ICONURI,
+    VALIDATORS_API_CLOSE,
     DB_DATABASE,
     NODE_ENV,
     DENOM_EXECUTE_TIME,
@@ -46,7 +47,8 @@ export const cfg = {
     serverCfg:{
         lcdAddr:LCD_ADDR,
         rpcAddr:RPC_ADDR,
-        iconUri: ICONURI || 'https://keybase.io/_/api/1.0/user/lookup.json'
+        iconUri: ICONURI || 'https://keybase.io/_/api/1.0/user/lookup.json',
+        validatorsApiClose: VALIDATORS_API_CLOSE || 'false',
     },
     taskCfg:{
         interval:{
