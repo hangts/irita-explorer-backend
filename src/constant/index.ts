@@ -40,11 +40,15 @@ export enum ENV {
 };
 
 export enum DDCType {
+    contractTag= 'ddc_',
     dataDdc = 'DDC',
     ddc721 = 'DDC721',
     ddc1155 = 'DDC1155',
 }
-
+export const ContractType = {
+    'ddc_721':1,
+    'ddc_1155':2,
+}
 export enum TxType {
     // service
     define_service = 'define_service',

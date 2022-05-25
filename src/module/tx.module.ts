@@ -7,6 +7,7 @@ import { TxTypeSchema } from '../schema/txType.schema';
 import { DenomSchema } from '../schema/denom.schema';
 import { NftSchema } from '../schema/nft.schema';
 import { TxEvmSchema } from '../schema/txEvmSchema';
+import { EvmContractConfigSchema } from '../schema/evmContractConfig.schema';
 import { IdentitySchema } from '../schema/identity.schema';
 import {StakingValidatorSchema} from "../schema/staking.validator.schema";
 import { ProposalSchema } from '../schema/proposal.schema';
@@ -43,6 +44,10 @@ import { StatisticsSchema } from '../schema/statistics.schema';
             name: 'TxEvm',
             schema: TxEvmSchema,
             collection: 'ex_sync_tx_evm'
+        },{
+            name: 'EvmContractConfig',
+            schema: EvmContractConfigSchema,
+            collection: 'ex_evm_contracts_config'
         },
         {
             name: 'StakingValidator',
