@@ -239,6 +239,7 @@ export class ServiceTxResDto {
     height: number;
     time: number;
     status: number;
+    signers: string[];
     msgs: any;
     events: any;
     fee: any;
@@ -251,6 +252,7 @@ export class ServiceTxResDto {
         status: number,
         msgs: any,
         events: any,
+        signers: string[],
         fee: any
     ) {
         this.hash = hash;
@@ -260,6 +262,7 @@ export class ServiceTxResDto {
         this.status = status;
         this.msgs = msgs;
         this.events = events;
+        this.signers = signers;
         this.fee = fee;
     }
 }
