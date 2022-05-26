@@ -10,5 +10,6 @@ export const dbRes = {
     time:1,
     fee:1,
     'evm_datas.contract_address':1,
+    'evm_datas.evm_method':1,
   }
 }

@@ -275,18 +275,26 @@ export class TxService {
             return tx
           })
       }
-    async addContractAddrsToEvmTxs(txEvms) {
+    async addDdcInfoToTxResDTo(txEvms) {
       if (!txEvms?.length) {
         return txEvms
       }
       for( const evmTx of txEvms) {
-        let contractAddrs = [];
+        evmTx.contract_addrs = []
+        evmTx.msgs = []
         if (evmTx?.evm_datas?.length){
           for (const data of evmTx.evm_datas) {
-            contractAddrs.push(data?.contract_address)
+              evmTx.contract_addrs.push(data?.contract_address)
+              evmTx.msgs.push({
+                  "type" : TxType.ethereum_tx,
+                  "msg" : {
+                      "ex":{
+                          "ddc_method":data?.evm_method
+                      },
+                  }
+              })
           }
         }
-        evmTx.contract_addrs = contractAddrs
         if (evmTx?.types?.length) {
             evmTx.type = evmTx.types[0]
         }
@@ -608,7 +616,7 @@ export class TxService {
       let txListData, txData = [],count = null;
       if(pageNum && pageSize){
         txListData = await this.txEvmModel.queryTxWithDdc(query);
-        txData = await this.addContractAddrsToEvmTxs(txListData.data);
+        txData = await this.addDdcInfoToTxResDTo(txListData.data);
       }
       if(useCount){
         count = await this.txEvmModel.queryTxWithDdcCount(query);
