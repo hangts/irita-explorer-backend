@@ -899,7 +899,8 @@ export class TxService {
         if(pageNum && pageSize){
           const txList: ITxStruct[] = await (this.txModel as any).findServiceTx(serviceName, type, status, pageNum, pageSize);
           res = txList.map((service: ITxStruct) => {
-              return new ServiceTxResDto(service.tx_hash, service.type, service.height, service.time, service.status, service.msgs, service.events,service.fee);
+              return new ServiceTxResDto(service.tx_hash, service.type, service.height, service.time, service.status, service.msgs,
+                  service.events, service.signers, service.fee);
           });
         }
         if (useCount) {
