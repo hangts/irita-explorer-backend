@@ -4,6 +4,7 @@ export interface ITxsQuery extends IQueryBase {
 	type?:string,
 	status?:string,
     address?:string,
+    contract_addr?:string,
 	beginTime?:string,
   	endTime?:string,
 }
@@ -13,6 +14,7 @@ export interface ITxsWithHeightQuery extends IQueryBase {
 }
 
 export interface ITxsWithAddressQuery extends IQueryBase {
+    contract_addr?:string,
 	address?:string,
     type?:string,
     status?:string,
@@ -27,6 +29,11 @@ export interface ITxsWithContextIdQuery extends IQueryBase {
 export interface ITxsWithNftQuery extends IQueryBase {
 	denomId?:string,
 	tokenId?:string,
+}
+
+export interface ITxsWithDdcQuery extends IQueryBase {
+    contract_address?:string,
+    ddc_id?:string,
 }
 
 export interface ITxsWithServiceNameQuery extends IQueryBase {

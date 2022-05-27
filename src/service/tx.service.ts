@@ -1,59 +1,60 @@
-import { PagingReqDto, DeepPagingReqDto } from './../dto/base.dto';
+import { DeepPagingReqDto } from './../dto/base.dto';
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct, Result } from '../api/ApiResult';
 import {
-    TxListReqDto,
-    eTxListReqDto,
-    TxListWithHeightReqDto,
-    TxListWithAddressReqDto,
-    TxListWithContextIdReqDto,
-    TxListWithNftReqDto,
-    TxListWithServicesNameReqDto,
-    ServicesDetailReqDto,
-    TxListWithCallServiceReqDto,
-    TxListWithRespondServiceReqDto,
-    PostTxTypesReqDto,
-    PutTxTypesReqDto,
-    DeleteTxTypesReqDto,
-    TxWithHashReqDto,
-    ServiceListReqDto,
-    ServiceProvidersReqDto,
-    ServiceTxReqDto,
-    ServiceBindInfoReqDto,
-    ServiceRespondReqDto, IdentityTxReqDto,
-    TxListWithAssetReqDto,
-    ExternalQueryRespondServiceReqDto,
-    ExternalQueryRespondServiceResDto
+  callServiceResDto,
+  DeleteTxTypesReqDto,
+  eTxListReqDto,
+  ExternalQueryRespondServiceReqDto,
+  ExternalQueryRespondServiceResDto,
+  ExternalServiceResDto,
+  IdentityTxReqDto,
+  PostTxTypesReqDto,
+  PutTxTypesReqDto,
+  RespondServiceResDto,
+  ServiceBindInfoReqDto,
+  ServiceBindInfoResDto,
+  ServiceListReqDto,
+  ServiceProvidersReqDto,
+  ServiceProvidersResDto,
+  ServiceResDto,
+  ServiceRespondReqDto,
+  ServiceRespondResDto,
+  ServicesDetailReqDto,
+  ServiceTxReqDto,
+  ServiceTxResDto,
+  TxListReqDto,
+  TxListWithAddressReqDto,
+  TxListWithAssetReqDto,
+  TxListWithCallServiceReqDto,
+  TxListWithContextIdReqDto,
+  TxListWithDdcReqDto,
+  TxListWithHeightReqDto,
+  TxListWithNftReqDto,
+  TxListWithRespondServiceReqDto,
+  TxListWithServicesNameReqDto,
+  TxResDto,
+  TxTypeResDto,
+  TxWithHashReqDto,
 } from '../dto/txs.dto';
-import {
-    TxResDto,
-    TxTypeResDto,
-    callServiceResDto,
-    ServiceResDto,
-    RespondServiceResDto,
-    ServiceProvidersResDto,
-    ServiceTxResDto,
-    ServiceBindInfoResDto,
-    ServiceRespondResDto,
-    ExternalServiceResDto
-} from '../dto/txs.dto';
-import { IBindTx, IServiceName,ExternalIBindTx,ExternalIServiceName } from '../types/tx.interface';
-import { ITxStruct } from '../types/schemaTypes/tx.interface';
-import { INftMapStruct } from '../types/schemaTypes/nft.interface';
+import { ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName } from '../types/tx.interface';
+import {ITxStruct, ITxsWithAddressQuery, ITxsQuery} from '../types/schemaTypes/tx.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 import Cache from '../helper/cache';
-import { TxType, addressPrefix, proposal as proposalString } from '../constant';
-import { addressTransform, splitString } from "../util/util";
-import { GovHttp } from "../http/lcd/gov.http";
-import { getConsensusPubkey } from "../helper/staking.helper"
+import { addressPrefix, proposal as proposalString, TxType, DDCType, ContractType } from '../constant';
+import { addressTransform, splitString } from '../util/util';
+import { GovHttp } from '../http/lcd/gov.http';
+import { getConsensusPubkey } from '../helper/staking.helper';
+
 @Injectable()
 export class TxService {
     constructor(@InjectModel('Tx') private txModel: any,
         @InjectModel('TxType') private txTypeModel: any,
         @InjectModel('Denom') private denomModel: any,
         @InjectModel('Nft') private nftModel: any,
+        @InjectModel('TxEvm') private txEvmModel: any,
+        @InjectModel('EvmContractConfig') private evmContractCfgModel: any,
         @InjectModel('Identity') private identityModel: any,
         @InjectModel('StakingValidator') private stakingValidatorModel: any,
         @InjectModel('Proposal') private proposalModel: any,
@@ -72,7 +73,7 @@ export class TxService {
 
         const txData = (txList || []).map((tx) => {
             const item = JSON.parse(JSON.stringify(tx));
-            const monikers = [];
+            let monikers = [];
             (item.addrs || []).forEach((addr) => {
                 if (validatorMap[addr] &&
                     validatorMap[addr].description &&
@@ -241,7 +242,65 @@ export class TxService {
         });
         return txList
     }
+    async addContractMethodToTxs(txList) {
+          let txHashes = []
+          for (const tx of txList) {
+            txHashes.push(tx.tx_hash)
+          }
+          const txEvms = await this.txEvmModel.findEvmTxsByHashes(txHashes)
+          let mapEvmContract = new Map()
+          if (!txEvms?.length) {
+            return txList
+          }
+          for( const evmTx of txEvms) {
+            if (evmTx?.evm_datas?.length){
+              for (const data of evmTx.evm_datas) {
+                mapEvmContract.set(data?.evm_tx_hash, data)
+              }
+            }
+          }
 
+      return (txList || []).map((tx) => {
+            if (tx.msgs?.length) {
+              tx.msgs?.forEach((msg, index) => {
+                if (msg.type === TxType.ethereum_tx) {
+                    msg.msg.ex = {}
+                  if (mapEvmContract.has(msg?.msg?.hash)) {
+                    const evmData = mapEvmContract.get(msg?.msg?.hash)
+                    msg.msg.ex['ddc_method'] = evmData?.evm_method
+                  }
+                }
+              })
+            }
+            return tx
+          })
+      }
+    async addDdcInfoToTxResDTo(txEvms) {
+      if (!txEvms?.length) {
+        return txEvms
+      }
+      for( const evmTx of txEvms) {
+        evmTx.contract_addrs = []
+        evmTx.msgs = []
+        if (evmTx?.evm_datas?.length){
+          for (const data of evmTx.evm_datas) {
+              evmTx.contract_addrs.push(data?.contract_address)
+              evmTx.msgs.push({
+                  "type" : TxType.ethereum_tx,
+                  "msg" : {
+                      "ex":{
+                          "ddc_method":data?.evm_method
+                      },
+                  }
+              })
+          }
+        }
+        if (evmTx?.types?.length) {
+            evmTx.type = evmTx.types[0]
+        }
+      }
+      return txEvms
+    }
     async cacheTxTypes() {
         const txTypes = await this.txTypeModel.queryTxTypeList();
         Cache.supportTypes = txTypes.map((item) => item.type_name);
@@ -250,18 +309,41 @@ export class TxService {
     // txs
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        const { pageNum, pageSize, useCount } = query;
+        const { pageNum, pageSize, useCount, type } = query;
         let txListData, txData = [], count = null;
 
         if(pageNum && pageSize || useCount){
           await this.cacheTxTypes();
+            let queryDb: ITxsQuery = {
+                type: type,
+                status: query.status,
+                address: query.address,
+                useCount: useCount,
+                pageNum: `${pageNum}`,
+                pageSize: `${pageSize}`,
+                beginTime: query.beginTime,
+                endTime: query.endTime,
+            }
+            //search contract_address when type is ethereum_tx
+            if (type && type.includes(DDCType.contractTag)) {
+                queryDb.type = TxType.ethereum_tx
+                const ddcType = ContractType[type]
+                if (ddcType) {
+                    const evmConfig = await this.evmContractCfgModel.queryContractAddrByType(ddcType)
+                    queryDb.contract_addr = evmConfig?.address
+                } else {
+                    return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
+                }
+            }
 
-          if(pageNum && pageSize){  
-            txListData = await this.txModel.queryTxList(query);
+          if(pageNum && pageSize){
+            txListData = await this.txModel.queryTxList(queryDb);
             if (txListData.data && txListData.data.length > 0) {
                 txListData.data = this.handerEvents(txListData.data)
+                // add evm info about contract method
+                txListData.data = await this.addContractMethodToTxs(txListData.data)
+                txData = await this.addMonikerToTxs(txListData.data);
             }
-            txData = await this.addMonikerToTxs(txListData.data);
           }
           if(useCount){
             if (!query?.pageNum && !query?.pageSize && !query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
@@ -271,12 +353,12 @@ export class TxService {
               count = txCnt?.count
             }else{
 
-              count = await this.txModel.queryTxListCount(query);
+              count = await this.txModel.queryTxListCount(queryDb);
             }
           }
         }
         // }
-       
+
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -301,7 +383,7 @@ export class TxService {
           }
         }
         // }
-       
+
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -320,12 +402,12 @@ export class TxService {
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
-    // txs/declaration 
+    // txs/declaration
     async queryDeclarationTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
         const { pageNum, pageSize, useCount } = query;
         let txListData, txData = [],count = null;
-  
+
         if(pageNum && pageSize || useCount){
           await this.cacheTxTypes();
 
@@ -336,17 +418,17 @@ export class TxService {
           if(useCount){
             count = await this.txModel.queryDeclarationTxListCount(query);
           }
-        }     
+        }
         // }
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
-    // txs/gov 
+    // txs/gov
     async queryGovTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
         const { pageNum, pageSize, useCount } = query;
         let txListData, txData = [], txList = [], count = null;
-  
+
         if(pageNum && pageSize){
           await this.cacheTxTypes();
 
@@ -400,14 +482,14 @@ export class TxService {
                 });
             }
             txList = await Promise.all(txList)
-            txData = await this.addMonikerToTxs(txList); 
+            txData = await this.addMonikerToTxs(txList);
           }
-        } 
+        }
         if(useCount){
           count = await this.txModel.queryGovTxListCount(query);
-        }    
+        }
         // }
-        
+
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -448,29 +530,50 @@ export class TxService {
         if(useCount){
           count = await this.txModel.queryTxWithHeighCount(query);
         }
-      }     
+      }
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     //  txs/addresses
     async queryTxWithAddress(query: TxListWithAddressReqDto): Promise<ListStruct<TxResDto[]>> {
-      const { pageNum, pageSize, useCount } = query;
+      const { pageNum, pageSize, useCount, type } = query;
       let txListData, txData = [],count = null;
       if(pageNum && pageSize || useCount){
         await this.cacheTxTypes();
+          let queryDb: ITxsWithAddressQuery = {
+              type: type,
+              status: query.status,
+              address: query.address,
+              useCount: useCount,
+              pageNum: `${pageNum}`,
+              pageSize: `${pageSize}`,
+          }
+          //search contract_address when type is ethereum_tx
+          if (type && type.includes(DDCType.contractTag)) {
+              queryDb.type = TxType.ethereum_tx
+              const ddcType = ContractType[type]
+              if (ddcType) {
+                  const evmConfig = await this.evmContractCfgModel.queryContractAddrByType(ddcType)
+                  queryDb.contract_addr = evmConfig?.address
+              } else {
+                  return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
+              }
+          }
 
         if(pageNum && pageSize){
-          txListData = await this.txModel.queryTxWithAddress(query);
+          txListData = await this.txModel.queryTxWithAddress(queryDb);
           if (txListData.data && txListData.data.length > 0) {
-              txListData.data = this.handerEvents(txListData.data)
+              txListData.data = this.handerEvents(txListData.data);
+              // add evm info about contract method
+              txListData.data = await this.addContractMethodToTxs(txListData.data)
+              txData = await this.addMonikerToTxs(txListData.data);
           }
-          txData = await this.addMonikerToTxs(txListData.data);
         }
         if(useCount){
-          count = await this.txModel.queryTxWithAddressCount(query);
+          count = await this.txModel.queryTxWithAddressCount(queryDb);
         }
-      }    
-        
+      }
+
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -488,7 +591,7 @@ export class TxService {
         if(useCount){
           count = await this.txModel.queryTxWithContextIdCount(query);
         }
-      }   
+      }
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -503,9 +606,39 @@ export class TxService {
       if(useCount){
         count = await this.txModel.queryTxWithNftCount(query);
       }
- 
+
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
+
+    //  txs/ddcs
+    async queryTxWithDdc(query: TxListWithDdcReqDto): Promise<ListStruct<TxResDto[]>> {
+      const { pageNum, pageSize, useCount } = query;
+      let txListData, txData = [],count = null;
+      if(pageNum && pageSize){
+        txListData = await this.txEvmModel.queryTxWithDdc(query);
+        txData = await this.addDdcInfoToTxResDTo(txListData.data);
+      }
+      if(useCount){
+        count = await this.txEvmModel.queryTxWithDdcCount(query);
+      }
+
+      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
+    }
+
+    //search ex_tx_evm with address for evm txs
+    // async queryTxWithDdcAddr(query): Promise<ListStruct<TxResDto[]>> {
+    //     const { pageNum, pageSize, useCount } = query;
+    //     let txListData, txData = [],count = null;
+    //     if(pageNum && pageSize){
+    //         txListData = await this.txEvmModel.queryTxWithDdcAddr(query);
+    //         txData = await this.addContractAddrsToEvmTxs(txListData.data);
+    //     }
+    //     if(useCount){
+    //         count = await this.txEvmModel.queryTxWithDdcAddrCount(query);
+    //     }
+    //
+    //     return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
+    // }
 
     //废弃
     async queryTxWithServiceName(query: TxListWithServicesNameReqDto): Promise<ListStruct<TxResDto[]>> {
@@ -538,7 +671,7 @@ export class TxService {
       if(useCount){
         count = await this.txModel.queryCallServiceWithConsumerAddrCount(query.consumerAddr);
       }
-      
+
       return new ListStruct(callServiceResDto.bundleData(txData), Number(pageNum), Number(pageSize), count);
     }
 
@@ -673,7 +806,7 @@ export class TxService {
               res = serviceNameList.map((service: IServiceName) => {
               return new ServiceResDto(service.serviceName, service.description, service.bindList);
           });
-        }        
+        }
         if (useCount) {
             count = await (this.txModel as any).findAllServiceCount(nameOrDescription);
         }
@@ -730,8 +863,8 @@ export class TxService {
         const res =  await (this.txModel as any).findProviderRespondTimesForService(serviceName, providerAddr);
         return new ExternalQueryRespondServiceResDto(res)
     }
-    
-    // /txs/services/providers 
+
+    // /txs/services/providers
     async queryServiceProviders(query: ServiceProvidersReqDto): Promise<ListStruct<ServiceProvidersResDto[]>> {
         const { serviceName, pageNum, pageSize, useCount } = query;
         let res: ServiceProvidersResDto[], count = null;
@@ -766,9 +899,10 @@ export class TxService {
         if(pageNum && pageSize){
           const txList: ITxStruct[] = await (this.txModel as any).findServiceTx(serviceName, type, status, pageNum, pageSize);
           res = txList.map((service: ITxStruct) => {
-              return new ServiceTxResDto(service.tx_hash, service.type, service.height, service.time, service.status, service.msgs, service.events,service.fee);
+              return new ServiceTxResDto(service.tx_hash, service.type, service.height, service.time, service.status, service.msgs,
+                  service.events, service.signers, service.fee);
           });
-        }  
+        }
         if (useCount) {
           count = await (this.txModel as any).findServiceTxCount(serviceName, type, status);
         }
@@ -790,7 +924,7 @@ export class TxService {
         }
     }
 
-    // /txs/services/respond   
+    // /txs/services/respond
     async queryServiceRespondTx(query: ServiceRespondReqDto): Promise<ListStruct<ServiceRespondResDto[]>> {
         const { serviceName, provider, pageNum, pageSize, useCount } = query;
         let count = null, res: ServiceRespondResDto[]
@@ -810,7 +944,7 @@ export class TxService {
                   service.status,
               );
           });
-        } 
+        }
         if (useCount) {
             count = await (this.txModel as any).findRespondServiceCount(serviceName, provider);
         }
@@ -821,7 +955,7 @@ export class TxService {
     //  txs/{hash}
     async queryTxWithHash(query: TxWithHashReqDto): Promise<TxResDto> {
         let result: TxResDto | null = null;
-        const txData: any = await this.txModel.queryTxWithHash(query.hash);
+        let txData: any = await this.txModel.queryTxWithHash(query.hash);
         if (txData) {
             if (txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.denom && txData.msgs[0].msg.denom.length) {
                 const nftNameInfo: { denom_name: string, nft_name: string } = {
@@ -842,10 +976,76 @@ export class TxService {
             if (txData.msgs[0] && txData.msgs[0].type && txData.msgs[0].type === TxType.create_validator && txData.msgs[0].msg && txData.msgs[0].msg.pubkey) {
                 txData.msgs[0].msg.pubkey = getConsensusPubkey(JSON.parse(txData.msgs[0].msg.pubkey).key);
             }
+            const txEvms = await this.txEvmModel.findEvmTxsByHashes([query.hash])
+            txData = this.handleEvmTx(txEvms,txData)
+
             const tx = await this.addMonikerToTxs([txData]);
             result = new TxResDto(tx[0] || {});
         }
         return result;
+    }
+    handleEvmTx(txEvms,txData) {
+      let mapEvmContract = new Map()
+      let mapEvmDdc = new Map()
+      let ddcIdsOfBatch = [], ddcUrisOfBatch = [], isBatch = false
+      if (txEvms?.length) {
+        for( const evmTx of txEvms) {
+          if (evmTx?.evm_datas?.length){
+            for (const data of evmTx.evm_datas) {
+              mapEvmContract.set(data?.evm_tx_hash, data)
+                if (data?.evm_method?.includes("Batch")) {
+                    isBatch = true
+                }
+            }
+          }
+          if (evmTx?.ex_ddc_infos?.length){
+            for (const data of evmTx.ex_ddc_infos) {
+                mapEvmDdc.set(data?.evm_tx_hash, data)
+                ddcIdsOfBatch.push(data?.ddc_id)
+                ddcUrisOfBatch.push(data?.ddc_uri)
+            }
+          }
+        }
+
+        txData?.msgs?.forEach((msg,index) => {
+          switch (msg.type) {
+            case TxType.ethereum_tx:
+              msg.msg.ex={}
+              if (mapEvmContract.has(msg?.msg?.hash)) {
+                const evmCt = mapEvmContract.get(msg?.msg?.hash);
+                if (evmCt?.data_type != DDCType.dataDdc ){
+                  return
+                }
+                // contractAddrs.push(evmCt?.contract_address)
+                msg.msg.ex['contract_address'] = evmCt?.contract_address
+                msg.msg.ex['ddc_method'] = evmCt?.evm_method
+              }
+              if (mapEvmDdc.has(msg?.msg?.hash)) {
+                const data = mapEvmDdc.get(msg?.msg?.hash)
+                if (data?.ddc_type != DDCType.ddc721 && data?.ddc_type != DDCType.ddc1155 ){
+                  return
+                }
+                if (isBatch) {
+                      msg.msg.ex['ddc_id'] = ddcIdsOfBatch
+                      msg.msg.ex['ddc_uri'] = ddcUrisOfBatch
+                }else{
+                    msg.msg.ex['ddc_id'] = data?.ddc_id
+                    msg.msg.ex['ddc_uri'] = data?.ddc_uri;
+                }
+                msg.msg.ex['ddc_type'] = data?.ddc_type;
+                msg.msg.ex['ddc_name'] = data?.ddc_name;
+                msg.msg.ex['ddc_symbol'] = data?.ddc_symbol;
+                msg.msg.ex['sender'] = data?.sender;
+                msg.msg.ex['recipient'] = data?.recipient;
+              }
+          }
+        });
+      }
+      // const item = JSON.parse(JSON.stringify(txData));
+      // if (!txData.contract_addrs?.length) {
+      //     item.contract_addrs= contractAddrs
+      // }
+      return txData
     }
     //tx/identity
     async queryIdentityTx(query: IdentityTxReqDto): Promise<ListStruct<TxResDto[]>> {

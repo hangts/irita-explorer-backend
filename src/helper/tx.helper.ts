@@ -83,6 +83,7 @@ const common = {
         signers:1,
         time:1,
         addrs:1,
+        contract_addrs:1,
         fee:1,
     };
 
@@ -164,6 +165,7 @@ export const dbRes = {
         'msgs.msg.clean_packet':1,
         'msgs.msg.total_reward':1,
         'msgs.msg.pool_id':1,
+        'msgs.msg.hash':1,
 
     },
     service:{

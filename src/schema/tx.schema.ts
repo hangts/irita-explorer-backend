@@ -65,11 +65,13 @@ export const TxSchema = new mongoose.Schema({
     msgs: Array,
     signers: Array,
     addrs: Array,
+    contract_addrs: Array,
     fee: Object,
     tx_index: Number,
 }, { versionKey: false });
 TxSchema.index({ time: -1, "msgs.type": -1,status:-1 }, { background: true });
 TxSchema.index({ addrs: -1, time: -1, status:-1 }, { background: true });
+TxSchema.index({ contract_addrs: -1, time: -1, status:-1 }, { background: true });
 TxSchema.index({"msgs.type": -1,height:-1,"msgs.msg.ex.service_name":-1 }, { background: true });
 TxSchema.index({"msgs.msg.id": -1, "msgs.msg.denom": -1, "msgs.type": -1, "height": -1}, { background: true });
 

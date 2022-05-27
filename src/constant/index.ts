@@ -39,6 +39,16 @@ export enum ENV {
     production = 'production',
 };
 
+export enum DDCType {
+    contractTag= 'ddc_',
+    dataDdc = 'DDC',
+    ddc721 = 'DDC721',
+    ddc1155 = 'DDC1155',
+}
+export const ContractType = {
+    'ddc_721':1,
+    'ddc_1155':2,
+}
 export enum TxType {
     // service
     define_service = 'define_service',
@@ -99,6 +109,8 @@ export enum TxType {
     create_htlc = 'create_htlc',
     claim_htlc = 'claim_htlc',
     refund_htlc = 'refund_htlc',
+    // Evm
+    ethereum_tx = 'ethereum_tx',
     // Guardian
     add_profiler = 'add_profiler',
     delete_profiler = 'delete_profiler',

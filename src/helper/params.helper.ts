@@ -1,23 +1,17 @@
 import {
+  IIdentityTx,
   ITxsQuery,
   ITxsWithAddressQuery,
-  ITxsWithContextIdQuery,
-  ITxsWithNftQuery,
-  IIdentityTx,
   ITxsWithAssetQuery,
+  ITxsWithContextIdQuery,
+  ITxsWithDdcQuery,
+  ITxsWithNftQuery,
   ITXWithIdentity,
 } from '../types/schemaTypes/tx.interface';
-import {
-  IGovProposalQuery
-} from '../types/schemaTypes/proposal.interface'
-import { TxStatus,TxType } from '../constant';
+import { IGovProposalQuery } from '../types/schemaTypes/proposal.interface';
+import { DDCType, TxStatus, TxType } from '../constant';
 import { ITxsQueryParams } from '../types/tx.interface';
-import {
-  stakingTypes,
-  declarationTypes,
-  govTypes,
-  coinswapTypes
-} from '../helper/txTypes.helper';
+import { coinswapTypes, declarationTypes, govTypes, stakingTypes } from '../helper/txTypes.helper';
 import Cache from '../helper/cache';
 
 export function txListParamsHelper(query: ITxsQuery){
@@ -43,6 +37,9 @@ export function txListParamsHelper(query: ITxsQuery){
   }
   if (query.address && query.address.length) {
       queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
+  }
+  if (query.contract_addr && query.contract_addr.length) {
+      queryParameters['contract_addrs'] = { $elemMatch: { $eq: query.contract_addr } };
   }
   if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
       queryParameters.time = {};
@@ -222,6 +219,9 @@ export function TxWithAddressParamsHelper(query: ITxsWithAddressQuery){
           addrs: { $elemMatch: { $eq: query.address } },
       };
   }
+  if (query.contract_addr && query.contract_addr.length) {
+      queryParameters['contract_addrs'] = { $elemMatch: { $eq: query.contract_addr } };
+  }
   if (query.type && query.type.length) {
       let typeArr = query.type.split(",");
       queryParameters['msgs.type'] = {
@@ -297,6 +297,42 @@ export function queryTxWithNftHelper(query: ITxsWithNftQuery){
   return queryParameters
 }
 
+export function queryTxWithDdcHelper(query: ITxsWithDdcQuery){
+  const ddcTypesList = [
+    DDCType.ddc721,
+    DDCType.ddc1155,
+  ];
+  const queryParameters: { 'evm_datas.contract_address'?: string, 'ex_ddc_infos.ddc_id'?: number, 'ex_ddc_infos.ddc_type'?: object } = {};
+  queryParameters['ex_ddc_infos.ddc_type'] = {  $in: ddcTypesList || [] }
+  if (query.contract_address && query.contract_address.length) {
+    queryParameters['evm_datas.contract_address'] = query.contract_address;
+  }
+  if (Number(query.ddc_id)) {
+    queryParameters['ex_ddc_infos.ddc_id'] = Number(query.ddc_id);
+  }
+  return queryParameters
+}
+
+export function queryTxWithDdcAddrHelper(query: ITxsWithAddressQuery){
+    let queryParameters: any = {};
+
+    switch (query.status) {
+        case '1':
+            queryParameters.status = TxStatus.SUCCESS;
+            break;
+        case '2':
+            queryParameters.status = TxStatus.FAILED;
+            break;
+    }
+    if (query.address && query.address.length) {
+        queryParameters['$or'] = [
+            {"ex_ddc_infos.sender":query.address},
+            {"ex_ddc_infos.recipient":query.address}
+        ]
+    }
+    return queryParameters
+}
+
 export function queryTxListByIdentityHelper(query: IIdentityTx){
   const typesList: TxType[] = [
     TxType.create_identity,
@@ -357,6 +393,23 @@ export function findListHelper(denomId, nftId, owner){
   return queryParameters
 }
 
+export function findDdcListHelper(contract_address, ddcId, owner){
+  const queryParameters:any = {};
+  if (contract_address || ddcId || owner) {
+    if (contract_address) queryParameters.contract_address = contract_address;
+    if (Number(ddcId)) {
+        queryParameters.ddc_id = Number(ddcId)
+    }else{
+        const reg = new RegExp(ddcId, 'i');
+        queryParameters.ddc_name = { $regex: reg }
+    }
+
+    if (owner) queryParameters.owner = owner;
+    // condition.push({'$match': queryParameters});
+  }
+  return queryParameters
+}
+
 export function queryVoteByTxhashsAndAddressHelper(hash, address){
   const queryParameters =  {
     'tx_hash': {
@@ -377,7 +430,7 @@ export function queryDepositorByIdHelper(id){
         { 'msgs.msg.proposal_id': Number(id) },
         { 'events.attributes.key': 'proposal_id', 'events.attributes.value': String(id) }
     ],
-    status:TxStatus.SUCCESS 
+    status:TxStatus.SUCCESS
 }
   return queryParameters
 }
