@@ -8,18 +8,22 @@ import { IRandomKey } from '../types';
 import { TaskEnum } from '../constant';
 import { IAccountStruct } from '../types/schemaTypes/account.interface';
 import { INCREASE_HEIGHT,addressAccount } from '../constant';
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 @Injectable()
 export class AccountTaskService {
     constructor(
         @InjectModel('Tx') private txModel: any,
         @InjectModel('SyncTask') private taskModel: any,
-        @InjectModel('Account') private accountModel: any
+        @InjectModel('Account') private accountModel: any,
+        private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
     ) {
         this.doTask = this.doTask.bind(this);
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.account,0);
     }
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
         let status: boolean = await getTaskStatus(this.taskModel,taskName)
         if (!status) {
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.account,0);
             return
         }
         const accountList:IAccountStruct[] = await (this.accountModel as any).queryHandledBlockHeight();
@@ -66,6 +70,7 @@ export class AccountTaskService {
                 await (this.accountModel as any).insertManyAccount(addAccount);
             } catch (e) {
                 if (e.name !== 'BulkWriteError') {
+                    this.cronTaskWorkingStatusMetric.collect(TaskEnum.account,-1);
                     throw e;
                 }
             }
@@ -82,5 +87,6 @@ export class AccountTaskService {
             update_time: 0,
             handled_block_height
         });
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.account,1);
     }
 }

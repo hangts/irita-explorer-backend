@@ -9,6 +9,7 @@ import { StakingHttp } from "../http/lcd/staking.http";
 import { ParametersSchema } from "../schema/parameters.schema";
 import { DistributionHttp } from "../http/lcd/distribution.http";
 import {StakingValidatorSchema} from "../schema/staking.validator.schema";
+import {CronTaskWorkingStatusMetric,CronTaskWorkingStatusProvider} from "../monitor/metrics/cron_task_working_status.metric";
 @Module({
     imports:[
         MongooseModule.forFeature([
@@ -35,7 +36,8 @@ import {StakingValidatorSchema} from "../schema/staking.validator.schema";
             }
         ])
     ],
-    providers:[AccountTaskService,AccountInfoTaskService,StakingHttp,DistributionHttp],
+    providers:[AccountTaskService,AccountInfoTaskService,StakingHttp,DistributionHttp,
+        CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
     exports: [AccountTaskService,AccountInfoTaskService]
 })
 export class AccountTaskModule{}

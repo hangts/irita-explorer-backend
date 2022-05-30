@@ -4,16 +4,26 @@ import {Model} from 'mongoose'
 import {StakingHttp} from "../http/lcd/staking.http";
 import {GovHttp} from "../http/lcd/gov.http";
 import {getTimestamp} from "../util/util";
-import {moduleSlashing, moduleStaking, moduleStakingBondDenom,moduleGov,moduleGovDeposit} from "../constant";
+import {
+    moduleSlashing,
+    moduleStaking,
+    moduleStakingBondDenom,
+    moduleGov,
+    moduleGovDeposit,
+    TaskEnum
+} from "../constant";
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 
 @Injectable()
 export class ParametersTaskService {
     constructor(
         @InjectModel('ParametersTask') private parametersTaskModel: Model<any>, 
         private readonly stakingHttp: StakingHttp,
-        private readonly govHttp: GovHttp
+        private readonly govHttp: GovHttp,
+        private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
     ) {
         this.doTask = this.doTask.bind(this);
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.stakingSyncParameters,0)
     }
 
     async doTask(): Promise<any> {
@@ -73,6 +83,7 @@ export class ParametersTaskService {
         } else {
             await this.handleData(dbParametersData, needInsertData)
         }
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.stakingSyncParameters,1)
     }
 
     handleData(dbParameters, needInsertData) {

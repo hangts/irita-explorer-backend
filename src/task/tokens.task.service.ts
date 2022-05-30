@@ -4,19 +4,21 @@ import {InjectModel} from '@nestjs/mongoose';
 import {TokensHttp} from "../http/lcd/tokens.http";
 import {ITokens} from "../types/schemaTypes/tokens.interface";
 import {Model} from "mongoose"
-import { moduleStaking } from "../constant";
+import {moduleStaking, TaskEnum} from "../constant";
 import { TxType,currentChain, SRC_PROTOCOL } from '../constant';
 import { cfg } from '../config/config'
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 @Injectable()
 export class TokensTaskService {
     constructor(
         @InjectModel('Tokens') private tokensModel: Model<any>,
         @InjectModel('ParametersTask') private parametersTaskModel: Model<any>,
         @InjectModel('Tx') private txModel: any,
-
+        private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
         private  readonly TokensHttp:TokensHttp
     ) {
         this.doTask = this.doTask.bind(this);
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.tokens,0)
     }
 
     async doTask(): Promise<void> {
@@ -71,6 +73,7 @@ export class TokensTaskService {
 
             this.insertTokens(TokensDbMap)
         }
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.tokens,1)
 
     }
     private insertTokens(TokensDataMap) {

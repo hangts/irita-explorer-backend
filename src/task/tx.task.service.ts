@@ -12,12 +12,15 @@ import {
 } from '../helper/tx.helper';
 import { IExFieldQuery, ITxStruct } from '../types/schemaTypes/tx.interface';
 import { IExFieldTx } from '../types/tx.interface';
-import { TxType, TxStatus } from '../constant';
+import {TxType, TxStatus, TaskEnum} from '../constant';
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 
 @Injectable()
 export class TxTaskService {
-    constructor(@InjectModel('Tx') private txModel: any) {
+    constructor(@InjectModel('Tx') private txModel: any,
+                private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,) {
         this.doTask = this.doTask.bind(this);
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.txServiceName,0)
     }
 
     async doTask(): Promise<void>{
@@ -118,6 +121,7 @@ export class TxTaskService {
             exFieldQuery.callHash = item.ex_call_hash;
             this.txModel.addExFieldForServiceTx(exFieldQuery);
         });
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.txServiceName,1)
     }
 
 //     async doTask(): Promise<void>{

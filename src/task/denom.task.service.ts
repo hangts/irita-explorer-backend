@@ -7,6 +7,7 @@ import { ITxStruct } from '../types/schemaTypes/tx.interface';
 import { TaskEnum } from '../constant';
 import { getTaskStatus } from '../helper/task.helper';
 import {getTimestamp} from '../util/util';
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 
 @Injectable()
 export class DenomTaskService {
@@ -14,14 +15,17 @@ export class DenomTaskService {
         @InjectModel('Denom') private denomModel: Model<IDenom>,
         @InjectModel('Tx') private txModel: any,
         @InjectModel('SyncTask') private taskModel: any,
-        private readonly denomHttp: DenomHttp
+        private readonly denomHttp: DenomHttp,
+        private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
     ) {
         this.doTask = this.doTask.bind(this);
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.denom,0)
     }
 
     async doTask(taskName?: TaskEnum): Promise<void> {
         let status: boolean = await getTaskStatus(this.taskModel,taskName)
         if (!status) {
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.denom,0)
             return
         }
         const denomList: IDenomStruct[] = await (this.denomModel as any).findLastBlockHeight();
@@ -55,6 +59,7 @@ export class DenomTaskService {
                 await (this.denomModel as any).insertManyDenom(addDenom);
             }
         }
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.denom,1)
     }
 }
 

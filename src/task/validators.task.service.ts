@@ -6,18 +6,23 @@ import { ValidatorSchema } from '../schema/validators.schema';
 import { IValidatorsStruct } from "../types/schemaTypes/validators.interface"
 import md5 from "blueimp-md5"
 import { getTimestamp } from '../util/util';
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
+import {TaskEnum} from "../constant";
 @Injectable()
 export class ValidatorsTaskService {
  constructor(
    @InjectModel('SyncValidators') private ValidatorsModel: Model<any>,
+   private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
    private readonly validatorsHttp : ValidatorsHttp) {
    this.doTask = this.doTask.bind(this);
+     this.cronTaskWorkingStatusMetric.collect(TaskEnum.validators,0)
  }
     async doTask(): Promise<void> {
         let PageNum = 1,limitSize = 100, allValidatorsFromLcd = [];
         //验证人第一次默认请求 默认请求第一页
         let validatorsFromLcd: any[] = await this.validatorsHttp.queryValidatorsFromLcd(PageNum,limitSize);
         if (typeof validatorsFromLcd == 'undefined') {
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.validators,-1)
             return;
         }
         if(validatorsFromLcd && validatorsFromLcd.length > 0) {
@@ -56,6 +61,7 @@ export class ValidatorsTaskService {
          await this.saveValidators(insertValidators)
          await this.updateValidator(upDateValidators)
          await this.deleteValidator(deleteValidators)
+         this.cronTaskWorkingStatusMetric.collect(TaskEnum.validators,1)
     }
 
     static getShouldInsertList (lcdValidatorMap: Map<string, IValidatorsStruct> | null ,validatorsFromDb: Map<string,IValidatorsStruct> | null): Map<string, IValidatorsStruct>  {
