@@ -930,7 +930,7 @@ TxSchema.statics.queryTxWithAssetCount = async function(query:ITxsWithAssetQuery
   return await this.find(params).countDocuments();
 }
 
-//used at the nft_cron_task
+
 TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Promise<ITxStruct[]>  {
     const cond = [
         {
@@ -982,7 +982,6 @@ TxSchema.statics.queryDenomTxList = async function (lastBlockHeight: number): Pr
             }
         }, { msgs: 1, height: 1, time: 1, tx_hash: 1 }).sort({ height: 1 }).limit(MAX_OPERATE_TX_COUNT);
 };
-//used at the nft_cron_task
 TxSchema.statics.queryMaxNftTxList = async function (): Promise<ITxStruct[]>  {
     const typesList: TxType[] = [
         TxType.mint_nft,
