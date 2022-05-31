@@ -7,6 +7,7 @@ export const DenomSchema = new mongoose.Schema({
     json_schema: String,
     denom_id: { type: String, unique: true },
     creator: String,
+    owner: String,
     tx_hash: String,
     height: Number,
     time:Number,
@@ -58,30 +59,39 @@ DenomSchema.statics = {
     async findOneByDenomId(denomId:string): Promise<IDenomStruct> {
         return await this.findOne({denom_id:denomId});
     },
-    async saveDenom(denoms: IDenomMapStruct): Promise<IDenomStruct[]> {
-        return await this.create({
-            name: denoms.name,
-            denom_id: denoms.denomId,
-            json_schema: denoms.jsonSchema,
-            creator: denoms.creator,
-            tx_hash: denoms.txHash,
-            height: denoms.height,
-            time: denoms.createTime,
-            create_time: getTimestamp(),
-            update_time: getTimestamp(),
-        });
-    },
-    async findAllNames(): Promise<IDenomStruct[]> {
-        return await this.find({}, { denom_id: 1, name: 1 }).exec();
-    },
-
-    async updateDenom(denom: IDenomMapStruct): Promise<IDenomStruct> {
+    // async saveDenom(denoms: IDenomMapStruct): Promise<IDenomStruct[]> {
+    //     return await this.create({
+    //         name: denoms.name,
+    //         denom_id: denoms.denomId,
+    //         json_schema: denoms.jsonSchema,
+    //         creator: denoms.creator,
+    //         tx_hash: denoms.txHash,
+    //         height: denoms.height,
+    //         time: denoms.createTime,
+    //         create_time: getTimestamp(),
+    //         update_time: getTimestamp(),
+    //     });
+    // },
+    // async findAllNames(): Promise<IDenomStruct[]> {
+    //     return await this.find({}, { denom_id: 1, name: 1 }).exec();
+    // },
+    //
+    // async updateDenom(denom: IDenomMapStruct): Promise<IDenomStruct> {
+    //     return await this.findOneAndUpdate({
+    //         denom_id:denom.denomId,
+    //     }, {
+    //         tx_hash: denom.txHash,
+    //         height: denom.height,
+    //         time:denom.createTime,
+    //         update_time: getTimestamp(),
+    //     });
+    // },
+    async updateDenomOwner(denomId: string,oldOwner: string,newOwner: string): Promise<IDenomStruct> {
         return await this.findOneAndUpdate({
-            denom_id:denom.denomId,
+            denom_id: denomId,
+            owner: oldOwner,
         }, {
-            tx_hash: denom.txHash,
-            height: denom.height,
-            time:denom.createTime,
+            owner: newOwner,
             update_time: getTimestamp(),
         });
     },
