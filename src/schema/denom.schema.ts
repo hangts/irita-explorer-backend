@@ -86,13 +86,14 @@ DenomSchema.statics = {
     //         update_time: getTimestamp(),
     //     });
     // },
-    async updateDenomOwner(denomId: string,oldOwner: string,newOwner: string): Promise<IDenomStruct> {
+    async updateDenomOwner(denomId: string, newOwner: string,txHeight: number,txTime: number): Promise<IDenomStruct> {
         return await this.findOneAndUpdate({
             denom_id: denomId,
-            owner: oldOwner,
         }, {
             owner: newOwner,
             update_time: getTimestamp(),
+            last_block_height: txHeight,
+            last_block_time: txTime,
         });
     },
 

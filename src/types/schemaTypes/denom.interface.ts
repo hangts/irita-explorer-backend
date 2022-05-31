@@ -33,3 +33,9 @@ export interface IDenomMsgStruct {
     sender?: string,
     schema?: string
 }
+
+export interface ITransferDenomMsgStruct {
+    id?: string,
+    sender?: string,
+    recipient?: string,
+}

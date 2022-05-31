@@ -943,7 +943,7 @@ TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Prom
             $match:{
                 status: TxStatus.SUCCESS,
                 'msgs.type':{
-                    $in:[TxType.mint_nft, TxType.edit_nft, TxType.transfer_nft, TxType.transfer_denom, TxType.burn_nft]
+                    $in:[TxType.mint_nft, TxType.edit_nft, TxType.transfer_nft, TxType.burn_nft]
                 },
                 height: {$gt: lastBlockHeight, $lte: lastBlockHeight + INCREASE_HEIGHT}
             }
@@ -955,7 +955,7 @@ TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Prom
         {
             $match:{
                 'msgs.type':{
-                    $in:[TxType.mint_nft, TxType.edit_nft, TxType.transfer_nft,TxType.transfer_denom, TxType.burn_nft]
+                    $in:[TxType.mint_nft, TxType.edit_nft, TxType.transfer_nft, TxType.burn_nft]
                 },
             }
         },
@@ -973,7 +973,9 @@ TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Prom
 TxSchema.statics.queryDenomTxList = async function (lastBlockHeight: number): Promise<ITxStruct[]>  {
     return await this.find(
         {
-            'msgs.type': TxType.issue_denom,
+            'msgs.type': {
+                $in:[TxType.issue_denom, TxType.transfer_denom]
+            },
             status: TxStatus.SUCCESS,
             height: {
                 $gt: lastBlockHeight
@@ -985,7 +987,6 @@ TxSchema.statics.queryMaxNftTxList = async function (): Promise<ITxStruct[]>  {
     const typesList: TxType[] = [
         TxType.mint_nft,
         TxType.edit_nft,
-        TxType.transfer_denom,
         TxType.transfer_nft,
         TxType.burn_nft
     ];
@@ -1004,7 +1005,9 @@ TxSchema.statics.queryMaxNftTxList = async function (): Promise<ITxStruct[]>  {
 };
 
 TxSchema.statics.queryMaxDenomTxList = async function (): Promise<ITxStruct[]>  {
-    return await this.find({ 'msgs.type': TxType.issue_denom,status: TxStatus.SUCCESS },{height: 1}).sort({height: -1}).limit(1);
+    return await this.find({ 'msgs.type': {
+            $in:[TxType.issue_denom, TxType.transfer_denom]
+        },status: TxStatus.SUCCESS },{height: 1}).sort({height: -1}).limit(1);
 };
 
 TxSchema.statics.querySubmitProposalById = async function (id:string): Promise<ITxSubmitProposal>  {
