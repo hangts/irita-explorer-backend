@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from "mongoose";
-import { StatisticsNames } from '../constant';
+import {StatisticsNames, TaskEnum} from '../constant';
 import { INft } from '../types/schemaTypes/nft.interface';
 import { StatisticsType } from '../types/schemaTypes/statistics.interface';
 import { getTimestamp } from '../util/util';
 import { StakingHttp } from '../http/lcd/staking.http';
 import { BankHttp } from '../http/lcd/bank.http';
 import { DistributionHttp } from '../http/lcd/distribution.http';
-
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 
 
 @Injectable()
@@ -22,8 +22,10 @@ export class StatisticsTaskService {
     @InjectModel('Denom') private denomModel: any,
     @InjectModel('StakingSyncValidators') private stakingValidatorsModel: any,
     @InjectModel('Tokens') private tokensModel: Model<any>,
+    private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
   ) {
     this.doTask = this.doTask.bind(this);
+    this.cronTaskWorkingStatusMetric.collect(TaskEnum.statistics,0)
   }
   async doTask(): Promise<void> {
     // const tx_all = await this.queryTxCount()
@@ -83,7 +85,7 @@ export class StatisticsTaskService {
         await this.updateStatisticsRecord(statisticsRecord);
       }
     }
-
+    this.cronTaskWorkingStatusMetric.collect(TaskEnum.statistics,1)
   }
 
   async updateStatisticsRecord(statisticsRecord: StatisticsType) {

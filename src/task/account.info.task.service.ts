@@ -12,6 +12,7 @@ import { DistributionHttp } from "../http/lcd/distribution.http";
 import { moduleStaking,addressAccount } from "../constant";
 import {addressTransform} from "../util/util";
 import { addressPrefix } from "../constant";
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 
 @Injectable()
 export class AccountInfoTaskService {
@@ -22,8 +23,10 @@ export class AccountInfoTaskService {
         @InjectModel('StakingSyncValidators') private stakingSyncValidatorsModel: Model<any>,
         private readonly stakingHttp: StakingHttp,
         private readonly distributionHttp: DistributionHttp,
+        private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
     ) {
         this.doTask = this.doTask.bind(this);
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.accountInfo,0);
     }
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
         const accountList: IAccountStruct[] = await (this.accountModel as any).queryAllAddress();
@@ -123,6 +126,7 @@ export class AccountInfoTaskService {
                 }
             }
         }
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.accountInfo,1);
     }
     handleDelegationAndUnbondingDelegations(dataArray,dataFromLCD) {
         let flag = dataFromLCD && dataFromLCD.next_key;

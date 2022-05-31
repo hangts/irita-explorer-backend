@@ -10,9 +10,13 @@ export class LoggerInterceptor implements NestInterceptor {
 	    let urlTest = /^\/txs\?|^\/blocks\?|^\/statistics/;
 	    return next.handle().pipe(
 		    map(data => {
-		        const 	logFormat = getHttpRespondLog(req, data);
-		        if (!urlTest.test(req.originalUrl)) {Logger.access(logFormat)}
-		        return data;
+				if (data) {
+					const logFormat = getHttpRespondLog(req, data);
+					if (!urlTest.test(req.originalUrl)) {
+						Logger.access(logFormat)
+					}
+					return data;
+				}
 		    }),
 	    );
   	}

@@ -8,6 +8,10 @@ import { ProposalTaskService } from "../task/proposal.task.service";
 import { GovHttp } from "../http/lcd/gov.http";
 import { StakingValidatorSchema } from "../schema/staking.validator.schema";
 import {StakingHttp} from "../http/lcd/staking.http";
+import {
+    CronTaskWorkingStatusMetric,
+    CronTaskWorkingStatusProvider
+} from "../monitor/metrics/cron_task_working_status.metric";
 @Module({
     imports:[
         MongooseModule.forFeature([
@@ -38,7 +42,7 @@ import {StakingHttp} from "../http/lcd/staking.http";
             }
         ])
     ],
-    providers:[ProposalTaskService,GovHttp,StakingHttp],
+    providers:[ProposalTaskService,GovHttp,StakingHttp,CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
     exports: [ProposalTaskService]
 })
 export class ProposalTaskModule{}

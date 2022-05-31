@@ -9,6 +9,10 @@ import { IdentitySchema } from '../schema/identity.schema';
 import { StakingValidatorSchema } from "../schema/staking.validator.schema";
 import { StatisticsSchema } from '../schema/statistics.schema';
 import { TokensSchema } from '../schema/tokens.schema';
+import {
+  CronTaskWorkingStatusMetric,
+  CronTaskWorkingStatusProvider
+} from "../monitor/metrics/cron_task_working_status.metric";
 
 @Module({
   imports:[
@@ -46,7 +50,7 @@ import { TokensSchema } from '../schema/tokens.schema';
         collection: 'ex_statistics'
       }]),
   ],
-  providers:[StatisticsTaskService],
+  providers:[StatisticsTaskService, CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
   exports:[StatisticsTaskService]
 })
 export class StatisticsTaskModule{}

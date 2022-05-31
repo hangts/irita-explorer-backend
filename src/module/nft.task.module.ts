@@ -6,6 +6,7 @@ import { NftHttp } from '../http/lcd/nft.http';
 import { DenomSchema } from '../schema/denom.schema';
 import { TxSchema } from '../schema/tx.schema';
 import { SyncTaskSchema } from '../schema/sync.task.schema';
+import {CronTaskWorkingStatusMetric,CronTaskWorkingStatusProvider} from "../monitor/metrics/cron_task_working_status.metric";
 @Module({
     imports:[
         MongooseModule.forFeature([{
@@ -26,7 +27,7 @@ import { SyncTaskSchema } from '../schema/sync.task.schema';
             collection: 'sync_task'
         }])
     ],
-    providers:[NftTaskService, NftHttp],
+    providers:[NftTaskService, NftHttp, CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
     exports:[NftTaskService]
 })
 export class NftTaskModule{}

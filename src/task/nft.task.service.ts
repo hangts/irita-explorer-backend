@@ -12,20 +12,24 @@ import { INCREASE_HEIGHT, MAX_OPERATE_TX_COUNT, NFT_INFO_DO_NOT_MODIFY, TaskEnum
 import {Logger} from '../logger'
 import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
-import { getTaskStatus } from '../helper/task.helper'
+import { getTaskStatus } from '../helper/task.helper';
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 @Injectable()
 export class NftTaskService {
     constructor(@InjectModel('Nft') private nftModel: Model<INft>,
                 @InjectModel('Tx') private txModel: any,
                 @InjectModel('Denom') private denomModel: any,
                 @InjectModel('SyncTask') private taskModel: any,
+                private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
     ) {
         this.doTask = this.doTask.bind(this);
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.nft,0);
     }
 
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
         let status: boolean = await getTaskStatus(this.taskModel,taskName)
         if (!status) {
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.nft,0)
             return
         }
         taskLoggerHelper(`${taskName}: start to execute task`, randomKey);
@@ -42,6 +46,7 @@ export class NftTaskService {
         if (txList && txList.length > 0 && txList[0].height > 0) {
             maxHeight = txList[0].height;
         } else {
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.nft,-1)
             //如果高度未查出, 会出现超出tx高度以后一直递加查询仍然达不到 所需要的交易的数量, 会陷入死循环, 需要直接抛出错误
             throw 'the max height of nft tx has not been queried!';
         }
@@ -59,6 +64,7 @@ export class NftTaskService {
             taskLoggerHelper(`${taskName}: execute task (step should be start step + 4)`, randomKey);
             await this.handleNftTx(nftTxList, denomMap);
         }
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.nft,1)
         taskLoggerHelper(`${taskName}: end to execute task (step should be start step + 4 or 5)`, randomKey);
     }
 

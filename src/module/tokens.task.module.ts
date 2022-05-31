@@ -8,6 +8,10 @@ import {ParametersTaskService} from "../task/parameters.task.service";
 import { StakingHttp } from "../http/lcd/staking.http";
 import { TxSchema } from '../schema/tx.schema';
 import {GovHttp} from "../http/lcd/gov.http";
+import {
+    CronTaskWorkingStatusMetric,
+    CronTaskWorkingStatusProvider
+} from "../monitor/metrics/cron_task_working_status.metric";
 @Module({
     imports:[
         MongooseModule.forFeature([
@@ -28,7 +32,8 @@ import {GovHttp} from "../http/lcd/gov.http";
             },
         ])
     ],
-    providers:[TokensTaskService,StakingHttp,TokensHttp,ParametersTaskService,GovHttp],
+    providers:[TokensTaskService,StakingHttp,TokensHttp,ParametersTaskService,GovHttp,
+        CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
     exports: [TokensTaskService,]
 })
 export class TokensTaskModule{}
