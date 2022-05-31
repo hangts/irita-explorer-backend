@@ -44,7 +44,6 @@ export class DenomTaskService {
                         denom_id: msg && msg.id,
                         json_schema: msg && msg.schema,
                         creator: msg && msg.sender,
-                        owner: msg && msg.sender,
                         tx_hash: denom.tx_hash,
                         height: denom.height,
                         time: denom.time,

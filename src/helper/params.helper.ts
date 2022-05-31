@@ -279,13 +279,11 @@ export function TxWithContextIdParamsHelper(query: ITxsWithContextIdQuery){
   return queryParameters
 }
 
-//used at the txs/nfts api
 export function queryTxWithNftHelper(query: ITxsWithNftQuery){
   const nftTypesList = [
     TxType.mint_nft,
     TxType.edit_nft,
     TxType.transfer_nft,
-    TxType.transfer_denom,
     TxType.burn_nft,
   ];
   // let queryParameters: { 'msgs.msg.denom'?: string, 'msgs.msg.id'?: string, $or: object[] } = { $or: [{ 'msgs.type': filterTxTypeRegExp(nftTypesList) }] };

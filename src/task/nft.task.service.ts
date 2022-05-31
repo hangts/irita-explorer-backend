@@ -134,11 +134,6 @@ export class NftTaskService {
                 }
             } else if ((tx.msgs as any).type === TxType.burn_nft) {
                 nftObj[idStr].is_deleted = true;
-            } else if ((tx.msgs as any).type === TxType.transfer_denom) {
-                const denomId = msg?.id;
-                const oldOwner = msg?.sender;
-                const newOwner = msg?.recipient;
-                promiseList.push((this.denomModel as any).updateDenomOwner(denomId, oldOwner, newOwner));
             }
             nftObj[idStr].denom_id = msg.denom;
             nftObj[idStr].nft_id = msg.id;
