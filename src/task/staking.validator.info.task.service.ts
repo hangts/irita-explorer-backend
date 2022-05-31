@@ -26,6 +26,7 @@ export class StakingValidatorInfoTaskService {
         let validatorsFromLcd_unbonding = await this.stakingHttp.queryValidatorListFromLcd(validatorStatusStr.unbonding, pageNum, pageSize)
         allValidatorsFromLcd = [...(validatorsFromLcd_bonded || []),...(validatorsFromLcd_unbonded || []),...(validatorsFromLcd_unbonding || [])];
         if (!validatorsFromLcd_bonded || !allValidatorsFromLcd.length) {
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.stakingSyncValidatorsInfo,-1)
             return;
         }
         // 处理数据
@@ -49,6 +50,7 @@ export class StakingValidatorInfoTaskService {
         let needDeleteValidators = await StakingValidatorInfoTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
         await this.insertAndUpdateValidators(needInsertOrValidators)
         await this.deleteValidators(needDeleteValidators)
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.stakingSyncValidatorsInfo,1)
     }
 
     private async handDbValidators(allValidatorsFromLcd) {

@@ -27,7 +27,7 @@ export class ProposalTaskService {
     async doTask(): Promise<void> {
         const proposalFromLcd = await this.govHttp.getProposals(cfg.taskCfg.proposalsLimit);
         if (!proposalFromLcd) {
-            this.cronTaskWorkingStatusMetric.collect(TaskEnum.proposal,0)
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.proposal,-1)
             return;
         }
         const proposalFromDb = await this.proposalModel.queryAllProposals();

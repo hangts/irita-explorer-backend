@@ -22,6 +22,7 @@ export class StakingValidatorMoreInfoTaskService {
             await this.handDbValidators(validatorsFromDb)
         }
         // await this.UpdateValidators(validatorsFromDb)
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.stakingSyncValidatorsMoreInfo,1)
     }
 
     private async handDbValidators(validatorsFromDb) {
