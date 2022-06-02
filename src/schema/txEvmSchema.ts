@@ -5,7 +5,7 @@ import {
 } from '../types/schemaTypes/ddc.tx.evm.interface';
 import { ITxsWithAddressQuery, ITxsWithDdcQuery } from '../types/schemaTypes/tx.interface';
 import { dbRes } from '../helper/txEvm.helper';
-import { queryTxWithDdcHelper, queryTxWithDdcAddrHelper } from '../helper/params.helper';
+import { queryTxWithDdcHelper } from '../helper/params.helper';
 
 export const TxEvmSchema = new mongoose.Schema({
   time: Number,

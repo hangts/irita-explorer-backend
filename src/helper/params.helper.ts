@@ -313,25 +313,25 @@ export function queryTxWithDdcHelper(query: ITxsWithDdcQuery){
   return queryParameters
 }
 
-export function queryTxWithDdcAddrHelper(query: ITxsWithAddressQuery){
-    let queryParameters: any = {};
-
-    switch (query.status) {
-        case '1':
-            queryParameters.status = TxStatus.SUCCESS;
-            break;
-        case '2':
-            queryParameters.status = TxStatus.FAILED;
-            break;
-    }
-    if (query.address && query.address.length) {
-        queryParameters['$or'] = [
-            {"ex_ddc_infos.sender":query.address},
-            {"ex_ddc_infos.recipient":query.address}
-        ]
-    }
-    return queryParameters
-}
+// export function queryTxWithDdcAddrHelper(query: ITxsWithAddressQuery){
+//     let queryParameters: any = {};
+//
+//     switch (query.status) {
+//         case '1':
+//             queryParameters.status = TxStatus.SUCCESS;
+//             break;
+//         case '2':
+//             queryParameters.status = TxStatus.FAILED;
+//             break;
+//     }
+//     if (query.address && query.address.length) {
+//         queryParameters['$or'] = [
+//             {"ex_ddc_infos.sender":query.address},
+//             {"ex_ddc_infos.recipient":query.address}
+//         ]
+//     }
+//     return queryParameters
+// }
 
 export function queryTxListByIdentityHelper(query: IIdentityTx){
   const typesList: TxType[] = [
