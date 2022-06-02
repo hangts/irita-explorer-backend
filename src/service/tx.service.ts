@@ -990,10 +990,11 @@ export class TxService {
     }
     handleEvmTx(txEvms,txData) {
       let mapEvmContract = new Map()
-      let mapEvmDdc = new Map()
+      let mapEvmDdc = new Map(),mapEvmFee = new Map()
       let ddcIdsOfBatch = [], ddcUrisOfBatch = [], isBatch = false
       if (txEvms?.length) {
         for( const evmTx of txEvms) {
+            mapEvmFee.set(evmTx.tx_hash, evmTx.fee)
           if (evmTx?.evm_datas?.length){
             for (const data of evmTx.evm_datas) {
               mapEvmContract.set(data?.evm_tx_hash, data)
@@ -1049,6 +1050,9 @@ export class TxService {
       // if (!txData.contract_addrs?.length) {
       //     item.contract_addrs= contractAddrs
       // }
+      if (mapEvmFee.has(txData.tx_hash)) {
+          txData.fee = mapEvmFee.get(txData.tx_hash)
+      }
       return txData
     }
     //tx/identity
