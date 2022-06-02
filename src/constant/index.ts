@@ -71,6 +71,8 @@ export enum TxType {
     edit_nft = 'edit_nft',
     issue_denom = 'issue_denom',
     mint_nft = 'mint_nft',
+    transfer_denom = 'transfer_denom',
+
     // Asset
     issue_token = 'issue_token',
     edit_token = 'edit_token',
