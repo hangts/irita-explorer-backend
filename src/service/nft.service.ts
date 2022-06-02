@@ -61,9 +61,9 @@ export class NftService {
         }
     }
 
-    async findListByName(name: string): Promise<INftStruct[]> {
-        return await (this.nftModel as any).findListByName(name);
-    }
+    // async findListByName(name: string): Promise<INftStruct[]> {
+    //     return await (this.nftModel as any).findListByName(name);
+    // }
 
 }
 
