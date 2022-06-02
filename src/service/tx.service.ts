@@ -529,6 +529,8 @@ export class TxService {
 
         if(pageNum && pageSize){
           txListData = await this.txModel.queryTxWithHeight(query);
+            // add evm info about contract method
+          txListData.data = await this.addContractMethodToTxs(txListData.data)
           txData = await this.addMonikerToTxs(txListData.data);
         }
         if(useCount){
