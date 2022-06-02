@@ -44,12 +44,12 @@ describe('nft module', () => {
     });
 
 
-    describe('findListByName', () => {
-        it('should return nft name list', async () => {
-            const data: INftStruct[] = await nftService.findListByName('sunshine');
-            expect(data).toBeDefined();
-        });
-    });
+    // describe('findListByName', () => {
+    //     it('should return nft name list', async () => {
+    //         const data: INftStruct[] = await nftService.findListByName('sunshine');
+    //         expect(data).toBeDefined();
+    //     });
+    // });
 
 });
 
