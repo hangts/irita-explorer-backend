@@ -248,11 +248,12 @@ export class TxService {
             txHashes.push(tx.tx_hash)
           }
           const txEvms = await this.txEvmModel.findEvmTxsByHashes(txHashes)
-          let mapEvmContract = new Map()
+          let mapEvmContract = new Map(),mapEvmFee = new Map()
           if (!txEvms?.length) {
             return txList
           }
           for( const evmTx of txEvms) {
+            mapEvmFee.set(evmTx.tx_hash, evmTx.fee)
             if (evmTx?.evm_datas?.length){
               for (const data of evmTx.evm_datas) {
                 mapEvmContract.set(data?.evm_tx_hash, data)
@@ -271,6 +272,9 @@ export class TxService {
                   }
                 }
               })
+            }
+            if (mapEvmFee.has(tx.tx_hash)) {
+                tx.fee = mapEvmFee.get(tx.tx_hash)
             }
             return tx
           })
