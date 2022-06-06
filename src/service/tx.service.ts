@@ -333,8 +333,33 @@ export class TxService {
                 queryDb.type = TxType.ethereum_tx
                 const ddcType = ContractType[type]
                 if (ddcType) {
-                    const evmConfig = await this.evmContractCfgModel.queryContractAddrByType(ddcType)
-                    queryDb.contract_addr = evmConfig?.address
+                    if (ddcType > 0) {
+                        const evmConfig = await this.evmContractCfgModel.queryContractAddrByType(ddcType)
+                        queryDb.contract_addr = evmConfig?.address
+                    } else { //other contract
+                        const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs()
+                        let cfgAddrMap = new Map(),otherAddr = []
+                        for (const one of evmConfigs) {
+                            if (one?.address) {
+                                cfgAddrMap.set(one.address,"")
+                            }
+                        }
+                        //get all contract_address from ex_sync_tx_evm group by contract_address
+                        const ret = await this.txEvmModel.findAllContractAddr()
+                        if (ret && ret?.length) {
+                            for (const one of ret) {
+                                if (!cfgAddrMap.has(one?._id)) {
+                                    //collect other contract_address no found in cfg table
+                                    otherAddr.push(one._id)
+                                }
+                            }
+                        }
+                        if (otherAddr.length) {
+                            queryDb.contract_addr = otherAddr.join(",")
+                        } else {
+                            return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
+                        }
+                    }
                 } else {
                     return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
                 }

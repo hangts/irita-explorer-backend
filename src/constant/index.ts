@@ -46,6 +46,7 @@ export enum DDCType {
     ddc1155 = 'DDC1155',
 }
 export const ContractType = {
+    'ddc_other':-1,
     'ddc_721':1,
     'ddc_1155':2,
 }

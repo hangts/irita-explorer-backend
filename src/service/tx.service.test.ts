@@ -46,7 +46,7 @@ describe('TxController', () => {
             req.pageNum = 1;
             req.pageSize = 2;
             req.useCount = false;
-            req.type = 'ddc_721'
+            req.type = 'ddc_other'
             // if (parseInt(String((Math.random()*10)%2))) {
             //     req.type = [
             //     TxType.ethereum_tx,
@@ -76,8 +76,9 @@ describe('TxController', () => {
             // }
             // Logger.log('===>req:',req);
             let data = await txService.queryTxList(req);
-            Logger.log('===>queryTxListCount:',data.data.length);
-            expect(data).toBeDefined();
+            console.log(JSON.stringify(data))
+            // Logger.log('===>queryTxListCount:',data.data.length);
+            // expect(data).toBeDefined();
         });
     });
 

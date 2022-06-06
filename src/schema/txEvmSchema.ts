@@ -72,6 +72,23 @@ TxEvmSchema.statics = {
     return await this.find(queryParameters).countDocuments();
   },
 
+  async findAllContractAddr() {
+    const matchContractAddr = {
+      $match: {
+        'types': 'ethereum_tx'
+      }
+    }
+    const unwind = {
+      $unwind: '$evm_datas'
+    }
+    const group = {
+      $group: {
+        _id: '$evm_datas.contract_address'
+      },
+    }
+    return  await this.aggregate([matchContractAddr,unwind,group])
+  },
+
   // async queryTxWithDdcAddr(query: ITxsWithAddressQuery): Promise<ListStruct> {
   //   const result: ListStruct = {};
   //   const queryParameters = queryTxWithDdcAddrHelper(query)
