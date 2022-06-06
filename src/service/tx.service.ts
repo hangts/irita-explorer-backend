@@ -1031,6 +1031,7 @@ export class TxService {
                 // contractAddrs.push(evmCt?.contract_address)
                 msg.msg.ex['contract_address'] = evmCt?.contract_address
                 msg.msg.ex['ddc_method'] = evmCt?.evm_method
+                msg.msg.ex['evm_status'] = evmCt?.evm_status
               }
               if (mapEvmDdc.has(msg?.msg?.hash)) {
                 const data = mapEvmDdc.get(msg?.msg?.hash)
