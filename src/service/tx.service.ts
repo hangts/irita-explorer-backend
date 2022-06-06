@@ -961,7 +961,12 @@ export class TxService {
     //  txs/{hash}
     async queryTxWithHash(query: TxWithHashReqDto): Promise<TxResDto> {
         let result: TxResDto | null = null;
-        let txData: any = await this.txModel.queryTxWithHash(query.hash);
+        let txData: any;
+        if (query.hash && query.hash.startsWith("0x")) {
+            txData = await this.txModel.queryTxWithEvmHash(query.hash);
+        } else {
+            txData = await this.txModel.queryTxWithHash(query.hash);
+        }
         if (txData) {
             if (txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.denom && txData.msgs[0].msg.denom.length) {
                 const nftNameInfo: { denom_name: string, nft_name: string } = {

@@ -71,7 +71,7 @@ export const TxSchema = new mongoose.Schema({
 }, { versionKey: false });
 TxSchema.index({ time: -1, "msgs.type": -1,status:-1 }, { background: true });
 TxSchema.index({ addrs: -1, time: -1, status:-1 }, { background: true });
-TxSchema.index({ contract_addrs: -1, time: -1, status:-1 }, { background: true });
+// TxSchema.index({ contract_addrs: -1, time: -1, status:-1 }, { background: true });
 TxSchema.index({"msgs.type": -1,height:-1,"msgs.msg.ex.service_name":-1 }, { background: true });
 TxSchema.index({"msgs.msg.id": -1, "msgs.msg.denom": -1, "msgs.type": -1, "height": -1}, { background: true });
 
@@ -375,6 +375,12 @@ TxSchema.statics.querydisableServiceBindingWithServceName = async function(servc
 //  txs/{hash}
 TxSchema.statics.queryTxWithHash = async function(hash: string): Promise<ITxStruct> {
     return await this.findOne({ tx_hash: hash })
+        .sort({ height: -1 });
+};
+
+//  txs/{evm_hash}
+TxSchema.statics.queryTxWithEvmHash = async function(hash: string): Promise<ITxStruct> {
+    return await this.findOne({ 'msgs.msg.hash': hash, 'msgs.type': TxType.ethereum_tx})
         .sort({ height: -1 });
 };
 
