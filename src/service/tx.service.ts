@@ -42,7 +42,7 @@ import { ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName } from '..
 import {ITxStruct, ITxsWithAddressQuery, ITxsQuery} from '../types/schemaTypes/tx.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 import Cache from '../helper/cache';
-import { addressPrefix, proposal as proposalString, TxType, DDCType, ContractType } from '../constant';
+import { addressPrefix, proposal as proposalString, TxType, DDCType, ContractType ,deFaultGasPirce} from '../constant';
 import { addressTransform, splitString } from '../util/util';
 import { GovHttp } from '../http/lcd/gov.http';
 import { getConsensusPubkey } from '../helper/staking.helper';
@@ -62,7 +62,19 @@ export class TxService {
         private readonly govHttp: GovHttp
     ) {
         this.cacheTxTypes();
+        this.cacheEvmContract();
     }
+
+    handleAcutalFee(tx) {
+        if (tx.fee.amount.length === 1) {
+            const acutalFee = Number(tx.gas_used) * Number(deFaultGasPirce)
+            if (acutalFee) {
+                tx.fee.amount[0].amount = `${acutalFee}`
+            }
+        }
+        return tx
+    }
+
 
     async addMonikerToTxs(txList) {
         const validators = await this.stakingValidatorModel.queryAllValidators();
@@ -72,6 +84,7 @@ export class TxService {
         });
 
         const txData = (txList || []).map((tx) => {
+            tx = this.handleAcutalFee(tx)
             const item = JSON.parse(JSON.stringify(tx));
             let monikers = [];
             (item.addrs || []).forEach((addr) => {
@@ -248,12 +261,11 @@ export class TxService {
             txHashes.push(tx.tx_hash)
           }
           const txEvms = await this.txEvmModel.findEvmTxsByHashes(txHashes)
-          let mapEvmContract = new Map(),mapEvmFee = new Map()
+          let mapEvmContract = new Map()
           if (!txEvms?.length) {
             return txList
           }
           for( const evmTx of txEvms) {
-            mapEvmFee.set(evmTx.tx_hash, evmTx.fee)
             if (evmTx?.evm_datas?.length){
               for (const data of evmTx.evm_datas) {
                 mapEvmContract.set(data?.evm_tx_hash, data)
@@ -272,9 +284,6 @@ export class TxService {
                   }
                 }
               })
-            }
-            if (mapEvmFee.has(tx.tx_hash)) {
-                tx.fee = mapEvmFee.get(tx.tx_hash)
             }
             return tx
           })
@@ -309,6 +318,15 @@ export class TxService {
         const txTypes = await this.txTypeModel.queryTxTypeList();
         Cache.supportTypes = txTypes.map((item) => item.type_name);
     }
+    async cacheEvmContract() {
+        const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs();
+        for (const one of evmConfigs) {
+            if (one?.address) {
+                Cache.supportEvmTypeAddr.set(one.type,one.address)
+                Cache.supportEvmAddrType.set(one.address,one.type)
+            }
+        }
+    }
 
     // txs
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
@@ -330,25 +348,19 @@ export class TxService {
             }
             //search contract_address when type is ethereum_tx
             if (type && type.includes(DDCType.contractTag)) {
+                await this.cacheEvmContract();
                 queryDb.type = TxType.ethereum_tx
                 const ddcType = ContractType[type]
                 if (ddcType) {
                     if (ddcType > 0) {
-                        const evmConfig = await this.evmContractCfgModel.queryContractAddrByType(ddcType)
-                        queryDb.contract_addr = evmConfig?.address
+                        queryDb.contract_addr = Cache.supportEvmTypeAddr.get(ddcType)
                     } else { //other contract
-                        const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs()
-                        let cfgAddrMap = new Map(),otherAddr = []
-                        for (const one of evmConfigs) {
-                            if (one?.address) {
-                                cfgAddrMap.set(one.address,"")
-                            }
-                        }
+                        let otherAddr = []
                         //get all contract_address from ex_sync_tx_evm group by contract_address
                         const ret = await this.txEvmModel.findAllContractAddr()
                         if (ret && ret?.length) {
                             for (const one of ret) {
-                                if (!cfgAddrMap.has(one?._id)) {
+                                if (!Cache.supportEvmAddrType.has(one?._id)) {
                                     //collect other contract_address no found in cfg table
                                     otherAddr.push(one._id)
                                 }
@@ -554,8 +566,6 @@ export class TxService {
 
         if(pageNum && pageSize){
           txListData = await this.txModel.queryTxWithHeight(query);
-            // add evm info about contract method
-          txListData.data = await this.addContractMethodToTxs(txListData.data)
           txData = await this.addMonikerToTxs(txListData.data);
         }
         if(useCount){
@@ -1022,11 +1032,10 @@ export class TxService {
     }
     handleEvmTx(txEvms,txData) {
       let mapEvmContract = new Map()
-      let mapEvmDdc = new Map(),mapEvmFee = new Map()
+      let mapEvmDdc = new Map()
       let ddcIdsOfBatch = [], ddcUrisOfBatch = [], isBatch = false
       if (txEvms?.length) {
         for( const evmTx of txEvms) {
-            mapEvmFee.set(evmTx.tx_hash, evmTx.fee)
           if (evmTx?.evm_datas?.length){
             for (const data of evmTx.evm_datas) {
               mapEvmContract.set(data?.evm_tx_hash, data)
@@ -1056,7 +1065,7 @@ export class TxService {
                 // contractAddrs.push(evmCt?.contract_address)
                 msg.msg.ex['contract_address'] = evmCt?.contract_address
                 msg.msg.ex['ddc_method'] = evmCt?.evm_method
-                msg.msg.ex['evm_status'] = evmCt?.evm_status
+                msg.msg.ex['tx_receipt'] = evmCt?.tx_receipt
               }
               if (mapEvmDdc.has(msg?.msg?.hash)) {
                 const data = mapEvmDdc.get(msg?.msg?.hash)
@@ -1083,9 +1092,6 @@ export class TxService {
       // if (!txData.contract_addrs?.length) {
       //     item.contract_addrs= contractAddrs
       // }
-      if (mapEvmFee.has(txData.tx_hash)) {
-          txData.fee = mapEvmFee.get(txData.tx_hash)
-      }
       return txData
     }
     //tx/identity

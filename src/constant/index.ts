@@ -178,7 +178,7 @@ export enum currentChain  {
     iris ='iris',
     binance = 'binance'
 }
-
+export const deFaultGasPirce = 1
 export const signedBlocksWindow = 'signed_blocks_window'
 export const hubDefaultEmptyValue = '[do-not-modify]'
 export const moduleSlashing = 'slashing'
