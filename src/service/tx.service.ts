@@ -42,7 +42,7 @@ import { ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName } from '..
 import {ITxStruct, ITxsWithAddressQuery, ITxsQuery} from '../types/schemaTypes/tx.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 import Cache from '../helper/cache';
-import { addressPrefix, proposal as proposalString, TxType, DDCType, ContractType ,deFaultGasPirce} from '../constant';
+import { addressPrefix, proposal as proposalString, TxType, DDCType, ContractType ,deFaultGasPirce,defaultEvmTxReceiptErrlog} from '../constant';
 import { addressTransform, splitString } from '../util/util';
 import { GovHttp } from '../http/lcd/gov.http';
 import { getConsensusPubkey } from '../helper/staking.helper';
@@ -1065,7 +1065,16 @@ export class TxService {
                 // contractAddrs.push(evmCt?.contract_address)
                 msg.msg.ex['contract_address'] = evmCt?.contract_address
                 msg.msg.ex['ddc_method'] = evmCt?.evm_method
-                msg.msg.ex['tx_receipt'] = evmCt?.tx_receipt
+
+                  //tx_receipt value handle
+                  let txRecipient = {
+                      'status': evmCt?.tx_receipt?.status,
+                      'log': "",
+                  };
+                  if (!Number(evmCt?.tx_receipt?.status)) {
+                      txRecipient['log'] = evmCt?.tx_receipt?.logs?.length > 0 ? evmCt?.tx_receipt?.logs?.join(",") : defaultEvmTxReceiptErrlog;
+                  }
+                  msg.msg.ex['tx_receipt'] = txRecipient;
               }
               if (mapEvmDdc.has(msg?.msg?.hash)) {
                 const data = mapEvmDdc.get(msg?.msg?.hash)
