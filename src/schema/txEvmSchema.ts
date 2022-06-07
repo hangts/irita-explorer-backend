@@ -75,7 +75,7 @@ TxEvmSchema.statics = {
   async findAllContractAddr() {
     const matchContractAddr = {
       $match: {
-        'types': 'ethereum_tx'
+        'height': {$gt:0}
       }
     }
     const unwind = {
