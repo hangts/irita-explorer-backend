@@ -85,6 +85,7 @@ const common = {
         addrs:1,
         contract_addrs:1,
         fee:1,
+        gas_used:1,
     };
 
 const fromTo = {

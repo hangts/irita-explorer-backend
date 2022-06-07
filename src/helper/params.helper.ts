@@ -39,7 +39,9 @@ export function txListParamsHelper(query: ITxsQuery){
       queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
   }
   if (query.contract_addr && query.contract_addr.length) {
-      queryParameters['contract_addrs'] = { $elemMatch: { $eq: query.contract_addr } };
+      let contractAddrArr = query.contract_addr.split(",");
+      queryParameters['contract_addrs'] = {'$in':contractAddrArr}
+      // queryParameters['contract_addrs'] = { $elemMatch: { $eq: query.contract_addr } };
   }
   if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
       queryParameters.time = {};

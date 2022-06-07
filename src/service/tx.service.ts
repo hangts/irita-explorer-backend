@@ -42,7 +42,7 @@ import { ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName } from '..
 import {ITxStruct, ITxsWithAddressQuery, ITxsQuery} from '../types/schemaTypes/tx.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 import Cache from '../helper/cache';
-import { addressPrefix, proposal as proposalString, TxType, DDCType, ContractType } from '../constant';
+import { addressPrefix, proposal as proposalString, TxType, DDCType, ContractType ,deFaultGasPirce,defaultEvmTxReceiptErrlog} from '../constant';
 import { addressTransform, splitString } from '../util/util';
 import { GovHttp } from '../http/lcd/gov.http';
 import { getConsensusPubkey } from '../helper/staking.helper';
@@ -62,7 +62,19 @@ export class TxService {
         private readonly govHttp: GovHttp
     ) {
         this.cacheTxTypes();
+        this.cacheEvmContract();
     }
+
+    handleAcutalFee(tx) {
+        if (tx.fee.amount.length === 1) {
+            const acutalFee = Number(tx.gas_used) * Number(deFaultGasPirce)
+            if (acutalFee) {
+                tx.fee.amount[0].amount = `${acutalFee}`
+            }
+        }
+        return tx
+    }
+
 
     async addMonikerToTxs(txList) {
         const validators = await this.stakingValidatorModel.queryAllValidators();
@@ -72,6 +84,7 @@ export class TxService {
         });
 
         const txData = (txList || []).map((tx) => {
+            tx = this.handleAcutalFee(tx)
             const item = JSON.parse(JSON.stringify(tx));
             let monikers = [];
             (item.addrs || []).forEach((addr) => {
@@ -248,12 +261,11 @@ export class TxService {
             txHashes.push(tx.tx_hash)
           }
           const txEvms = await this.txEvmModel.findEvmTxsByHashes(txHashes)
-          let mapEvmContract = new Map(),mapEvmFee = new Map()
+          let mapEvmContract = new Map()
           if (!txEvms?.length) {
             return txList
           }
           for( const evmTx of txEvms) {
-            mapEvmFee.set(evmTx.tx_hash, evmTx.fee)
             if (evmTx?.evm_datas?.length){
               for (const data of evmTx.evm_datas) {
                 mapEvmContract.set(data?.evm_tx_hash, data)
@@ -272,9 +284,6 @@ export class TxService {
                   }
                 }
               })
-            }
-            if (mapEvmFee.has(tx.tx_hash)) {
-                tx.fee = mapEvmFee.get(tx.tx_hash)
             }
             return tx
           })
@@ -309,6 +318,15 @@ export class TxService {
         const txTypes = await this.txTypeModel.queryTxTypeList();
         Cache.supportTypes = txTypes.map((item) => item.type_name);
     }
+    async cacheEvmContract() {
+        const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs();
+        for (const one of evmConfigs) {
+            if (one?.address) {
+                Cache.supportEvmTypeAddr.set(one.type,one.address)
+                Cache.supportEvmAddrType.set(one.address,one.type)
+            }
+        }
+    }
 
     // txs
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
@@ -330,11 +348,30 @@ export class TxService {
             }
             //search contract_address when type is ethereum_tx
             if (type && type.includes(DDCType.contractTag)) {
+                await this.cacheEvmContract();
                 queryDb.type = TxType.ethereum_tx
                 const ddcType = ContractType[type]
                 if (ddcType) {
-                    const evmConfig = await this.evmContractCfgModel.queryContractAddrByType(ddcType)
-                    queryDb.contract_addr = evmConfig?.address
+                    if (ddcType > 0) {
+                        queryDb.contract_addr = Cache.supportEvmTypeAddr.get(ddcType)
+                    } else { //other contract
+                        let otherAddr = []
+                        //get all contract_address from ex_sync_tx_evm group by contract_address
+                        const ret = await this.txEvmModel.findAllContractAddr()
+                        if (ret && ret?.length) {
+                            for (const one of ret) {
+                                if (!Cache.supportEvmAddrType.has(one?._id)) {
+                                    //collect other contract_address no found in cfg table
+                                    otherAddr.push(one._id)
+                                }
+                            }
+                        }
+                        if (otherAddr.length) {
+                            queryDb.contract_addr = otherAddr.join(",")
+                        } else {
+                            return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
+                        }
+                    }
                 } else {
                     return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
                 }
@@ -959,7 +996,12 @@ export class TxService {
     //  txs/{hash}
     async queryTxWithHash(query: TxWithHashReqDto): Promise<TxResDto> {
         let result: TxResDto | null = null;
-        let txData: any = await this.txModel.queryTxWithHash(query.hash);
+        let txData: any;
+        if (query.hash && query.hash.startsWith("0x")) {
+            txData = await this.txModel.queryTxWithEvmHash(query.hash);
+        } else {
+            txData = await this.txModel.queryTxWithHash(query.hash);
+        }
         if (txData) {
             if (txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.denom && txData.msgs[0].msg.denom.length) {
                 const nftNameInfo: { denom_name: string, nft_name: string } = {
@@ -1023,6 +1065,16 @@ export class TxService {
                 // contractAddrs.push(evmCt?.contract_address)
                 msg.msg.ex['contract_address'] = evmCt?.contract_address
                 msg.msg.ex['ddc_method'] = evmCt?.evm_method
+
+                  //tx_receipt value handle
+                  let txRecipient = {
+                      'status': evmCt?.tx_receipt?.status,
+                      'log': "",
+                  };
+                  if (!Number(evmCt?.tx_receipt?.status)) {
+                      txRecipient['log'] = evmCt?.tx_receipt?.logs?.length > 0 ? evmCt?.tx_receipt?.logs?.join(",") : defaultEvmTxReceiptErrlog;
+                  }
+                  msg.msg.ex['tx_receipt'] = txRecipient;
               }
               if (mapEvmDdc.has(msg?.msg?.hash)) {
                 const data = mapEvmDdc.get(msg?.msg?.hash)
