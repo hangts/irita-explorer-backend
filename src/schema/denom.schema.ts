@@ -16,6 +16,7 @@ export const DenomSchema = new mongoose.Schema({
 }, { versionKey: false });
 // 新增
 DenomSchema.index({ height: 1}, { background:true});
+DenomSchema.index({ name: 1, height: 1}, { background:true});
 
 DenomSchema.statics = {
     async findList(
@@ -29,10 +30,10 @@ DenomSchema.statics = {
         } else {
             const params = {};
             if(denomNameOrId){
-                const reg = new RegExp(denomNameOrId, 'i');
+                // const reg = new RegExp(denomNameOrId, 'i');
                 params['$or'] = [
-                    { 'name': { $regex: reg } },
-                    { 'denom_id': { $regex: reg } },
+                    { 'name': denomNameOrId },
+                    { 'denom_id': denomNameOrId },
                 ];
             }
             return await this.find(params)
@@ -44,10 +45,10 @@ DenomSchema.statics = {
     async queryDenomCount(denomNameOrId?: string){
         const params = {};
         if(denomNameOrId){
-            const reg = new RegExp(denomNameOrId, 'i');
+            // const reg = new RegExp(denomNameOrId, 'i');
             params['$or'] = [
-                { 'name': { $regex: reg } },
-                { 'denom_id': { $regex: reg } },
+                { 'name': denomNameOrId },
+                { 'denom_id': denomNameOrId },
             ]
         }
         return this.countDocuments(params);
