@@ -1022,7 +1022,12 @@ export class TxService {
             if (txData.msgs[0] && txData.msgs[0].type && txData.msgs[0].type === TxType.create_validator && txData.msgs[0].msg && txData.msgs[0].msg.pubkey) {
                 txData.msgs[0].msg.pubkey = getConsensusPubkey(JSON.parse(txData.msgs[0].msg.pubkey).key);
             }
-            const txEvms = await this.txEvmModel.findEvmTxsByHashes([query.hash])
+            let txEvms:any;
+            if (query.hash && query.hash.startsWith("0x")) {
+                txEvms = await this.txEvmModel.findEvmTxsByEvmHash(query.hash)
+            }else{
+                txEvms = await this.txEvmModel.findEvmTxsByHashes([query.hash])
+            }
             txData = this.handleEvmTx(txEvms,txData)
 
             const tx = await this.addMonikerToTxs([txData]);
@@ -1056,15 +1061,16 @@ export class TxService {
         txData?.msgs?.forEach((msg,index) => {
           switch (msg.type) {
             case TxType.ethereum_tx:
-              msg.msg.ex={}
+              msg.msg.ex={};
               if (mapEvmContract.has(msg?.msg?.hash)) {
                 const evmCt = mapEvmContract.get(msg?.msg?.hash);
                 if (evmCt?.data_type != DDCType.dataDdc ){
                   return
                 }
-                // contractAddrs.push(evmCt?.contract_address)
-                msg.msg.ex['contract_address'] = evmCt?.contract_address
-                msg.msg.ex['ddc_method'] = evmCt?.evm_method
+                const msgData = JSON.parse(msg?.msg?.data)
+                msg.msg.ex['data'] = msgData?.data || "";
+                msg.msg.ex['contract_address'] = evmCt?.contract_address;
+                msg.msg.ex['ddc_method'] = evmCt?.evm_method;
 
                   //tx_receipt value handle
                   let txRecipient = {
@@ -1082,10 +1088,10 @@ export class TxService {
                   return
                 }
                 if (isBatch) {
-                      msg.msg.ex['ddc_id'] = ddcIdsOfBatch
-                      msg.msg.ex['ddc_uri'] = ddcUrisOfBatch
+                      msg.msg.ex['ddc_id'] = ddcIdsOfBatch;
+                      msg.msg.ex['ddc_uri'] = ddcUrisOfBatch;
                 }else{
-                    msg.msg.ex['ddc_id'] = data?.ddc_id
+                    msg.msg.ex['ddc_id'] = data?.ddc_id;
                     msg.msg.ex['ddc_uri'] = data?.ddc_uri;
                 }
                 msg.msg.ex['ddc_type'] = data?.ddc_type;
