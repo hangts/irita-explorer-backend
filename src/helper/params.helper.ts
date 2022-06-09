@@ -222,7 +222,7 @@ export function TxWithAddressParamsHelper(query: ITxsWithAddressQuery){
       };
   }
   if (query.contract_addr && query.contract_addr.length) {
-      queryParameters['contract_addrs'] = { $elemMatch: { $eq: query.contract_addr } };
+      queryParameters['contract_addrs'] = { '$in': query.contract_addr.split(',') };
   }
   if (query.type && query.type.length) {
       let typeArr = query.type.split(",");
