@@ -222,7 +222,7 @@ export function TxWithAddressParamsHelper(query: ITxsWithAddressQuery){
       };
   }
   if (query.contract_addr && query.contract_addr.length) {
-      queryParameters['contract_addrs'] = { $elemMatch: { $eq: query.contract_addr } };
+      queryParameters['contract_addrs'] = { '$in': query.contract_addr.split(',') };
   }
   if (query.type && query.type.length) {
       let typeArr = query.type.split(",");
@@ -383,11 +383,11 @@ export function queryIdentityListHelper(query: ITXWithIdentity){
 export function findListHelper(denomId, nftId, owner){
   const queryParameters:any = {};
     if (denomId || nftId || owner) {
-      const reg = new RegExp(nftId, 'i');
+      // const reg = new RegExp(nftId, 'i');
       if (denomId) queryParameters.denom_id = denomId;
       if (nftId) queryParameters['$or']= [
-          {'nft_name': { $regex: reg }},
-          {'nft_id': { $regex: reg }},
+          {'nft_name': nftId},
+          {'nft_id': nftId},
       ];
       if (owner) queryParameters.owner = owner;
       // condition.push({'$match': queryParameters});
@@ -400,10 +400,10 @@ export function findDdcListHelper(contract_address, ddcId, owner){
   if (contract_address || ddcId || owner) {
     if (contract_address) queryParameters.contract_address = contract_address;
     if (Number(ddcId)) {
-        queryParameters.ddc_id = Number(ddcId)
+        queryParameters.ddc_id = Number(ddcId);
     }else{
-        const reg = new RegExp(ddcId, 'i');
-        queryParameters.ddc_name = { $regex: reg }
+        // const reg = new RegExp(ddcId, 'i');
+        queryParameters.ddc_name = ddcId;
     }
 
     if (owner) queryParameters.owner = owner;

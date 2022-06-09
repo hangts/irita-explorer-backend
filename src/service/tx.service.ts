@@ -63,6 +63,7 @@ export class TxService {
     ) {
         this.cacheTxTypes();
         this.cacheEvmContract();
+        this.cacheOtherEvmContractAddr();
     }
 
     handleAcutalFee(tx) {
@@ -327,7 +328,18 @@ export class TxService {
             }
         }
     }
-
+    async cacheOtherEvmContractAddr() {
+        //get all contract_address from ex_sync_tx_evm group by contract_address
+        const ret = await this.txEvmModel.findAllContractAddr()
+        if (ret && ret?.length) {
+            for (const one of ret) {
+                if (!Cache.supportEvmAddrType.has(one?._id)) {
+                    //collect other contract_address no found in cfg table
+                    Cache.otherEvmContractAddr.push(one._id)
+                }
+            }
+        }
+    }
     // txs
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
@@ -355,19 +367,8 @@ export class TxService {
                     if (ddcType > 0) {
                         queryDb.contract_addr = Cache.supportEvmTypeAddr.get(ddcType)
                     } else { //other contract
-                        let otherAddr = []
-                        //get all contract_address from ex_sync_tx_evm group by contract_address
-                        const ret = await this.txEvmModel.findAllContractAddr()
-                        if (ret && ret?.length) {
-                            for (const one of ret) {
-                                if (!Cache.supportEvmAddrType.has(one?._id)) {
-                                    //collect other contract_address no found in cfg table
-                                    otherAddr.push(one._id)
-                                }
-                            }
-                        }
-                        if (otherAddr.length) {
-                            queryDb.contract_addr = otherAddr.join(",")
+                        if (Cache.otherEvmContractAddr.length) {
+                            queryDb.contract_addr = Cache.otherEvmContractAddr.join(",")
                         } else {
                             return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
                         }
@@ -591,11 +592,20 @@ export class TxService {
           }
           //search contract_address when type is ethereum_tx
           if (type && type.includes(DDCType.contractTag)) {
+              await this.cacheEvmContract();
               queryDb.type = TxType.ethereum_tx
               const ddcType = ContractType[type]
               if (ddcType) {
-                  const evmConfig = await this.evmContractCfgModel.queryContractAddrByType(ddcType)
-                  queryDb.contract_addr = evmConfig?.address
+                  if (ddcType > 0) {
+                      queryDb.contract_addr = Cache.supportEvmTypeAddr.get(ddcType)
+                  } else { //other contract
+
+                      if (Cache.otherEvmContractAddr.length) {
+                          queryDb.contract_addr = Cache.otherEvmContractAddr.join(",")
+                      } else {
+                          return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
+                      }
+                  }
               } else {
                   return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
               }
