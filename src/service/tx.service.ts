@@ -67,6 +67,9 @@ export class TxService {
     }
 
     handleAcutalFee(tx) {
+        if (tx?.type !== TxType.ethereum_tx) {
+            return tx
+        }
         if (tx.fee.amount.length === 1) {
             const acutalFee = Number(tx.gas_used) * Number(deFaultGasPirce)
             if (acutalFee) {
