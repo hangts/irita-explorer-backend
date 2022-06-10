@@ -67,13 +67,15 @@ export const TxSchema = new mongoose.Schema({
     addrs: Array,
     contract_addrs: Array,
     fee: Object,
+    gas_used: Number,
     tx_index: Number,
 }, { versionKey: false });
 TxSchema.index({ time: -1, "msgs.type": -1,status:-1 }, { background: true });
 TxSchema.index({ addrs: -1, time: -1, status:-1 }, { background: true });
-TxSchema.index({ contract_addrs: -1, time: -1, status:-1 }, { background: true });
+// TxSchema.index({ contract_addrs: -1, time: -1, status:-1 }, { background: true });
 TxSchema.index({"msgs.type": -1,height:-1,"msgs.msg.ex.service_name":-1 }, { background: true });
 TxSchema.index({"msgs.msg.id": -1, "msgs.msg.denom": -1, "msgs.type": -1, "height": -1}, { background: true });
+TxSchema.index({"msgs.msg.hash":-1, "height": -1}, { background: true });
 
 //	csrb 浏览器交易记录过滤正则表达式
 // function filterExTxTypeRegExp(): object {
@@ -375,6 +377,12 @@ TxSchema.statics.querydisableServiceBindingWithServceName = async function(servc
 //  txs/{hash}
 TxSchema.statics.queryTxWithHash = async function(hash: string): Promise<ITxStruct> {
     return await this.findOne({ tx_hash: hash })
+        .sort({ height: -1 });
+};
+
+//  txs/{evm_hash}
+TxSchema.statics.queryTxWithEvmHash = async function(hash: string): Promise<ITxStruct> {
+    return await this.findOne({ 'msgs.msg.hash': hash})
         .sort({ height: -1 });
 };
 
@@ -974,7 +982,9 @@ TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Prom
 TxSchema.statics.queryDenomTxList = async function (lastBlockHeight: number): Promise<ITxStruct[]>  {
     return await this.find(
         {
-            'msgs.type': TxType.issue_denom,
+            'msgs.type': {
+                $in:[TxType.issue_denom, TxType.transfer_denom]
+            },
             status: TxStatus.SUCCESS,
             height: {
                 $gt: lastBlockHeight
@@ -1004,7 +1014,9 @@ TxSchema.statics.queryMaxNftTxList = async function (): Promise<ITxStruct[]>  {
 };
 
 TxSchema.statics.queryMaxDenomTxList = async function (): Promise<ITxStruct[]>  {
-    return await this.find({ 'msgs.type': TxType.issue_denom,status: TxStatus.SUCCESS },{height: 1}).sort({height: -1}).limit(1);
+    return await this.find({ 'msgs.type': {
+            $in:[TxType.issue_denom, TxType.transfer_denom]
+        },status: TxStatus.SUCCESS },{height: 1}).sort({height: -1}).limit(1);
 };
 
 TxSchema.statics.querySubmitProposalById = async function (id:string): Promise<ITxSubmitProposal>  {

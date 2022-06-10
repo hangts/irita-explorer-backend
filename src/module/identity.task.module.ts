@@ -6,6 +6,10 @@ import { TxSchema } from '../schema/tx.schema';
 import { PubkeySchema } from '../schema/pubkey.schema';
 import { CertificateSchema } from '../schema/certificate.schema';
 import { SyncTaskSchema } from '../schema/sync.task.schema';
+import {
+  CronTaskWorkingStatusMetric,
+  CronTaskWorkingStatusProvider
+} from "../monitor/metrics/cron_task_working_status.metric";
 @Module({
   imports:[
     MongooseModule.forFeature([{
@@ -30,7 +34,7 @@ import { SyncTaskSchema } from '../schema/sync.task.schema';
       collection: 'sync_task'
   }])
   ],
-  providers:[IdentityTaskService],
+  providers:[IdentityTaskService, CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
   exports:[IdentityTaskService]
 })
 export class IdentityTaskModule{}

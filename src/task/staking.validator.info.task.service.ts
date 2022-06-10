@@ -4,15 +4,18 @@ import {StakingHttp} from "../http/lcd/staking.http";
 import {BlockHttp} from "../http/lcd/block.http";
 import {Model} from "mongoose"
 import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp, hexToBech32} from "../util/util";
-import { addressPrefix, moduleSlashing, validatorStatusStr } from "../constant";
+import {addressPrefix, moduleSlashing, TaskEnum, validatorStatusStr} from "../constant";
 import { getConsensusPubkey } from '../helper/staking.helper';
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 
 @Injectable()
 export class StakingValidatorInfoTaskService {
     constructor(@InjectModel('StakingSyncValidators') private stakingSyncValidatorsModel: Model<any>,
                 @InjectModel('ParametersTask') private parametersTaskModel: Model<any>,
+                private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
                 private readonly stakingHttp: StakingHttp) {
         this.doTask = this.doTask.bind(this);
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.stakingSyncValidatorsInfo,0)
     }
 
     async doTask(): Promise<void> {
@@ -23,6 +26,7 @@ export class StakingValidatorInfoTaskService {
         let validatorsFromLcd_unbonding = await this.stakingHttp.queryValidatorListFromLcd(validatorStatusStr.unbonding, pageNum, pageSize)
         allValidatorsFromLcd = [...(validatorsFromLcd_bonded || []),...(validatorsFromLcd_unbonded || []),...(validatorsFromLcd_unbonding || [])];
         if (!validatorsFromLcd_bonded || !allValidatorsFromLcd.length) {
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.stakingSyncValidatorsInfo,-1)
             return;
         }
         // 处理数据
@@ -46,6 +50,7 @@ export class StakingValidatorInfoTaskService {
         let needDeleteValidators = await StakingValidatorInfoTaskService.getDeleteValidators(allValidatorsFromLcdMap, validatorsFromDbMap)
         await this.insertAndUpdateValidators(needInsertOrValidators)
         await this.deleteValidators(needDeleteValidators)
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.stakingSyncValidatorsInfo,1)
     }
 
     private async handDbValidators(allValidatorsFromLcd) {

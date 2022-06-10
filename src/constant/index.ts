@@ -46,6 +46,7 @@ export enum DDCType {
     ddc1155 = 'DDC1155',
 }
 export const ContractType = {
+    'ddc_other':-1,
     'ddc_721':1,
     'ddc_1155':2,
 }
@@ -71,6 +72,8 @@ export enum TxType {
     edit_nft = 'edit_nft',
     issue_denom = 'issue_denom',
     mint_nft = 'mint_nft',
+    transfer_denom = 'transfer_denom',
+
     // Asset
     issue_token = 'issue_token',
     edit_token = 'edit_token',
@@ -175,7 +178,7 @@ export enum currentChain  {
     iris ='iris',
     binance = 'binance'
 }
-
+export const deFaultGasPirce = 1
 export const signedBlocksWindow = 'signed_blocks_window'
 export const hubDefaultEmptyValue = '[do-not-modify]'
 export const moduleSlashing = 'slashing'
@@ -183,6 +186,7 @@ export const moduleStaking = 'staking'
 export const moduleStakingBondDenom = 'bond_denom'
 export const moduleGov = 'gov'
 export const moduleGovDeposit = 'min_deposit'
+export const defaultEvmTxReceiptErrlog = 'failed to execute message'
 
 
 

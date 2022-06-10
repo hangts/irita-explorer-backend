@@ -5,7 +5,7 @@ import {
 } from '../types/schemaTypes/ddc.tx.evm.interface';
 import { ITxsWithAddressQuery, ITxsWithDdcQuery } from '../types/schemaTypes/tx.interface';
 import { dbRes } from '../helper/txEvm.helper';
-import { queryTxWithDdcHelper, queryTxWithDdcAddrHelper } from '../helper/params.helper';
+import { queryTxWithDdcHelper } from '../helper/params.helper';
 
 export const TxEvmSchema = new mongoose.Schema({
   time: Number,
@@ -23,7 +23,8 @@ export const TxEvmSchema = new mongoose.Schema({
 }, { versionKey: false });
 
 // 新增
-// TxEvmSchema.index({ 'evm_datas.contract_address': -1}, { background: true });
+// TxEvmSchema.index({ 'evm_datas.contract_address': -1 }, { background: true });
+TxEvmSchema.index({ 'evm_datas.evm_tx_hash': -1 }, { background: true });
 TxEvmSchema.index({ 'ex_ddc_infos.ddc_id': -1,'ex_ddc_infos.ddc_type': -1 }, { background: true });
 // TxEvmSchema.index({ 'ex_ddc_infos.sender': -1,status:-1}, { background: true });
 // TxEvmSchema.index({ 'ex_ddc_infos.recipient': -1,status:-1}, { background: true });
@@ -55,6 +56,9 @@ TxEvmSchema.statics = {
   async findEvmTxsByHashes(txHashs: string[]): Promise<IDdcTxEvmStruct[]> {
     return await this.find({ tx_hash: {$in:txHashs } });
   },
+  async findEvmTxsByEvmHash(evmTxHash: string): Promise<IDdcTxEvmStruct[]> {
+    return await this.find({ 'evm_datas.evm_tx_hash': evmTxHash });
+  },
   // async findEvmTxsByContractAddrDdcId(contractAddr: string, ddcId: string): Promise<IDdcTxEvmStruct[]> {
   //   return await this.find({ 'evm_datas.contract_address': contractAddr, 'ex_ddc_infos.ddc_id': ddcId })
   // },
@@ -72,18 +76,35 @@ TxEvmSchema.statics = {
     return await this.find(queryParameters).countDocuments();
   },
 
-  async queryTxWithDdcAddr(query: ITxsWithAddressQuery): Promise<ListStruct> {
-    const result: ListStruct = {};
-    const queryParameters = queryTxWithDdcAddrHelper(query)
-    result.data = await this.find(queryParameters, dbRes.txDdcList)
-        .sort({ height: -1 })
-        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-        .limit(Number(query.pageSize));
-    return result;
+  async findAllContractAddr() {
+    const matchContractAddr = {
+      $match: {
+        'height': {$gt:0}
+      }
+    }
+    const unwind = {
+      $unwind: '$evm_datas'
+    }
+    const group = {
+      $group: {
+        _id: '$evm_datas.contract_address'
+      },
+    }
+    return  await this.aggregate([matchContractAddr,unwind,group])
   },
-  async queryTxWithDdcAddrCount(query: ITxsWithAddressQuery): Promise<number> {
-    const queryParameters = queryTxWithDdcAddrHelper(query)
-    return await this.find(queryParameters).countDocuments();
-  }
+
+  // async queryTxWithDdcAddr(query: ITxsWithAddressQuery): Promise<ListStruct> {
+  //   const result: ListStruct = {};
+  //   const queryParameters = queryTxWithDdcAddrHelper(query)
+  //   result.data = await this.find(queryParameters, dbRes.txDdcList)
+  //       .sort({ height: -1 })
+  //       .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
+  //       .limit(Number(query.pageSize));
+  //   return result;
+  // },
+  // async queryTxWithDdcAddrCount(query: ITxsWithAddressQuery): Promise<number> {
+  //   const queryParameters = queryTxWithDdcAddrHelper(query)
+  //   return await this.find(queryParameters).countDocuments();
+  // }
 
 };

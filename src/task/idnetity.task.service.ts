@@ -9,7 +9,8 @@ import {
 import {getTimestamp} from '../util/util';
 import md5 from 'blueimp-md5';
 import { taskLoggerHelper } from '../helper/task.log.helper';
-import { getTaskStatus } from '../helper/task.helper'
+import { getTaskStatus } from '../helper/task.helper';
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 @Injectable()
 
 export class IdentityTaskService {
@@ -19,8 +20,10 @@ export class IdentityTaskService {
         @InjectModel('Certificate') private certificateModel: any,
         @InjectModel('Tx') private txModel: any,
         @InjectModel('SyncTask') private taskModel: any,
+        private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
     ) {
         this.doTask = this.doTask.bind(this);
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.identity,0)
     }
 
     handleCreateIdentity(item: any, value: any) {
@@ -120,6 +123,7 @@ export class IdentityTaskService {
     async doTask(taskName?: TaskEnum): Promise<void> {
         let status: boolean = await getTaskStatus(this.taskModel,taskName)
         if (!status) {
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.identity,0)
             return
         }
         const height: number = await this.identityTaskModel.queryHeight() || 0
@@ -212,5 +216,6 @@ export class IdentityTaskService {
         await certificateInsertData.forEach( (item:IIdentityCertificateStruct) => {
             this.certificateModel.insertCertificate(item)
         })
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.identity,1)
     }
 }

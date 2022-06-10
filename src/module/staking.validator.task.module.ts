@@ -9,6 +9,10 @@ import {ParametersTaskService} from "../task/parameters.task.service";
 import {TokensHttp} from "../http/lcd/tokens.http";
 import {BlockHttp} from "../http/lcd/block.http";
 import {GovHttp} from "../http/lcd/gov.http";
+import {
+  CronTaskWorkingStatusMetric,
+  CronTaskWorkingStatusProvider
+} from "../monitor/metrics/cron_task_working_status.metric";
 
 @Module({
   imports:[
@@ -25,7 +29,8 @@ import {GovHttp} from "../http/lcd/gov.http";
       },
     ])
   ],
-  providers:[StakingValidatorInfoTaskService,StakingValidatorMoreInfoTaskService,ParametersTaskService,StakingHttp,TokensHttp,BlockHttp,GovHttp],
+  providers:[StakingValidatorInfoTaskService,StakingValidatorMoreInfoTaskService,ParametersTaskService,StakingHttp,
+    TokensHttp,BlockHttp,GovHttp,CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
   exports:[StakingValidatorInfoTaskService,StakingValidatorMoreInfoTaskService,ParametersTaskService],
 })
 

@@ -39,7 +39,9 @@ export function txListParamsHelper(query: ITxsQuery){
       queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
   }
   if (query.contract_addr && query.contract_addr.length) {
-      queryParameters['contract_addrs'] = { $elemMatch: { $eq: query.contract_addr } };
+      let contractAddrArr = query.contract_addr.split(",");
+      queryParameters['contract_addrs'] = {'$in':contractAddrArr}
+      // queryParameters['contract_addrs'] = { $elemMatch: { $eq: query.contract_addr } };
   }
   if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
       queryParameters.time = {};
@@ -220,7 +222,7 @@ export function TxWithAddressParamsHelper(query: ITxsWithAddressQuery){
       };
   }
   if (query.contract_addr && query.contract_addr.length) {
-      queryParameters['contract_addrs'] = { $elemMatch: { $eq: query.contract_addr } };
+      queryParameters['contract_addrs'] = { '$in': query.contract_addr.split(',') };
   }
   if (query.type && query.type.length) {
       let typeArr = query.type.split(",");
@@ -313,25 +315,25 @@ export function queryTxWithDdcHelper(query: ITxsWithDdcQuery){
   return queryParameters
 }
 
-export function queryTxWithDdcAddrHelper(query: ITxsWithAddressQuery){
-    let queryParameters: any = {};
-
-    switch (query.status) {
-        case '1':
-            queryParameters.status = TxStatus.SUCCESS;
-            break;
-        case '2':
-            queryParameters.status = TxStatus.FAILED;
-            break;
-    }
-    if (query.address && query.address.length) {
-        queryParameters['$or'] = [
-            {"ex_ddc_infos.sender":query.address},
-            {"ex_ddc_infos.recipient":query.address}
-        ]
-    }
-    return queryParameters
-}
+// export function queryTxWithDdcAddrHelper(query: ITxsWithAddressQuery){
+//     let queryParameters: any = {};
+//
+//     switch (query.status) {
+//         case '1':
+//             queryParameters.status = TxStatus.SUCCESS;
+//             break;
+//         case '2':
+//             queryParameters.status = TxStatus.FAILED;
+//             break;
+//     }
+//     if (query.address && query.address.length) {
+//         queryParameters['$or'] = [
+//             {"ex_ddc_infos.sender":query.address},
+//             {"ex_ddc_infos.recipient":query.address}
+//         ]
+//     }
+//     return queryParameters
+// }
 
 export function queryTxListByIdentityHelper(query: IIdentityTx){
   const typesList: TxType[] = [

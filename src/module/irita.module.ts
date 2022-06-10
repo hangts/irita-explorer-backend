@@ -15,6 +15,10 @@ import { TxSchema } from '../schema/tx.schema';
 import { SyncTaskSchema } from '../schema/sync.task.schema';
 import {GovHttp} from "../http/lcd/gov.http";
 import { TokenService } from '../service/token.service';
+import {
+    CronTaskWorkingStatusMetric,
+    CronTaskWorkingStatusProvider
+} from "../monitor/metrics/cron_task_working_status.metric";
 @Module({
     imports: [
         MongooseModule.forFeature([
@@ -43,7 +47,8 @@ import { TokenService } from '../service/token.service';
             }
         ])
     ],
-    providers: [IritaService,TokenService, TokensTaskService, TokensHttp,ParametersTaskService,StakingHttp,GovHttp],
+    providers: [IritaService,TokenService, TokensTaskService, TokensHttp,ParametersTaskService,StakingHttp,GovHttp,
+        CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
     controllers: [IritaController],
 })
 export class IritaModule {

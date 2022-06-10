@@ -46,7 +46,7 @@ describe('TxController', () => {
             req.pageNum = 1;
             req.pageSize = 2;
             req.useCount = false;
-            req.type = 'ddc_721'
+            req.type = 'ddc_other'
             // if (parseInt(String((Math.random()*10)%2))) {
             //     req.type = [
             //     TxType.ethereum_tx,
@@ -76,8 +76,9 @@ describe('TxController', () => {
             // }
             // Logger.log('===>req:',req);
             let data = await txService.queryTxList(req);
-            Logger.log('===>queryTxListCount:',data.data.length);
-            expect(data).toBeDefined();
+            console.log(JSON.stringify(data))
+            // Logger.log('===>queryTxListCount:',data.data.length);
+            // expect(data).toBeDefined();
         });
     });
 
@@ -110,7 +111,7 @@ describe('TxController', () => {
         it('should return an array of height', async () => {
             jest.setTimeout(1000000000)
             let reqDdc:TxWithHashReqDto = {
-                hash:'92150195C9D7BE04B552810E313123F59597FBFE438E8D1CEEEB92CA1971010E'};
+                hash:'0xbb2f7c3cd76a0ceead0209478971489fddb61259d68c7bf9998f833cb26e75b3'};
             let data = await txService.queryTxWithHash(reqDdc);
             console.log(JSON.stringify(data))
         });
@@ -323,18 +324,18 @@ describe('TxController', () => {
         });
     });
 
-    describe('queryTxWithHash', () => {
-        it('should return an tx object', async () => {
-            let req:TxWithHashReqDto = {hash:'00BBCA17C26B570BE77E382D2B1E0853BE950902132B27350E3B1FD7F96348C2'};
-
-            let data:any = await txService.queryTxWithHash(req);
-            if (data) {
-                expect(data.tx_hash).toBe(req.hash);
-            }else{
-                expect(data).toBe(null);
-            }
-        });
-    });
+    // describe('queryTxWithHash', () => {
+    //     it('should return an tx object', async () => {
+    //         let req:TxWithHashReqDto = {hash:'00BBCA17C26B570BE77E382D2B1E0853BE950902132B27350E3B1FD7F96348C2'};
+    //
+    //         let data:any = await txService.queryTxWithHash(req);
+    //         if (data) {
+    //             expect(data.tx_hash).toBe(req.hash);
+    //         }else{
+    //             expect(data).toBe(null);
+    //         }
+    //     });
+    // });
     describe('queryTxByIdentity', () => {
         it('should return identity tx list', async () => {
             let req:IdentityTxReqDto = {

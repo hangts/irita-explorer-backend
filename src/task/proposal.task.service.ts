@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from "mongoose";
 import { GovHttp } from "../http/lcd/gov.http";
-import { proposalStatus, govParams, voteOptions } from '../constant'
+import {proposalStatus, govParams, voteOptions, TaskEnum} from '../constant'
 import { StakingHttp } from "../http/lcd/staking.http";
 import { addressTransform } from "../util/util";
 import { addressPrefix,proposal } from "../constant";
 import { getTimestamp, formatDateStringToNumber, splitString } from '../util/util';
 import { cfg } from "../config/config"
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 @Injectable()
 export class ProposalTaskService {
     constructor(
@@ -17,13 +18,18 @@ export class ProposalTaskService {
         @InjectModel('ProposalDetail') private proposalDetailModel: any,
         @InjectModel('StakingSyncValidators') private stakingValidatorsModel: any,
         private readonly govHttp: GovHttp,
-        private readonly stakingHttp: StakingHttp
+        private readonly stakingHttp: StakingHttp,
+        private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
     ) {
         this.doTask = this.doTask.bind(this);
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.proposal,0)
     }
     async doTask(): Promise<void> {
         const proposalFromLcd = await this.govHttp.getProposals(cfg.taskCfg.proposalsLimit);
-        if (!proposalFromLcd) return;
+        if (!proposalFromLcd) {
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.proposal,-1)
+            return;
+        }
         const proposalFromDb = await this.proposalModel.queryAllProposals();
         const proposalDetailFromDb = await this.proposalDetailModel.queryAllProposalsDetail();
         const govParamsFromDb = await (this.parametersTaskModel as any).queryGovParams();
@@ -112,6 +118,7 @@ export class ProposalTaskService {
         }
         await this.insertAndUpdateProposalDetail(updateProposalDetails, proposalDetailFromDb)
         await this.insertAndUpdateProposal(updateData,proposalFromDb)
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.proposal,1);
     }
     async tallyDetails(proposal_id) {
         const validators = await this.stakingValidatorsModel.queryActiveVal();

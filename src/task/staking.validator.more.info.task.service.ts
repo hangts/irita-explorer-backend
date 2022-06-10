@@ -3,13 +3,16 @@ import {InjectModel} from '@nestjs/mongoose';
 import {StakingHttp} from "../http/lcd/staking.http";
 import {Model} from "mongoose"
 import {addressTransform} from "../util/util";
-import { addressPrefix } from "../constant";
+import {addressPrefix, TaskEnum} from "../constant";
+import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 
 @Injectable()
 export class StakingValidatorMoreInfoTaskService {
     constructor(@InjectModel('StakingSyncValidators') private stakingSyncValidatorsModel: Model<any>,
+                private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
                 private readonly stakingHttp: StakingHttp) {
         this.doTask = this.doTask.bind(this);
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.stakingSyncValidatorsMoreInfo,0)
     }
 
     async doTask(): Promise<void> {
@@ -19,6 +22,7 @@ export class StakingValidatorMoreInfoTaskService {
             await this.handDbValidators(validatorsFromDb)
         }
         // await this.UpdateValidators(validatorsFromDb)
+        this.cronTaskWorkingStatusMetric.collect(TaskEnum.stakingSyncValidatorsMoreInfo,1)
     }
 
     private async handDbValidators(validatorsFromDb) {
