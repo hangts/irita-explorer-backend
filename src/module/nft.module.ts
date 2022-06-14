@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {NftSchema} from '../schema/nft.schema';
 import { DenomSchema } from '../schema/denom.schema';
 import { TxSchema } from '../schema/tx.schema';
+import {StatisticsSchema} from "../schema/statistics.schema";
 
 @Module({
     imports:[
@@ -16,6 +17,10 @@ import { TxSchema } from '../schema/tx.schema';
             name: 'Denom',
             schema: DenomSchema,
             collection: 'ex_sync_denom'
+        },{
+            name: 'Statistics',
+            schema: StatisticsSchema,
+            collection: 'ex_statistics'
         },{
             name: 'Tx',
             schema: TxSchema,
