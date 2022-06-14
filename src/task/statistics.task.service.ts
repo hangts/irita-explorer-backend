@@ -9,6 +9,7 @@ import { StakingHttp } from '../http/lcd/staking.http';
 import { BankHttp } from '../http/lcd/bank.http';
 import { DistributionHttp } from '../http/lcd/distribution.http';
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
+import {cfg} from "../config/config";
 
 
 @Injectable()
@@ -28,24 +29,44 @@ export class StatisticsTaskService {
     this.cronTaskWorkingStatusMetric.collect(TaskEnum.statistics,0)
   }
   async doTask(): Promise<void> {
-    // const tx_all = await this.queryTxCount()
-    // const service_all = await this.queryServiceCount()
-    // const nft_all = await this.queryAssetCount()
-    // const validator_all = await this.queryConsensusValidatorCount()
-    // const validator_active = await this.queryValidatorNumCount()
-    // const identity_all = await this.queryIdentityCount()
-    // const denom_all = await this.queryDenomCount()
-    const { bonded_tokens, total_supply } = await this.queryBondedTokensInformation()
+    let service_all, nft_all ,validator_all ,validator_active ,identity_all ,denom_all,bonded_tokens,total_supply;
+    const tx_all = await this.queryTxCount()
 
-    const [
-      tx_all, service_all, nft_all,
-      validator_all, validator_active,
-      identity_all, denom_all
-    ] = await Promise.all([
-      this.queryTxCount(), this.queryServiceCount(), this.queryAssetCount(),
-        this.queryConsensusValidatorCount(), this.queryValidatorNumCount(),
-        this.queryIdentityCount(), this.queryDenomCount()
-      ]);
+    if (cfg && cfg.taskCfg &&  cfg.taskCfg.CRON_JOBS) {
+      if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.denom) >= 0) {
+        denom_all = await this.queryDenomCount()
+      }
+      if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.nft) >= 0) {
+        nft_all = await this.queryAssetCount()
+      }
+      if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.identity) >= 0) {
+        identity_all = await this.queryIdentityCount()
+      }
+      if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.txServiceName) >= 0) {
+        service_all = await this.queryServiceCount()
+      }
+      if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) >= 0) {
+        validator_all = await this.queryConsensusValidatorCount()
+      }
+      if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) >= 0) {
+        validator_active = await this.queryValidatorNumCount()
+      }
+      if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.tokens) >= 0) {
+        const { bondedTokens, totalSupply } = await this.queryBondedTokensInformation()
+        bonded_tokens = bondedTokens
+        total_supply = totalSupply
+      }
+    }
+
+    // const [
+    //   tx_all, service_all, nft_all,
+    //   validator_all, validator_active,
+    //   identity_all, denom_all
+    // ] = await Promise.all([
+    //   this.queryTxCount(), this.queryServiceCount(), this.queryAssetCount(),
+    //     this.queryConsensusValidatorCount(), this.queryValidatorNumCount(),
+    //     this.queryIdentityCount(), this.queryDenomCount()
+    //   ]);
 
     const community_pool = await this.queryCommunityPool()
 
@@ -128,19 +149,19 @@ export class StatisticsTaskService {
 
   async queryBondedTokensInformation(): Promise<any>{
     const [bondedTokensLcd,totalSupplyLcd] = await Promise.all([StakingHttp.getBondedTokens(),BankHttp.getTotalSupply()])
-    const bonded_tokens = bondedTokensLcd && bondedTokensLcd.bonded_tokens || '0'
+    const bondedTokens = bondedTokensLcd && bondedTokensLcd.bonded_tokens || '0'
     const mainToken = await (this.tokensModel as any).queryMainToken()
-    let total_supply: string = '0';
+    let totalSupply: string = '0';
     if (mainToken) {
       if (totalSupplyLcd && totalSupplyLcd.supply && totalSupplyLcd.supply.length > 0) {
         totalSupplyLcd.supply.map(item => {
           if (item.denom === mainToken.denom) {
-            total_supply = item.amount
+            totalSupply = item.amount
           }
         })
       }
     }
-    return { bonded_tokens, total_supply };
+    return { bondedTokens, totalSupply };
   }
 
   async queryCommunityPool(): Promise<any> {
