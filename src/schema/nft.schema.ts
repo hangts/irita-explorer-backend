@@ -80,29 +80,29 @@ NftSchema.statics = {
         return await this.findOne({denom_id:denomId,nft_id:nftId})
     },
 
-    // async findCount(denomId: string,
-    //     nftIdOrName: string,
-    //     nftName: string,
-    //     owner: string,
-    // ): Promise<number> {
-    //
-    //     let query: any = {};
-    //     if (denomId){
-    //         query.denom_id = denomId;
-    //     }
-    //     if (nftIdOrName){
-    //         const reg = new RegExp(nftIdOrName, 'i');
-    //         query['$or'] = [
-    //             { 'nft_name': nftIdOrName },
-    //             { 'nft_id': nftIdOrName },
-    //         ];
-    //     }
-    //     if (owner){
-    //         query.owner = owner;
-    //     }
-    //
-    //     return await this.find(query).countDocuments();
-    // },
+    async findCount(denomId: string,
+        nftIdOrName: string,
+        nftName: string,
+        owner: string,
+    ): Promise<number> {
+
+        let query: any = {};
+        if (denomId){
+            query.denom_id = denomId;
+        }
+        if (nftIdOrName){
+            // const reg = new RegExp(nftIdOrName, 'i');
+            query['$or'] = [
+                { 'nft_name': nftIdOrName },
+                { 'nft_id': nftIdOrName },
+            ];
+        }
+        if (owner){
+            query.owner = owner;
+        }
+
+        return await this.find(query).countDocuments();
+    },
 
     async findListByName(denomId: string): Promise<INftStruct> {
         return await this.find({ denom_id: denomId }).exec();
