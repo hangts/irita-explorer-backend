@@ -123,7 +123,7 @@ export class IdentityTaskService {
     async doTask(taskName?: TaskEnum): Promise<void> {
         let status: boolean = await getTaskStatus(this.taskModel,taskName)
         if (!status) {
-            this.cronTaskWorkingStatusMetric.collect(TaskEnum.identity,0)
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.identity,1)
             return
         }
         const height: number = await this.identityTaskModel.queryHeight() || 0
