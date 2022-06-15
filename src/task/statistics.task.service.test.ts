@@ -25,9 +25,11 @@ describe('StatisticsTaskService', () => {
       console.log("=====>AssetCount:",count)
     });
 
-    it('queryTxCount', async () => {
-      const count = await statisticsTaskService.queryTxCount();
-      console.log("=====>queryTxCount:",count)
+    it('updateIncreTxCount', async () => {
+      jest.setTimeout(1000000)
+      await statisticsTaskService.updateIncreTxCount();
+      const data = await statisticsTaskService.findStatisticsRecord('tx_all')
+      console.log("=====>updateIncreTxCount:",data)
     });
 
     it('queryServiceCount', async () => {
@@ -53,6 +55,10 @@ describe('StatisticsTaskService', () => {
     it('queryCommunityPool', async () => {
       const pool = await statisticsTaskService.queryCommunityPool();
       console.log("=====>queryCommunityPoolInformation:",pool)
+    });
+    it('queryBondedTokensInformation', async () => {
+      const data = await statisticsTaskService.queryBondedTokensInformation();
+      console.log("=====>queryBondedTokensInformation:",data)
     });
   });
 });

@@ -25,7 +25,7 @@ export class DenomTaskService {
     async doTask(taskName?: TaskEnum): Promise<void> {
         let status: boolean = await getTaskStatus(this.taskModel,taskName)
         if (!status) {
-            this.cronTaskWorkingStatusMetric.collect(TaskEnum.denom,0)
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.denom,1)
             return
         }
         const denomList: IDenomStruct[] = await (this.denomModel as any).findLastBlockHeight();

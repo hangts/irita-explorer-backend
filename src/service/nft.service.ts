@@ -9,7 +9,8 @@ import { IDenom, IDenomStruct } from '../types/schemaTypes/denom.interface';
 export class NftService {
     constructor(
         @InjectModel('Nft') private nftModel: Model<INft>,
-        @InjectModel('Denom') private denomModel: Model<IDenom>) {
+        @InjectModel('Denom') private denomModel: Model<IDenom>,
+        @InjectModel('Statistics') private statisticsModel: any,) {
     }
 
     async queryList(query: NftListReqDto): Promise<ListStruct<NftListResDto[]>> {
@@ -34,7 +35,14 @@ export class NftService {
           }       
         }
         if(useCount){
-          count = await (this.nftModel as any).findListCount(denomId, nftId, owner);
+            if (!denomId && !nftId && !owner) {
+                //default count with no filter conditions
+
+                const nftCnt = await this.statisticsModel.findStatisticsRecord("nft_all")
+                count = nftCnt?.count
+            } else {
+                count = await (this.nftModel as any).findListCount(denomId, nftId, owner);
+            }
         }
         
         return new ListStruct(res, pageNum, pageSize, count);
