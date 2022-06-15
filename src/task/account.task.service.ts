@@ -23,7 +23,7 @@ export class AccountTaskService {
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
         let status: boolean = await getTaskStatus(this.taskModel,taskName)
         if (!status) {
-            this.cronTaskWorkingStatusMetric.collect(TaskEnum.account,0);
+            this.cronTaskWorkingStatusMetric.collect(TaskEnum.account,1);
             return
         }
         const accountList:IAccountStruct[] = await (this.accountModel as any).queryHandledBlockHeight();

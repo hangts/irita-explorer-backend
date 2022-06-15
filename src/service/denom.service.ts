@@ -10,6 +10,7 @@ export class DenomService {
     constructor(
         @InjectModel('Denom') private denomModel: Model<IDenom>,
         @InjectModel('Nft') private nftModel: any,
+        @InjectModel('Statistics') private statisticsModel: any,
     ) {
     }
 
@@ -31,7 +32,14 @@ export class DenomService {
           }    
         }
         if(useCount && !needAll){
-          count = await (this.denomModel as any).queryDenomCount(denomNameOrId);
+            if (!denomNameOrId) {
+                //default count with no filter conditions
+
+                const denomCnt = await this.statisticsModel.findStatisticsRecord("denom_all")
+                count = denomCnt?.count
+            } else {
+                count = await (this.denomModel as any).queryDenomCount(denomNameOrId);
+            }
         } else if(useCount && needAll){
           count = denomList.length
         }

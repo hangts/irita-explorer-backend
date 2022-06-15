@@ -4,6 +4,7 @@ import { DenomService } from '../service/denom.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DenomSchema } from '../schema/denom.schema';
 import { NftSchema } from '../schema/nft.schema';
+import {StatisticsSchema} from "../schema/statistics.schema";
 
 @Module({
     imports: [
@@ -15,7 +16,11 @@ import { NftSchema } from '../schema/nft.schema';
             name: 'Nft',
             schema: NftSchema,
             collection: 'ex_sync_nft',
-        }]),
+        },{
+            name: 'Statistics',
+            schema: StatisticsSchema,
+            collection: 'ex_statistics'
+        },]),
 
     ],
     providers: [DenomService],

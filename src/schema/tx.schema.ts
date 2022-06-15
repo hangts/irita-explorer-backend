@@ -391,6 +391,17 @@ TxSchema.statics.queryTxCountStatistics = async function(): Promise<number> {
     return await this.find({ 'msgs.type': { $in: Cache.supportTypes || [] } }).countDocuments();
 };
 
+// statistics_task
+TxSchema.statics.queryIncreTxCount = async function(height :number): Promise<number> {
+    return await this.find({ 'msgs.type': { $in: Cache.supportTypes || [] } ,'height':{$gte:height}}).countDocuments();
+};
+TxSchema.statics.queryLatestHeight = async function(height :number): Promise<ITxStruct> {
+    return await this.findOne({ 'msgs.type': { $in: Cache.supportTypes || [] } ,'height':{$gte:height}},{height:1}).sort({ height: -1 });
+};
+TxSchema.statics.queryTxCountWithHeight = async function(height :number): Promise<number> {
+    return await this.find({ 'msgs.type': { $in: Cache.supportTypes || [] } ,'height':height}).countDocuments();
+};
+
 TxSchema.statics.queryServiceCountStatistics = async function(): Promise<number> {
     return await this.find({ 'msgs.type': TxType.define_service, status: TxStatus.SUCCESS }).countDocuments();
 };
