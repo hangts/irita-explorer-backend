@@ -38,8 +38,9 @@ export class DeepPagingReqDto extends BaseReqDto {
       if (value.pageNum && (!patt.test(value.pageNum) || value.pageNum < 1)) {
           throw new ApiError(ErrorCodes.InvalidParameter, 'The pageNum must be a positive integer greater than 0');
       }
-      if (value.pageSize && (!patt.test(value.pageSize) || value.pageNum < 1)) {
-          throw new ApiError(ErrorCodes.InvalidParameter, 'The pageSize must be a positive integer greater than 0');
+      //limit pageSize  0 < maxValue <= 100
+      if (value.pageSize && (!patt.test(value.pageSize) || value.pageSize < 1 || value.pageSize > 100)) {
+          throw new ApiError(ErrorCodes.InvalidParameter, 'The pageSize must be a positive integer at range [1～100]');
       }
   }
 
