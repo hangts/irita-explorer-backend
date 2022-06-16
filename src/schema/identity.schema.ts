@@ -48,7 +48,12 @@ IdentitySchema.statics = {
   },
 
   async insertIdentityInfo(IdentityInfo) {
-      await  this.insertMany(IdentityInfo,{ ordered: false })
+      await  this.insertMany(IdentityInfo,{ ordered: false },(error) => {
+        if(JSON.stringify(error).includes('E11000 duplicate key error collection')){
+        }else {
+          Logger.error(error)
+        }
+      });
   },
   // base information
   async updateIdentityInfo(updateIdentityData) {
