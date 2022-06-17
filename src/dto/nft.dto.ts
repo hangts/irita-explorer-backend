@@ -13,6 +13,12 @@ export class NftListReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     owner?: string;
 
+    @ApiPropertyOptional()
+    lastBlockTimeSortBy?: string;
+
+    @ApiPropertyOptional()
+    createTimeSortBy?: string;
+
 }
 
 export class NftDetailReqDto {
@@ -61,6 +67,7 @@ export class NftResDto {
 
 export class NftListResDto extends NftResDto {
     last_block_time: number;
+    create_time: number;
 
     constructor(
         denom_id: string,
@@ -71,10 +78,12 @@ export class NftListResDto extends NftResDto {
         denomDetail: IDenomStruct,
         denom_name: string,
         nft_name: string,
-        last_block_time: number
+        last_block_time: number,
+        create_time: number,
     ) {
         super(denom_id, nft_id, owner, tokenUri, tokenData, denomDetail, denom_name, nft_name);
         this.last_block_time = last_block_time;
+        this.create_time = create_time;
     }
 
 }

@@ -39,7 +39,9 @@ NftSchema.statics = {
         pageSize: number,
         denomId?: string,
         nftId?: string,
-        owner?: string
+        owner?: string,
+        lastBlockTimeSortBy?: string,
+        createTimeSortBy?: string
     ): Promise<ListStruct> {
         const result: ListStruct = {};
         // const condition: any[] = [
@@ -58,10 +60,17 @@ NftSchema.statics = {
             //     },
             // },
         // ];
+        let sortCond = {last_block_height:-1, create_time:-1}
+        if (lastBlockTimeSortBy && "asc" === lastBlockTimeSortBy.toLowerCase()) {
+            sortCond.last_block_height = 1
+        }
+        if (createTimeSortBy && "asc" === createTimeSortBy.toLowerCase()) {
+            sortCond.create_time = 1
+        }
 
         const queryParameters = findListHelper(denomId, nftId, owner)
         result.data = await this.find(queryParameters)
-            .sort({last_block_height:-1})
+            .sort(sortCond)
             .skip((Number(pageNum) - 1) * Number(pageSize))
             .limit(Number(pageSize));
 
