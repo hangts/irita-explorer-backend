@@ -40,8 +40,7 @@ NftSchema.statics = {
         denomId?: string,
         nftId?: string,
         owner?: string,
-        lastBlockTimeSortBy?: string,
-        createTimeSortBy?: string
+        sortBy?: string
     ): Promise<ListStruct> {
         const result: ListStruct = {};
         // const condition: any[] = [
@@ -60,12 +59,22 @@ NftSchema.statics = {
             //     },
             // },
         // ];
-        let sortCond = {last_block_height:-1, create_time:-1}
-        if (lastBlockTimeSortBy && "asc" === lastBlockTimeSortBy.toLowerCase()) {
-            sortCond.last_block_height = 1
-        }
-        if (createTimeSortBy && "asc" === createTimeSortBy.toLowerCase()) {
-            sortCond.create_time = 1
+        let sortCond = {}
+        //sortBy only support last_block_height、create_time sort
+        if (sortBy && (sortBy.includes("last_block_height") || sortBy.includes("create_time"))) {
+            const conds = sortBy.split(",")
+            if (conds.length === 2) {
+                const sortData = conds[1].toLowerCase()
+                if (sortData && sortData === "asc") {
+                    sortCond[conds[0]] = 1
+                }else{
+                    sortCond[conds[0]] = -1
+                }
+            }else{
+                sortCond['last_block_height'] = -1
+            }
+        }else{
+            sortCond['last_block_height'] = -1
         }
 
         const queryParameters = findListHelper(denomId, nftId, owner)
