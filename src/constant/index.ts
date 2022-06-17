@@ -50,6 +50,13 @@ export const ContractType = {
     'ddc_721':1,
     'ddc_1155':2,
 }
+
+//txs/addresses/statistic (datangchain-explorer)
+export enum TxCntQueryCond {
+    nftQueryCnt = 1,
+    sendQueryCnt,
+    multisendQueryCnt
+}
 export enum TxType {
     // service
     define_service = 'define_service',
@@ -267,7 +274,8 @@ export const correlationStr = {
     '207': 'identityCount',
     '208': 'validatorNumCount',
     '209': 'bondedTokensInformation',
-    '210': 'communityPoolInformation'
+    '210': 'communityPoolInformation',
+    '211': 'accountsCount',
 }
 
 export const proposalStatus = {

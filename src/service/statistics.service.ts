@@ -53,6 +53,9 @@ export class StatisticsService {
                 case '210':
                     indicators.push(this.queryCommunityPoolInformation.bind(that))
                     break;
+                case '211':
+                    indicators.push(this.queryAccountsCount.bind(that))
+                    break;
                 default:
                     break;
             }
@@ -185,6 +188,11 @@ export class StatisticsService {
     async queryValidatorNumCount():Promise<any>{
         const validatorActiveCnt = await this.statisticsModel.findStatisticsRecord("validator_active")
         return validatorActiveCnt?.count
+    }
+
+    async queryAccountsCount():Promise<any>{
+        const AccountsCnt = await this.statisticsModel.findStatisticsRecord("accounts_all")
+        return AccountsCnt?.count
     }
 
     async queryBondedTokensInformation(): Promise<any>{
