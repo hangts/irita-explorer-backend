@@ -14,7 +14,7 @@ export class NftListReqDto extends DeepPagingReqDto {
     owner?: string;
 
     @ApiPropertyOptional()
-    sortBy?: string;
+    sort?: string;
 
 }
 
