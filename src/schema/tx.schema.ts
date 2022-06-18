@@ -19,7 +19,7 @@ import {
 } from '../types/schemaTypes/tx.interface';
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
 import { IListStruct,IQueryBase,ListStruct } from '../types';
-import { INCREASE_HEIGHT, TxStatus, TxType,MAX_OPERATE_TX_COUNT } from '../constant';
+import { INCREASE_HEIGHT, TxStatus, TxType,MAX_OPERATE_TX_COUNT,TxCntQueryCond } from '../constant';
 import Cache from '../helper/cache';
 import { dbRes } from '../helper/tx.helper';
 import { cfg } from '../config/config';
@@ -242,6 +242,40 @@ TxSchema.statics.queryTxWithAddressCount = async function(query: ITxsWithAddress
   const queryParameters = await TxWithAddressParamsHelper(query) 
   return await this.find(queryParameters).countDocuments();
 }
+
+//  txs/addresses/statistic (datangchain-explorer)
+//index:  db.sync_tx.createIndex({'msgs.msg.recipient':-1,'msgs.type':-1},{'background':true});
+//index:  db.sync_tx.createIndex({'msgs.msg.to_address':-1,'msgs.type':-1},{'background':true});
+//index:  db.sync_tx.createIndex({'msgs.msg.outputs.address':-1,'msgs.type':-1},{'background':true});
+TxSchema.statics.queryRecvTxsCntWithAddress = async function(address: string,queryType: number): Promise<number> {
+    let queryParameters;
+    if (address && address.length) {
+        switch (queryType) {
+            case TxCntQueryCond.nftQueryCnt:
+                queryParameters = {'msgs.msg.recipient':address, 'msgs.type':{'$in':['transfer_nft','transfer_denom','mint_nft']}};
+                break;
+            case TxCntQueryCond.sendQueryCnt:
+                queryParameters = {'msgs.msg.to_address':address, 'msgs.type':'send'};
+                break;
+            case TxCntQueryCond.multisendQueryCnt:
+                queryParameters = {'msgs.msg.outputs.address':address, 'msgs.type':'multisend'};
+                break;
+        }
+        return await this.find(queryParameters).countDocuments();
+    }
+    return 0
+};
+
+//  txs/addresses/statistic (datangchain-explorer)
+//index:  db.sync_tx.createIndex({'signers': -1},{'background':true});
+TxSchema.statics.querySendTxsCntWithAddress = async function(address: string): Promise<number> {
+    let queryParameters;
+    if (address && address.length) {
+        queryParameters = {'signers':address, 'msgs.type': { $in: Cache.supportTypes || [] }};
+        return await this.find(queryParameters).countDocuments();
+    }
+    return 0;
+}; //end  txs/addresses/statistic
 
 //  txs/relevance
 TxSchema.statics.queryTxWithContextId = async function(query: ITxsWithContextIdQuery): Promise<ListStruct> {

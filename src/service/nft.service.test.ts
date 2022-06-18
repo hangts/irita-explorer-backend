@@ -20,9 +20,10 @@ describe('nft module', () => {
 
     describe('queryList', () => {
         it('should return nft list', async () => {
+            jest.setTimeout(1000000)
             const req: NftListReqDto = {
                 pageNum: 1,
-                pageSize: 10,
+                pageSize: 3,
                 useCount: true,
             };
 

@@ -79,6 +79,11 @@ describe('statistics module', () => {
             const data: any = await statisticsService.queryNetworkStatistics('200');
             expect(data).toBeDefined();
         });
+        it('should return queryAccountsCount', async () => {
+            const data: any = await statisticsService.queryAccountsCount();
+            console.log(data)
+            // expect(data).toBeDefined();
+        });
     });
 });
 

@@ -9,6 +9,7 @@ import {
     eTxListReqDto,
     TxListWithHeightReqDto,
     TxListWithAddressReqDto,
+    TxStatisticWithAddressReqDto,
     TxListWithContextIdReqDto,
     TxListWithNftReqDto,
     TxListWithDdcReqDto,
@@ -32,7 +33,7 @@ import {
     ServiceRespondResDto,
     IdentityTxReqDto,
     TxListWithAssetReqDto,
-    ExternalQueryRespondServiceReqDto
+    ExternalQueryRespondServiceReqDto, TxStatisticWithAddressResDto
 } from '../dto/txs.dto';
 import { TxResDto,
     TxTypeResDto,
@@ -110,6 +111,12 @@ export class TxController {
     @Get("/addresses")
     async queryTxWithAddress(@Query() query: TxListWithAddressReqDto):Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithAddress(query);
+        return new Result<any>(data);
+    }
+
+    @Get("/addresses/statistic")
+    async queryTxStatisticWithAddress(@Query() query: TxStatisticWithAddressReqDto):Promise<Result<ListStruct<TxResDto>>> {
+        const data:TxStatisticWithAddressResDto = await this.txService.queryTxStatisticWithAddress(query);
         return new Result<any>(data);
     }
 

@@ -92,6 +92,27 @@ export class TxListWithAddressReqDto extends DeepPagingReqDto {
     }
 }
 
+//txs/addresses/statistic request dto
+export class TxStatisticWithAddressReqDto extends BaseReqDto {
+    @ApiPropertyOptional()
+    address?: string;
+
+    @ApiPropertyOptional()
+    params?: string;
+}
+
+//txs/addresses/statistic
+export class TxStatisticWithAddressResDto extends BaseResDto{
+    recv_txs_count: number;
+    send_txs_count: number;
+
+    constructor(data) {
+        super();
+        this.recv_txs_count = data?.recv_txs_count || 0;
+        this.send_txs_count = data?.send_txs_count || 0;
+    }
+}
+
 // txs/relevance
 export class TxListWithContextIdReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
