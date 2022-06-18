@@ -61,7 +61,7 @@ NftSchema.statics = {
         // ];
         let sortCond = {}
         //sortBy only support last_block_height、create_time sort
-        if (sortBy && (sortBy.includes("last_block_height") || sortBy.includes("create_time"))) {
+        if (sortBy && (sortBy.startsWith("last_block_height") || sortBy.startsWith("create_time"))) {
             const conds = sortBy.split(",")
             if (conds.length === 2) {
                 const sortData = conds[1].toLowerCase()
@@ -76,6 +76,7 @@ NftSchema.statics = {
         }else{
             sortCond['last_block_height'] = -1
         }
+        console.log(sortCond)
 
         const queryParameters = findListHelper(denomId, nftId, owner)
         result.data = await this.find(queryParameters)
