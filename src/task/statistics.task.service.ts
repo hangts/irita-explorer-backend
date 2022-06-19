@@ -11,6 +11,7 @@ import {DistributionHttp} from '../http/lcd/distribution.http';
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 import {cfg} from "../config/config";
 import {getTaskStatus} from '../helper/task.helper';
+import {globalAccountNumber} from '../helper/staking.helper';
 import {ITxStruct} from "../types/schemaTypes/tx.interface";
 
 
@@ -75,6 +76,7 @@ export class StatisticsTaskService {
         //   ]);
 
         const community_pool = await this.queryCommunityPool()
+        const accounts_all = await this.queryAccounts()
 
         const parseCount = {
             service_all,
@@ -85,10 +87,12 @@ export class StatisticsTaskService {
             denom_all,
             bonded_tokens,
             total_supply,
+            accounts_all,
         };
-        let data = ''
+
 
         for (const statistics_name of StatisticsNames) {
+            let data = ''
             if (statistics_name === 'community_pool' && community_pool) {
                 data = JSON.stringify(community_pool)
             }
@@ -233,6 +237,10 @@ export class StatisticsTaskService {
             return communityPools.pool
         }
         return []
+    }
+    async queryAccounts(): Promise<number>{
+        const data = await globalAccountNumber()
+        return data?.globalAccountNumber || 0
     }
 
 }

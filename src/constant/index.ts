@@ -27,6 +27,7 @@ export const StatisticsNames = [
     'bonded_tokens',
     'total_supply',
     'community_pool',
+    'accounts_all',
 ];
 
 export const DefaultPaging = {
