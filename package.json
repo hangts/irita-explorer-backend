@@ -23,7 +23,7 @@
     "pm2": "cp .env dist/ && npx pm2 start pmconfig.json"
   },
   "dependencies": {
-    "@irisnet/irishub-sdk": "git+https://github.com/hangts/irishub-sdk-js.git#91a833a6f620018369cfae038888a29d874562f9",
+    "@irisnet/irishub-sdk": "git+https://github.com/irisnet/irishub-sdk-js#42ca9de06350081e4835eb9977c10ec0f148a086",
     "@nestjs/common": "^7.0.0",
     "@nestjs/core": "~7.5.0",
     "@nestjs/mongoose": "~7.0.1",
@@ -46,7 +46,11 @@
     "rxjs": "^6.5.4",
     "sha256": "^0.2.0",
     "stacktrace-js": "^2.0.2",
-    "swagger-ui-express": "^4.1.4"
+    "swagger-ui-express": "^4.1.4",
+    "isomorphic-ws": "^4.0.1",
+    "sm-crypto": "git+http://github.com/bianjieai/sm-crypto-js.git#main",
+    "@types/ws": "^7.4.5",
+    "chalk": "^4.1.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.0.0",

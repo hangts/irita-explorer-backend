@@ -60,5 +60,9 @@ describe('StatisticsTaskService', () => {
       const data = await statisticsTaskService.queryBondedTokensInformation();
       console.log("=====>queryBondedTokensInformation:",data)
     });
+    it('queryAccounts', async () => {
+      const data = await statisticsTaskService.queryAccounts();
+      console.log("=====>queryAccounts:",data)
+    });
   });
 });

@@ -29,6 +29,7 @@ const {
     MAX_OPERATE_TX_COUNT,
     CURRENT_CHAIN,
     CRON_JOBS,
+    CHAIN_ID,
     PROPLSAL,
     PROPOSALS_LIMIT,
     COMMUNITY_POOL_DENOM,
@@ -47,6 +48,7 @@ export const cfg = {
     serverCfg:{
         lcdAddr:LCD_ADDR,
         rpcAddr:RPC_ADDR,
+        chainId:CHAIN_ID,
         iconUri: ICONURI || 'https://keybase.io/_/api/1.0/user/lookup.json',
         validatorsApiClose: VALIDATORS_API_CLOSE || 'false',
     },
