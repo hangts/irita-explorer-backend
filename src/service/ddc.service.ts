@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { IDdc,IDdcStruct, IDdcMapStruct } from '../types/schemaTypes/ddc.interface';
+import { IDdc, IDdcStruct, IDdcMapStruct } from '../types/schemaTypes/ddc.interface';
 import { DdcDetailReqDto, DdcDetailResDto, DdcListReqDto, DdcListResDto } from '../dto/ddc.dto';
+
 @Injectable()
 export class DdcService {
   constructor(
@@ -13,7 +14,7 @@ export class DdcService {
   async queryList(query: DdcListReqDto): Promise<ListStruct<DdcListResDto[]>> {
     const { pageNum, pageSize, contract_address, ddc_id, useCount, owner } = query, res: DdcListResDto[] = [];
     let ddcData, count = null;
-    if(pageNum && pageSize){
+    if (pageNum && pageSize) {
       ddcData = await (this.ddcModel as any).findList(pageNum, pageSize, contract_address, ddc_id, owner);
       for (const ddc of ddcData?.data) {
         const result = new DdcListResDto(
@@ -21,23 +22,38 @@ export class DdcService {
           ddc.contract_address,
           ddc.owner,
           ddc.creator,
-          ddc.ddc_uri,
+          this.handleDdcUri(ddc.ddc_uri),
           ddc.ddc_data,
           ddc.ddc_type,
           ddc.ddc_name,
           ddc.amount,
           ddc.latest_tx_time,
           ddc.is_delete,
-          ddc.is_freeze
+          ddc.is_freeze,
         );
         res.push(result);
       }
     }
-    if(useCount){
+    if (useCount) {
       count = await (this.ddcModel as any).findDdcListCount(contract_address, ddc_id, owner);
     }
 
     return new ListStruct(res, pageNum, pageSize, count);
+  }
+
+  handleDdcUri(ddcUri: string) {
+    if (!ddcUri) {
+      return ddcUri;
+    }
+    try {
+      const { url } = JSON.parse(ddcUri);
+      if (url) {
+        return url;
+      }
+    } catch (e) {
+      return ddcUri;
+    }
+    return ddcUri;
   }
 
   // ddcs/details
@@ -50,7 +66,7 @@ export class DdcService {
         ddc.contract_address,
         ddc.owner,
         ddc.creator,
-        ddc.ddc_uri,
+        this.handleDdcUri(ddc.ddc_uri),
         ddc.ddc_data,
         ddc.ddc_type,
         ddc.ddc_name,
@@ -60,7 +76,6 @@ export class DdcService {
       return null;
     }
   }
-
 
 
 }
