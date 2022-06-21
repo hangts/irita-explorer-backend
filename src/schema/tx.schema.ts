@@ -251,11 +251,16 @@ TxSchema.statics.queryRecvTxsCntWithAddress = async function(address: string,que
     let queryParameters;
     if (address && address.length) {
         switch (queryType) {
-            case TxCntQueryCond.nftQueryCnt:
-                queryParameters = {'msgs.msg.recipient':address, 'msgs.type':{'$in':['transfer_nft','transfer_denom','mint_nft']}};
+          case TxCntQueryCond.nftQueryCnt:
+                queryParameters = {'msgs.msg.recipient':address, 'msgs.type':{
+                    '$in':['transfer_nft','transfer_denom','mint_nft'],
+                    '$nin':['send','multisend']
+                } };
                 break;
             case TxCntQueryCond.sendQueryCnt:
-                queryParameters = {'msgs.msg.to_address':address, 'msgs.type':'send'};
+                queryParameters = {'msgs.msg.to_address':address, 'msgs.type':{
+                    '$in':['send'], '$nin':['multisend']
+                    }};
                 break;
             case TxCntQueryCond.multisendQueryCnt:
                 queryParameters = {'msgs.msg.outputs.address':address, 'msgs.type':'multisend'};
