@@ -19,7 +19,7 @@ import {
     PostTxTypesReqDto,
     PutTxTypesReqDto,
     DeleteTxTypesReqDto,
-    TxWithHashReqDto, IdentityTxReqDto
+    TxWithHashReqDto, IdentityTxReqDto, TxStatisticWithAddressReqDto,
 } from '../dto/txs.dto';
 import { TxResDto,
          TxTypeResDto } from '../dto/txs.dto';
@@ -385,6 +385,17 @@ describe('TxController', () => {
             let data = await txService.queryGovTxList(req);
             Logger.log('===>queryTxListCount:',data.data.length);
             expect(data).toBeDefined();
+        });
+    });
+
+    describe('queryTxStatisticWithAddress', () => {
+        it('should return count', async () => {
+            let req:TxStatisticWithAddressReqDto = {};
+            req.address = 'iaa18dvdutaws873zw339t38j7u0ur8y67cjmmmfca';
+            req.params = '199';
+            const data = await txService.queryTxStatisticWithAddress(req);
+            Logger.log('===>queryTxListCount:',data);
+            // expect(data).toBeDefined();
         });
     });
 });
