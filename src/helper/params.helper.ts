@@ -401,7 +401,7 @@ export function findDdcListHelper(contract_address, ddcId, owner){
     if (contract_address) queryParameters.contract_address = contract_address;
     if (Number(ddcId)) {
         queryParameters.ddc_id = Number(ddcId);
-    }else{
+    }else if (ddcId){
         // const reg = new RegExp(ddcId, 'i');
         queryParameters.ddc_name = ddcId;
     }
