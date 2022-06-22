@@ -63,7 +63,8 @@ export class NftService {
                 nft.data, 
                 denomDetail,
                 nft.denom_name,
-                nft.nft_name
+                nft.nft_name,
+                nft.last_block_time,
             );
         } else {
             return null;
