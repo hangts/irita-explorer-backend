@@ -50,6 +50,7 @@
     "isomorphic-ws": "^4.0.1",
     "sm-crypto": "git+http://github.com/bianjieai/sm-crypto-js.git#main",
     "@types/ws": "^7.4.5",
+    "@types/whatwg-url": "~6.4.0",
     "chalk": "^4.1.2"
   },
   "devDependencies": {
