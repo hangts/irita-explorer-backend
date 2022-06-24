@@ -15,6 +15,7 @@ export class StatisticsResDto {
     private bonded_tokens: string;
     private total_supply: string;
     private community_pool: Coin[];
+    private total_address: number;
     
     constructor(Detail) {
         this.avgBlockTime = Detail.avgBlockTime;
@@ -28,6 +29,7 @@ export class StatisticsResDto {
         this.bonded_tokens = Detail.bondedTokensInformation && Detail.bondedTokensInformation.bonded_tokens;
         this.total_supply = Detail.bondedTokensInformation && Detail.bondedTokensInformation.total_supply;
         this.community_pool = Detail.communityPoolInformation;
+        this.total_address = Detail.accountsCount;
     }
 }
 

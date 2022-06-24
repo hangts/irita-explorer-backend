@@ -27,6 +27,7 @@ export const StatisticsNames = [
     'bonded_tokens',
     'total_supply',
     'community_pool',
+    'accounts_all',
 ];
 
 export const DefaultPaging = {
@@ -49,6 +50,13 @@ export const ContractType = {
     'ddc_other':-1,
     'ddc_721':1,
     'ddc_1155':2,
+}
+
+//txs/addresses/statistic (datangchain-explorer)
+export enum TxCntQueryCond {
+    nftQueryCnt = 1,
+    sendQueryCnt,
+    multisendQueryCnt
 }
 export enum TxType {
     // service
@@ -267,7 +275,8 @@ export const correlationStr = {
     '207': 'identityCount',
     '208': 'validatorNumCount',
     '209': 'bondedTokensInformation',
-    '210': 'communityPoolInformation'
+    '210': 'communityPoolInformation',
+    '211': 'accountsCount',
 }
 
 export const proposalStatus = {

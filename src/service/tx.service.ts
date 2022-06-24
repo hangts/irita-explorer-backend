@@ -3,46 +3,55 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct, Result } from '../api/ApiResult';
 import {
-  callServiceResDto,
-  DeleteTxTypesReqDto,
-  eTxListReqDto,
-  ExternalQueryRespondServiceReqDto,
-  ExternalQueryRespondServiceResDto,
-  ExternalServiceResDto,
-  IdentityTxReqDto,
-  PostTxTypesReqDto,
-  PutTxTypesReqDto,
-  RespondServiceResDto,
-  ServiceBindInfoReqDto,
-  ServiceBindInfoResDto,
-  ServiceListReqDto,
-  ServiceProvidersReqDto,
-  ServiceProvidersResDto,
-  ServiceResDto,
-  ServiceRespondReqDto,
-  ServiceRespondResDto,
-  ServicesDetailReqDto,
-  ServiceTxReqDto,
-  ServiceTxResDto,
-  TxListReqDto,
-  TxListWithAddressReqDto,
-  TxListWithAssetReqDto,
-  TxListWithCallServiceReqDto,
-  TxListWithContextIdReqDto,
-  TxListWithDdcReqDto,
-  TxListWithHeightReqDto,
-  TxListWithNftReqDto,
-  TxListWithRespondServiceReqDto,
-  TxListWithServicesNameReqDto,
-  TxResDto,
-  TxTypeResDto,
-  TxWithHashReqDto,
+    callServiceResDto,
+    DeleteTxTypesReqDto,
+    eTxListReqDto,
+    ExternalQueryRespondServiceReqDto,
+    ExternalQueryRespondServiceResDto,
+    ExternalServiceResDto,
+    IdentityTxReqDto,
+    PostTxTypesReqDto,
+    PutTxTypesReqDto,
+    RespondServiceResDto,
+    ServiceBindInfoReqDto,
+    ServiceBindInfoResDto,
+    ServiceListReqDto,
+    ServiceProvidersReqDto,
+    ServiceProvidersResDto,
+    ServiceResDto,
+    ServiceRespondReqDto,
+    ServiceRespondResDto,
+    ServicesDetailReqDto,
+    ServiceTxReqDto,
+    ServiceTxResDto,
+    TxListReqDto,
+    TxListWithAddressReqDto,
+    TxListWithAssetReqDto,
+    TxListWithCallServiceReqDto,
+    TxListWithContextIdReqDto,
+    TxListWithDdcReqDto,
+    TxListWithHeightReqDto,
+    TxListWithNftReqDto,
+    TxListWithRespondServiceReqDto,
+    TxListWithServicesNameReqDto,
+    TxResDto, TxStatisticWithAddressReqDto,TxStatisticWithAddressResDto,
+    TxTypeResDto,
+    TxWithHashReqDto,
 } from '../dto/txs.dto';
 import { ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName } from '../types/tx.interface';
 import {ITxStruct, ITxsWithAddressQuery, ITxsQuery} from '../types/schemaTypes/tx.interface';
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 import Cache from '../helper/cache';
-import { addressPrefix, proposal as proposalString, TxType, DDCType, ContractType ,deFaultGasPirce,defaultEvmTxReceiptErrlog} from '../constant';
+import {
+    addressPrefix,
+    proposal as proposalString,
+    TxType,
+    DDCType,
+    ContractType,
+    deFaultGasPirce,
+    defaultEvmTxReceiptErrlog,
+    TxCntQueryCond
+} from '../constant';
 import { addressTransform, splitString } from '../util/util';
 import { GovHttp } from '../http/lcd/gov.http';
 import { getConsensusPubkey } from '../helper/staking.helper';
@@ -629,6 +638,38 @@ export class TxService {
       }
 
       return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
+    } //  txs/addresses
+
+    //  txs/addresses/statistic
+    async queryTxStatisticWithAddress(query: TxStatisticWithAddressReqDto): Promise<TxStatisticWithAddressResDto> {
+      const { params,address } = query;
+      let data= {recv_txs_count:0,send_txs_count:0};
+      if (params) {
+          const codes = params.split(",")
+          for (const code of codes) {
+              switch (code) {
+                  case '199':
+                      const datas:number[] = await Promise.all([
+                          this.txModel.queryRecvTxsCntWithAddress(address, TxCntQueryCond.nftQueryCnt),
+                          this.txModel.queryRecvTxsCntWithAddress(address, TxCntQueryCond.sendQueryCnt),
+                          this.txModel.queryRecvTxsCntWithAddress(address, TxCntQueryCond.multisendQueryCnt),
+                      ]);
+                      if (datas && datas?.length) {
+                          for (const one of datas) {
+                              if (Number(one)) {
+                                  data.recv_txs_count += Number(one)
+                              }
+                          }
+                      }
+                      break;
+                  case '198':
+                      data.send_txs_count = await this.txModel.querySendTxsCntWithAddress(address)
+                      break;
+              }
+          }
+
+      }
+      return new TxStatisticWithAddressResDto(data);
     }
 
     //  txs/relevance
