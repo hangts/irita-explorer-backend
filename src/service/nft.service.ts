@@ -54,7 +54,7 @@ export class NftService {
         const { denomId, nftId } = query;
         const nft: INftStruct = await (this.nftModel as any).findOneByDenomAndNftId(denomId, nftId);
         const denomDetail:IDenomStruct = await (this.denomModel as any).findOneByDenomAndNftIdFromDenom(denomId);
-        if (nft && denomDetail) {
+        if (nft) {
             return new NftDetailResDto(
                 nft.denom_id,
                 nft.nft_id, 

@@ -1,4 +1,5 @@
 import { DenomTaskService } from './denom.task.service';
+import { Test } from '@nestjs/testing';
 import { AppModule } from '../app.module';
 
 describe('DenomTaskService', () => {
@@ -15,6 +16,7 @@ describe('DenomTaskService', () => {
 
   describe('DenomTaskService doTask', () => {
     it('doTask', async () => {
+      jest.setTimeout(1000000)
       denomTaskService.doTask();
     });
 
