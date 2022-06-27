@@ -1004,7 +1004,7 @@ TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Prom
                 'msgs.type':{
                     $in:[TxType.mint_nft, TxType.edit_nft, TxType.transfer_nft, TxType.burn_nft]
                 },
-                height: {$gt: lastBlockHeight, $lte: lastBlockHeight + INCREASE_HEIGHT}
+                height: {$gte: lastBlockHeight, $lte: lastBlockHeight + INCREASE_HEIGHT}
             }
         },
         {
@@ -1037,7 +1037,7 @@ TxSchema.statics.queryDenomTxList = async function (lastBlockHeight: number): Pr
             },
             status: TxStatus.SUCCESS,
             height: {
-                $gt: lastBlockHeight
+                $gte: lastBlockHeight
             }
         }, { msgs: 1, height: 1, time: 1, tx_hash: 1 }).sort({ height: 1 }).limit(MAX_OPERATE_TX_COUNT);
 };
