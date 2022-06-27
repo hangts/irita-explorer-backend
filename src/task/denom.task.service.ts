@@ -90,7 +90,9 @@ export class DenomTaskService {
                         }
                     }
                 }
-                await (this.denomModel as any).insertManyDenom(addDenom);
+                if (addDenom.length) {
+                    await (this.denomModel as any).insertManyDenom(addDenom);
+                }
                 if (promiseList.length) {
                     await Promise.all(promiseList);
                 }

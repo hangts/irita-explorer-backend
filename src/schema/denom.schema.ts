@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import { getTimestamp } from '../util/util';
 import { IDenomMapStruct, IDenomStruct } from '../types/schemaTypes/denom.interface';
+import { Logger } from '../logger';
 
 export const DenomSchema = new mongoose.Schema({
     name: String,
@@ -107,6 +108,11 @@ DenomSchema.statics = {
     },
 
     async insertManyDenom(denomList): Promise<IDenomStruct[]>{
-       return await this.insertMany(denomList,{ ordered: false })
+       return await this.insertMany(denomList,{ ordered: false },(error) => {
+           if(JSON.stringify(error).includes('E11000 duplicate key error collection')){
+           }else {
+               Logger.error(error)
+           }
+       })
     },
 };
