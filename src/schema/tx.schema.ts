@@ -107,6 +107,7 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<ListStr
         .limit(Number(query.pageSize));
     return result;
 };
+
 TxSchema.statics.queryTxListCount = async function(query: ITxsQuery): Promise<number> {
   const queryParameters = txListParamsHelper(query)
   return await this.find(queryParameters).countDocuments();

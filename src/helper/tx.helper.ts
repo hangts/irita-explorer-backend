@@ -147,6 +147,8 @@ export const dbRes = {
         'msgs.msg.symbol':1,
         'msgs.msg.min_unit':1,
         'msgs.msg.owner':1,
+        'msgs.msg.granter':1,
+        'msgs.msg.grantee':1,
         'msgs.msg.dst_owner':1,
         'msgs.msg.src_owner':1,
         'msgs.msg.proposal_id':1,
