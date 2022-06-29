@@ -19,7 +19,7 @@ import {
 } from '../types/schemaTypes/tx.interface';
 import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
 import { IListStruct,IQueryBase,ListStruct } from '../types';
-import { INCREASE_HEIGHT, TxStatus, TxType,MAX_OPERATE_TX_COUNT,TxCntQueryCond } from '../constant';
+import {INCREASE_HEIGHT, TxStatus, TxType, MAX_OPERATE_TX_COUNT, TxCntQueryCond, MAX_DENOM_TX_COUNT} from '../constant';
 import Cache from '../helper/cache';
 import { dbRes } from '../helper/tx.helper';
 import { cfg } from '../config/config';
@@ -1040,7 +1040,7 @@ TxSchema.statics.queryDenomTxList = async function (lastBlockHeight: number): Pr
             height: {
                 $gte: lastBlockHeight
             }
-        }, { msgs: 1, height: 1, time: 1, tx_hash: 1 }).sort({ height: 1 }).limit(MAX_OPERATE_TX_COUNT);
+        }, { msgs: 1, height: 1, time: 1, tx_hash: 1 }).sort({ height: 1 }).limit(MAX_DENOM_TX_COUNT);
 };
 //used at the nft_cron_task
 TxSchema.statics.queryMaxNftTxList = async function (): Promise<ITxStruct[]>  {
