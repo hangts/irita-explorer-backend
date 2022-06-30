@@ -1003,19 +1003,21 @@ TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Prom
             $match:{
                 status: TxStatus.SUCCESS,
                 'msgs.type':{
-                    $in:[TxType.mint_nft, TxType.edit_nft, TxType.transfer_nft, TxType.burn_nft]
+                    $in:[TxType.mint_nft, TxType.edit_nft, TxType.transfer_nft, TxType.burn_nft,
+                        TxType.tibc_nft_transfer, TxType.tibc_acknowledge_packet, TxType.tibc_recv_packet]
                 },
                 height: {$gte: lastBlockHeight, $lte: lastBlockHeight + INCREASE_HEIGHT}
             }
         },
-        {
-            $unwind:'$msgs',
-        },
+        //{
+        //    $unwind:'$msgs',
+        //},
 
         {
             $match:{
                 'msgs.type':{
-                    $in:[TxType.mint_nft, TxType.edit_nft, TxType.transfer_nft, TxType.burn_nft]
+                    $in:[TxType.mint_nft, TxType.edit_nft, TxType.transfer_nft, TxType.burn_nft,
+                        TxType.tibc_nft_transfer, TxType.tibc_acknowledge_packet, TxType.tibc_recv_packet]
                 },
             }
         },
@@ -1024,6 +1026,7 @@ TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Prom
                 msgs:1,
                 height: 1,
                 time: 1,
+                events_new: 1,
             }
         },
     ];
@@ -1048,7 +1051,10 @@ TxSchema.statics.queryMaxNftTxList = async function (): Promise<ITxStruct[]>  {
         TxType.mint_nft,
         TxType.edit_nft,
         TxType.transfer_nft,
-        TxType.burn_nft
+        TxType.burn_nft,
+        TxType.tibc_nft_transfer,
+        TxType.tibc_acknowledge_packet,
+        TxType.tibc_recv_packet,
     ];
     return await this.find({
         // $or:[

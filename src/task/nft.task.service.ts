@@ -1,12 +1,11 @@
 import { Injectable, } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { NftHttp } from '../http/lcd/nft.http';
-import { INft, INftStruct } from '../types/schemaTypes/nft.interface';
-import { IDenom, IDenomStruct } from '../types/schemaTypes/denom.interface';
+import { INft, INftStruct, ITibcNftTransferMsgStruct, ITibcAcknowledgePacketMsgStruct, ITibcRecvPacketMsgStruct } from '../types/schemaTypes/nft.interface';
+import { IDenom, IDenomMsgStruct, IDenomStruct } from '../types/schemaTypes/denom.interface';
 import md5 from 'blueimp-md5';
 import { getTimestamp } from '../util/util';
-import { ILcdNftStruct } from '../types/task.interface';
+import { getAwayNewClassPath, ParseClassTrace, TibcClass, getBackNewClassPath } from '../util/util.class';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
 import { INCREASE_HEIGHT, MAX_OPERATE_TX_COUNT, NFT_INFO_DO_NOT_MODIFY, TaskEnum, TxType } from '../constant';
 import {Logger} from '../logger'
@@ -25,6 +24,10 @@ export class NftTaskService {
         this.doTask = this.doTask.bind(this);
         this.cronTaskWorkingStatusMetric.collect(TaskEnum.nft,0);
     }
+
+    async denomList() {
+        return  await (this.denomModel as any).findList(0, 0, '', 'true');
+     }
 
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
         let status: boolean = await getTaskStatus(this.taskModel,taskName)
@@ -54,7 +57,7 @@ export class NftTaskService {
         let nftTxList: ITxStruct[] = await this.getNftTxList(lastBlockHeight, maxHeight);
         taskLoggerHelper(`${taskName}: execute task (step should be start step + 3)`, randomKey);
         if (nftTxList && nftTxList.length > 0) {
-            const denomList: IDenomStruct[] = await (this.denomModel as any).findList(0, 0, '', 'true');
+            const denomList: IDenomStruct[] = await this.denomList();
             let denomMap = new Map<string, string>();
             if (denomList && denomList.length > 0) {
                 denomList.forEach((denom: IDenomStruct) => {
@@ -100,53 +103,153 @@ export class NftTaskService {
         return await (this.txModel as any).queryNftTxList(lastBlockHeight);
     }
 
-    async handleNftTx(nftTxList: ITxStruct[], denomMap: Map<string, string>): Promise<void> {
+    async handleNftTx(nftTxList, denomMap: Map<string, string>): Promise<void> {
         const promiseList: Promise<any>[] = [];
         const nftObj = {};
         let last_block_height = 0;
         nftTxList.forEach((tx) => {
-            const { msg } = (tx.msgs as any);
-            const idStr = `${msg.denom}-${msg.id}`;
-            if (!nftObj[idStr]) nftObj[idStr] = {};
-            if ((tx.msgs as any).type === TxType.mint_nft) {
-                nftObj[idStr].denom_name = denomMap.get(msg.denom);
-                nftObj[idStr].nft_name = msg.name;
-                nftObj[idStr].owner = msg.recipient;//mint_nft如果传一个recipient参数, 那么这个nft的owner就被转移到此地址下
-                nftObj[idStr].uri = msg.uri;
-                nftObj[idStr].data = msg.data;
-                nftObj[idStr].is_deleted = false;
-                nftObj[idStr].create_time = getTimestamp();
-            } else if ((tx.msgs as any).type === TxType.edit_nft) {
-                if(msg.name !== NFT_INFO_DO_NOT_MODIFY){
-                    nftObj[idStr].nft_name = msg.name;
+            tx.msgs.forEach((item,index) => {
+                const {msg} = (item as any);
+                if (msg?.denom && msg?.id) {
+                    const idStr = `${msg.denom}-${msg.id}`;
+                    if (!nftObj[idStr]) nftObj[idStr] = {};
+                    switch ((item as any).type) {
+                        case TxType.mint_nft:
+                            nftObj[idStr].denom_name = denomMap.get(msg.denom);
+                            nftObj[idStr].nft_name = msg.name;
+                            nftObj[idStr].owner = msg.recipient;//mint_nft如果传一个recipient参数, 那么这个nft的owner就被转移到此地址下
+                            nftObj[idStr].uri = msg.uri;
+                            nftObj[idStr].data = msg.data;
+                            nftObj[idStr].is_deleted = false;
+                            nftObj[idStr].create_time = getTimestamp();
+                            nftObj[idStr].denom_id = msg.denom;
+                            nftObj[idStr].nft_id = msg.id;
+                            nftObj[idStr].last_block_height = tx.height;
+                            nftObj[idStr].last_block_time = tx.time;
+                            nftObj[idStr].update_time = getTimestamp();
+                            break;
+                        case TxType.edit_nft:
+                            if (msg.name !== NFT_INFO_DO_NOT_MODIFY) {
+                                nftObj[idStr].nft_name = msg.name;
+                            }
+                            if (msg.uri !== NFT_INFO_DO_NOT_MODIFY) {
+                                nftObj[idStr].uri = msg.uri;
+                            }
+                            if (msg.data !== NFT_INFO_DO_NOT_MODIFY) {
+                                nftObj[idStr].data = msg.data;
+                            }
+                            nftObj[idStr].denom_id = msg.denom;
+                            nftObj[idStr].nft_id = msg.id;
+                            nftObj[idStr].last_block_height = tx.height;
+                            nftObj[idStr].last_block_time = tx.time;
+                            nftObj[idStr].update_time = getTimestamp();
+                            break;
+                        case TxType.transfer_nft:
+                            nftObj[idStr].owner = msg.recipient;
+                            //转让的时候, 可以对可编辑的信息重新赋值
+                            if (msg.name !== NFT_INFO_DO_NOT_MODIFY) {
+                                nftObj[idStr].nft_name = msg.name;
+                            }
+                            if (msg.uri !== NFT_INFO_DO_NOT_MODIFY) {
+                                nftObj[idStr].uri = msg.uri;
+                            }
+                            if (msg.data !== NFT_INFO_DO_NOT_MODIFY) {
+                                nftObj[idStr].data = msg.data;
+                            }
+                            nftObj[idStr].denom_id = msg.denom;
+                            nftObj[idStr].nft_id = msg.id;
+                            nftObj[idStr].last_block_height = tx.height;
+                            nftObj[idStr].last_block_time = tx.time;
+                            nftObj[idStr].update_time = getTimestamp();
+                            break;
+                        case TxType.burn_nft:
+                            nftObj[idStr].denom_id = msg.denom;
+                            nftObj[idStr].nft_id = msg.id;
+                            nftObj[idStr].is_deleted = true;
+                            break;
+                        }
+                    }
+                    switch ((item as any).type) {
+                        case TxType.tibc_nft_transfer:
+                            const transferMsg:ITibcNftTransferMsgStruct = (item as any).msg
+                            const idTibcStr = `${transferMsg.class}-${transferMsg.id}`;
+                            if (!nftObj[idTibcStr]) nftObj[idTibcStr] = {};
+                            nftObj[idTibcStr].denom_id = transferMsg.class;
+                            nftObj[idTibcStr].nft_id = transferMsg.id;
+                            nftObj[idTibcStr].is_deleted = true;
+                            break;
+                        case TxType.tibc_recv_packet:
+                            let ackResult = "";
+                            tx?.events_new?.forEach((eventNew) => {
+                                if (eventNew.msg_index === index) {
+                                    (eventNew.events || []).forEach(event => {
+                                        if(event.type === "non_fungible_token_packet") {
+                                            (event.attributes || []).forEach(item => {
+                                                if(item.key === 'success')  {
+                                                    ackResult = item.value;
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            });
+                            if (ackResult === "true") {
+                                const recvMsgData:ITibcRecvPacketMsgStruct = (item as any).msg
+                                let denomId = '';
+                                if (recvMsgData?.packet?.data?.away_from_origin) {
+                                    const newClassPath = getAwayNewClassPath(
+                                        recvMsgData?.packet?.source_chain,
+                                        recvMsgData?.packet?.destination_chain,
+                                        recvMsgData?.packet?.data?.class)
+                                    const {path,base_class} = ParseClassTrace(newClassPath)
+                                    denomId = TibcClass(path,base_class)
+                                } else {
+                                    const newClassPath = getBackNewClassPath(
+                                        recvMsgData?.packet?.data?.class)
+                                    const {path,base_class} = ParseClassTrace(newClassPath)
+                                    denomId = TibcClass(path,base_class)
+                                }
+                                const idStr = `${denomId}-${recvMsgData?.packet?.data?.id}`;
+                                if (!nftObj[idStr]) nftObj[idStr] = {};
+                                nftObj[idStr].owner = recvMsgData?.packet?.data?.receiver;
+                                nftObj[idStr].uri = recvMsgData?.packet?.data?.uri;
+                                nftObj[idStr].denom_id = denomId;
+                                nftObj[idStr].nft_id = recvMsgData?.packet?.data?.id;
+                                nftObj[idStr].is_deleted = false;
+                                nftObj[idStr].create_time = getTimestamp();
+                                nftObj[idStr].last_block_height = tx.height;
+                                nftObj[idStr].last_block_time = tx.time;
+                                nftObj[idStr].update_time = getTimestamp();
+                            }
+                            break;
+                        case TxType.tibc_acknowledge_packet:
+                            const ackMsgData:ITibcAcknowledgePacketMsgStruct= (item as any).msg
+
+                            //ack != 1
+                            if (!ackMsgData?.acknowledgement?.includes("result:\"\\001\"")) {
+                                //denom id
+                                const {path,base_class} = ParseClassTrace(ackMsgData?.packet?.data?.class)
+                                const denomId = TibcClass(path,base_class)
+
+                                const idStr = `${denomId}-${ackMsgData?.packet?.data?.id}`;
+                                if (!nftObj[idStr]) nftObj[idStr] = {};
+                                //create nft data
+                                nftObj[idStr].owner = ackMsgData?.packet?.data?.sender;
+                                nftObj[idStr].denom_id = denomId;
+                                nftObj[idStr].nft_id = ackMsgData?.packet?.data?.id;
+                                nftObj[idStr].is_deleted = false;
+                                nftObj[idStr].uri = ackMsgData?.packet?.data?.uri;
+                                nftObj[idStr].last_block_height = tx.height;
+                                nftObj[idStr].last_block_time = tx.time;
+                                nftObj[idStr].update_time = getTimestamp();
+                                nftObj[idStr].create_time = getTimestamp();
+
+                            }
+                            break;
                 }
-                if(msg.uri !== NFT_INFO_DO_NOT_MODIFY){
-                    nftObj[idStr].uri = msg.uri;
-                }
-                if(msg.data !== NFT_INFO_DO_NOT_MODIFY){
-                    nftObj[idStr].data = msg.data;
-                }
-            } else if ((tx.msgs as any).type === TxType.transfer_nft) {
-                nftObj[idStr].owner = msg.recipient;
-                //转让的时候, 可以对可编辑的信息重新赋值
-                if(msg.name !== NFT_INFO_DO_NOT_MODIFY){
-                    nftObj[idStr].nft_name = msg.name;
-                }
-                if(msg.uri !== NFT_INFO_DO_NOT_MODIFY){
-                    nftObj[idStr].uri = msg.uri;
-                }
-                if(msg.data !== NFT_INFO_DO_NOT_MODIFY){
-                    nftObj[idStr].data = msg.data;
-                }
-            } else if ((tx.msgs as any).type === TxType.burn_nft) {
-                nftObj[idStr].is_deleted = true;
-            }
-            nftObj[idStr].denom_id = msg.denom;
-            nftObj[idStr].nft_id = msg.id;
-            nftObj[idStr].last_block_height = tx.height;
-            nftObj[idStr].last_block_time = tx.time;
-            nftObj[idStr].update_time = getTimestamp();
+
             last_block_height = Math.max(tx.height,last_block_height);
+        });
         });
 
         for (let idStr in nftObj) {
