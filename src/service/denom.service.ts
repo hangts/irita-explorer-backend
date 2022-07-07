@@ -19,17 +19,18 @@ export class DenomService {
         let count: number = null, denomList: IDenomStruct[] = [];
         if(pageNum && pageSize || needAll){
           denomList = await (this.denomModel as any).findList(pageNum, pageSize, denomNameOrId, needAll);
-          for (const d of denomList) {
-              const retCount = await (this.nftModel as any).queryNftCount(d.denom_id)
-              res.push(new DenomListResDto(
-                  d.name,
-                  d.denom_id,
-                  d.tx_hash,
-                  retCount,
-                  d.creator,
-                  d.time,
-              ))
-          }    
+
+           for (const d of denomList) {
+            // TODO waiting for refactor
+            // const retCount = await (this.nftModel as any).queryNftCount(d.denom_id)
+             res.push(new DenomListResDto(
+                   d.name,
+                   d.denom_id,
+                   d.tx_hash,
+                   d.creator,
+                   d.time,
+               ))
+           }
         }
         if(useCount && !needAll){
             if (!denomNameOrId) {
