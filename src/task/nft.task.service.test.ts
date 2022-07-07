@@ -18,15 +18,9 @@ describe('NftTaskService', () => {
     describe('NftTaskService doTask', () => {
 
         it('handleNftTx', async () => {
-            let nftTxList = await nftTaskService.getNftTxList(4755, 4800); // 9384042
-            const denomList: IDenomStruct[] = await nftTaskService.denomList();
-            let denomMap = new Map<string, string>();
-            if (denomList && denomList.length > 0) {
-                denomList.forEach((denom: IDenomStruct) => {
-                    denomMap.set(denom.denom_id, denom.name);
-                });
-            }
-            await nftTaskService.handleNftTx(nftTxList,denomMap);
+            jest.setTimeout(10000000)
+            let nftTxList = await nftTaskService.getNftTxList(15036890, 15044161); // 9384042
+            await nftTaskService.handleNftTx(nftTxList);
             // console.log("=====>handleNftTx:",pool)
         });
     });
