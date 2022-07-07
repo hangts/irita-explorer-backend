@@ -1030,7 +1030,7 @@ TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Prom
             }
         },
     ];
-    return await this.aggregate(cond);
+    return await this.aggregate(cond).allowDiskUse(true);
 };
 
 TxSchema.statics.queryDenomTxList = async function (lastBlockHeight: number): Promise<ITxStruct[]>  {
@@ -1095,7 +1095,7 @@ TxSchema.statics.queryVoteByProposalId = async function (id:number): Promise<ITx
             $group: { _id: "$msgs.msg.voter", msg: { $first: "$msgs.msg" }, count: { $sum: 1 } }
         }
     ]
-    return await this.aggregate(cond);
+    return await this.aggregate(cond).allowDiskUse(true);
 };
 
 TxSchema.statics.queryVoteByProposalIdAll = async function (id:number): Promise<ITxVoteProposalAll[]>  {
