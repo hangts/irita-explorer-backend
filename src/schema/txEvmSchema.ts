@@ -90,7 +90,7 @@ TxEvmSchema.statics = {
         _id: '$evm_datas.contract_address'
       },
     }
-    return  await this.aggregate([matchContractAddr,unwind,group])
+    return  await this.aggregate([matchContractAddr,unwind,group]).allowDiskUse(true);
   },
 
   // async queryTxWithDdcAddr(query: ITxsWithAddressQuery): Promise<ListStruct> {
