@@ -21,6 +21,7 @@ import {AccountInfoTaskService} from "./account.info.task.service";
 import {StatisticsTaskService} from "./statistics.task.service";
 import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
+import { CronTaskWorkingStatusMetric } from '../monitor/metrics/cron_task_working_status.metric';
 
 @Injectable()
 export class TasksService {
@@ -40,6 +41,7 @@ export class TasksService {
         private readonly accountTaskService: AccountTaskService,
         private readonly accountInfoTaskService: AccountInfoTaskService,
         private readonly statisticsTaskService: StatisticsTaskService,
+        private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
         private schedulerRegistry: SchedulerRegistry,
     ) {
         this[`${TaskEnum.denom}_timer`] = null;
@@ -219,6 +221,7 @@ export class TasksService {
                     clearInterval(this[`${taskName}_timer`]);
                     this[`${taskName}_timer`] = null;
                 }
+                this.cronTaskWorkingStatusMetric.collect(taskName,-1)
             }
         }
     }
