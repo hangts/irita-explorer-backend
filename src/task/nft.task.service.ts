@@ -57,15 +57,8 @@ export class NftTaskService {
         let nftTxList: ITxStruct[] = await this.getNftTxList(lastBlockHeight, maxHeight);
         taskLoggerHelper(`${taskName}: execute task (step should be start step + 3)`, randomKey);
         if (nftTxList && nftTxList.length > 0) {
-            const denomList: IDenomStruct[] = await this.denomList();
-            let denomMap = new Map<string, string>();
-            if (denomList && denomList.length > 0) {
-                denomList.forEach((denom: IDenomStruct) => {
-                    denomMap.set(denom.denom_id, denom.name);
-                });
-            }
             taskLoggerHelper(`${taskName}: execute task (step should be start step + 4)`, randomKey);
-            await this.handleNftTx(nftTxList, denomMap);
+            await this.handleNftTx(nftTxList);
         }
         this.cronTaskWorkingStatusMetric.collect(TaskEnum.nft,1)
         taskLoggerHelper(`${taskName}: end to execute task (step should be start step + 4 or 5)`, randomKey);
@@ -103,7 +96,7 @@ export class NftTaskService {
         return await (this.txModel as any).queryNftTxList(lastBlockHeight);
     }
 
-    async handleNftTx(nftTxList, denomMap: Map<string, string>): Promise<void> {
+    async handleNftTx(nftTxList): Promise<void> {
         const promiseList: Promise<any>[] = [];
         const nftObj = {};
         let last_block_height = 0;
@@ -115,7 +108,6 @@ export class NftTaskService {
                     if (!nftObj[idStr]) nftObj[idStr] = {};
                     switch ((item as any).type) {
                         case TxType.mint_nft:
-                            nftObj[idStr].denom_name = denomMap.get(msg.denom);
                             nftObj[idStr].nft_name = msg.name;
                             nftObj[idStr].owner = msg.recipient;//mint_nft如果传一个recipient参数, 那么这个nft的owner就被转移到此地址下
                             nftObj[idStr].uri = msg.uri;
