@@ -29,7 +29,7 @@ export class DenomService {
                    d.name,
                    d.denom_id,
                    d.tx_hash,
-               denomIdNftCountMap.get(d.denom_id) || 0,
+                   denomIdNftCountMap.get(d.denom_id) || 0,
                    d.creator,
                    d.time,
                ))

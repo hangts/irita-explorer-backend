@@ -47,3 +47,36 @@ export interface INftCountGroupByDenomStruct {
     _id: string,
     nft_num: number,
 }
+
+export interface ITibcNftTransferMsgStruct {
+    class?: string,
+    id?: string,
+    sender?: string,
+    receiver?: string,
+}
+
+export interface ITibcRecvPacketMsgStruct {
+    packet?: ITibcPacketStruct,
+}
+
+export interface ITibcAcknowledgePacketMsgStruct {
+    packet?: ITibcPacketStruct,
+    acknowledgement?: string,
+}
+
+export interface ITibcPacketStruct {
+    data?: IPacketDataStruct,
+    source_chain?: string,
+    destination_chain?: string,
+    relay_chain?: string,
+}
+
+export interface IPacketDataStruct {
+    class?: string,
+    id?: string,
+    uri?: string,
+    sender?: string,
+    receiver?: string,
+    away_from_origin?: boolean,
+    dest_contract?: string,
+}

@@ -39,6 +39,10 @@ import { TokenModule } from './module/token.module';
 import { MonitorModule } from './module/monitor.module';
 import { StatisticsTaskModule } from './module/statistics.task.module';
 import { MongoTaskModule } from "./module/mongo.task.module";
+import {
+    CronTaskWorkingStatusMetric,
+    CronTaskWorkingStatusProvider,
+} from './monitor/metrics/cron_task_working_status.metric';
 
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 const params = {
@@ -90,8 +94,9 @@ const params = {
         {
             provide: APP_INTERCEPTOR,
             useClass: CacheInterceptor,
-        }
-    ],
+        },
+        CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider(),
+    ]
 };
 params.providers.push(TasksService);
 

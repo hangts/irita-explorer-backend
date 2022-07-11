@@ -22,6 +22,7 @@ import {StatisticsTaskService} from "./statistics.task.service";
 import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
 import { MongoConnectStatusTaskService } from "./mongo.connect.status.task.service";
+import { CronTaskWorkingStatusMetric } from '../monitor/metrics/cron_task_working_status.metric';
 
 @Injectable()
 export class TasksService {
@@ -42,6 +43,7 @@ export class TasksService {
         private readonly accountInfoTaskService: AccountInfoTaskService,
         private readonly statisticsTaskService: StatisticsTaskService,
         private readonly mongoConnectStatusTaskService: MongoConnectStatusTaskService,
+        private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
         private schedulerRegistry: SchedulerRegistry,
     ) {
         this[`${TaskEnum.denom}_timer`] = null;
@@ -178,7 +180,7 @@ export class TasksService {
         this.handleDoTask(TaskEnum.mongoConnectStatus, this.mongoConnectStatusTaskService.doTask)
     }
 
-  async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
+    async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
         if (cfg && cfg.taskCfg &&  cfg.taskCfg.CRON_JOBS && cfg.taskCfg.CRON_JOBS.indexOf(taskName) === -1) {
             return
         }
@@ -228,6 +230,7 @@ export class TasksService {
                     clearInterval(this[`${taskName}_timer`]);
                     this[`${taskName}_timer`] = null;
                 }
+                this.cronTaskWorkingStatusMetric.collect(taskName,-1)
             }
         }
     }

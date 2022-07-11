@@ -42,7 +42,7 @@ AccountSchema.statics = {
     async queryTokenTotal(): Promise<ITokenTotal> {
         let data = await this.aggregate( [
             { $group: { _id: null, "account_totals" : { $sum: "$account_total" } } }
-        ])
+        ]).allowDiskUse(true);
         return data[0]
     },
     async queryAccountsTotalLimit(): Promise<IAccountStruct[]> {
