@@ -38,7 +38,12 @@ export interface INft extends INftStruct,Document {
 }
 
 export interface INftListQueryParams {
-    denom_id?: string;
-    nft_id?: string;
-    owner?: string;
+    denom_id?: string,
+    nft_id?: string,
+    owner?: string,
+}
+
+export interface INftCountGroupByDenomStruct {
+    _id: string,
+    nft_num: number,
 }
