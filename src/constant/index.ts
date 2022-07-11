@@ -13,7 +13,8 @@ export enum TaskEnum {
     proposal = 'ex_sync_proposal',
     statistics = 'ex_statistics',
     account = 'ex_sync_account',
-    accountInfo =  'ex_sync_account_info'
+    accountInfo =  'ex_sync_account_info',
+    mongoConnectStatus =  'mongo_connect_status'
 }
 
 export const StatisticsNames = [
