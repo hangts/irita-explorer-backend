@@ -15,7 +15,7 @@ export interface ITxsWithHeightQuery extends IQueryBase {
 
 export interface ITxsWithAddressQuery extends IQueryBase {
     contract_addr?:string,
-	address?:string,
+	  address?:string,
     type?:string,
     status?:string,
 }
@@ -123,4 +123,9 @@ export interface ITxVoteProposalAll  {
 export interface ITxVoteALL {
     msgs: object
     tx_hash: string
+}
+
+export interface ITxMsgsCount  {
+    _id: string
+    count: number
 }
