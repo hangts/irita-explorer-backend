@@ -355,8 +355,8 @@ export class TxService {
     // txs
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        const { pageNum, pageSize, useCount, type } = query;
-        let txListData, txData = [], count = null;
+        const { pageNum, pageSize, useCount, type, countMsg } = query;
+        let txListData, txData = [], count = null, totalTxMsgs = null;
 
         if(pageNum && pageSize || useCount){
           await this.cacheTxTypes();
@@ -399,21 +399,37 @@ export class TxService {
                 txData = await this.addMonikerToTxs(txListData.data);
             }
           }
-          if(useCount){
+          if(useCount || countMsg){
             if (!query?.pageNum && !query?.pageSize && !query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
               //default count with no filter conditions
 
               const txCnt = await this.statisticsModel.findStatisticsRecord("tx_all")
               count = txCnt?.count
-            }else{
+              if (countMsg) {
+                const msgsCnt = await this.statisticsModel.findStatisticsRecord("tx_msgs_all")
+                totalTxMsgs = msgsCnt?.count
+              }
+            }else {
 
               count = await this.txModel.queryTxListCount(queryDb);
+              let types  = []
+              if (countMsg) {
+                if (!queryDb.type || !queryDb.type.length) {
+                  types = Cache.supportTypes
+                }else{
+                  types = queryDb.type.split(",")
+                }
+                const msgCntData = await this.txModel.queryTxMsgsCountWithCond(null, types)
+                if (msgCntData && msgCntData.length) {
+                  totalTxMsgs = msgCntData[0].count
+                }
+              }
             }
           }
         }
         // }
 
-        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count,null, totalTxMsgs);
     }
 
     // txs/staking
@@ -590,8 +606,8 @@ export class TxService {
 
     //  txs/addresses
     async queryTxWithAddress(query: TxListWithAddressReqDto): Promise<ListStruct<TxResDto[]>> {
-      const { pageNum, pageSize, useCount, type } = query;
-      let txListData, txData = [],count = null;
+      const { pageNum, pageSize, useCount, type, countMsg } = query;
+      let txListData, txData = [],count = null,totalTxMsgs = null;
       if(pageNum && pageSize || useCount){
         await this.cacheTxTypes();
           let queryDb: ITxsWithAddressQuery = {
@@ -632,12 +648,18 @@ export class TxService {
               txData = await this.addMonikerToTxs(txListData.data);
           }
         }
-        if(useCount){
+        if(useCount || countMsg){
           count = await this.txModel.queryTxWithAddressCount(queryDb);
+          if (countMsg && queryDb?.address) {
+            const txMsgsData = await this.txModel.queryTxMsgsCountWithCond(queryDb?.address,null)
+            if (txMsgsData && txMsgsData.length) {
+              totalTxMsgs = txMsgsData[0].count
+            }
+          }
         }
       }
 
-      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
+      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count,null,totalTxMsgs);
     } //  txs/addresses
 
     //  txs/addresses/statistic

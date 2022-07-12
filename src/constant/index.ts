@@ -283,6 +283,7 @@ export const correlationStr = {
     '209': 'bondedTokensInformation',
     '210': 'communityPoolInformation',
     '211': 'accountsCount',
+    '212': 'totalTxMsgs',
 }
 
 export const proposalStatus = {

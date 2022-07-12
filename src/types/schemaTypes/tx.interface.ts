@@ -124,3 +124,8 @@ export interface ITxVoteALL {
     msgs: object
     tx_hash: string
 }
+
+export interface ITxMsgsCount  {
+    _id: string
+    count: number
+}

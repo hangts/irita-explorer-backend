@@ -56,6 +56,9 @@ export class StatisticsService {
                 case '211':
                     indicators.push(this.queryAccountsCount.bind(that))
                     break;
+                case '212':
+                    indicators.push(this.queryTxMsgsCount.bind(that))
+                    break;
                 default:
                     break;
             }
@@ -193,6 +196,11 @@ export class StatisticsService {
     async queryAccountsCount():Promise<any>{
         const AccountsCnt = await this.statisticsModel.findStatisticsRecord("accounts_all")
         return AccountsCnt?.count
+    }
+
+    async queryTxMsgsCount():Promise<any>{
+        const TxMsgsCnt = await this.statisticsModel.findStatisticsRecord("tx_msgs_all")
+        return TxMsgsCnt?.count
     }
 
     async queryBondedTokensInformation(): Promise<any>{

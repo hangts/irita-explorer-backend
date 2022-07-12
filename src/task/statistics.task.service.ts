@@ -3,7 +3,7 @@ import {InjectModel} from '@nestjs/mongoose';
 import {Model} from "mongoose";
 import {StatisticsNames, TaskEnum} from '../constant';
 import {INft} from '../types/schemaTypes/nft.interface';
-import {StatisticsType, AllTxStatisticsInfoType} from '../types/schemaTypes/statistics.interface';
+import {StatisticsType, AllTxStatisticsInfoType, AllMsgsStatisticsInfoType } from '../types/schemaTypes/statistics.interface';
 import {getTimestamp} from '../util/util';
 import {StakingHttp} from '../http/lcd/staking.http';
 import {BankHttp} from '../http/lcd/bank.http';
@@ -38,6 +38,7 @@ export class StatisticsTaskService {
             total_supply;
 
         await this.updateIncreTxCount()
+        await this.updateIncreMsgsCount()
 
         if (cfg && cfg.taskCfg && cfg.taskCfg.CRON_JOBS) {
             if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.denom) >= 0) {
@@ -135,6 +136,78 @@ export class StatisticsTaskService {
 
     async queryConsensusValidatorCount(): Promise<number | null> {
         return await this.validatorModel.findCount(false);
+    }
+
+    async handleTxMsgsIncre(statisticsRecord):Promise<any>{
+        const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(1)
+        if (latestOneTx && latestOneTx?.height) {
+            let msgAllInfo = {record_height: 0, record_height_tx_msgs: 0}
+            msgAllInfo.record_height = latestOneTx?.height
+            const data = await this.txModel.queryTxMsgsCountByHeight(latestOneTx?.height)
+            if (data && data?.length) {
+                msgAllInfo.record_height_tx_msgs = data[0].count
+            }
+            statisticsRecord.statistics_info = JSON.stringify(msgAllInfo)
+            const Incredata = await this.txModel.queryTxMsgsIncre(latestOneTx?.height);
+            if (Incredata && Incredata?.length) {
+                statisticsRecord.count = Incredata[0].count
+            }
+        }
+        return statisticsRecord
+    }
+
+    async updateIncreMsgsCount() {
+        let follow: boolean = await getTaskStatus(this.taskModel, TaskEnum.statistics)
+        if (follow) {
+            let statisticsRecord = await this.findStatisticsRecord('tx_msgs_all');
+            if (!statisticsRecord) {
+                let statisticsRecord = {
+                    statistics_name: 'tx_msgs_all',
+                    count: 0,
+                    data: '',
+                    statistics_info: '',
+                    create_at: getTimestamp(),
+                    update_at: getTimestamp(),
+                }
+                statisticsRecord = await this.handleTxMsgsIncre(statisticsRecord)
+                await this.statisticsModel.insertManyStatisticsRecord(statisticsRecord);
+            } else {
+                let increMsgsCnt = 0;
+                if (statisticsRecord?.statistics_info) {
+                    const msgsAllInfo: AllMsgsStatisticsInfoType = JSON.parse(statisticsRecord.statistics_info);
+                    if (msgsAllInfo?.record_height && msgsAllInfo?.record_height_tx_msgs) {
+                        const increData = await this.txModel.queryTxMsgsIncre(msgsAllInfo.record_height)
+                        let incre = 0
+                        if (increData && increData.length) {
+                            incre = Number(increData[0].count)
+                        }
+                        const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(msgsAllInfo.record_height)
+                        if (incre && incre > msgsAllInfo.record_height_tx_msgs) {
+                            // 统计增量数 =  incre - record_height_tx_msgs
+                            increMsgsCnt = incre - msgsAllInfo.record_height_tx_msgs
+                        }
+                        if (latestOneTx && latestOneTx?.height) {
+                            msgsAllInfo.record_height = latestOneTx?.height
+                            const increData = await this.txModel.queryTxMsgsCountByHeight(latestOneTx?.height)
+                            if (increData && increData.length) {
+                                msgsAllInfo.record_height_tx_msgs = Number(increData[0].count)
+                            }
+                            statisticsRecord.statistics_info = JSON.stringify(msgsAllInfo)
+                        }
+                        //交易总数 = 统计增量数+历史统计总数
+                        if (increMsgsCnt > 0) {
+                            statisticsRecord.count = statisticsRecord.count + increMsgsCnt;
+                            statisticsRecord.update_at = getTimestamp();
+                            await this.updateStatisticsRecord(statisticsRecord);
+                        }
+                    }
+                } else {
+                    statisticsRecord = await this.handleTxMsgsIncre(statisticsRecord)
+                    await this.updateStatisticsRecord(statisticsRecord);
+                }
+            }
+
+        }
     }
 
     async updateIncreTxCount(): Promise<void> {

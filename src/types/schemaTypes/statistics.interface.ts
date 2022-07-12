@@ -12,3 +12,9 @@ export interface AllTxStatisticsInfoType {
   record_height?: number;
   record_height_block_txs?: number;
 }
+
+//tx_msgs_all statistics_info struct
+export interface AllMsgsStatisticsInfoType {
+  record_height?: number;
+  record_height_tx_msgs?: number;
+}

@@ -64,5 +64,10 @@ describe('StatisticsTaskService', () => {
       const data = await statisticsTaskService.queryAccounts();
       console.log("=====>queryAccounts:",data)
     });
+    it('updateIncreMsgsCount', async () => {
+      jest.setTimeout(1000000)
+      await statisticsTaskService.updateIncreMsgsCount();
+    });
+
   });
 });

@@ -11,11 +11,13 @@ export class ListStruct<T> implements IListStructBase<T> {
     pageSize: number;
     count?: number;
     statistical?: GovVoterStatistical;
-    constructor(data: T,pageNum: number, pageSize: number, count?: number,statistical?:GovVoterStatistical) {
+    total_tx_msgs?: number;
+    constructor(data: T,pageNum: number, pageSize: number, count?: number,statistical?:GovVoterStatistical,totalTxMsgs?:number) {
         this.data = data;
         this.pageNum = pageNum;
         this.pageSize = pageSize;
         if (count || count === 0) this.count = count;
+        if (totalTxMsgs || totalTxMsgs === 0) this.total_tx_msgs = totalTxMsgs;
         if (statistical) this.statistical = statistical;
     }
 }
