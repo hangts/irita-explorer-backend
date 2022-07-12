@@ -362,6 +362,7 @@ export class TxService {
           await this.cacheTxTypes();
             let queryDb: ITxsQuery = {
                 type: type,
+                contract_addr:'',
                 status: query.status,
                 address: query.address,
                 useCount: useCount,
@@ -422,7 +423,7 @@ export class TxService {
               }else{
                 types = queryDb.type.split(",")
               }
-              const msgCntData = await this.txModel.queryTxMsgsCountWithCond(null, types)
+              const msgCntData = await this.txModel.queryTxMsgsCountWithCond(null,queryDb.contract_addr, types)
               if (msgCntData && msgCntData.length) {
                 totalTxMsgs = msgCntData[0].count
               }
@@ -614,6 +615,7 @@ export class TxService {
         await this.cacheTxTypes();
           let queryDb: ITxsWithAddressQuery = {
               type: type,
+              contract_addr:'',
               status: query.status,
               address: query.address,
               useCount: useCount,
@@ -654,7 +656,13 @@ export class TxService {
             count = await this.txModel.queryTxWithAddressCount(queryDb);
         }
         if (countMsg && queryDb?.address) {
-            const txMsgsData = await this.txModel.queryTxMsgsCountWithCond(queryDb?.address,null)
+            let types  = []
+            if (!queryDb.type || !queryDb.type.length) {
+              types = Cache.supportTypes
+            }else{
+              types = queryDb.type.split(",")
+            }
+            const txMsgsData = await this.txModel.queryTxMsgsCountWithCond(queryDb.address,queryDb.contract_addr,types)
             if (txMsgsData && txMsgsData.length) {
               totalTxMsgs = txMsgsData[0].count
             }
