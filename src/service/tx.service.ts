@@ -399,30 +399,32 @@ export class TxService {
                 txData = await this.addMonikerToTxs(txListData.data);
             }
           }
-          if(useCount || countMsg){
+          if(useCount){
             if (!query?.pageNum && !query?.pageSize && !query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
               //default count with no filter conditions
 
               const txCnt = await this.statisticsModel.findStatisticsRecord("tx_all")
               count = txCnt?.count
-              if (countMsg) {
-                const msgsCnt = await this.statisticsModel.findStatisticsRecord("tx_msgs_all")
-                totalTxMsgs = msgsCnt?.count
-              }
             }else {
 
               count = await this.txModel.queryTxListCount(queryDb);
+            }
+          }
+          if (countMsg) {
+            if (!query?.pageNum && !query?.pageSize && !query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
+              //default count with no filter conditions
+              const msgsCnt = await this.statisticsModel.findStatisticsRecord("tx_msgs_all")
+              totalTxMsgs = msgsCnt?.count
+            }else{
               let types  = []
-              if (countMsg) {
-                if (!queryDb.type || !queryDb.type.length) {
-                  types = Cache.supportTypes
-                }else{
-                  types = queryDb.type.split(",")
-                }
-                const msgCntData = await this.txModel.queryTxMsgsCountWithCond(null, types)
-                if (msgCntData && msgCntData.length) {
-                  totalTxMsgs = msgCntData[0].count
-                }
+              if (!queryDb.type || !queryDb.type.length) {
+                types = Cache.supportTypes
+              }else{
+                types = queryDb.type.split(",")
+              }
+              const msgCntData = await this.txModel.queryTxMsgsCountWithCond(null, types)
+              if (msgCntData && msgCntData.length) {
+                totalTxMsgs = msgCntData[0].count
               }
             }
           }
@@ -648,14 +650,14 @@ export class TxService {
               txData = await this.addMonikerToTxs(txListData.data);
           }
         }
-        if(useCount || countMsg){
-          count = await this.txModel.queryTxWithAddressCount(queryDb);
-          if (countMsg && queryDb?.address) {
+        if(useCount){
+            count = await this.txModel.queryTxWithAddressCount(queryDb);
+        }
+        if (countMsg && queryDb?.address) {
             const txMsgsData = await this.txModel.queryTxMsgsCountWithCond(queryDb?.address,null)
             if (txMsgsData && txMsgsData.length) {
               totalTxMsgs = txMsgsData[0].count
             }
-          }
         }
       }
 

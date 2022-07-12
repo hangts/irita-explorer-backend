@@ -1262,8 +1262,7 @@ TxSchema.statics.queryTxMsgsCountWithCond = async function (address: string,type
     const filter = {}
     if (address && address.length) {
         filter["addrs"] = address
-    }
-    if (types && types.length) {
+    }else if (types && types.length) {
         filter["msgs.type"] = {
             $in:types,
         }

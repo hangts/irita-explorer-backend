@@ -15,7 +15,7 @@ export interface ITxsWithHeightQuery extends IQueryBase {
 
 export interface ITxsWithAddressQuery extends IQueryBase {
     contract_addr?:string,
-	address?:string,
+	  address?:string,
     type?:string,
     status?:string,
 }

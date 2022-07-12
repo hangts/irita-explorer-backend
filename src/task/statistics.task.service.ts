@@ -194,7 +194,7 @@ export class StatisticsTaskService {
                             }
                             statisticsRecord.statistics_info = JSON.stringify(msgsAllInfo)
                         }
-                        //交易总数 = 统计增量数+历史统计总数
+                        //交易消息总数 = 统计增量数+历史统计总数
                         if (increMsgsCnt > 0) {
                             statisticsRecord.count = statisticsRecord.count + increMsgsCnt;
                             statisticsRecord.update_at = getTimestamp();
