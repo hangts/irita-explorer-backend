@@ -45,7 +45,7 @@ export interface INftListQueryParams {
 
 export interface INftCountGroupByDenomStruct {
     _id: string,
-    nft_num: number,
+    nft_count: number,
 }
 
 export interface ITibcNftTransferMsgStruct {
