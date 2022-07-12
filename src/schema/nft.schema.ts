@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import { Logger } from '../logger';
 import {
     IDeleteQuery,
-    INftCountQueryParams,
+    INftCountGroupByDenomStruct,
     INftStruct,
 } from '../types/schemaTypes/nft.interface';
 import { ListStruct } from '../types';
@@ -184,6 +184,18 @@ NftSchema.statics = {
         };
         return this.deleteOne(cond);
     },
+
+  async groupNftCountByDenomId(denomIds: string[]): Promise<INftCountGroupByDenomStruct>{
+      const cond = [
+          {
+            $match: { 'denom_id': { $in: denomIds } }
+          },
+          {
+            $group: { _id: '$denom_id', nft_count: { $sum: 1 } }
+          }
+      ]
+      return await this.aggregate(cond);
+  }
 
 
 
