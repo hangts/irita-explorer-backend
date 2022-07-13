@@ -148,7 +148,7 @@ export class StatisticsTaskService {
                 msgAllInfo.record_height_tx_msgs = data[0].count
             }
             statisticsRecord.statistics_info = JSON.stringify(msgAllInfo)
-            const Incredata = await this.txModel.queryTxMsgsIncre(latestOneTx?.height);
+            const Incredata = await this.txModel.queryTxMsgsIncre(1);
             if (Incredata && Incredata?.length) {
                 statisticsRecord.count = Incredata[0].count
             }
@@ -181,11 +181,12 @@ export class StatisticsTaskService {
                         if (increData && increData.length) {
                             incre = Number(increData[0].count)
                         }
-                        const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(msgsAllInfo.record_height)
                         if (incre && incre > msgsAllInfo.record_height_tx_msgs) {
                             // 统计增量数 =  incre - record_height_tx_msgs
                             increMsgsCnt = incre - msgsAllInfo.record_height_tx_msgs
                         }
+
+                        const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(msgsAllInfo.record_height)
                         if (latestOneTx && latestOneTx?.height) {
                             msgsAllInfo.record_height = latestOneTx?.height
                             const increData = await this.txModel.queryTxMsgsCountByHeight(latestOneTx?.height)
