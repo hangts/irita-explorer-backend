@@ -357,8 +357,7 @@ export class TxService {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
         const { pageNum, pageSize, useCount, type, countMsg } = query;
         let txListData, txData = [], count = null, totalTxMsgs = null;
-
-        if(pageNum && pageSize || useCount){
+        if(pageNum && pageSize || useCount || countMsg){
           await this.cacheTxTypes();
             let queryDb: ITxsQuery = {
                 type: type,
