@@ -1258,27 +1258,10 @@ TxSchema.statics.queryTxMsgsCountByHeight = async function (lastBlockHeight: num
   return await this.aggregate(cond).allowDiskUse(true);
 };
 
-TxSchema.statics.queryTxMsgsCountWithCond = async function (address: string,contractAddr: string,types: string[]): Promise<ITxMsgsCount[]>  {
-    const filter = {}
-    if (address && address.length) {
-        filter["addrs"] = address
-    }
-    if (types && types.length) {
-        filter["msgs.type"] = {
-            $in:types,
-        }
-    }
-    if (contractAddr && contractAddr.length) {
-        const contracts = contractAddr.split(",")
-        if (contracts) {
-            filter["contract_addrs"] = {
-                $in:contracts,
-            }
-        }
-    }
+TxSchema.statics.queryTxMsgsCountWithCond = async function (queryParameters): Promise<ITxMsgsCount[]>  {
     const cond = [
         {
-            $match:filter,
+            $match:queryParameters,
         },
         {
             $unwind:'$msgs',
