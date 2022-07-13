@@ -55,6 +55,7 @@ import {
 import { addressTransform, splitString } from '../util/util';
 import { GovHttp } from '../http/lcd/gov.http';
 import { getConsensusPubkey } from '../helper/staking.helper';
+import { txListParamsHelper, TxWithAddressParamsHelper } from '../helper/params.helper';
 
 @Injectable()
 export class TxService {
@@ -416,13 +417,8 @@ export class TxService {
               const msgsCnt = await this.statisticsModel.findStatisticsRecord("tx_msgs_all")
               totalTxMsgs = msgsCnt?.count
             }else{
-              let types  = []
-              if (!queryDb.type || !queryDb.type.length) {
-                types = Cache.supportTypes
-              }else{
-                types = queryDb.type.split(",")
-              }
-              const msgCntData = await this.txModel.queryTxMsgsCountWithCond(null,queryDb.contract_addr, types)
+              const queryParameters = txListParamsHelper(queryDb)
+              const msgCntData = await this.txModel.queryTxMsgsCountWithCond(queryParameters)
               if (msgCntData && msgCntData.length) {
                 totalTxMsgs = msgCntData[0].count
               }
@@ -654,14 +650,9 @@ export class TxService {
         if(useCount){
             count = await this.txModel.queryTxWithAddressCount(queryDb);
         }
-        if (countMsg && queryDb?.address) {
-            let types  = []
-            if (!queryDb.type || !queryDb.type.length) {
-              types = Cache.supportTypes
-            }else{
-              types = queryDb.type.split(",")
-            }
-            const txMsgsData = await this.txModel.queryTxMsgsCountWithCond(queryDb.address,queryDb.contract_addr,types)
+        if (countMsg) {
+            const queryParameters = await TxWithAddressParamsHelper(queryDb)
+            const txMsgsData = await this.txModel.queryTxMsgsCountWithCond(queryParameters)
             if (txMsgsData && txMsgsData.length) {
               totalTxMsgs = txMsgsData[0].count
             }
