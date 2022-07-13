@@ -1280,7 +1280,7 @@ TxSchema.statics.queryTxMsgsCountWithCond = async function (queryParameters): Pr
         }
     ];
     const aggregateData:ITxMsgsCount[] = await this.aggregate(cond).allowDiskUse(true);
-    if (groupId) {
+    if (groupId && groupId.length) {
         let count = 0;
         for(const one of aggregateData) {
             //filter msg types count
