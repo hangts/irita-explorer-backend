@@ -362,7 +362,6 @@ export class TxService {
           await this.cacheTxTypes();
             let queryDb: ITxsQuery = {
                 type: type,
-                contract_addr:'',
                 status: query.status,
                 address: query.address,
                 useCount: useCount,
@@ -610,7 +609,6 @@ export class TxService {
         await this.cacheTxTypes();
           let queryDb: ITxsWithAddressQuery = {
               type: type,
-              contract_addr:'',
               status: query.status,
               address: query.address,
               useCount: useCount,
