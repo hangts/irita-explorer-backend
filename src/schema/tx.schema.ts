@@ -1259,6 +1259,15 @@ TxSchema.statics.queryTxMsgsCountByHeight = async function (lastBlockHeight: num
 };
 
 TxSchema.statics.queryTxMsgsCountWithCond = async function (queryParameters): Promise<ITxMsgsCount[]>  {
+    let groupId = "";
+    const msgTypes:Array<string> = queryParameters['msgs.type']['$in'];
+    if (msgTypes) {
+        const msgTypesStr = ''.concat(...msgTypes);
+        const allTypesStr = ''.concat(Cache.supportTypes);
+        if (msgTypesStr !== allTypesStr) {
+            groupId = "$msgs.type";
+        }
+    }
     const cond = [
         {
             $match:queryParameters,
@@ -1267,8 +1276,19 @@ TxSchema.statics.queryTxMsgsCountWithCond = async function (queryParameters): Pr
             $unwind:'$msgs',
         },
         {
-            $group: { _id: "", count: { $sum: 1 } }
+            $group: { _id: groupId, count: { $sum: 1 } }
         }
     ];
-    return await this.aggregate(cond).allowDiskUse(true);
+    const aggregateData:ITxMsgsCount[] = await this.aggregate(cond).allowDiskUse(true);
+    if (groupId && groupId.length) {
+        let count = 0;
+        for(const one of aggregateData) {
+            //filter msg types count
+            if (msgTypes.indexOf(one._id) >=0) {
+                count += one.count;
+            }
+        }
+        return [{_id:'',count: count}]
+    }
+    return aggregateData
 };
