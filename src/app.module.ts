@@ -1,4 +1,4 @@
-import { CacheInterceptor, CacheModule, Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { IritaModule } from './module/irita.module';
 import { DenomModule } from './module/denom.module';
@@ -43,6 +43,7 @@ import {
     CronTaskWorkingStatusMetric,
     CronTaskWorkingStatusProvider,
 } from './monitor/metrics/cron_task_working_status.metric';
+import { HttpCacheInterceptor } from "./interceptor/http-cache.interceptor";
 
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 const params = {
@@ -93,7 +94,7 @@ const params = {
         },
         {
             provide: APP_INTERCEPTOR,
-            useClass: CacheInterceptor,
+            useClass: HttpCacheInterceptor,
         },
         CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider(),
     ]
