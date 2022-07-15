@@ -9,9 +9,10 @@ export class HttpCacheInterceptor extends CacheInterceptor {
     const isGetRequest = httpAdapter.getRequestMethod(request) === 'GET';
     const excludePaths = [
       // because this api can occur deep_clone error. See:https://github.com/Automattic/mongoose/issues/6507
-      "/txs/services",
-      "/txs/identity",
-      "/e"
+      '/txs/services',
+      '/txs/identity',
+      '/txs/asset',
+      '/e'
       // Routes to be excluded
     ];
 
