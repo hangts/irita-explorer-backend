@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { IritaModule } from './module/irita.module';
 import { DenomModule } from './module/denom.module';
@@ -8,7 +8,7 @@ import { BlockModule } from './module/block.module';
 import { StatisticsModule } from './module/statistics.module';
 import { TxModule } from './module/tx.module';
 import { TxTaskModule } from './module/tx.task.module';
-import { APP_FILTER, APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { HttpExceptionFilter } from './exception/HttpExceptionFilter';
 import ValidationPipe from './pipe/validation.pipe';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -24,10 +24,10 @@ import { ValidatorModule } from './module/validator.module';
 import { IdentityTaskModule } from './module/identity.task.module';
 import { IdentityModule } from './module/identity.module';
 import { DistributionModule } from './module/distribution.module';
-import {StakingValidatorTaskModule} from "./module/staking.validator.task.module";
-import {ParametersTaskModule} from "./module/parameters.taskModule";
-import {ProfilerModule} from "./module/profiler.module";
-import {StakingModule} from "./module/staking.module";
+import { StakingValidatorTaskModule } from "./module/staking.validator.task.module";
+import { ParametersTaskModule } from "./module/parameters.taskModule";
+import { ProfilerModule } from "./module/profiler.module";
+import { StakingModule } from "./module/staking.module";
 import { TokensTaskModule } from "./module/tokens.task.module";
 import { AssetModule } from './module/asset.module';
 import { ProposalTaskModule } from './module/proposal.task.module';
@@ -38,10 +38,12 @@ import { AccountModule } from './module/account.module';
 import { TokenModule } from './module/token.module';
 import { MonitorModule } from './module/monitor.module';
 import { StatisticsTaskModule } from './module/statistics.task.module';
+import { MongoTaskModule } from "./module/mongo.task.module";
 import {
     CronTaskWorkingStatusMetric,
     CronTaskWorkingStatusProvider,
 } from './monitor/metrics/cron_task_working_status.metric';
+import { HttpCacheInterceptor } from "./interceptor/http-cache.interceptor";
 
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 const params = {
@@ -77,7 +79,9 @@ const params = {
         AccountTaskModule,
         AccountModule,
         MonitorModule,
-        TokenModule
+        TokenModule,
+        MongoTaskModule,
+        CacheModule.register()
     ],
     providers:<any> [
         {
@@ -88,8 +92,12 @@ const params = {
             provide: APP_PIPE,
             useClass: ValidationPipe,
         },
-        CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()
-    ],
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: HttpCacheInterceptor,
+        },
+        CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider(),
+    ]
 };
 params.providers.push(TasksService);
 

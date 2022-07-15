@@ -21,6 +21,7 @@ import {AccountInfoTaskService} from "./account.info.task.service";
 import {StatisticsTaskService} from "./statistics.task.service";
 import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
+import { MongoConnectStatusTaskService } from "./mongo.connect.status.task.service";
 import { CronTaskWorkingStatusMetric } from '../monitor/metrics/cron_task_working_status.metric';
 
 @Injectable()
@@ -41,6 +42,7 @@ export class TasksService {
         private readonly accountTaskService: AccountTaskService,
         private readonly accountInfoTaskService: AccountInfoTaskService,
         private readonly statisticsTaskService: StatisticsTaskService,
+        private readonly mongoConnectStatusTaskService: MongoConnectStatusTaskService,
         private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
         private schedulerRegistry: SchedulerRegistry,
     ) {
@@ -169,6 +171,13 @@ export class TasksService {
     })
     async syncAccountInfo() {
         this.handleDoTask(TaskEnum.accountInfo, this.accountInfoTaskService.doTask)
+    }
+
+    @Cron(cfg.taskCfg.executeTime.mongoConnect, {
+        name: TaskEnum.mongoConnectStatus
+    })
+    async syncMongoConnectStatus() {
+        this.handleDoTask(TaskEnum.mongoConnectStatus, this.mongoConnectStatusTaskService.doTask)
     }
 
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {

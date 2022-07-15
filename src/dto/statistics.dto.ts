@@ -8,15 +8,13 @@ export class StatisticsResDto {
     private identityCount: number;
     private denomCount: number;
     private validatorNumCount: number;
-    private moniker: string;
-    private validator_icon: string;
-    private operator_addr: string;
     private txCount: number;
     private bonded_tokens: string;
     private total_supply: string;
     private community_pool: Coin[];
     private total_address: number;
-    
+    private total_tx_msgs: number;
+
     constructor(Detail) {
         this.avgBlockTime = Detail.avgBlockTime;
         this.serviceCount = Detail.serviceCount;
@@ -30,6 +28,7 @@ export class StatisticsResDto {
         this.total_supply = Detail.bondedTokensInformation && Detail.bondedTokensInformation.total_supply;
         this.community_pool = Detail.communityPoolInformation;
         this.total_address = Detail.accountsCount;
+        this.total_tx_msgs = Detail.totalTxMsgs;
     }
 }
 

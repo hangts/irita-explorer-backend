@@ -44,9 +44,10 @@ describe('TxController', () => {
             jest.setTimeout(1000000000)
             let req:TxListReqDto = {};
             req.pageNum = 1;
-            req.pageSize = 2;
+            req.pageSize = 1;
             req.useCount = false;
-            req.type = 'ddc_other'
+            req.countMsg = true;
+            // req.type = 'mint_nft'
             // if (parseInt(String((Math.random()*10)%2))) {
             //     req.type = [
             //     TxType.ethereum_tx,
@@ -123,18 +124,19 @@ describe('TxController', () => {
             let req:TxListWithAddressReqDto = {};
             req.pageNum = 1;
             req.pageSize = 10;
-            req.useCount = true;
-            req.type = 'ethereum_tx'
-            req.address = 'iaa14zpuue6n06le3f2j4xlnfg255d5n08hx7dl6pl';
+            req.useCount = false;
+            req.countMsg = false;
+            req.address = 'iaa1v8xgh04q7axgn9kstudkeg7rj08ccg4eks8c8r';
             let data = await txService.queryTxWithAddress(req);
-            if (data && data.data.length) {
-                data.data.forEach((item)=>{
-                    let addresses:any[] = [item.from,item.to,item.signer];
-                    expect(addresses).toContain(req.address);
-                });
-            }else{
-                expect(data.data).toBeDefined();
-            }
+            console.log(data)
+            // if (data && data.data.length) {
+            //     data.data.forEach((item)=>{
+            //         let addresses:any[] = [item.from,item.to,item.signer];
+            //         expect(addresses).toContain(req.address);
+            //     });
+            // }else{
+            //     expect(data.data).toBeDefined();
+            // }
         });
     });
 
