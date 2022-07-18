@@ -33,6 +33,9 @@ export class DeepPagingReqDto extends BaseReqDto {
   @ApiPropertyOptional({description:'true/false'})
   useCount?: boolean;
 
+  @ApiPropertyOptional({description:'true/false'})
+  countMsg?: boolean;
+
   static validate(value: any): void {
       const patt = /^[1-9]\d*$/;
       if (value.pageNum && (!patt.test(value.pageNum) || value.pageNum < 1)) {
@@ -52,6 +55,15 @@ export class DeepPagingReqDto extends BaseReqDto {
               value.useCount = true;
           }else {
               value.useCount = false;
+          }
+      }
+      if(!value.countMsg){
+          value.countMsg = false;
+      }else {
+          if(value.countMsg === 'true'){
+              value.countMsg = true;
+          }else {
+              value.countMsg = false;
           }
       }
       value.pageNum = value.pageNum && Number(value.pageNum);

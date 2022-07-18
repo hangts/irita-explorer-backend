@@ -24,30 +24,11 @@ export class TxListReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     endTime?: string;
 
-    @ApiPropertyOptional({description:'true/false'})
-    countMsg?: boolean;
-
     static validate(value: any) {
         super.validate(value);
         if (value.status && value.status !== '1' && value.status !== '2') {
             throw new ApiError(ErrorCodes.InvalidParameter, 'status must be 1 or 2');
         }
-    }
-    static convert(value: any): any {
-        super.convert(value);
-        if (!value.pageNum) {
-            value.pageNum = DefaultPaging.pageNum;
-        }
-        if(!value.countMsg){
-            value.countMsg = false;
-        }else {
-            if(value.countMsg === 'true'){
-                value.countMsg = true;
-            }else {
-                value.countMsg = false;
-            }
-        }
-        return value;
     }
 }
 
@@ -102,9 +83,6 @@ export class TxListWithAddressReqDto extends DeepPagingReqDto {
 
     @ApiPropertyOptional({description: '1:success  2:fail'})
     status?: string;
-
-    @ApiPropertyOptional({description:'true/false'})
-    countMsg?: boolean;
 
     static validate(value: any) {
         super.validate(value);
