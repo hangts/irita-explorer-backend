@@ -33,6 +33,22 @@ export class TxListReqDto extends DeepPagingReqDto {
             throw new ApiError(ErrorCodes.InvalidParameter, 'status must be 1 or 2');
         }
     }
+    static convert(value: any): any {
+        super.convert(value);
+        if (!value.pageNum) {
+            value.pageNum = DefaultPaging.pageNum;
+        }
+        if(!value.countMsg){
+            value.countMsg = false;
+        }else {
+            if(value.countMsg === 'true'){
+                value.countMsg = true;
+            }else {
+                value.countMsg = false;
+            }
+        }
+        return value;
+    }
 }
 
 // txs/e
