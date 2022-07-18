@@ -400,9 +400,8 @@ export class TxService {
             }
           }
           if(useCount){
-            if (!query?.pageNum && !query?.pageSize && !query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
+            if (!query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
               //default count with no filter conditions
-
               const txCnt = await this.statisticsModel.findStatisticsRecord("tx_all")
               count = txCnt?.count
             }else {
@@ -411,7 +410,7 @@ export class TxService {
             }
           }
           if (countMsg) {
-            if (!query?.pageNum && !query?.pageSize && !query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
+            if (!query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
               //default count with no filter conditions
               const msgsCnt = await this.statisticsModel.findStatisticsRecord("tx_msgs_all")
               totalTxMsgs = msgsCnt?.count
