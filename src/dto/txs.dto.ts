@@ -24,9 +24,6 @@ export class TxListReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     endTime?: string;
 
-    @ApiPropertyOptional({description:'true/false'})
-    countMsg?: boolean;
-
     static validate(value: any) {
         super.validate(value);
         if (value.status && value.status !== '1' && value.status !== '2') {
@@ -86,9 +83,6 @@ export class TxListWithAddressReqDto extends DeepPagingReqDto {
 
     @ApiPropertyOptional({description: '1:success  2:fail'})
     status?: string;
-
-    @ApiPropertyOptional({description:'true/false'})
-    countMsg?: boolean;
 
     static validate(value: any) {
         super.validate(value);
