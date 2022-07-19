@@ -399,14 +399,18 @@ export class TxService {
                 txData = await this.addMonikerToTxs(txListData.data);
             }
           }
+          const countCalls = []
           if(useCount){
             if (!query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
               //default count with no filter conditions
               const txCnt = await this.statisticsModel.findStatisticsRecord("tx_all")
               count = txCnt?.count
             }else {
-
-              count = await this.txModel.queryTxListCount(queryDb);
+                if (countMsg) {
+                    countCalls.push(this.txModel.queryTxListCount(queryDb));
+                }else{
+                    count = await this.txModel.queryTxListCount(queryDb);
+                }
             }
           }
           if (countMsg) {
@@ -416,14 +420,28 @@ export class TxService {
               totalTxMsgs = msgsCnt?.count
             }else{
               const queryParameters = txListParamsHelper(queryDb)
-              const msgCntData = await this.txModel.queryTxMsgsCountWithCond(queryParameters)
-              if (msgCntData && msgCntData.length) {
-                totalTxMsgs = msgCntData[0].count
+              if (useCount) {
+                  countCalls.push(this.txModel.queryTxMsgsCountWithCond(queryParameters));
+              }else{
+                  const msgCntData = await this.txModel.queryTxMsgsCountWithCond(queryParameters)
+                  if (msgCntData && msgCntData.length) {
+                    totalTxMsgs = msgCntData[0].count
+                  }
               }
+
+            }
+          }
+          if ( countCalls.length === 2 && countMsg && useCount ) {
+            const [countTx,msgCntData] = await Promise.all(countCalls);
+            if (msgCntData && msgCntData.length) {
+              totalTxMsgs = msgCntData[0].count
+            }
+            if (Number(countTx)) {
+              count = countTx
             }
           }
         }
-        // }
+
 
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count,null, totalTxMsgs);
     }
@@ -644,15 +662,34 @@ export class TxService {
               txData = await this.addMonikerToTxs(txListData.data);
           }
         }
+        const countCalls = []
         if(useCount){
-            count = await this.txModel.queryTxWithAddressCount(queryDb);
+            if (countMsg) {
+              countCalls.push(this.txModel.queryTxWithAddressCount(queryDb));
+            }else{
+               count = await this.txModel.queryTxWithAddressCount(queryDb);
+            }
         }
         if (countMsg) {
             const queryParameters = await TxWithAddressParamsHelper(queryDb)
-            const txMsgsData = await this.txModel.queryTxMsgsCountWithCond(queryParameters)
-            if (txMsgsData && txMsgsData.length) {
-              totalTxMsgs = txMsgsData[0].count
+            if (useCount) {
+              countCalls.push(this.txModel.queryTxMsgsCountWithCond(queryParameters));
+            }else{
+                const txMsgsData = await this.txModel.queryTxMsgsCountWithCond(queryParameters);
+                if (txMsgsData && txMsgsData.length) {
+                  totalTxMsgs = txMsgsData[0].count
+                }
             }
+        }
+
+        if ( countCalls.length === 2 && countMsg && useCount ) {
+          const [countTx,msgCntData] = await Promise.all(countCalls);
+          if (msgCntData && msgCntData.length) {
+            totalTxMsgs = msgCntData[0].count
+          }
+          if (Number(countTx)) {
+            count = countTx
+          }
         }
       }
 
