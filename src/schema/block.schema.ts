@@ -30,7 +30,10 @@ BlockSchema.statics = {
     },
 
     async findCount(): Promise<number> {
-        return await this.find({}).countDocuments().exec();
+      // return await this.find({}).countDocuments().exec();
+        const data:IBlockStruct = await this.findOne({"height": {$gt:0}})
+          .sort({ height: -1 }).exec();
+        return data.height
     },
 
     async findOneByHeight(height: number): Promise<IBlockStruct | null> {
