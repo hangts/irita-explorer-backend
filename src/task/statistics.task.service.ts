@@ -1,18 +1,22 @@
-import {Injectable} from '@nestjs/common';
-import {InjectModel} from '@nestjs/mongoose';
-import {Model} from "mongoose";
-import {StatisticsNames, TaskEnum} from '../constant';
-import {INft} from '../types/schemaTypes/nft.interface';
-import {StatisticsType, AllTxStatisticsInfoType, AllMsgsStatisticsInfoType } from '../types/schemaTypes/statistics.interface';
-import {getTimestamp} from '../util/util';
-import {StakingHttp} from '../http/lcd/staking.http';
-import {BankHttp} from '../http/lcd/bank.http';
-import {DistributionHttp} from '../http/lcd/distribution.http';
-import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
-import {cfg} from "../config/config";
-import {getTaskStatus} from '../helper/task.helper';
-import {globalAccountNumber} from '../helper/staking.helper';
-import {ITxStruct} from "../types/schemaTypes/tx.interface";
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { StatisticsNames, TaskEnum, TxsListCountName, TxStatus } from '../constant';
+import { INft } from '../types/schemaTypes/nft.interface';
+import {
+    AllMsgsStatisticsInfoType,
+    AllTxStatisticsInfoType,
+    StatisticsType,
+} from '../types/schemaTypes/statistics.interface';
+import { getTimestamp } from '../util/util';
+import { StakingHttp } from '../http/lcd/staking.http';
+import { BankHttp } from '../http/lcd/bank.http';
+import { DistributionHttp } from '../http/lcd/distribution.http';
+import { CronTaskWorkingStatusMetric } from '../monitor/metrics/cron_task_working_status.metric';
+import { cfg } from '../config/config';
+import { getTaskStatus } from '../helper/task.helper';
+import { globalAccountNumber } from '../helper/staking.helper';
+import { ITxStruct } from '../types/schemaTypes/tx.interface';
 
 
 @Injectable()
@@ -37,8 +41,11 @@ export class StatisticsTaskService {
         let service_all, nft_all, validator_all, validator_active, identity_all, denom_all, bonded_tokens,
             total_supply;
 
-        await this.updateIncreTxCount()
-        await this.updateIncreMsgsCount()
+        const txStatusSuccess = "1",txStatusFailed = "2";
+        await Promise.all([
+            this.updateIncreTxCount(),this.updateIncreTxCount(txStatusSuccess),this.updateIncreTxCount(txStatusFailed),
+            this.updateIncreMsgsCount(),this.updateIncreMsgsCount(txStatusSuccess),this.updateIncreMsgsCount(txStatusFailed)
+       ]);
 
         if (cfg && cfg.taskCfg && cfg.taskCfg.CRON_JOBS) {
             if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.denom) >= 0) {
@@ -138,17 +145,17 @@ export class StatisticsTaskService {
         return await this.validatorModel.findCount(false);
     }
 
-    async handleTxMsgsIncre(statisticsRecord):Promise<any>{
-        const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(1)
+    async handleTxMsgsIncre(statisticsRecord,status?:string):Promise<any>{
+        const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(1,status)
         if (latestOneTx && latestOneTx?.height) {
             let msgAllInfo = {record_height: 0, record_height_tx_msgs: 0}
             msgAllInfo.record_height = latestOneTx?.height
-            const data = await this.txModel.queryTxMsgsCountByHeight(latestOneTx?.height)
+            const data = await this.txModel.queryTxMsgsCountByHeight(latestOneTx?.height,status)
             if (data && data?.length) {
                 msgAllInfo.record_height_tx_msgs = data[0].count
             }
             statisticsRecord.statistics_info = JSON.stringify(msgAllInfo)
-            const Incredata = await this.txModel.queryTxMsgsIncre(1);
+            const Incredata = await this.txModel.queryTxMsgsIncre(1,status);
             if (Incredata && Incredata?.length) {
                 statisticsRecord.count = Incredata[0].count
             }
@@ -156,27 +163,38 @@ export class StatisticsTaskService {
         return statisticsRecord
     }
 
-    async updateIncreMsgsCount() {
+    async updateIncreMsgsCount(status?:string) {
+        let statisticsName = TxsListCountName.txMsgsAll
+        if (status && status.length) {
+            switch (status) {
+                case "1"://success
+                    statisticsName = TxsListCountName.txMsgsAllSuccess
+                    break;
+                case "2"://failed
+                    statisticsName = TxsListCountName.txMsgsAllFailed
+                    break;
+            }
+        }
         let follow: boolean = await getTaskStatus(this.taskModel, TaskEnum.statistics)
         if (follow) {
-            let statisticsRecord = await this.findStatisticsRecord('tx_msgs_all');
+            let statisticsRecord = await this.findStatisticsRecord(statisticsName);
             if (!statisticsRecord) {
                 let statisticsRecord = {
-                    statistics_name: 'tx_msgs_all',
+                    statistics_name: statisticsName,
                     count: 0,
                     data: '',
                     statistics_info: '',
                     create_at: getTimestamp(),
                     update_at: getTimestamp(),
                 }
-                statisticsRecord = await this.handleTxMsgsIncre(statisticsRecord)
+                statisticsRecord = await this.handleTxMsgsIncre(statisticsRecord,status)
                 await this.statisticsModel.insertManyStatisticsRecord(statisticsRecord);
             } else {
                 let increMsgsCnt = 0;
                 if (statisticsRecord?.statistics_info) {
                     const msgsAllInfo: AllMsgsStatisticsInfoType = JSON.parse(statisticsRecord.statistics_info);
                     if (msgsAllInfo?.record_height && msgsAllInfo?.record_height_tx_msgs) {
-                        const increData = await this.txModel.queryTxMsgsIncre(msgsAllInfo.record_height)
+                        const increData = await this.txModel.queryTxMsgsIncre(msgsAllInfo.record_height,status)
                         let incre = 0
                         if (increData && increData.length) {
                             incre = Number(increData[0].count)
@@ -186,10 +204,10 @@ export class StatisticsTaskService {
                             increMsgsCnt = incre - msgsAllInfo.record_height_tx_msgs
                         }
 
-                        const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(msgsAllInfo.record_height)
+                        const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(msgsAllInfo.record_height,status)
                         if (latestOneTx && latestOneTx?.height) {
                             msgsAllInfo.record_height = latestOneTx?.height
-                            const increData = await this.txModel.queryTxMsgsCountByHeight(latestOneTx?.height)
+                            const increData = await this.txModel.queryTxMsgsCountByHeight(latestOneTx?.height,status)
                             if (increData && increData.length) {
                                 msgsAllInfo.record_height_tx_msgs = Number(increData[0].count)
                             }
@@ -203,7 +221,7 @@ export class StatisticsTaskService {
                         }
                     }
                 } else {
-                    statisticsRecord = await this.handleTxMsgsIncre(statisticsRecord)
+                    statisticsRecord = await this.handleTxMsgsIncre(statisticsRecord,status)
                     await this.updateStatisticsRecord(statisticsRecord);
                 }
             }
@@ -211,42 +229,53 @@ export class StatisticsTaskService {
         }
     }
 
-    async updateIncreTxCount(): Promise<void> {
+    async updateIncreTxCount(status?:string): Promise<void> {
+        let statisticsName = TxsListCountName.txAll
+        if (status && status.length) {
+            switch (status) {
+                case "1"://success
+                    statisticsName = TxsListCountName.txAllSuccess
+                    break;
+                case "2"://failed
+                    statisticsName = TxsListCountName.txAllFailed
+                    break;
+            }
+        }
         let follow: boolean = await getTaskStatus(this.taskModel, TaskEnum.statistics)
         if (follow) {
-            let statisticsRecord = await this.findStatisticsRecord('tx_all');
+            let statisticsRecord = await this.findStatisticsRecord(statisticsName);
             if (!statisticsRecord) {
                 let statisticsRecord = {
-                    statistics_name: 'tx_all',
+                    statistics_name: statisticsName,
                     count: 0,
                     data: '',
                     statistics_info: '',
                     create_at: getTimestamp(),
                     update_at: getTimestamp(),
                 }
-                const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(1)
+                const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(1,status)
                 if (latestOneTx && latestOneTx?.height) {
                     let txAllInfo = {record_height: 0, record_height_block_txs: 0}
                     txAllInfo.record_height = latestOneTx?.height
-                    txAllInfo.record_height_block_txs = await this.txModel.queryTxCountWithHeight(latestOneTx?.height)
+                    txAllInfo.record_height_block_txs = await this.txModel.queryTxCountWithHeight(latestOneTx?.height,status)
                     statisticsRecord.statistics_info = JSON.stringify(txAllInfo)
                 }
-                statisticsRecord.count = await this.txModel.queryTxCountStatistics();
+                statisticsRecord.count = await this.txModel.queryTxCountStatistics(status);
                 await this.statisticsModel.insertManyStatisticsRecord(statisticsRecord);
             } else {
                 let increTxCnt = 0;
                 if (statisticsRecord?.statistics_info) {
                     const txAllInfo: AllTxStatisticsInfoType = JSON.parse(statisticsRecord.statistics_info);
                     if (txAllInfo?.record_height && txAllInfo?.record_height_block_txs) {
-                        const incre = await this.txModel.queryIncreTxCount(txAllInfo.record_height)
-                        const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(txAllInfo.record_height)
+                        const incre = await this.txModel.queryIncreTxCount(txAllInfo.record_height,status)
+                        const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(txAllInfo.record_height,status)
                         if (incre && incre > txAllInfo.record_height_block_txs) {
                             // 统计增量数 =  incre - record_height_block_txs
                             increTxCnt = incre - txAllInfo.record_height_block_txs
                         }
                         if (latestOneTx && latestOneTx?.height) {
                             txAllInfo.record_height = latestOneTx?.height
-                            txAllInfo.record_height_block_txs = await this.txModel.queryTxCountWithHeight(latestOneTx?.height)
+                            txAllInfo.record_height_block_txs = await this.txModel.queryTxCountWithHeight(latestOneTx?.height,status)
                             statisticsRecord.statistics_info = JSON.stringify(txAllInfo)
                         }
                         //交易总数 = 统计增量数+历史统计总数
@@ -257,14 +286,14 @@ export class StatisticsTaskService {
                         }
                     }
                 } else {
-                    const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(1)
+                    const latestOneTx: ITxStruct = await this.txModel.queryLatestHeight(1,status)
                     if (latestOneTx && latestOneTx?.height) {
                         let txAllInfo = {record_height: 0, record_height_block_txs: 0}
                         txAllInfo.record_height = latestOneTx?.height
-                        txAllInfo.record_height_block_txs = await this.txModel.queryTxCountWithHeight(latestOneTx?.height)
+                        txAllInfo.record_height_block_txs = await this.txModel.queryTxCountWithHeight(latestOneTx?.height,status)
                         statisticsRecord.statistics_info = JSON.stringify(txAllInfo)
                     }
-                    statisticsRecord.count = await this.txModel.queryTxCountStatistics();
+                    statisticsRecord.count = await this.txModel.queryTxCountStatistics(status);
                     await this.updateStatisticsRecord(statisticsRecord);
                 }
             }

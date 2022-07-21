@@ -31,6 +31,15 @@ export const StatisticsNames = [
     'accounts_all',
 ];
 
+export enum TxsListCountName {
+    txAll = "tx_all",
+    txAllSuccess = "tx_all_success",
+    txAllFailed = "tx_all_failed",
+    txMsgsAll = "tx_msgs_all",
+    txMsgsAllSuccess = "tx_msgs_all_success",
+    txMsgsAllFailed = "tx_msgs_all_failed",
+}
+
 export const DefaultPaging = {
     pageNum: 1,
     pageSize: 10,
