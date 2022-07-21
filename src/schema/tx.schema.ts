@@ -428,19 +428,63 @@ TxSchema.statics.queryTxWithEvmHash = async function(hash: string): Promise<ITxS
 };
 
 //  /statistics
-TxSchema.statics.queryTxCountStatistics = async function(): Promise<number> {
-    return await this.find({ 'msgs.type': { $in: Cache.supportTypes || [] } }).countDocuments();
+TxSchema.statics.queryTxCountStatistics = async function(status?: string): Promise<number> {
+    const query = { 'msgs.type': { $in: Cache.supportTypes || [] } }
+    if (status && status.length) {
+        switch (status) {
+            case "1"://success
+                query['status'] = TxStatus.SUCCESS
+                break;
+            case "2"://failed
+                query['status'] = TxStatus.FAILED
+                break;
+        }
+    }
+    return await this.find(query).countDocuments();
 };
 
 // statistics_task
-TxSchema.statics.queryIncreTxCount = async function(height :number): Promise<number> {
-    return await this.find({ 'msgs.type': { $in: Cache.supportTypes || [] } ,'height':{$gte:height}}).countDocuments();
+TxSchema.statics.queryIncreTxCount = async function(height :number, status?: string): Promise<number> {
+    const query = { 'msgs.type': { $in: Cache.supportTypes || [] } ,'height':{$gte:height}}
+    if (status && status.length) {
+        switch (status) {
+            case "1"://success
+                query['status'] = TxStatus.SUCCESS
+                break;
+            case "2"://failed
+                query['status'] = TxStatus.FAILED
+                break;
+        }
+    }
+    return await this.find(query).countDocuments();
 };
-TxSchema.statics.queryLatestHeight = async function(height :number): Promise<ITxStruct> {
-    return await this.findOne({ 'msgs.type': { $in: Cache.supportTypes || [] } ,'height':{$gte:height}},{height:1}).sort({ height: -1 });
+TxSchema.statics.queryLatestHeight = async function(height :number, status?: string): Promise<ITxStruct> {
+    const query = { 'msgs.type': { $in: Cache.supportTypes || [] } ,'height':{$gte:height}}
+    if (status && status.length) {
+        switch (status) {
+            case "1"://success
+                query['status'] = TxStatus.SUCCESS
+                break;
+            case "2"://failed
+                query['status'] = TxStatus.FAILED
+                break;
+        }
+    }
+    return await this.findOne(query,{height:1}).sort({ height: -1 });
 };
-TxSchema.statics.queryTxCountWithHeight = async function(height :number): Promise<number> {
-    return await this.find({ 'msgs.type': { $in: Cache.supportTypes || [] } ,'height':height}).countDocuments();
+TxSchema.statics.queryTxCountWithHeight = async function(height :number, status?: string): Promise<number> {
+    const query = { 'msgs.type': { $in: Cache.supportTypes || [] } ,'height':height}
+    if (status && status.length) {
+        switch (status) {
+            case "1"://success
+                query['status'] = TxStatus.SUCCESS
+            break;
+            case "2"://failed
+                query['status'] = TxStatus.FAILED
+            break;
+        }
+    }
+    return await this.find(query).countDocuments();
 };
 
 TxSchema.statics.queryServiceCountStatistics = async function(): Promise<number> {
@@ -1219,7 +1263,20 @@ TxSchema.statics.queryTxMaxHeight = async function (): Promise<ITxStruct[]>  {
     return await this.find({},{height: 1}).sort({height: -1}).limit(1);
 };
 
-TxSchema.statics.queryTxMsgsIncre = async function (lastBlockHeight: number): Promise<ITxMsgsCount[]>  {
+TxSchema.statics.queryTxMsgsIncre = async function (lastBlockHeight: number, status?:string): Promise<ITxMsgsCount[]>  {
+    const query = {
+        height: {$gte: lastBlockHeight}
+    }
+    if (status && status.length) {
+        switch (status) {
+            case "1"://success
+                query['status'] = TxStatus.SUCCESS
+                break;
+            case "2"://failed
+                query['status'] = TxStatus.FAILED
+                break;
+        }
+    }
     const cond = [
         {
             $sort: {
@@ -1227,9 +1284,7 @@ TxSchema.statics.queryTxMsgsIncre = async function (lastBlockHeight: number): Pr
             },
         },
         {
-            $match:{
-                height: {$gte: lastBlockHeight}
-            }
+            $match: query,
         },
         {
            $unwind:'$msgs',
@@ -1241,12 +1296,23 @@ TxSchema.statics.queryTxMsgsIncre = async function (lastBlockHeight: number): Pr
     return await this.aggregate(cond).allowDiskUse(true);
 };
 
-TxSchema.statics.queryTxMsgsCountByHeight = async function (lastBlockHeight: number): Promise<ITxMsgsCount[]>  {
+TxSchema.statics.queryTxMsgsCountByHeight = async function (lastBlockHeight: number, status?:string): Promise<ITxMsgsCount[]>  {
+    const query = {
+        height: lastBlockHeight
+    }
+    if (status && status.length) {
+        switch (status) {
+            case "1"://success
+                query['status'] = TxStatus.SUCCESS
+                break;
+            case "2"://failed
+                query['status'] = TxStatus.FAILED
+                break;
+        }
+    }
   const cond = [
     {
-      $match:{
-        height: lastBlockHeight
-      }
+      $match:query,
     },
     {
       $unwind:'$msgs',
