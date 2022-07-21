@@ -43,14 +43,14 @@ import {ITxStruct, ITxsWithAddressQuery, ITxsQuery} from '../types/schemaTypes/t
 import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
 import Cache from '../helper/cache';
 import {
-    addressPrefix,
-    proposal as proposalString,
-    TxType,
-    DDCType,
-    ContractType,
-    deFaultGasPirce,
-    defaultEvmTxReceiptErrlog,
-    TxCntQueryCond
+  addressPrefix,
+  proposal as proposalString,
+  TxType,
+  DDCType,
+  ContractType,
+  deFaultGasPirce,
+  defaultEvmTxReceiptErrlog,
+  TxCntQueryCond, TxsListCountName,
 } from '../constant';
 import { addressTransform, splitString } from '../util/util';
 import { GovHttp } from '../http/lcd/gov.http';
@@ -403,9 +403,12 @@ export class TxService {
           if(useCount){
             if (!query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
               //default count with no filter conditions
-              const txCnt = await this.statisticsModel.findStatisticsRecord("tx_all")
+              const txCnt = await this.statisticsModel.findStatisticsRecord(TxsListCountName.txAll)
               count = txCnt?.count
-            }else {
+            }else if (!query?.beginTime && !query?.endTime && !query?.address && !query?.type) {
+              //default count with only status filter conditions
+              count = await this.queryStatusStatistic(query.status,false,useCount)
+            } else {
                 if (countMsg) {
                     countCalls.push(this.txModel.queryTxListCount(queryDb));
                 }else{
@@ -416,9 +419,12 @@ export class TxService {
           if (countMsg) {
             if (!query?.beginTime && !query?.endTime && !query?.address && !query?.status && !query?.type) {
               //default count with no filter conditions
-              const msgsCnt = await this.statisticsModel.findStatisticsRecord("tx_msgs_all")
+              const msgsCnt = await this.statisticsModel.findStatisticsRecord(TxsListCountName.txMsgsAll)
               totalTxMsgs = msgsCnt?.count
-            }else{
+            }else if (!query?.beginTime && !query?.endTime && !query?.address && !query?.type) {
+              //default count with only status filter conditions
+              totalTxMsgs = await this.queryStatusStatistic(query.status,countMsg,false)
+            } else {
               const queryParameters = txListParamsHelper(queryDb)
               if (useCount) {
                   countCalls.push(this.txModel.queryTxMsgsCountWithCond(queryParameters));
@@ -444,6 +450,34 @@ export class TxService {
 
 
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count,null, totalTxMsgs);
+    }
+
+    async queryStatusStatistic(status: string,countMsg: boolean ,useCount: boolean): Promise<number> {
+      if (status && status.length) {
+        switch (status) {
+          case '1': //success
+            if (countMsg) {
+              const msgsCnt = await this.statisticsModel.findStatisticsRecord(TxsListCountName.txMsgsAllSuccess)
+              return  msgsCnt?.count
+            }
+            if (useCount) {
+              const txsCnt = await this.statisticsModel.findStatisticsRecord(TxsListCountName.txAllSuccess)
+              return  txsCnt?.count
+            }
+            break;
+          case '2': //failed
+            if (countMsg) {
+              const msgsCnt = await this.statisticsModel.findStatisticsRecord(TxsListCountName.txMsgsAllFailed)
+              return  msgsCnt?.count
+            }
+            if (useCount) {
+              const txsCnt = await this.statisticsModel.findStatisticsRecord(TxsListCountName.txAllFailed)
+              return  txsCnt?.count
+            }
+            break;
+        }
+      }
+      return 0
     }
 
     // txs/staking
