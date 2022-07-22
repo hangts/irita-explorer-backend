@@ -18,3 +18,9 @@ export interface AllMsgsStatisticsInfoType {
   record_height?: number;
   record_height_tx_msgs?: number;
 }
+
+//denom_all statistics_info struct
+export interface AllDenomStatisticsInfoType {
+  record_height?: number;
+  record_height_denoms?: number;
+}

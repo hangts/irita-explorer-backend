@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { StatisticsNames, TaskEnum, TxsListCountName, TxStatus } from '../constant';
+import { StatisticsNames, TaskEnum, TxsListCountName } from '../constant';
 import { INft } from '../types/schemaTypes/nft.interface';
 import {
+    AllDenomStatisticsInfoType,
     AllMsgsStatisticsInfoType,
     AllTxStatisticsInfoType,
     StatisticsType,
@@ -17,6 +18,7 @@ import { cfg } from '../config/config';
 import { getTaskStatus } from '../helper/task.helper';
 import { globalAccountNumber } from '../helper/staking.helper';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
+import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 
 
 @Injectable()
@@ -38,7 +40,7 @@ export class StatisticsTaskService {
     }
 
     async doTask(): Promise<void> {
-        let service_all, nft_all, validator_all, validator_active, identity_all, denom_all, bonded_tokens,
+        let service_all, nft_all, validator_all, validator_active, identity_all, bonded_tokens,
             total_supply;
 
         const txStatusSuccess = "1",txStatusFailed = "2";
@@ -49,7 +51,7 @@ export class StatisticsTaskService {
 
         if (cfg && cfg.taskCfg && cfg.taskCfg.CRON_JOBS) {
             if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.denom) >= 0) {
-                denom_all = await this.queryDenomCount()
+                await this.updateIncreDenomCount()
             }
             if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.nft) >= 0) {
                 nft_all = await this.queryAssetCount()
@@ -92,7 +94,6 @@ export class StatisticsTaskService {
             validator_all,
             validator_active,
             identity_all,
-            denom_all,
             bonded_tokens,
             total_supply,
             accounts_all,
@@ -301,16 +302,73 @@ export class StatisticsTaskService {
         }
     }
 
+    async updateIncreDenomCount(): Promise<void> {
+        let follow: boolean = await getTaskStatus(this.taskModel, TaskEnum.statistics)
+        if (follow) {
+            let statisticsRecord = await this.findStatisticsRecord("denom_all");
+            if (!statisticsRecord) {
+                let statisticsRecord = {
+                    statistics_name: "denom_all",
+                    count: 0,
+                    data: '',
+                    statistics_info: '',
+                    create_at: getTimestamp(),
+                    update_at: getTimestamp(),
+                }
+                const latestOneNftDenom: IDenomStruct = await this.denomModel.queryLatestHeight(1)
+                if (latestOneNftDenom && latestOneNftDenom?.height) {
+                    let denomAllInfo = {record_height: 0, record_height_denoms: 0}
+                    denomAllInfo.record_height = latestOneNftDenom?.height
+                    denomAllInfo.record_height_denoms = await this.denomModel.queryDenomCountWithHeight(latestOneNftDenom?.height)
+                    statisticsRecord.statistics_info = JSON.stringify(denomAllInfo)
+                }
+                statisticsRecord.count = await this.denomModel.queryAllCount();
+                await this.statisticsModel.insertManyStatisticsRecord(statisticsRecord);
+            } else {
+                let increTxCnt = 0;
+                if (statisticsRecord?.statistics_info) {
+                    const denomAllInfo: AllDenomStatisticsInfoType = JSON.parse(statisticsRecord.statistics_info);
+                    if (denomAllInfo?.record_height && denomAllInfo?.record_height_denoms) {
+                        const incre = await this.denomModel.queryIncreDenomCount(denomAllInfo.record_height)
+                        const latestOneNftDenom: IDenomStruct = await this.denomModel.queryLatestHeight(denomAllInfo.record_height)
+                        if (incre && incre > denomAllInfo.record_height_denoms) {
+                            // 统计denom增量数 =  incre - record_height_denoms
+                            increTxCnt = incre - denomAllInfo.record_height_denoms
+                        }
+                        if (latestOneNftDenom && latestOneNftDenom?.height) {
+                            denomAllInfo.record_height = latestOneNftDenom?.height
+                            denomAllInfo.record_height_denoms = await this.denomModel.queryDenomCountWithHeight(latestOneNftDenom?.height)
+                            statisticsRecord.statistics_info = JSON.stringify(denomAllInfo)
+                        }
+                        //denom总数 = 统计增量数+历史统计总数
+                        if (increTxCnt > 0) {
+                            statisticsRecord.count = statisticsRecord.count + increTxCnt;
+                            statisticsRecord.update_at = getTimestamp();
+                            await this.updateStatisticsRecord(statisticsRecord);
+                        }
+                    }
+                } else {
+                    const latestOneNftDenom: IDenomStruct = await this.denomModel.queryLatestHeight(1)
+                    if (latestOneNftDenom && latestOneNftDenom?.height) {
+                        let denomAllInfo = {record_height: 0, record_height_denoms: 0}
+                        denomAllInfo.record_height = latestOneNftDenom?.height
+                        denomAllInfo.record_height_denoms = await this.denomModel.queryDenomCountWithHeight(latestOneNftDenom?.height)
+                        statisticsRecord.statistics_info = JSON.stringify(denomAllInfo)
+                    }
+                    statisticsRecord.count = await this.denomModel.queryAllCount();
+                    await this.updateStatisticsRecord(statisticsRecord);
+                }
+            }
+
+        }
+    }
+
     async queryServiceCount(): Promise<number | null> {
         return await this.txModel.queryServiceCountStatistics();
     }
 
     async queryIdentityCount(): Promise<number | null> {
         return await this.identityModel.queryIdentityCount();
-    }
-
-    async queryDenomCount(): Promise<number | null> {
-        return await this.denomModel.queryAllCount();
     }
 
     async queryValidatorNumCount(): Promise<number | null> {
