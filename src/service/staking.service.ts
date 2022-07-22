@@ -240,7 +240,6 @@ export default class StakingService {
         const delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsUndelegationsFromLcd(delegatorAddr,pageNum, pageSize, useCount)
         const dataLcd = delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.result : []
         const aminToken = await this.tokensModel.queryMainToken();
-        const count =delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.total : 0
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         let resultData = []
         for (const item of dataLcd) {
@@ -262,6 +261,7 @@ export default class StakingService {
                 }
             }
         }
+        const count =resultData.length>0 ? resultData.length : 0
 
         const result: any = {}
         result.data = DelegatorsUndelegationsResDto.bundleData(resultData)
