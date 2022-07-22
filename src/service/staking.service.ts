@@ -103,7 +103,7 @@ export default class StakingService {
                     for (const one of data.entries) {
                         const validator = allValidatorsMoniker.get(data.validator_address);
                         resultData.push({
-                            moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
+                            moniker: validator && validator.is_black  ? validator?.moniker_m : validator?.description && validator?.description.moniker,
                             address: data.delegator_address || '',
                             amount: one.balance || '',
                             block: one.creation_height || '',
