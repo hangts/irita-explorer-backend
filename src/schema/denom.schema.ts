@@ -121,3 +121,16 @@ DenomSchema.statics = {
        })
     },
 };
+
+// statistics_task
+DenomSchema.statics.queryIncreDenomCount = async function(height :number): Promise<number> {
+    return await this.find({'height':{$gte:height}}).countDocuments();
+};
+
+DenomSchema.statics.queryDenomCountWithHeight = async function(height :number): Promise<number> {
+    return await this.find({'height':height}).countDocuments();
+};
+
+DenomSchema.statics.queryLatestHeight = async function(height :number): Promise<IDenomStruct> {
+    return await this.findOne({'height':{$gte:height}},{height:1}).sort({ height: -1 });
+};

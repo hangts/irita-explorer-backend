@@ -42,9 +42,8 @@ describe('StatisticsTaskService', () => {
       console.log("=====>IdentityCount:",count)
     });
 
-    it('queryDenomCount', async () => {
-      const count = await statisticsTaskService.queryDenomCount();
-      console.log("=====>DenomCount:",count)
+    it('updateIncreDenomCount', async () => {
+      await statisticsTaskService.updateIncreDenomCount();
     });
 
     it('queryValidatorNumCount', async () => {
