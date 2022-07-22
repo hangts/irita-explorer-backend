@@ -95,9 +95,14 @@ export class AccountInfoTaskService {
                     };
                     let unbondingDelegationAmount = 0;
                     (unbondingDelegationsArray || []).forEach(unbondingDelegation => {
-                        if (unbondingDelegation.entries && unbondingDelegation.entries[0] && unbondingDelegation.entries[0].balance) {
-                            unbondingDelegationAmount = BigNumberPlus(unbondingDelegationAmount, unbondingDelegation.entries[0].balance);
+                        if (unbondingDelegation.entries && unbondingDelegation.entries.length>0) {
+                            for (const one of unbondingDelegation.entries) {
+                                if (one?.balance) {
+                                    unbondingDelegationAmount = BigNumberPlus(unbondingDelegationAmount, one.balance);
+                                }
+                            }
                         }
+
                     })
                     const unbonding_delegation  = {
                         denom: stakingToken.cur_value,
