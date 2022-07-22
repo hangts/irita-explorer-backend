@@ -97,7 +97,7 @@ export class AccountInfoTaskService {
                     (unbondingDelegationsArray || []).forEach(unbondingDelegation => {
                         if (unbondingDelegation.entries && unbondingDelegation.entries.length>0) {
                             for (const one of unbondingDelegation.entries) {
-                                if (one.balance) {
+                                if (one?.balance) {
                                     unbondingDelegationAmount = BigNumberPlus(unbondingDelegationAmount, one.balance);
                                 }
                             }

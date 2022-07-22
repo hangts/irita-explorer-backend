@@ -243,14 +243,14 @@ export default class StakingService {
         const count =delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.total : 0
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
         let resultData = []
-        for (const data of dataLcd) {
+        for (const item of dataLcd) {
             const denom:string = (aminToken || {}).denom || '';
-            const entries:any = data && data.entries || []
+            const entries:any = item && item.entries || []
             if (entries && entries.length > 0) {
                 for (const one of entries) {
-                    const validator = allValidatorsMap.get(data.validator_address);
+                    const validator = allValidatorsMap.get(item.validator_address);
                     resultData.push({
-                        address: data.validator_address || '',
+                        address: item.validator_address || '',
                         moniker: validator && validator.is_black  ? validator.moniker_m : validator && validator.description && validator.description.moniker,
                         amount: {
                             denom: denom || '',
