@@ -96,16 +96,24 @@ export default class StakingService {
         const { pageNum,pageSize,useCount } = q
         const allValidatorsMoniker = await this.getAllValidatorMonikerMap()
         const valUnBondingDelegationsFromLcd = await this.stakingHttp.queryValidatorUnBondingDelegations(validatorAddr, pageNum, pageSize, useCount)
-        const resultData = (valUnBondingDelegationsFromLcd?.result || []).map(item => {
-            const validator = allValidatorsMoniker.get(item.validator_address);
-            return {
-                moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
-                address: item.delegator_address || '',
-                amount: item.entries[0].balance || '',
-                block: item.entries[0].creation_height || '',
-                until: item.entries[0].completion_time || '',
+        let resultData = []
+        if (valUnBondingDelegationsFromLcd?.result) {
+            for (const data of valUnBondingDelegationsFromLcd?.result) {
+                if (data?.entries && data.entries.length>0) {
+                    for (const one of data.entries) {
+                        const validator = allValidatorsMoniker.get(data.validator_address);
+                        resultData.push({
+                            moniker: validator && validator.is_black  ? validator.moniker_m : validator.description && validator.description.moniker,
+                            address: data.delegator_address || '',
+                            amount: one.balance || '',
+                            block: one.creation_height || '',
+                            until: one.completion_time || '',
+                        });
+                    }
+
+                }
             }
-        })
+        }
         const count = resultData?.length
         const result: any = {}
         if (useCount) {
@@ -234,22 +242,27 @@ export default class StakingService {
         const aminToken = await this.tokensModel.queryMainToken();
         const count =delegatorsDelegationsFromLcd ? delegatorsDelegationsFromLcd.total : 0
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
-        const resultData = (dataLcd || []).map(item => {
+        let resultData = []
+        for (const data of dataLcd) {
             const denom:string = (aminToken || {}).denom || '';
-            const entries:any = item && item.entries || []
-            const amount =  entries && entries.length > 0 ? entries[0].balance : ''
-            const validator = allValidatorsMap.get(item.validator_address);
-            return {
-                address: item.validator_address || '',
-                moniker: validator && validator.is_black  ? validator.moniker_m : validator && validator.description && validator.description.moniker,
-                amount: {
-                    denom: denom || '',
-                    amount: amount || ''
-                },
-                height:  entries && entries.length > 0 ? entries[0].creation_height : '',
-                end_time: entries && entries.length > 0 ? entries[0].completion_time : ''
+            const entries:any = data && data.entries || []
+            if (entries && entries.length > 0) {
+                for (const one of entries) {
+                    const validator = allValidatorsMap.get(data.validator_address);
+                    resultData.push({
+                        address: data.validator_address || '',
+                        moniker: validator && validator.is_black  ? validator.moniker_m : validator && validator.description && validator.description.moniker,
+                        amount: {
+                            denom: denom || '',
+                            amount: one.balance || ''
+                        },
+                        height:  one.creation_height ||'',
+                        end_time: one.completion_time || '',
+                    });
+                }
             }
-        })
+        }
+
         const result: any = {}
         result.data = DelegatorsUndelegationsResDto.bundleData(resultData)
         return new ListStruct(result.data, pageNum, pageSize, count)

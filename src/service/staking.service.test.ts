@@ -8,7 +8,7 @@ import {
     allValidatorReqDto,
     ValidatorDetailAddrReqDto,
     AccountAddrReqDto,
-    ValidatorDelegationsQueryReqDto
+    ValidatorDelegationsQueryReqDto, DelegatorsUndelegationsParamReqDto,
 } from '../dto/staking.dto';
 
 describe('stakingValidatorController', () => {
@@ -128,6 +128,22 @@ describe('stakingValidatorController', () => {
                 useCount:true
             };
             let data:any = await stakingService.getValidatorDepositsList(param,query);
+            expect(data).toBeDefined();
+        });
+    });
+
+    describe('getDelegatorsUndelegations', () => {
+        it('should return getDelegatorsUndelegations array', async () => {
+            jest.setTimeout(10000000)
+            let param:DelegatorsUndelegationsParamReqDto = {
+                delegatorAddr:"iaa1ahesxqqnwhlkwmlsp29as9cwtg5c6wwzgcmxe5"
+            }
+            let query:ValidatorDelegationsQueryReqDto = {
+                pageNum:1,
+                pageSize:10,
+                // useCount:true
+            };
+            let data:any = await stakingService.getDelegatorsUndelegations(param,query);
             expect(data).toBeDefined();
         });
     });
