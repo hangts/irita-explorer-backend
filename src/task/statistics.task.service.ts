@@ -43,11 +43,11 @@ export class StatisticsTaskService {
         let service_all, nft_all, validator_all, validator_active, identity_all, bonded_tokens,
             total_supply;
 
-        const txStatusSuccess = "1",txStatusFailed = "2";
-        await Promise.all([
-            this.updateIncreTxCount(),this.updateIncreTxCount(txStatusSuccess),this.updateIncreTxCount(txStatusFailed),
-            this.updateIncreMsgsCount(),this.updateIncreMsgsCount(txStatusSuccess),this.updateIncreMsgsCount(txStatusFailed)
-       ]);
+       //  const txStatusSuccess = "1",txStatusFailed = "2";
+       //  await Promise.all([
+       //      this.updateIncreTxCount(),this.updateIncreTxCount(txStatusSuccess),this.updateIncreTxCount(txStatusFailed),
+       //      this.updateIncreMsgsCount(),this.updateIncreMsgsCount(txStatusSuccess),this.updateIncreMsgsCount(txStatusFailed)
+       // ]);
 
         if (cfg && cfg.taskCfg && cfg.taskCfg.CRON_JOBS) {
             if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.denom) >= 0) {
