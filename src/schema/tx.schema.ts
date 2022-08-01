@@ -77,7 +77,7 @@ TxSchema.index({ addrs: -1, time: -1, status:-1 }, { background: true });
 // TxSchema.index({"msgs.type": -1,height:-1,"msgs.msg.ex.service_name":-1 }, { background: true });
 TxSchema.index({"msgs.msg.id": -1, "msgs.msg.denom": -1, "msgs.type": -1, "height": -1}, { background: true });
 TxSchema.index({"msgs.msg.hash":-1, "height": -1}, { background: true });
-TxSchema.index({"msgs.type":-1, "status": -1}, { background: true });
+TxSchema.index({"msgs.type":-1, "status": -1, time: -1}, { background: true });
 
 //	csrb 浏览器交易记录过滤正则表达式
 // function filterExTxTypeRegExp(): object {
