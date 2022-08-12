@@ -92,6 +92,14 @@ export enum TxType {
     mint_nft = 'mint_nft',
     transfer_denom = 'transfer_denom',
 
+    // mt
+    mt_issue_denom = 'mt_issue_denom',
+    mt_transfer_denom = 'mt_transfer_denom',
+    mint_mt = 'mint_mt',
+    transfer_mt = 'transfer_mt',
+    edit_mt = 'edit_mt',
+    burn_mt = 'burn_mt',
+
     // tibc
     tibc_nft_transfer = 'tibc_nft_transfer',
     tibc_recv_packet = 'tibc_recv_packet',

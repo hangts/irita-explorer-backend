@@ -127,6 +127,10 @@ NftSchema.statics = {
         return await this.find({ denom_id: denomId }).exec();
     },
 
+    async findListInNftIds(nftIds: string[]): Promise<ListStruct> {
+        return await this.find({ nft_id: { '$in': nftIds } });
+    },
+
     // saveBulk(nfts: INftStruct[]): Promise<INftStruct[]> {
     //     return this.insertMany(nfts, { ordered: false });
     // },

@@ -13,6 +13,7 @@ import {StakingValidatorSchema} from "../schema/staking.validator.schema";
 import { ProposalSchema } from '../schema/proposal.schema';
 import { GovHttp } from "../http/lcd/gov.http";
 import { StatisticsSchema } from '../schema/statistics.schema';
+import {MtDenomSchema} from "../schema/mtDenom.schema";
 @Module({
     imports:[
         MongooseModule.forFeature([{
@@ -29,6 +30,11 @@ import { StatisticsSchema } from '../schema/statistics.schema';
             name: 'Denom',
             schema: DenomSchema,
             collection: 'ex_sync_denom'
+        },
+        {
+            name: 'MtDenom',
+            schema: MtDenomSchema,
+            collection: 'ex_mt_denom'
         },
         {
             name: 'Identity',

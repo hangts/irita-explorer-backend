@@ -1,61 +1,64 @@
-import { DeepPagingReqDto } from './../dto/base.dto';
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { ListStruct, Result } from '../api/ApiResult';
+import {DeepPagingReqDto} from './../dto/base.dto';
+import {Injectable} from '@nestjs/common';
+import {InjectModel} from '@nestjs/mongoose';
+import {ListStruct, Result} from '../api/ApiResult';
 import {
-    callServiceResDto,
-    DeleteTxTypesReqDto,
-    eTxListReqDto,
-    ExternalQueryRespondServiceReqDto,
-    ExternalQueryRespondServiceResDto,
-    ExternalServiceResDto,
-    IdentityTxReqDto,
-    PostTxTypesReqDto,
-    PutTxTypesReqDto,
-    RespondServiceResDto,
-    ServiceBindInfoReqDto,
-    ServiceBindInfoResDto,
-    ServiceListReqDto,
-    ServiceProvidersReqDto,
-    ServiceProvidersResDto,
-    ServiceResDto,
-    ServiceRespondReqDto,
-    ServiceRespondResDto,
-    ServicesDetailReqDto,
-    ServiceTxReqDto,
-    ServiceTxResDto,
-    TxListReqDto,
-    TxListWithAddressReqDto,
-    TxListWithAssetReqDto,
-    TxListWithCallServiceReqDto,
-    TxListWithContextIdReqDto,
-    TxListWithDdcReqDto,
-    TxListWithHeightReqDto,
-    TxListWithNftReqDto,
-    TxListWithRespondServiceReqDto,
-    TxListWithServicesNameReqDto,
-    TxResDto, TxStatisticWithAddressReqDto,TxStatisticWithAddressResDto,
-    TxTypeResDto,
-    TxWithHashReqDto,
+  callServiceResDto,
+  DeleteTxTypesReqDto,
+  eTxListReqDto,
+  ExternalQueryRespondServiceReqDto,
+  ExternalQueryRespondServiceResDto,
+  ExternalServiceResDto,
+  IdentityTxReqDto,
+  PostTxTypesReqDto,
+  PutTxTypesReqDto,
+  RespondServiceResDto,
+  ServiceBindInfoReqDto,
+  ServiceBindInfoResDto,
+  ServiceListReqDto,
+  ServiceProvidersReqDto,
+  ServiceProvidersResDto,
+  ServiceResDto,
+  ServiceRespondReqDto,
+  ServiceRespondResDto,
+  ServicesDetailReqDto,
+  ServiceTxReqDto,
+  ServiceTxResDto,
+  TxListReqDto,
+  TxListWithAddressReqDto,
+  TxListWithAssetReqDto,
+  TxListWithCallServiceReqDto,
+  TxListWithContextIdReqDto,
+  TxListWithDdcReqDto,
+  TxListWithHeightReqDto,
+  TxListWithNftReqDto,
+  TxListWithRespondServiceReqDto,
+  TxListWithServicesNameReqDto,
+  TxResDto,
+  TxStatisticWithAddressReqDto,
+  TxStatisticWithAddressResDto,
+  TxTypeResDto,
+  TxWithHashReqDto,
 } from '../dto/txs.dto';
-import { ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName } from '../types/tx.interface';
-import {ITxStruct, ITxsWithAddressQuery, ITxsQuery} from '../types/schemaTypes/tx.interface';
-import { getReqContextIdFromEvents, getServiceNameFromMsgs } from '../helper/tx.helper';
+import {ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName} from '../types/tx.interface';
+import {ITxsQuery, ITxStruct, ITxsWithAddressQuery} from '../types/schemaTypes/tx.interface';
+import {getReqContextIdFromEvents, getServiceNameFromMsgs} from '../helper/tx.helper';
 import Cache from '../helper/cache';
 import {
   addressPrefix,
-  proposal as proposalString,
-  TxType,
-  DDCType,
   ContractType,
-  deFaultGasPirce,
+  DDCType,
   defaultEvmTxReceiptErrlog,
-  TxCntQueryCond, TxsListCountName,
+  deFaultGasPirce,
+  proposal as proposalString,
+  TxCntQueryCond,
+  TxsListCountName,
+  TxType,
 } from '../constant';
-import { addressTransform, splitString } from '../util/util';
-import { GovHttp } from '../http/lcd/gov.http';
-import { getConsensusPubkey } from '../helper/staking.helper';
-import { txListParamsHelper, TxWithAddressParamsHelper } from '../helper/params.helper';
+import {addressTransform, splitString} from '../util/util';
+import {GovHttp} from '../http/lcd/gov.http';
+import {txListParamsHelper, TxWithAddressParamsHelper} from '../helper/params.helper';
+import {getConsensusPubkey} from "../helper/staking.helper";
 
 @Injectable()
 export class TxService {
@@ -63,6 +66,7 @@ export class TxService {
         @InjectModel('TxType') private txTypeModel: any,
         @InjectModel('Denom') private denomModel: any,
         @InjectModel('Nft') private nftModel: any,
+        @InjectModel('MtDenom') private mtDenomModel: any,
         @InjectModel('TxEvm') private txEvmModel: any,
         @InjectModel('EvmContractConfig') private evmContractCfgModel: any,
         @InjectModel('Identity') private identityModel: any,
@@ -1146,26 +1150,39 @@ export class TxService {
         } else {
             txData = await this.txModel.queryTxWithHash(query.hash);
         }
+
         if (txData) {
-            if (txData.msgs[0] && txData.msgs[0].msg && txData.msgs[0].msg.denom && txData.msgs[0].msg.denom.length) {
-                const nftNameInfo: { denom_name: string, nft_name: string } = {
-                    denom_name: '',
-                    nft_name: '',
-                };
-                if (txData.msgs[0].msg.id && txData.msgs[0].msg.id.length) {
-                    const nft = await this.nftModel.findOneByDenomAndNftId(txData.msgs[0].msg.denom, txData.msgs[0].msg.id);
-                    nftNameInfo.denom_name = (nft || {}).denom_name || '';
-                    nftNameInfo.nft_name = (nft || {}).nft_name || '';
-                } else {
-                    const denom = await this.denomModel.findOneByDenomId(txData.msgs[0].msg.denom);
-                    nftNameInfo.denom_name = (denom || {}).name || '';
-                }
-                txData.msgs[0].msg.denom_name = nftNameInfo.denom_name;
-                txData.msgs[0].msg.nft_name = nftNameInfo.nft_name;
+          const {denomIdNftIdNftMap, mtDenomIdNameMap} = await this.getMtNftNameInfoMap(txData);
+
+          for (let i = txData.msgs.length - 1; i >= 0; i--) {
+            switch (txData.msgs[i].type) {
+              case TxType.mint_nft:
+              case TxType.transfer_nft:
+              case TxType.edit_nft:
+                txData.msgs[i].msg.denom_name = denomIdNftIdNftMap.get(txData.msgs[i].msg.denom + '-' + txData.msgs[i].msg.id)?.denom_name || '';
+                break;
+              case TxType.burn_nft:
+                const nameInfo = denomIdNftIdNftMap.get(txData.msgs[i].msg.denom + '-' + txData.msgs[i].msg.id)
+                txData.msgs[i].msg.denom_name = nameInfo?.denom_name || '';
+                txData.msgs[i].msg.nft_name = nameInfo?.nft_name || '';
+                break;
+              // mt
+              case TxType.mt_transfer_denom:
+                txData.msgs[i].msg.denom_name = mtDenomIdNameMap.get(txData.msgs[i].msg.id) || '';
+                break;
+              case TxType.mint_mt:
+              case TxType.edit_mt:
+              case TxType.transfer_mt:
+              case TxType.burn_mt: {
+                txData.msgs[i].msg.denom_name = mtDenomIdNameMap.get(txData.msgs[i].msg.denom_id) || '';
+                break;
+              }
+
+              case TxType.create_validator:
+                txData.msgs[i].msg.pubkey = getConsensusPubkey(JSON.parse(txData.msgs[0].msg.pubkey).key);
             }
-            if (txData.msgs[0] && txData.msgs[0].type && txData.msgs[0].type === TxType.create_validator && txData.msgs[0].msg && txData.msgs[0].msg.pubkey) {
-                txData.msgs[0].msg.pubkey = getConsensusPubkey(JSON.parse(txData.msgs[0].msg.pubkey).key);
-            }
+          }
+
             let txEvms:any;
             if (query.hash && query.hash.startsWith("0x")) {
                 txEvms = await this.txEvmModel.findEvmTxsByEvmHash(query.hash)
@@ -1179,7 +1196,51 @@ export class TxService {
         }
         return result;
     }
-    handleEvmTx(txEvms,txData) {
+
+  // Need return denom_name or nft_name in some type whose name_info don't exist in msg
+  // i. traversal txs
+  // ii. when nft/mt type, push id in list
+  // iii. use id list find name_info
+  // iv. return map
+  private async getMtNftNameInfoMap(txData: any) {
+    const nftIds: string[] = [];
+    const mtDenomIds: string[] = [];
+    for (let msg of txData.msgs) {
+      switch (msg.type) {
+        case TxType.mint_nft:
+        case TxType.transfer_nft:
+        case TxType.edit_nft:
+        case TxType.burn_nft:
+          nftIds.push(msg.msg.id);
+          break;
+        case TxType.mt_transfer_denom:
+          mtDenomIds.push(msg.msg.id);
+          break;
+        case TxType.mint_mt:
+        case TxType.edit_mt:
+        case TxType.transfer_mt:
+        case TxType.burn_mt: {
+          mtDenomIds.push(msg.msg.denom_id);
+          break;
+        }
+      }
+    }
+
+    const denomIdNftIdNftMap = new Map<string, any>();
+    const mtDenomIdNameMap = new Map<string, string>();
+    if (nftIds.length) {
+      const nfts = await this.nftModel.findListInNftIds(nftIds);
+      nfts.forEach(n => denomIdNftIdNftMap.set(n.denom_id + "-" + n.nft_id, n));
+    }
+
+    if (mtDenomIds.length) {
+      const denoms = await this.mtDenomModel.findListInDenomIds(mtDenomIds);
+      denoms.forEach(d => mtDenomIdNameMap.set(d.denom_id, d.denom_name));
+    }
+    return {denomIdNftIdNftMap, mtDenomIdNameMap};
+  }
+
+  handleEvmTx(txEvms,txData) {
       let mapEvmContract = new Map()
       let mapEvmDdc = new Map()
       let ddcIdsOfBatch = [], ddcUrisOfBatch = [], isBatch = false
