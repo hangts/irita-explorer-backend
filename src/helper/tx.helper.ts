@@ -137,6 +137,7 @@ export const dbRes = {
         'msgs.msg.request_id':1,
         'msgs.msg.id':1,
         'msgs.msg.denom':1,
+        'msgs.msg.denom_id':1,
         'msgs.msg.denom_name':1,
         'msgs.msg.creator':1,
         'msgs.msg.feed_name':1,
