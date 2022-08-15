@@ -23,6 +23,7 @@ import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
 import { MongoConnectStatusTaskService } from "./mongo.connect.status.task.service";
 import { CronTaskWorkingStatusMetric } from '../monitor/metrics/cron_task_working_status.metric';
+import {ExplorerApiStatusTaskService} from "./explorer.api.status.task.service";
 
 @Injectable()
 export class TasksService {
@@ -43,6 +44,7 @@ export class TasksService {
         private readonly accountInfoTaskService: AccountInfoTaskService,
         private readonly statisticsTaskService: StatisticsTaskService,
         private readonly mongoConnectStatusTaskService: MongoConnectStatusTaskService,
+        private readonly explorerApiStatusTaskService: ExplorerApiStatusTaskService,
         private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
         private schedulerRegistry: SchedulerRegistry,
     ) {
@@ -178,6 +180,13 @@ export class TasksService {
     })
     async syncMongoConnectStatus() {
         this.handleDoTask(TaskEnum.mongoConnectStatus, this.mongoConnectStatusTaskService.doTask)
+    }
+
+    @Cron(cfg.taskCfg.executeTime.explorerApiStatus, {
+        name: TaskEnum.explorerApiStatus
+    })
+    async explorerApiStatus() {
+        this.handleDoTask(TaskEnum.explorerApiStatus, this.explorerApiStatusTaskService.doTask)
     }
 
     async handleDoTask(taskName: TaskEnum, doTask: TaskCallback) {
