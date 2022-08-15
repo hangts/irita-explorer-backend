@@ -36,7 +36,8 @@ export function txListParamsHelper(query: ITxsQuery){
       }
   }
   if (query.address && query.address.length) {
-      queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
+      queryParameters['addrs'] = query.address ;
+      // queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
   }
   if (query.contract_addr && query.contract_addr.length) {
       let contractAddrArr = query.contract_addr.split(",");
@@ -73,7 +74,8 @@ export function StakingTxListParamsHelper(query: ITxsQuery){
       }
   }
   if (query.address && query.address.length) {
-      queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
+      queryParameters['addrs'] = query.address;
+      // queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
   }
   if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
       queryParameters.time = {};
@@ -109,7 +111,8 @@ export function CoinswapTxListParamsHelper(query: ITxsQuery){
       }
   }
   if (query.address && query.address.length) {
-      queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
+      queryParameters['addrs'] = query.address;
+      // queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
   }
   if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
       queryParameters.time = {};
@@ -141,7 +144,8 @@ export function DeclarationTxListParamsHelper(query: ITxsQuery){
       }
   }
   if (query.address && query.address.length) {
-      queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
+      queryParameters['addrs'] = query.address;
+      // queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
   }
   if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
       queryParameters.time = {};
@@ -173,7 +177,8 @@ export function GovTxListParamsHelper(query: ITxsQuery){
       }
   }
   if (query.address && query.address.length) {
-      queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
+      queryParameters['addrs'] = query.address;
+      // queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
   }
   if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
       queryParameters.time = {};
@@ -201,7 +206,8 @@ export function TxListEdgeParamsHelper(types, gt_height, status, address, includ
   if (include_event_addr && include_event_addr == true && address && address.length) {
       queryParameters['$or'] = [
           { 'events.attributes.value': address },
-          { 'addrs': { $elemMatch: {'$in': address.split(',')} }}
+          { 'addrs': {'$in': address.split(',')} }
+          // { 'addrs': { $elemMatch: {'$in': address.split(',')} }}
       ]
   } else if (address && address.length) {
       queryParameters['addrs'] = { $elemMatch: { '$in': address.split(',') } };
@@ -218,7 +224,8 @@ export function TxWithAddressParamsHelper(query: ITxsWithAddressQuery){
           // 	{"to":query.address},
           // 	{"signer":query.address},
           // ],
-          addrs: { $elemMatch: { $eq: query.address } },
+          // addrs: { $elemMatch: { $eq: query.address } },
+          addrs: query.address,
       };
   }
   if (query.contract_addr && query.contract_addr.length) {

@@ -14,7 +14,8 @@ export enum TaskEnum {
     statistics = 'ex_statistics',
     account = 'ex_sync_account',
     accountInfo =  'ex_sync_account_info',
-    mongoConnectStatus =  'mongo_connect_status'
+    mongoConnectStatus =  'mongo_connect_status',
+    explorerApiStatus =  'explorer_api_status'
 }
 
 export const StatisticsNames = [

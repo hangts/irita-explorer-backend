@@ -76,5 +76,21 @@ BlockSchema.statics = {
         }
     },
 
+  async blockApiStatusQuery(): Promise<IBlockStruct[] | null> {
+    const res: IBlockStruct[] = await this.find({})
+      .sort({ height: -1 })
+      .select({
+        _id: 0,
+        'txn-revno': 0,
+        'txn-queue': 0,
+      })
+      .limit(1)
+      .maxTimeMS(3000);
 
+    if (res && res.length > 0) {
+      return res;
+    } else {
+      return null;
+    }
+  },
 };

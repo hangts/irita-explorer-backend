@@ -44,6 +44,7 @@ import {
     CronTaskWorkingStatusProvider,
 } from './monitor/metrics/cron_task_working_status.metric';
 import { HttpCacheInterceptor } from "./interceptor/http-cache.interceptor";
+import {ApiStatusTaskModule} from "./module/api.status.task.module";
 
 const url: string = `mongodb://${cfg.dbCfg.user}:${cfg.dbCfg.psd}@${cfg.dbCfg.dbAddr}/${cfg.dbCfg.dbName}`;
 const params = {
@@ -81,6 +82,7 @@ const params = {
         MonitorModule,
         TokenModule,
         MongoTaskModule,
+        ApiStatusTaskModule,
         CacheModule.register()
     ],
     providers:<any> [

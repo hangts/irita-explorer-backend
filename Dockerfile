@@ -1,9 +1,9 @@
-FROM node:14.4.0-alpine3.12
+FROM node:16.15.1-alpine3.16 AS builder
 
 WORKDIR /app
 COPY . .
 
-RUN apk add git && npm install cnpm rimraf -g && yarn install && npm run build
+RUN apk add git && yarn install && npm run build
 
 
 
