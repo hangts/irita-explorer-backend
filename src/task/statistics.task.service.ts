@@ -53,9 +53,6 @@ export class StatisticsTaskService {
             if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.denom) >= 0) {
                 await this.updateIncreDenomCount()
             }
-            if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.nft) >= 0) {
-                nft_all = await this.queryAssetCount()
-            }
             if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.identity) >= 0) {
                 identity_all = await this.queryIdentityCount()
             }

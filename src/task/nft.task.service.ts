@@ -19,6 +19,7 @@ export class NftTaskService {
                 @InjectModel('Tx') private txModel: any,
                 @InjectModel('Denom') private denomModel: any,
                 @InjectModel('SyncTask') private taskModel: any,
+                @InjectModel('Statistics') private statisticsModel: any,
                 private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
     ) {
         this.doTask = this.doTask.bind(this);
@@ -36,7 +37,9 @@ export class NftTaskService {
             return
         }
         taskLoggerHelper(`${taskName}: start to execute task`, randomKey);
-        const nftList: INftStruct[] = await (this.nftModel as any).queryLastBlockHeight();
+
+      let nftCount = await this.initNftAllStatistic();
+      const nftList: INftStruct[] = await (this.nftModel as any).queryLastBlockHeight();
         taskLoggerHelper(`${taskName}: execute task (step should be start step + 1)`, randomKey);
         let lastBlockHeight = 0;
         if (nftList && nftList.length > 0) {
@@ -58,13 +61,31 @@ export class NftTaskService {
         taskLoggerHelper(`${taskName}: execute task (step should be start step + 3)`, randomKey);
         if (nftTxList && nftTxList.length > 0) {
             taskLoggerHelper(`${taskName}: execute task (step should be start step + 4)`, randomKey);
-            await this.handleNftTx(nftTxList);
+            await this.handleNftTx(nftTxList, nftCount);
         }
         this.cronTaskWorkingStatusMetric.collect(TaskEnum.nft,1)
         taskLoggerHelper(`${taskName}: end to execute task (step should be start step + 4 or 5)`, randomKey);
     }
 
-    async getNftTxList(lastBlockHeight: number, maxHeight: number): Promise<ITxStruct[]> {
+  private async initNftAllStatistic(): Promise<number>{
+    const statistic = await this.statisticsModel.findStatisticsRecord('nft_all');
+    if (!statistic) {
+      // 找不到，查询全部，设置回去
+      const count = await this.nftModel.findCount();
+      await this.statisticsModel.insertManyStatisticsRecord({
+        statistics_name: 'nft_all',
+        count: count,
+        data: '',
+        statistics_info: '',
+        create_at: getTimestamp(),
+        update_at: getTimestamp(),
+      });
+      return count
+    }
+    return statistic.count
+  }
+
+  async getNftTxList(lastBlockHeight: number, maxHeight: number): Promise<ITxStruct[]> {
 
         let list: any[] = [];
         const querynftTxList = async (lastBlockHeight: number) => {
@@ -96,7 +117,7 @@ export class NftTaskService {
         return await (this.txModel as any).queryNftTxList(lastBlockHeight);
     }
 
-    async handleNftTx(nftTxList): Promise<void> {
+    async handleNftTx(nftTxList: any, nftCount: number): Promise<void> {
         const promiseList: Promise<any>[] = [];
         const nftObj = {};
         let last_block_height = 0;
@@ -119,6 +140,7 @@ export class NftTaskService {
                             nftObj[idStr].last_block_height = tx.height;
                             nftObj[idStr].last_block_time = tx.time;
                             nftObj[idStr].update_time = getTimestamp();
+                            nftCount++;
                             break;
                         case TxType.edit_nft:
                             if (msg.name !== NFT_INFO_DO_NOT_MODIFY) {
@@ -158,6 +180,7 @@ export class NftTaskService {
                             nftObj[idStr].denom_id = msg.denom;
                             nftObj[idStr].nft_id = msg.id;
                             nftObj[idStr].is_deleted = true;
+                            nftCount--;
                             break;
                         }
                     }
@@ -169,6 +192,7 @@ export class NftTaskService {
                             nftObj[idTibcStr].denom_id = transferMsg.class;
                             nftObj[idTibcStr].nft_id = transferMsg.id;
                             nftObj[idTibcStr].is_deleted = true;
+                            nftCount--;
                             break;
                         case TxType.tibc_recv_packet:
                             let ackResult = "";
@@ -212,6 +236,7 @@ export class NftTaskService {
                                 nftObj[idStr].last_block_height = tx.height;
                                 nftObj[idStr].last_block_time = tx.time;
                                 nftObj[idStr].update_time = getTimestamp();
+                                nftCount++;
                             }
                             break;
                         case TxType.tibc_acknowledge_packet:
@@ -235,7 +260,7 @@ export class NftTaskService {
                                 nftObj[idStr].last_block_time = tx.time;
                                 nftObj[idStr].update_time = getTimestamp();
                                 nftObj[idStr].create_time = getTimestamp();
-
+                                nftCount++;
                             }
                             break;
                 }
@@ -252,6 +277,14 @@ export class NftTaskService {
                 promiseList.push((this.nftModel as any).updateNft(nftObj[idStr]));
             }
         }
+        promiseList.push((this.statisticsModel.updateStatisticsRecord({
+            statistics_name: 'nft_all',
+            count: nftCount,
+            data: '',
+            statistics_info: '',
+            create_at: getTimestamp(),
+            update_at: getTimestamp(),
+        })))
         await Promise.all(promiseList);
         if(last_block_height){
             let lastNft =  await (this.nftModel as any).queryLastNft();

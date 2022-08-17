@@ -7,6 +7,7 @@ import { DenomSchema } from '../schema/denom.schema';
 import { TxSchema } from '../schema/tx.schema';
 import { SyncTaskSchema } from '../schema/sync.task.schema';
 import {CronTaskWorkingStatusMetric,CronTaskWorkingStatusProvider} from "../monitor/metrics/cron_task_working_status.metric";
+import {StatisticsSchema} from "../schema/statistics.schema";
 @Module({
     imports:[
         MongooseModule.forFeature([{
@@ -25,6 +26,10 @@ import {CronTaskWorkingStatusMetric,CronTaskWorkingStatusProvider} from "../moni
             name: 'SyncTask',
             schema: SyncTaskSchema,
             collection: 'sync_task'
+        },{
+          name: 'Statistics',
+          schema: StatisticsSchema,
+          collection: 'ex_statistics'
         }])
     ],
     providers:[NftTaskService, NftHttp, CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
