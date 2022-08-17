@@ -1052,7 +1052,7 @@ TxSchema.statics.queryNftTxList = async function (lastBlockHeight: number): Prom
                     $in:[TxType.mint_nft, TxType.edit_nft, TxType.transfer_nft, TxType.burn_nft,
                         TxType.tibc_nft_transfer, TxType.tibc_acknowledge_packet, TxType.tibc_recv_packet]
                 },
-                height: {$gte: lastBlockHeight, $lte: lastBlockHeight + INCREASE_HEIGHT}
+                height: {$gt: lastBlockHeight, $lte: lastBlockHeight + INCREASE_HEIGHT}
             }
         },
         //{
