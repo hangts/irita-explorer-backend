@@ -1220,7 +1220,7 @@ export class TxService {
         case TxType.edit_mt:
         case TxType.transfer_mt:
         case TxType.burn_mt: {
-          mtDenomIds.push(msg.msg.denom_id);
+          mtDenomIds.push(msg.msg.denom);
           break;
         }
       }
