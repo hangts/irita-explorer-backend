@@ -76,22 +76,22 @@ TxEvmSchema.statics = {
     return await this.find(queryParameters).countDocuments();
   },
 
-  async findAllContractAddr() {
-    const matchContractAddr = {
-      $match: {
-        'height': {$gt:0}
-      }
-    }
-    const unwind = {
-      $unwind: '$evm_datas'
-    }
-    const group = {
-      $group: {
-        _id: '$evm_datas.contract_address'
-      },
-    }
-    return  await this.aggregate([matchContractAddr,unwind,group]).allowDiskUse(true);
-  },
+  // async findAllContractAddr() {
+  //   const matchContractAddr = {
+  //     $match: {
+  //       'height': {$gt:0}
+  //     }
+  //   }
+  //   const unwind = {
+  //     $unwind: '$evm_datas'
+  //   }
+  //   const group = {
+  //     $group: {
+  //       _id: '$evm_datas.contract_address'
+  //     },
+  //   }
+  //   return  await this.aggregate([matchContractAddr,unwind,group]).allowDiskUse(true);
+  // },
 
   // async queryTxWithDdcAddr(query: ITxsWithAddressQuery): Promise<ListStruct> {
   //   const result: ListStruct = {};
