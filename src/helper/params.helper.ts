@@ -231,19 +231,19 @@ export function TxWithAddressParamsHelper(query: ITxsWithAddressQuery){
   let queryParameters: any = {};
   if (query.address && query.address.length) {
       queryParameters = {
-          // $or:[
-          // 	{"from":query.address},
-          // 	{"to":query.address},
-          // 	{"signer":query.address},
-          // ],
-          // addrs: { $elemMatch: { $eq: query.address } },
           addrs: query.address,
       };
   }
-  if (query.contract_addr && query.contract_addr.length) {
-      queryParameters['contract_addrs'] = { '$in': query.contract_addr.split(',') };
-  }
-  if (query.type && query.type.length) {
+
+  let ddcType:number = 0
+  //ddc_1155/ddc_721/ddc_other
+  if (query.type && query.type.includes(DDCType.contractTag)) {
+    ddcType = ContractType[query.type]
+    //ddc_other
+    if (ddcType < 0) {
+      queryParameters['msgs.type'] = TxType.ethereum_tx
+    }
+  } else if (query.type && query.type.length) {
       let typeArr = query.type.split(",");
       queryParameters['msgs.type'] = {
           $in: typeArr
@@ -254,6 +254,17 @@ export function TxWithAddressParamsHelper(query: ITxsWithAddressQuery){
           $in: Cache.supportTypes || []
       }
   }
+  if (query.contract_addr && query.contract_addr.length) {
+    const contractAddrArr = query.contract_addr.split(',')
+    //ddc_721 or ddc_1155
+    if (ddcType > 0) {
+      queryParameters['contract_addrs'] = {'$in':contractAddrArr}
+    }else if (ddcType < 0) {
+      //ddc_other
+      queryParameters['contract_addrs'] = {'$nin':contractAddrArr}
+    }
+  }
+
   if (query.status && query.status.length) {
       switch (query.status) {
           case '1':
