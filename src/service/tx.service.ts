@@ -647,8 +647,8 @@ export class TxService {
 
     //  txs/addresses
     async queryTxWithAddress(query: TxListWithAddressReqDto): Promise<ListStruct<TxResDto[]>> {
-      const { pageNum, pageSize, useCount, type, countMsg } = query;
-      let txListData, txData = [],count = null,totalTxMsgs = null;
+      const { pageNum, pageSize, useCount, type } = query;
+      let txListData, txData = [];
       if(pageNum && pageSize || useCount){
         await this.cacheTxTypes();
           let queryDb: ITxsWithAddressQuery = {
@@ -662,18 +662,19 @@ export class TxService {
           //search contract_address when type is ethereum_tx
           if (type && type.includes(DDCType.contractTag)) {
               await this.cacheEvmContract();
-              queryDb.type = TxType.ethereum_tx
+              // queryDb.type = TxType.ethereum_tx
               const ddcType = ContractType[type]
               if (ddcType) {
                   if (ddcType > 0) {
                       queryDb.contract_addr = Cache.supportEvmTypeAddr.get(ddcType)
                   } else { //other contract
-
-                      if (Cache.otherEvmContractAddr.length) {
-                          queryDb.contract_addr = Cache.otherEvmContractAddr.join(",")
-                      } else {
-                          return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
+                    const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs();
+                    if (evmConfigs) {
+                      const addrs:string[] = evmConfigs.map((item) => item?.address)
+                      if (addrs && addrs.length) {
+                        queryDb.contract_addr = addrs.join(",");
                       }
+                    }
                   }
               } else {
                   return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
@@ -689,38 +690,38 @@ export class TxService {
               txData = await this.addMonikerToTxs(txListData.data);
           }
         }
-        const countCalls = []
-        if(useCount){
-            if (countMsg) {
-              countCalls.push(this.txModel.queryTxWithAddressCount(queryDb));
-            }else{
-               count = await this.txModel.queryTxWithAddressCount(queryDb);
-            }
-        }
-        if (countMsg) {
-            const queryParameters = await TxWithAddressParamsHelper(queryDb)
-            if (useCount) {
-              countCalls.push(this.txModel.queryTxMsgsCountWithCond(queryParameters));
-            }else{
-                const txMsgsData = await this.txModel.queryTxMsgsCountWithCond(queryParameters);
-                if (txMsgsData && txMsgsData.length) {
-                  totalTxMsgs = txMsgsData[0].count
-                }
-            }
-        }
+        // const countCalls = []
+        // if(useCount){
+        //     if (countMsg) {
+        //       countCalls.push(this.txModel.queryTxWithAddressCount(queryDb));
+        //     }else{
+        //        count = await this.txModel.queryTxWithAddressCount(queryDb);
+        //     }
+        // }
+        // if (countMsg) {
+        //     const queryParameters = await TxWithAddressParamsHelper(queryDb)
+        //     if (useCount) {
+        //       countCalls.push(this.txModel.queryTxMsgsCountWithCond(queryParameters));
+        //     }else{
+        //         const txMsgsData = await this.txModel.queryTxMsgsCountWithCond(queryParameters);
+        //         if (txMsgsData && txMsgsData.length) {
+        //           totalTxMsgs = txMsgsData[0].count
+        //         }
+        //     }
+        // }
 
-        if ( countCalls.length === 2 && countMsg && useCount ) {
-          const [countTx,msgCntData] = await Promise.all(countCalls);
-          if (msgCntData && msgCntData.length) {
-            totalTxMsgs = msgCntData[0].count
-          }
-          if (Number(countTx)) {
-            count = countTx
-          }
-        }
+        // if ( countCalls.length === 2 && countMsg && useCount ) {
+        //   const [countTx,msgCntData] = await Promise.all(countCalls);
+        //   if (msgCntData && msgCntData.length) {
+        //     totalTxMsgs = msgCntData[0].count
+        //   }
+        //   if (Number(countTx)) {
+        //     count = countTx
+        //   }
+        // }
       }
 
-      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count,null,totalTxMsgs);
+      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), 0,null,0);
     } //  txs/addresses
 
     //  txs/addresses/statistic
