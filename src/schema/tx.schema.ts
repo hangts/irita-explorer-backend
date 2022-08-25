@@ -110,6 +110,17 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<ListStr
     return result;
 };
 
+// queryLatest20TxList for exporter
+TxSchema.statics.queryLatest20TxList = async function(): Promise<ListStruct> {
+  const result: ListStruct = {};
+  result.data = await this.find({}, dbRes.txList)
+    .sort({ time: -1 })
+    .skip(0)
+    .limit(20)
+    .maxTimeMS(3000);
+  return result;
+};
+
 TxSchema.statics.queryTxListCount = async function(query: ITxsQuery): Promise<number> {
   const queryParameters = txListParamsHelper(query)
   return await this.find(queryParameters).countDocuments();
