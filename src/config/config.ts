@@ -74,7 +74,7 @@ export const cfg = {
             accountInfo: ACCOUNT_INFO_EXECUTE_TIME || '* */10 * * * *',
             statistics: STATISTICS_EXECUTE_TIME || '*/30 * * * * *',
             mongoConnect: MONGO_CONNECT_EXECUTE_TIME || '*/15 * * * * *',
-            explorerApiStatus: EXPLORER_API_STATUS_EXECUTE_TIME || '*/15 * * * * *',
+            explorerApiStatus: EXPLORER_API_STATUS_EXECUTE_TIME || '*/30 * * * * *',
         },
         syncTxServiceNameSize: Number(SYNC_TX_SERVICE_NAME_SIZE) || 200,
         increaseHeight: INCREASE_HEIGHT || 1000,
