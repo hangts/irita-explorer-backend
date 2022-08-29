@@ -1159,12 +1159,12 @@ export class TxService {
               case TxType.mint_nft:
               case TxType.transfer_nft:
               case TxType.edit_nft:
-                txData.msgs[i].msg.denom_name = nftDenomIdNameMap.get(txData.msgs[i].msg.denom) || '';
-                break;
-              case TxType.burn_nft:
                 const nameInfo = denomIdNftIdNftMap.get(txData.msgs[i].msg.denom + '-' + txData.msgs[i].msg.id)
                 txData.msgs[i].msg.denom_name = nftDenomIdNameMap.get(txData.msgs[i].msg.denom) || '';
                 txData.msgs[i].msg.nft_name = nameInfo?.nft_name || '';
+                break;
+              case TxType.burn_nft:
+                txData.msgs[i].msg.denom_name = nftDenomIdNameMap.get(txData.msgs[i].msg.denom) || '';
                 break;
               // mt
               case TxType.mt_transfer_denom:
