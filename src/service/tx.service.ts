@@ -1142,18 +1142,18 @@ export class TxService {
         }
 
         if (txData) {
-          const {denomIdNftIdNftMap, mtDenomIdNameMap} = await this.getMtNftNameInfoMap(txData);
+          const {denomIdNftIdNftMap, nftDenomIdNameMap, mtDenomIdNameMap} = await this.getMtNftNameInfoMap(txData);
 
           for (let i = txData.msgs.length - 1; i >= 0; i--) {
             switch (txData.msgs[i].type) {
               case TxType.mint_nft:
               case TxType.transfer_nft:
               case TxType.edit_nft:
-                txData.msgs[i].msg.denom_name = denomIdNftIdNftMap.get(txData.msgs[i].msg.denom + '-' + txData.msgs[i].msg.id)?.denom_name || '';
+                txData.msgs[i].msg.denom_name = nftDenomIdNameMap.get(txData.msgs[i].msg.denom) || '';
                 break;
               case TxType.burn_nft:
                 const nameInfo = denomIdNftIdNftMap.get(txData.msgs[i].msg.denom + '-' + txData.msgs[i].msg.id)
-                txData.msgs[i].msg.denom_name = nameInfo?.denom_name || '';
+                txData.msgs[i].msg.denom_name = nftDenomIdNameMap.get(txData.msgs[i].msg.denom) || '';
                 txData.msgs[i].msg.nft_name = nameInfo?.nft_name || '';
                 break;
               // mt
@@ -1194,6 +1194,7 @@ export class TxService {
   // iv. return map
   private async getMtNftNameInfoMap(txData: any) {
     const nftIds: string[] = [];
+    const nftDenomIds: string[] = [];
     const mtDenomIds: string[] = [];
     for (let msg of txData.msgs) {
       switch (msg.type) {
@@ -1201,7 +1202,8 @@ export class TxService {
         case TxType.transfer_nft:
         case TxType.edit_nft:
         case TxType.burn_nft:
-          nftIds.push(msg.msg.id);
+            nftIds.push(msg.msg.id)
+            nftDenomIds.push(msg.msg.denom);
           break;
         case TxType.mt_transfer_denom:
           mtDenomIds.push(msg.msg.id);
@@ -1217,17 +1219,23 @@ export class TxService {
     }
 
     const denomIdNftIdNftMap = new Map<string, any>();
+    const nftDenomIdNameMap = new Map<string, string>();
     const mtDenomIdNameMap = new Map<string, string>();
     if (nftIds.length) {
       const nfts = await this.nftModel.findListInNftIds(nftIds);
       nfts.forEach(n => denomIdNftIdNftMap.set(n.denom_id + "-" + n.nft_id, n));
     }
 
+    if (nftDenomIds.length) {
+        const denoms = await this.denomModel.findAllInDenomID(nftDenomIds);
+        denoms.forEach(d => nftDenomIdNameMap.set(d.denom_id, d.name));
+    }
+
     if (mtDenomIds.length) {
       const denoms = await this.mtDenomModel.findListInDenomIds(mtDenomIds);
       denoms.forEach(d => mtDenomIdNameMap.set(d.denom_id, d.denom_name));
     }
-    return {denomIdNftIdNftMap, mtDenomIdNameMap};
+    return {denomIdNftIdNftMap, nftDenomIdNameMap, mtDenomIdNameMap};
   }
 
   handleEvmTx(txEvms,txData) {
