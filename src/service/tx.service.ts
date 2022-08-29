@@ -1237,7 +1237,7 @@ export class TxService {
     }
 
     if (nftDenomIds.length) {
-        const denoms = await this.denomModel.findListWithDenomIds(nftDenomIds);
+        const denoms = await this.denomModel.findAllInDenomID(nftDenomIds);
         denoms.forEach(d => nftDenomIdNameMap.set(d.denom_id, d.name));
     }
 
