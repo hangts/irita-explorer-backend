@@ -104,6 +104,11 @@ DenomSchema.statics = {
         return await this.find({ denom_id: {'$in':denomIds}}, { json_schema: 0 });
     },
 
+
+    async findListWithDenomIds(denomIds: string[]): Promise<IDenomStruct> {
+        return await this.find({ denom_id: {'$in':denomIds}});
+    },
+
     async findOneByDenomAndNftIdFromDenom(denomId: string): Promise<IDenomStruct> {
         return await this.findOne({ denom_id: denomId}, { json_schema: 1 , name: 1})
     },
