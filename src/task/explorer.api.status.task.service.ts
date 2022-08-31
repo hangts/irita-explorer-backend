@@ -18,6 +18,7 @@ export class ExplorerApiStatusTaskService {
     let uri = "/block"
     try {
       await this.blockModel.blockApiStatusQuery();
+
       await this.explorerBackendApiStatusMetric.set(uri, normal);
     } catch (e) {
       const abnormal = -1;
