@@ -53,6 +53,14 @@ export function txListParamsHelper(query: ITxsQuery){
   if (query.endTime && query.endTime.length) {
       queryParameters.time.$lte = Number(query.endTime);
   }
+
+  if (typeof status != 'undefined' && query.txId && query.txId.length) {
+      queryParameters.tx_id = {};
+  }
+
+  if (typeof status != 'undefined' && query.txId && query.txId.length) {
+      queryParameters.tx_id.$lt = Number(query.txId);
+  }
   return queryParameters
 }
 

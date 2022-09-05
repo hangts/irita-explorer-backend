@@ -104,9 +104,8 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<ListStr
     const result: ListStruct = {};
     const queryParameters = txListParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.txList)
-        .sort({ time: -1 })
-        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-        .limit(Number(query.pageSize));
+        .sort({ tx_id: -1 })
+        .limit(Number(query.limit));
     return result;
 };
 

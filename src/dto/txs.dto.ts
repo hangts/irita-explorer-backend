@@ -24,10 +24,24 @@ export class TxListReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     endTime?: string;
 
+    @ApiPropertyOptional()
+    txId?: number;
+
+    @ApiPropertyOptional()
+    limit?: number;
+
     static validate(value: any) {
         super.validate(value);
         if (value.status && value.status !== '1' && value.status !== '2') {
             throw new ApiError(ErrorCodes.InvalidParameter, 'status must be 1 or 2');
+        }
+        const patt = /^[0-9]\d*$/;
+        if (value.txId && (!patt.test(value.txId) || value.txId < 0)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
+        }
+
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 100)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～100]');
         }
     }
 }
@@ -364,6 +378,7 @@ export class TxResDto extends BaseResDto {
     proposal_link?: boolean;
     events_new?:any[];
     contract_addrs?: any[];
+    tx_id?: number;
 
     constructor(txData) {
         super();
@@ -389,6 +404,7 @@ export class TxResDto extends BaseResDto {
         if (txData.proposal_link) this.proposal_link = true;
         if (txData.addrs) this.addrs = txData.addrs;
         this.contract_addrs = txData.contract_addrs || [];
+        this.tx_id = txData.tx_id;
     }
 
     static bundleData(value: any): TxResDto[] {
