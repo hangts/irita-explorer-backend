@@ -66,6 +66,13 @@ export class ProposalTaskService {
                 if (!proposalFromDbMap.has(item.id)) {
                     insertData.push(item);
                     insertIds.push(item.id);
+                }else {
+                    // cosmos-sync save tx maybe delay then lcd show
+                    let p = proposalFromDbMap.get(item.id);
+                    if (!(p.hash) || !(p.proposer)) {
+                        insertData.push(item);
+                        insertIds.push(item.id);
+                     }
                 }
             })
         }
@@ -102,7 +109,7 @@ export class ProposalTaskService {
                     id: proposal.id,
                     tally_details
                 })
-            } 
+            }
             if (!insertIds.includes(proposal.id)) {
                 let txData = await this.txModel.querySubmitProposalById(String(proposal.id));
                 proposal.hash = txData && txData.tx_hash;
