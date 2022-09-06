@@ -10,7 +10,10 @@ export interface ITxsQueryParams extends IQueryBase {
     time?: {
         $gte?: number,
         $lte?: number,
-    }
+    },
+    tx_id?: {
+        $lt?: number,
+    },
 }
 
 export interface IListStruct {

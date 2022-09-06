@@ -347,19 +347,19 @@ export class TxService {
     // txs
     async queryTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        const { pageNum, pageSize, useCount, type, countMsg } = query;
+        const {txId, limit, useCount, type, countMsg } = query;
         let txListData, txData = [], count = null, totalTxMsgs = null;
-        if(pageNum && pageSize || useCount || countMsg){
+        if(limit || useCount || countMsg){
           await this.cacheTxTypes();
             let queryDb: ITxsQuery = {
                 type: type,
                 status: query.status,
                 address: query.address,
                 useCount: useCount,
-                pageNum: `${pageNum}`,
-                pageSize: `${pageSize}`,
                 beginTime: query.beginTime,
                 endTime: query.endTime,
+                txId: txId,
+                limit: limit,
             }
             //search contract_address when type is ethereum_tx
             if (type && type.includes(DDCType.contractTag)) {
@@ -383,7 +383,7 @@ export class TxService {
                 }
             }
 
-          if(pageNum && pageSize){
+          if(limit){
             txListData = await this.txModel.queryTxList(queryDb);
             if (txListData.data && txListData.data.length > 0) {
                 txListData.data = this.handerEvents(txListData.data)
