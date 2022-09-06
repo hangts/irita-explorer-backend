@@ -371,8 +371,8 @@ export class TxService {
                 useCount: useCount,
                 beginTime: query.beginTime,
                 endTime: query.endTime,
-                txId: `${txId}`,
-                limit: `${limit}`,
+                txId: txId,
+                limit: limit,
             }
             //search contract_address when type is ethereum_tx
             if (type && type.includes(DDCType.contractTag)) {
