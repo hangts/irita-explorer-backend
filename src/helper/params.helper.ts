@@ -225,7 +225,7 @@ export function TxListEdgeParamsHelper(types, gt_height, status, address, includ
   }
   if (include_event_addr && include_event_addr == true && address && address.length) {
       queryParameters['$or'] = [
-          { 'events.attributes.value': address },
+          { 'events_new.events.attributes.value': address },
           { 'addrs': {'$in': address.split(',')} }
           // { 'addrs': { $elemMatch: {'$in': address.split(',')} }}
       ]
@@ -291,7 +291,7 @@ export function TxWithContextIdParamsHelper(query: ITxsWithContextIdQuery){
   if (query.contextId && query.contextId.length) {
       queryParameters = {
           $or: [
-              { 'events.attributes.value': query.contextId },
+              { 'events_new.events.attributes.value': query.contextId },
               { 'msgs.msg.ex.request_context_id': query.contextId },
               { 'msgs.msg.request_context_id': query.contextId },
           ],
@@ -468,7 +468,7 @@ export function queryDepositorByIdHelper(id){
     'msgs.type': { $in: [TxType.deposit, TxType.submit_proposal] },
     $or: [
         { 'msgs.msg.proposal_id': Number(id) },
-        { 'events.attributes.key': 'proposal_id', 'events.attributes.value': String(id) }
+        { 'events_new.events.attributes.key': 'proposal_id', 'events_new.events.attributes.value': String(id) }
     ],
     status:TxStatus.SUCCESS
 }
