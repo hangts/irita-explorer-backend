@@ -522,11 +522,11 @@ TxSchema.statics.findCallServiceTxWithReqContextIds = async function(reqContextI
     ;
     const query = {
         'msgs.type': TxType.call_service,
-        'events.attributes.key': 'request_context_id',
-        'events.attributes.value': { $in: reqContextIds },
+        'events_new.events.attributes.key': 'request_context_id',
+        'events_new.events.attributes.value': { $in: reqContextIds },
     };
     return await this.find(query, {
-        'events.attributes': 1,
+        'events_new.events.attributes': 1,
         'msgs.msg.service_name': 1,
         'msgs.msg.consumer': 1,
         'tx_hash': 1,
@@ -579,8 +579,8 @@ TxSchema.statics.findAllServiceTx = async function(pageSize?: number): Promise<I
 TxSchema.statics.queryServiceName = async function(requestContextId: string): Promise<string> {
     const queryParameters: any = {
         'msgs.type': TxType.call_service,
-        'events.attributes.key': 'request_context_id',
-        'events.attributes.value': requestContextId.toUpperCase(),
+        'events_new.events.attributes.key': 'request_context_id',
+        'events_new.events.attributes.value': requestContextId.toUpperCase(),
         'status': TxStatus.SUCCESS,
     };
     return await this.findOne(queryParameters);
@@ -1136,8 +1136,8 @@ TxSchema.statics.queryMaxDenomTxList = async function (): Promise<ITxStruct[]>  
 TxSchema.statics.querySubmitProposalById = async function (id:string): Promise<ITxSubmitProposal>  {
     const params =  {
         'msgs.type': TxType.submit_proposal,
-        'events.attributes.key':'proposal_id',
-        'events.attributes.value': id,
+        'events_new.events.attributes.key':'proposal_id',
+        'events_new.events.attributes.value': id,
         status:TxStatus.SUCCESS
       }
     return await this.findOne(params).select({'tx_hash':1,'msgs.msg':1,'_id':0});
