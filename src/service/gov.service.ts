@@ -13,8 +13,9 @@ import {
     govProposalVoterResDto,
     govProposalDepositorResDto
 } from '../dto/gov.dto';
-import { govParams, addressPrefix,voteOptions,proposalStatus,queryVoteOptionCount } from '../constant';
+import {govParams, addressPrefix, voteOptions, proposalStatus, queryVoteOptionCount, TaskEnum} from '../constant';
 import { addressTransform,uniqueArr } from "../util/util";
+import {cfg} from "../config/config";
 @Injectable()
 export class GovService {
 
@@ -22,6 +23,7 @@ export class GovService {
         @InjectModel('Proposal') private proposalModel: any,
         @InjectModel('ProposalDetail') private proposalDetailModel: any,
         @InjectModel('Tx') private txModel: any,
+        @InjectModel('SyncValidators') private syncValidatorsModel: any,
         @InjectModel('StakingValidator') private stakingValidatorModel: any) { }
 
     async getProposals(query: proposalsReqDto): Promise<ListStruct<govProposalResDto>> {
@@ -40,7 +42,6 @@ export class GovService {
         if(useCount){
           count = await this.proposalModel.queryProposalsCount(query)
         }
-        
         return new ListStruct(proposalsData, pageNum, pageSize, count)
     }
 
@@ -77,7 +78,7 @@ export class GovService {
     }
 
     async getProposalsVoter(param: ProposalDetailReqDto, query: proposalsVoterReqDto): Promise<ListStruct<govProposalVoterResDto>> {
-      const { pageNum, pageSize, useCount } = query; 
+      const { pageNum, pageSize, useCount } = query;
       let proposalsVoterData, count = null, votersData: any, voteList = [], statistical, hashs, validatorAdd, delegatorAdd, validatorMap;
       if(pageNum && pageSize || useCount){
         const votesAll = await this.txModel.queryVoteByProposalIdAll(Number(param.id));
@@ -87,11 +88,25 @@ export class GovService {
                 votes.set(voter.msgs[0].msg.voter, voter.tx_hash);
             });
         }
-        
+
         if(votes.size > 0){
           hashs = [...votes.values()];
           const allAddress = [...votes.keys()];
-          const validators = await this.stakingValidatorModel.queryAllValidators();
+          let validators = []
+          if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
+            validators = await this.stakingValidatorModel.queryAllValidators();
+          }else if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) !== -1){
+            let syncValidators = await this.syncValidatorsModel.findAllValidators();
+            syncValidators.forEach((v) => {
+              validators.push({
+                moniker_m: v.name,
+                description: {moniker: v.name},
+                is_black: v.jailed,
+                operator_address: v.operator,
+              })
+            })
+          }
+
           validatorMap = {};
           validators.forEach((item) => {
               validatorMap[addressTransform(item.operator_address,addressPrefix.iaa)] = item;
@@ -99,21 +114,21 @@ export class GovService {
           validatorAdd = Object.keys(validatorMap);
           delegatorAdd = uniqueArr(allAddress, validatorAdd);
         }
-        
 
-        if(pageNum && pageSize && votes.size > 0){       
+
+        if(pageNum && pageSize && votes.size > 0){
           switch (query.voterType) {
               case 'validator':
-                  votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, validatorAdd, query);                             
+                  votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, validatorAdd, query);
                   break;
               case 'delegator':
-                  votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, delegatorAdd, query);            
+                  votersData = await this.txModel.queryVoteByTxhashsAndAddress(hashs, delegatorAdd, query);
                   break;
               default:
-                  votersData = await this.txModel.queryVoteByTxhashs(hashs, query)             
+                  votersData = await this.txModel.queryVoteByTxhashs(hashs, query)
                   break;
           }
-         
+
           if (votersData && votersData.data && votersData.data.length > 0) {
             for (const item of votersData.data) {
                 if (item.msgs && item.msgs[0] && item.msgs[0].msg) {
@@ -152,19 +167,19 @@ export class GovService {
           };
           [statistical.yes, statistical.abstain, statistical.no, statistical.no_with_veto] = await Promise.all([this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.yes), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.abstain), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no), this.txModel.queryVoteByTxhashsAndOptoin(hashs, queryVoteOptionCount.no_with_veto)]);
           statistical.all = hashs.length;
-          
+
           switch (query.voterType) {
             case 'validator':
                 count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
                 statistical.validator = count;
                 statistical.delegator = statistical.all - statistical.validator;
-                
+
                 break;
             case 'delegator':
                 count = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, delegatorAdd)
                 statistical.delegator = count;
-                statistical.validator = statistical.all - statistical.delegator;              
-                
+                statistical.validator = statistical.all - statistical.delegator;
+
                 break;
             default:
                 const TxhashsData = await this.txModel.queryVoteByTxhashs(hashs, query)
@@ -172,16 +187,29 @@ export class GovService {
                 const calcCount: number = await this.txModel.queryVoteByTxhashsAndAddressCount(hashs, validatorAdd)
                 statistical.validator = calcCount;
                 statistical.delegator = statistical.all - statistical.validator;
-                
+
                 break;
           }
-        }  
+        }
       }
-      
+
       return new ListStruct(proposalsVoterData, pageNum, pageSize, count, statistical);
     }
     async addMonikerAndIva(address) {
-        const validators = await this.stakingValidatorModel.queryAllValidators();
+        let validators = []
+        if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
+          validators = await this.stakingValidatorModel.queryAllValidators();
+        }else if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) !== -1){
+          let syncValidators = await this.syncValidatorsModel.findAllValidators();
+          syncValidators.forEach((v) => {
+            validators.push({
+              moniker_m: v.name,
+              description: {moniker: v.name},
+              is_black: v.jailed,
+              operator_address: addressTransform(v.operator,addressPrefix.iva),
+            })
+          })
+        }
         const validatorMap = {};
         validators.forEach((item) => {
             validatorMap[item.operator_address] = item;
@@ -197,7 +225,7 @@ export class GovService {
     }
 
     async getProposalsDepositor(param: ProposalDetailReqDto, query: proposalsReqDto): Promise<ListStruct<govProposalDepositorResDto>> {
-        const { pageNum, pageSize, useCount } = query; 
+        const { pageNum, pageSize, useCount } = query;
         let count = null, proposals, depositorList = [];
         if(pageNum && pageSize){
           const depositorData = await await this.txModel.queryDepositorById(Number(param.id),query);
@@ -234,7 +262,7 @@ export class GovService {
           }
           proposals = govProposalDepositorResDto.bundleData(depositorList);
         }
-        if(useCount){ 
+        if(useCount){
           count = await await this.txModel.queryDepositorByIdCount(Number(param.id));
         }
 

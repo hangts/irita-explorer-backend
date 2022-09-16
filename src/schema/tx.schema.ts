@@ -1146,7 +1146,7 @@ TxSchema.statics.querySubmitProposalById = async function (id:string): Promise<I
 TxSchema.statics.queryVoteByProposalId = async function (id:number): Promise<ITxVoteProposal[]>  {
     const cond = [
         {
-            $match: { 'msgs.type': 'vote', 'msgs.msg.proposal_id': id }
+            $match: { 'msgs.type': 'vote', 'msgs.msg.proposal_id': id , status: TxStatus.SUCCESS}
         },
         {
             $group: { _id: "$msgs.msg.voter", msg: { $first: "$msgs.msg" }, count: { $sum: 1 } }
