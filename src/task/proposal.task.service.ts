@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from "mongoose";
-import { GovHttp } from "../http/lcd/gov.http";
-import {proposalStatus, govParams, voteOptions, TaskEnum} from '../constant'
-import { StakingHttp } from "../http/lcd/staking.http";
-import { addressTransform } from "../util/util";
-import { addressPrefix,proposal } from "../constant";
-import { getTimestamp, formatDateStringToNumber, splitString } from '../util/util';
-import { cfg } from "../config/config"
+import {Injectable} from '@nestjs/common';
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from "mongoose";
+import {GovHttp} from "../http/lcd/gov.http";
+import {addressPrefix, govParams, proposal, proposalStatus, TaskEnum, voteOptions} from '../constant'
+import {StakingHttp} from "../http/lcd/staking.http";
+import {addressTransform, formatDateStringToNumber, getTimestamp, splitString} from "../util/util";
+import {cfg} from "../config/config"
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
+import {IValidatorsQueryParams} from "../types/validators.interface";
+
 @Injectable()
 export class ProposalTaskService {
     constructor(
@@ -17,6 +17,7 @@ export class ProposalTaskService {
         @InjectModel('Proposal') private proposalModel: any,
         @InjectModel('ProposalDetail') private proposalDetailModel: any,
         @InjectModel('StakingSyncValidators') private stakingValidatorsModel: any,
+        @InjectModel('SyncValidators') private syncValidatorsModel: any,
         private readonly govHttp: GovHttp,
         private readonly stakingHttp: StakingHttp,
         private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
@@ -128,115 +129,182 @@ export class ProposalTaskService {
         this.cronTaskWorkingStatusMetric.collect(TaskEnum.proposal,1);
     }
     async tallyDetails(proposal_id) {
-        const validators = await this.stakingValidatorsModel.queryActiveVal();
+      let validators = []
+      if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
+        // this is for validator on staking module
+        validators = await this.stakingValidatorsModel.queryActiveVal();
+
         let systemVotingPower = 0;
         let totalVotingPower = 0;
         let delegatorsGovInfo = {};
         let validatorGovInfo = {};
         if (validators && validators.length > 0) {
-            validators.forEach(validator => {
-                validatorGovInfo[validator.operator_address] = {
-                    address: validator.operator_address,
-                    moniker: validator.is_black ? validator.moniker_m : validator.description && validator.description.moniker || '',
-                    bondedtokens: Number(validator.tokens),
-                    delShares: Number(validator.delegator_shares),
-                    vote: '',
-                    delDeductionShares: 0,
-                    selfDelDeductionShares: 0
-                }
-                // todo: duanjie 使用大数计算
-                systemVotingPower += Number(validator.tokens)
-            });
+          validators.forEach(validator => {
+            validatorGovInfo[validator.operator_address] = {
+              address: validator.operator_address,
+              moniker: validator.is_black ? validator.moniker_m : validator.description && validator.description.moniker || '',
+              bondedtokens: Number(validator.tokens),
+              delShares: Number(validator.delegator_shares),
+              vote: '',
+              delDeductionShares: 0,
+              selfDelDeductionShares: 0
+            }
+            // todo: duanjie 使用大数计算
+            systemVotingPower += Number(validator.tokens)
+          });
         }
         const votes = await this.txModel.queryVoteByProposalId(Number(proposal_id))
         if (votes && votes.length > 0) {
-            for (let vote of votes) {
-                vote = vote && vote.msg && vote.msg[0]
-                delegatorsGovInfo[vote.voter] = {
-                    address: vote.voter,
-                    vote: voteOptions[vote.option],
-                    moniker: '',
-                    selfDelVotingPower: 0,
-                    delVotingPower: 0,
-                    notVoteVotingPower: 0,
-                    isValidator: false
-                }
-                let delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsDelegationsFromLcd(vote.voter)
-                let delegators = []
-                if (delegatorsDelegationsFromLcd && delegatorsDelegationsFromLcd.result && delegatorsDelegationsFromLcd.result.length > 0) {
-                    delegatorsDelegationsFromLcd.result.forEach(item => {
-                        if (validatorGovInfo[item.delegation.validator_address]) {
-                            delegators.push(item.delegation)
-                        }
-                    })
-                }
-                if (delegators.length > 0) {
-                    delegators.forEach(delegator => {
-                        let voteIva = addressTransform(vote.voter, addressPrefix.iva)
-                        if (delegator.validator_address == voteIva) {
-                            delegatorsGovInfo[vote.voter].isValidator = true;
-                            let votingPower = Number(delegator.shares) * (validatorGovInfo[voteIva].bondedtokens / validatorGovInfo[voteIva].delShares);
-                            totalVotingPower += votingPower;
-                            delegatorsGovInfo[vote.voter].selfDelVotingPower += votingPower;
-                            delegatorsGovInfo[vote.voter].moniker = validatorGovInfo[voteIva].moniker;
-                            validatorGovInfo[voteIva].selfDelDeductionShares += Number(delegator.shares);
-                            validatorGovInfo[voteIva].vote = delegatorsGovInfo[vote.voter].vote;
-                        } else {
-                            let votingPower = Number(delegator.shares) * (validatorGovInfo[delegator.validator_address].bondedtokens / validatorGovInfo[delegator.validator_address].delShares);
-                            totalVotingPower += votingPower;
-                            delegatorsGovInfo[vote.voter].delVotingPower += votingPower;
-                            validatorGovInfo[delegator.validator_address].delDeductionShares += Number(delegator.shares);
-                        }
-                    })
-                }
+          for (let vote of votes) {
+            vote = vote && vote.msg && vote.msg[0]
+            delegatorsGovInfo[vote.voter] = {
+              address: vote.voter,
+              vote: voteOptions[vote.option],
+              moniker: '',
+              selfDelVotingPower: 0,
+              delVotingPower: 0,
+              notVoteVotingPower: 0,
+              isValidator: false
             }
+            let delegatorsDelegationsFromLcd = await this.stakingHttp.queryDelegatorsDelegationsFromLcd(vote.voter)
+            let delegators = []
+            if (delegatorsDelegationsFromLcd && delegatorsDelegationsFromLcd.result && delegatorsDelegationsFromLcd.result.length > 0) {
+              delegatorsDelegationsFromLcd.result.forEach(item => {
+                if (validatorGovInfo[item.delegation.validator_address]) {
+                  delegators.push(item.delegation)
+                }
+              })
+            }
+            if (delegators.length > 0) {
+              delegators.forEach(delegator => {
+                let voteIva = addressTransform(vote.voter, addressPrefix.iva)
+                if (delegator.validator_address == voteIva) {
+                  delegatorsGovInfo[vote.voter].isValidator = true;
+                  let votingPower = Number(delegator.shares) * (validatorGovInfo[voteIva].bondedtokens / validatorGovInfo[voteIva].delShares);
+                  totalVotingPower += votingPower;
+                  delegatorsGovInfo[vote.voter].selfDelVotingPower += votingPower;
+                  delegatorsGovInfo[vote.voter].moniker = validatorGovInfo[voteIva].moniker;
+                  validatorGovInfo[voteIva].selfDelDeductionShares += Number(delegator.shares);
+                  validatorGovInfo[voteIva].vote = delegatorsGovInfo[vote.voter].vote;
+                } else {
+                  let votingPower = Number(delegator.shares) * (validatorGovInfo[delegator.validator_address].bondedtokens / validatorGovInfo[delegator.validator_address].delShares);
+                  totalVotingPower += votingPower;
+                  delegatorsGovInfo[vote.voter].delVotingPower += votingPower;
+                  validatorGovInfo[delegator.validator_address].delDeductionShares += Number(delegator.shares);
+                }
+              })
+            }
+          }
         }
         let delAndValGovInfo = {};
         for (const address in delegatorsGovInfo) {
-            if (delegatorsGovInfo[address].isValidator) {
-                delAndValGovInfo[address] = delegatorsGovInfo[address];
-            }
+          if (delegatorsGovInfo[address].isValidator) {
+            delAndValGovInfo[address] = delegatorsGovInfo[address];
+          }
         }
         for (const address in delAndValGovInfo) {
-            let ivaAddress = addressTransform(address, addressPrefix.iva)
-            let validator = validatorGovInfo[ivaAddress];
-            let votingPower = (validator.delShares - validator.delDeductionShares - validator.selfDelDeductionShares) * (validator.bondedtokens / validator.delShares);
-            delegatorsGovInfo[address].notVoteVotingPower += votingPower;
-            totalVotingPower += votingPower
+          let ivaAddress = addressTransform(address, addressPrefix.iva)
+          let validator = validatorGovInfo[ivaAddress];
+          let votingPower = (validator.delShares - validator.delDeductionShares - validator.selfDelDeductionShares) * (validator.bondedtokens / validator.delShares);
+          delegatorsGovInfo[address].notVoteVotingPower += votingPower;
+          totalVotingPower += votingPower
         }
         let yes = 0, abstain = 0, no = 0, no_with_veto = 0;
         for (const address in delegatorsGovInfo) {
-            let info = delegatorsGovInfo[address]
-            switch (info.vote) {
-                case 'yes':
-                    yes += info.selfDelVotingPower + info.delVotingPower + info.notVoteVotingPower
-                    break;
-                case 'abstain':
-                    abstain += info.selfDelVotingPower + info.delVotingPower + info.notVoteVotingPower
-                    break;
-                case 'no':
-                    no += info.selfDelVotingPower + info.delVotingPower + info.notVoteVotingPower
-                    break;
-                case 'no_with_veto':
-                    no_with_veto += info.selfDelVotingPower + info.delVotingPower + info.notVoteVotingPower
-                    break;
-                default:
-                    break;
-            }
+          let info = delegatorsGovInfo[address]
+          switch (info.vote) {
+            case 'yes':
+              yes += info.selfDelVotingPower + info.delVotingPower + info.notVoteVotingPower
+              break;
+            case 'abstain':
+              abstain += info.selfDelVotingPower + info.delVotingPower + info.notVoteVotingPower
+              break;
+            case 'no':
+              no += info.selfDelVotingPower + info.delVotingPower + info.notVoteVotingPower
+              break;
+            case 'no_with_veto':
+              no_with_veto += info.selfDelVotingPower + info.delVotingPower + info.notVoteVotingPower
+              break;
+            default:
+              break;
+          }
         }
         let tally_details = Object.values(delegatorsGovInfo)
-        let result = {
-            current_tally_result: {
-                system_voting_power:systemVotingPower,
-                total_voting_power: totalVotingPower,
-                yes,
-                abstain,
-                no,
-                no_with_veto
-            },
-            tally_details
+        return {
+          current_tally_result: {
+            system_voting_power: systemVotingPower,
+            total_voting_power: totalVotingPower,
+            yes,
+            abstain,
+            no,
+            no_with_veto
+          },
+          tally_details
         }
-        return result
+
+      } else if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) !== -1) {
+        // this is for validator on node module
+        let query: IValidatorsQueryParams = {jailed: false}
+        let validators = await this.syncValidatorsModel.findValidators(query)
+
+        let systemVotingPower = 0;
+        let totalVotingPower = 0;
+        let validatorMap = {};
+        if (validators && validators.length > 0) {
+          validators.forEach(validator => {
+            validatorMap[validator.operator_address] = {
+              address: validator.operator_address,
+              moniker: validator.name || '',
+              power: validator.power,
+            }
+            systemVotingPower += Number(validator.power)
+            totalVotingPower += Number(validator.power)
+          });
+        }
+        const votes = await this.txModel.queryVoteByProposalId(Number(proposal_id))
+        let yes = 0, abstain = 0, no = 0, no_with_veto = 0;
+        if (votes && votes.length > 0) {
+          for (let vote of votes) {
+            vote = vote && vote.msg && vote.msg[0]
+            validatorMap[vote.voter] = {
+              address: vote.voter,
+              vote: voteOptions[vote.option],
+              moniker: validatorMap[vote.voter].moniker,
+              selfDelVotingPower: validatorMap[vote.voter].power,
+              isValidator: true,
+            }
+            switch (vote.option) {
+              case 'yes':
+                yes += vote.power
+                break;
+              case 'abstain':
+                abstain += vote.power
+                break;
+              case 'no':
+                no += vote.power
+                break;
+              case 'no_with_veto':
+                no_with_veto += vote.power
+                break;
+              default:
+                break;
+              }
+            }
+          }
+
+        let tally_details = Object.values(validatorMap)
+        return {
+          current_tally_result: {
+            system_voting_power: systemVotingPower,
+            total_voting_power: totalVotingPower,
+            yes,
+            abstain,
+            no,
+            no_with_veto
+          },
+          tally_details
+        }
+      }
     }
 
     private async insertAndUpdateProposal(updateData,proposalFromDb) {
