@@ -84,9 +84,9 @@ export class TxService {
             return tx
         }
         if (tx.fee.amount.length === 1) {
-            const acutalFee = Number(tx.gas_used) * Number(deFaultGasPirce)
-            if (acutalFee) {
-                tx.fee.amount[0].amount = `${acutalFee}`
+            const actualFee = Number(tx.gas_used) * Number(deFaultGasPirce)
+            if (actualFee) {
+                tx.fee.amount[0].amount = `${actualFee}`
             }
         }
         return tx
@@ -312,6 +312,11 @@ export class TxService {
       for( const evmTx of txEvms) {
         evmTx.contract_addrs = []
         evmTx.msgs = []
+        if (evmTx.fee.amount.length === 1) {
+          const actualFee = Number(evmTx.gas_used) * Number(deFaultGasPirce)
+          evmTx.fee.amount[0].amount = `${actualFee}`
+        }
+
         if (evmTx?.evm_datas?.length){
           for (const data of evmTx.evm_datas) {
               evmTx.contract_addrs.push(data?.contract_address)
