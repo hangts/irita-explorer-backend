@@ -304,7 +304,7 @@ export class ProposalTaskService {
             }
           }
 
-        let tally_details = Object.values(validatorMap)
+        let tally_details = Object.values(tallyMap)
         return {
           current_tally_result: {
             system_voting_power: systemVotingPower,
