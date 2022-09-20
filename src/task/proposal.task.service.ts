@@ -267,6 +267,7 @@ export class ProposalTaskService {
         }
         const votes = await this.txModel.queryVoteByProposalId(Number(proposal_id))
         let yes = 0, abstain = 0, no = 0, no_with_veto = 0;
+        let tallyMap = {};
         if (votes && votes.length > 0) {
           for (let vote of votes) {
             vote = vote && vote.msg && vote.msg[0]
@@ -275,11 +276,13 @@ export class ProposalTaskService {
             }
             vote.power = validatorMap[vote.voter].power
             totalVotingPower += vote.power;
-            validatorMap[vote.voter] = {
+            tallyMap[vote.voter] = {
               address: vote.voter,
               vote: voteOptions[vote.option],
               moniker: validatorMap[vote.voter].moniker,
               selfDelVotingPower: vote.power,
+              delVotingPower: 0,
+              notVoteVotingPower: 0,
               isValidator: true,
             }
             switch (voteOptions[vote.option]) {
