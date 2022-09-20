@@ -1,6 +1,5 @@
 import * as mongoose from 'mongoose';
 import { IValidatorsQueryParams } from "../types/validators.interface"
-import { Logger } from '@nestjs/common';
 import { IValidatorsStruct } from '../types/schemaTypes/validators.interface';
 export const ValidatorSchema = new mongoose.Schema({
     name: String,
@@ -33,6 +32,10 @@ ValidatorSchema.statics.findCount = async function (isJailed: boolean):Promise<n
 
 ValidatorSchema.statics.findAllValidators = async function ():Promise<IValidatorsStruct[]>{
     return await this.find({}).select({'_id':0,'__v':0})
+}
+
+ValidatorSchema.statics.findAllActiveValidators = async function ():Promise<IValidatorsStruct[]>{
+  return await this.find({"jailed": false}).select({'_id':0,'__v':0})
 }
 
 ValidatorSchema.statics.saveValidator = async  function (insertValidatorList:IValidatorsStruct[]):Promise<IValidatorsStruct[]> {
