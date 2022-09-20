@@ -2,12 +2,18 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from "mongoose";
 import {GovHttp} from "../http/lcd/gov.http";
-import {addressPrefix, govParams, proposal, proposalStatus, TaskEnum, voteOptions} from '../constant'
+import {
+  addressPrefix,
+  govParams,
+  proposal,
+  proposalStatus,
+  TaskEnum,
+  voteOptions
+} from '../constant'
 import {StakingHttp} from "../http/lcd/staking.http";
 import {addressTransform, formatDateStringToNumber, getTimestamp, splitString} from "../util/util";
 import {cfg} from "../config/config"
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
-import {IValidatorsQueryParams} from "../types/validators.interface";
 
 @Injectable()
 export class ProposalTaskService {
@@ -244,21 +250,19 @@ export class ProposalTaskService {
 
       } else if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) !== -1) {
         // this is for validator on node module
-        let query: IValidatorsQueryParams = {jailed: false}
-        let validators = await this.syncValidatorsModel.findValidators(query)
+        let validators = await this.syncValidatorsModel.findAllActiveValidators()
 
         let systemVotingPower = 0;
         let totalVotingPower = 0;
         let validatorMap = {};
         if (validators && validators.length > 0) {
           validators.forEach(validator => {
-            validatorMap[validator.operator_address] = {
-              address: validator.operator_address,
+            validatorMap[validator.operator] = {
+              address: validator.operator,
               moniker: validator.name || '',
-              power: validator.power,
+              power: parseInt(validator.power) * Math.pow(10, 6),
             }
-            systemVotingPower += Number(validator.power)
-            totalVotingPower += Number(validator.power)
+            systemVotingPower += parseInt(validator.power)
           });
         }
         const votes = await this.txModel.queryVoteByProposalId(Number(proposal_id))
@@ -266,14 +270,19 @@ export class ProposalTaskService {
         if (votes && votes.length > 0) {
           for (let vote of votes) {
             vote = vote && vote.msg && vote.msg[0]
+            if (!validatorMap[vote.voter]) {
+              continue // not belong validator needn't cal
+            }
+            vote.power = validatorMap[vote.voter].power
+            totalVotingPower += vote.power;
             validatorMap[vote.voter] = {
               address: vote.voter,
               vote: voteOptions[vote.option],
               moniker: validatorMap[vote.voter].moniker,
-              selfDelVotingPower: validatorMap[vote.voter].power,
+              selfDelVotingPower: vote.power,
               isValidator: true,
             }
-            switch (vote.option) {
+            switch (voteOptions[vote.option]) {
               case 'yes':
                 yes += vote.power
                 break;
