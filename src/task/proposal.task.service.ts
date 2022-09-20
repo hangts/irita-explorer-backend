@@ -262,7 +262,7 @@ export class ProposalTaskService {
               moniker: validator.name || '',
               power: parseInt(validator.power) * Math.pow(10, 6),
             }
-            systemVotingPower += parseInt(validator.power)
+            systemVotingPower += parseInt(validator.power) * Math.pow(10, 6)
           });
         }
         const votes = await this.txModel.queryVoteByProposalId(Number(proposal_id))
