@@ -6,6 +6,7 @@ import { TxSchema } from '../schema/tx.schema';
 import { ProposalSchema } from '../schema/proposal.schema';
 import { ProposalDetailSchema } from '../schema/proposal.detail.schema';
 import {StakingValidatorSchema} from "../schema/staking.validator.schema";
+import {ValidatorSchema} from "../schema/validators.schema";
 @Module({
     imports:[
         MongooseModule.forFeature([
@@ -28,6 +29,11 @@ import {StakingValidatorSchema} from "../schema/staking.validator.schema";
                 name: 'StakingValidator',
                 schema: StakingValidatorSchema,
                 collection: 'ex_staking_validator'
+            },
+            {
+                name:'SyncValidators',
+                schema:ValidatorSchema,
+                collection:'ex_sync_validator'
             }
         ]),
     ],
