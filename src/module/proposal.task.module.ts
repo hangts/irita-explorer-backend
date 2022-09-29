@@ -12,6 +12,7 @@ import {
     CronTaskWorkingStatusMetric,
     CronTaskWorkingStatusProvider
 } from "../monitor/metrics/cron_task_working_status.metric";
+import {ValidatorSchema} from "../schema/validators.schema";
 @Module({
     imports:[
         MongooseModule.forFeature([
@@ -39,7 +40,12 @@ import {
                 name: 'ProposalDetail',
                 schema: ProposalDetailSchema,
                 collection: 'ex_sync_proposal_details'
-            }
+            },
+            {
+                name:'SyncValidators',
+                schema:ValidatorSchema,
+                collection:'ex_sync_validator'
+            },
         ])
     ],
     providers:[ProposalTaskService,GovHttp,StakingHttp,CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],

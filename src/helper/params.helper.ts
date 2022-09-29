@@ -227,7 +227,6 @@ export function TxListEdgeParamsHelper(types, gt_height, status, address, includ
       queryParameters['$or'] = [
           { 'events_new.events.attributes.value': address },
           { 'addrs': {'$in': address.split(',')} }
-          // { 'addrs': { $elemMatch: {'$in': address.split(',')} }}
       ]
   } else if (address && address.length) {
       queryParameters['addrs'] = { $elemMatch: { '$in': address.split(',') } };
