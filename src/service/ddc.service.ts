@@ -8,7 +8,9 @@ import { DdcDetailReqDto, DdcDetailResDto, DdcListReqDto, DdcListResDto } from '
 @Injectable()
 export class DdcService {
   constructor(
-    @InjectModel('Ddc') private ddcModel: Model<IDdc>) {
+    @InjectModel('Ddc') private ddcModel: Model<IDdc>,
+    @InjectModel('Statistics') private statisticsModel: any,
+  ) {
   }
 
   async queryList(query: DdcListReqDto): Promise<ListStruct<DdcListResDto[]>> {
@@ -35,7 +37,11 @@ export class DdcService {
       }
     }
     if (useCount) {
-      count = await (this.ddcModel as any).findDdcListCount(contract_address, ddc_id, owner);
+      if (contract_address || ddc_id || owner){
+        count = await (this.ddcModel as any).findDdcListCount(contract_address, ddc_id, owner);
+      }else {
+        count = await this.queryDdcCount()
+      }
     }
 
     return new ListStruct(res, pageNum, pageSize, count);
@@ -75,6 +81,11 @@ export class DdcService {
     } else {
       return null;
     }
+  }
+
+  async queryDdcCount():Promise<any>{
+    const ddcCnt = await this.statisticsModel.findStatisticsRecord("ddc_all")
+    return ddcCnt?.count
   }
 
 
