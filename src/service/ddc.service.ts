@@ -36,10 +36,12 @@ export class DdcService {
         res.push(result);
       }
     }
-    if ((contract_address || ddc_id || owner) && useCount) {
-      count = await (this.ddcModel as any).findDdcListCount(contract_address, ddc_id, owner);
-    }else if (useCount){
-      count = await this.queryDdcCount()
+    if (useCount) {
+      if (contract_address || ddc_id || owner){
+        count = await (this.ddcModel as any).findDdcListCount(contract_address, ddc_id, owner);
+      }else {
+        count = await this.queryDdcCount()
+      }
     }
 
     return new ListStruct(res, pageNum, pageSize, count);
