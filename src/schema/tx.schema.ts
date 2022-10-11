@@ -70,6 +70,7 @@ export const TxSchema = new mongoose.Schema({
     fee: Object,
     gas_used: Number,
     tx_index: Number,
+    tx_id: Number,
 }, { versionKey: false });
 TxSchema.index({ time: -1, "msgs.type": -1,status:-1 }, { background: true });
 TxSchema.index({ addrs: -1, time: -1, status:-1 }, { background: true });
