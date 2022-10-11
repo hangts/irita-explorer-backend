@@ -13,6 +13,8 @@ export interface ITxsQuery extends IQueryBase {
 
 export interface ITxsWithHeightQuery extends IQueryBase {
 	height?:string,
+    txId?:number,
+    limit?:number,
 }
 
 export interface ITxsWithAddressQuery extends IQueryBase {
@@ -98,6 +100,8 @@ export interface ITXWithIdentity extends IQueryBase {
 }
 export interface IIdentityTx extends IQueryBase {
     id?: string
+    txId?:number,
+    limit?:number,
 }
 
 export interface ITxsWithAssetQuery {

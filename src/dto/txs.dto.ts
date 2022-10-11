@@ -85,6 +85,24 @@ export class eTxListReqDto extends DeepPagingReqDto {
 export class TxListWithHeightReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     height?: string;
+
+    @ApiPropertyOptional()
+    txId?: number;
+
+    @ApiPropertyOptional()
+    limit?: number;
+
+    static validate(value: any) {
+        super.validate(value);
+        const patt = /^[0-9]\d*$/;
+        if (value.txId && (!patt.test(value.txId) || value.txId < 0)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
+        }
+
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 100)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～100]');
+        }
+    }
 }
 
 //txs/addresses request dto
@@ -213,6 +231,24 @@ export class TxListWithCallServiceReqDto extends DeepPagingReqDto {
     @ApiProperty()
     @MinLength(1, {message: "consumerAddr is too short"})
     consumerAddr: string;
+
+    @ApiPropertyOptional()
+    txId?: number;
+
+    @ApiPropertyOptional()
+    limit?: number;
+
+    static validate(value: any) {
+        super.validate(value);
+        const patt = /^[0-9]\d*$/;
+        if (value.txId && (!patt.test(value.txId) || value.txId < 0)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
+        }
+
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 100)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～100]');
+        }
+    }
 }
 
 //txs/e/services/respond-service
@@ -230,6 +266,24 @@ export class TxListWithRespondServiceReqDto extends DeepPagingReqDto {
     @ApiProperty()
     @MinLength(1, {message: "providerAddr is too short"})
     providerAddr: string;
+
+    @ApiPropertyOptional()
+    txId?: number;
+
+    @ApiPropertyOptional()
+    limit?: number;
+
+    static validate(value: any) {
+        super.validate(value);
+        const patt = /^[0-9]\d*$/;
+        if (value.txId && (!patt.test(value.txId) || value.txId < 0)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
+        }
+
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 100)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～100]');
+        }
+    }
 }
 
 //Post txs/types request dto
@@ -358,11 +412,47 @@ export class ServiceRespondReqDto extends DeepPagingReqDto {
 
     @ApiProperty()
     provider?: string;
+
+    @ApiPropertyOptional()
+    txId?: number;
+
+    @ApiPropertyOptional()
+    limit?: number;
+
+    static validate(value: any) {
+        super.validate(value);
+        const patt = /^[0-9]\d*$/;
+        if (value.txId && (!patt.test(value.txId) || value.txId < 0)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
+        }
+
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 100)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～100]');
+        }
+    }
 }
 
 export class IdentityTxReqDto extends DeepPagingReqDto {
     @ApiProperty()
     id: string
+
+    @ApiPropertyOptional()
+    txId?: number;
+
+    @ApiPropertyOptional()
+    limit?: number;
+
+    static validate(value: any) {
+        super.validate(value);
+        const patt = /^[0-9]\d*$/;
+        if (value.txId && (!patt.test(value.txId) || value.txId < 0)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
+        }
+
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 100)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～100]');
+        }
+    }
 }
 
 export class IDepositsAddress {
@@ -379,6 +469,7 @@ export class ServiceRespondResDto {
     requestContextId: string;
     serviceName: string;
     respondStatus: number;
+    tx_id: number;
 
     constructor(
         respondHash: string,
@@ -390,6 +481,7 @@ export class ServiceRespondResDto {
         requestContextId: string,
         serviceName: string,
         respondStatus: number,
+        tx_id: number,
     ) {
         this.respondHash = respondHash;
         this.type = type;
@@ -400,6 +492,7 @@ export class ServiceRespondResDto {
         this.requestContextId = requestContextId;
         this.serviceName = serviceName;
         this.respondStatus = respondStatus;
+        this.tx_id = tx_id;
     }
 }
 

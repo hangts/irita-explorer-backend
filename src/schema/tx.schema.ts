@@ -224,14 +224,17 @@ TxSchema.statics.queryTxListByHeightEdge = async function(height:number, pageNum
 TxSchema.statics.queryTxWithHeight = async function(query: ITxsWithHeightQuery): Promise<ListStruct> {
     const result: ListStruct = {};
     // let queryParameters: { height?: number, $or: object[] } = { $or: [{ 'msgs.type': filterExTxTypeRegExp() }] };
-    const queryParameters: { height?: number, 'msgs.type': object } = { 'msgs.type': { $in: Cache.supportTypes || [] } };
+    const queryParameters: { height?: number, 'msgs.type': object} = { 'msgs.type': { $in: Cache.supportTypes || [] } };
     if (query.height) {
         queryParameters.height = Number(query.height);
     }
+    if (query.txId) {
+        queryParameters['tx_id'] = { $lt:Number(query.txId) }
+    }
+
     result.data = await this.find(queryParameters, dbRes.txList)
-        .sort({ time: -1 })
-        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-        .limit(Number(query.pageSize));
+        .sort({ tx_id: -1 })
+        .limit(Number(query.limit));
     return result;
 };
 TxSchema.statics.queryTxWithHeighCount = async function(query: ITxsWithHeightQuery): Promise<number> {
@@ -363,17 +366,19 @@ TxSchema.statics.queryTxDetailWithServiceName = async function(serviceName: stri
 };
 
 // ==> txs/services/call-service
-TxSchema.statics.queryCallServiceWithConsumerAddr = async function(consumerAddr: string, pageNum: string, pageSize: string): Promise<ListStruct> {
+TxSchema.statics.queryCallServiceWithConsumerAddr = async function(consumerAddr: string, txId: number, limit: number): Promise<ListStruct> {
     const result: ListStruct = {};
     const queryParameters: any = {
         'msgs.msg.consumer': consumerAddr,
         'msgs.type': TxType.call_service,
         status: TxStatus.SUCCESS,
     };
+    if (txId){
+        queryParameters['tx_id'] = { $lt: Number(txId)}
+    }
     result.data = await this.find(queryParameters, dbRes.service)
-        .sort({ time: -1 })
-        .skip((Number(pageNum) - 1) * Number(pageSize))
-        .limit(Number(pageSize));
+        .sort({ tx_id: -1 })
+        .limit(Number(limit));
     return result;
 };
 TxSchema.statics.queryCallServiceWithConsumerAddrCount = async function(consumerAddr: string): Promise<number> {
@@ -393,17 +398,19 @@ TxSchema.statics.queryRespondServiceWithContextId = async function(ContextId: st
 };
 
 // ==> txs/services/respond-service
-TxSchema.statics.queryBindServiceWithProviderAddr = async function(ProviderAddr: string, pageNum: string, pageSize: string): Promise<ListStruct> {
+TxSchema.statics.queryBindServiceWithProviderAddr = async function(ProviderAddr: string, txId: number, limit: number): Promise<ListStruct> {
     const result: ListStruct = {};
     const queryParameters: any = {
         'msgs.msg.provider': ProviderAddr,
         'msgs.type': TxType.bind_service,
         status: TxStatus.SUCCESS,
     };
+    if (txId) {
+        queryParameters['tx_id'] = { $lt: Number(txId) }
+    }
     result.data = await this.find(queryParameters, dbRes.service)
-        .sort({ time: -1 })
-        .skip((Number(pageNum) - 1) * Number(pageSize))
-        .limit(Number(pageSize));
+        .sort({ tx_id: -1 })
+        .limit(Number(limit));
     return result;
 };
 TxSchema.statics.queryBindServiceWithProviderAddrCount = async function(ProviderAddr: string): Promise<number> {
@@ -858,7 +865,7 @@ TxSchema.statics.findServiceOwner = async function(serviceName: string): Promise
 };
 
 // /txs/services/respond
-TxSchema.statics.queryServiceRespondTx = async function(serviceName: string, provider: string, pageNum: number, pageSize: number): Promise<ITxStruct[]> {
+TxSchema.statics.queryServiceRespondTx = async function(serviceName: string, provider: string, txId: number, limit: number): Promise<ITxStruct[]> {
     const queryParameters: any = {
         'msgs.type': TxType.respond_service,
     };
@@ -868,10 +875,14 @@ TxSchema.statics.queryServiceRespondTx = async function(serviceName: string, pro
     if (provider && provider.length) {
         queryParameters['msgs.msg.provider'] = provider;
     }
+
+    if (txId) {
+        queryParameters['tx_id'] = { $lt:Number(txId) }
+    }
+
     return await this.find(queryParameters, {...dbRes.common, 'msgs.msg.ex':1})
-        .sort({ time: -1 })
-        .skip((Number(pageNum) - 1) * Number(pageSize))
-        .limit(Number(pageSize));
+        .sort({ tx_id: -1 })
+        .limit(Number(limit));
 };
 
 TxSchema.statics.findRespondServiceCount = async function(serviceName: string, provider: string): Promise<ITxStruct[]> {
@@ -1005,9 +1016,8 @@ TxSchema.statics.queryTxListByIdentity = async function (query:IIdentityTx){
     const result: IListStruct = {};
     const params = queryTxListByIdentityHelper(query)
     result.data = await this.find(params, dbRes.txList)
-      .sort({ time: -1 })
-      .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-      .limit(Number(query.pageSize));
+      .sort({ tx_id: -1 })
+      .limit(Number(query.limit));
     return result;
 }
 TxSchema.statics.queryTxListByIdentityCount = async function(query:IIdentityTx): Promise<number> {

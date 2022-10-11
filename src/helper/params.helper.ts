@@ -398,6 +398,10 @@ export function queryTxListByIdentityHelper(query: IIdentityTx){
           $in: typesList
       }
   }
+  if (query.txId) {
+      params['tx_id'] = { $lt: Number(query.txId) }
+  }
+
   return params
 }
 
