@@ -98,10 +98,24 @@ export class TxListWithAddressReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional({description: '1:success  2:fail'})
     status?: string;
 
+    @ApiPropertyOptional()
+    txId?: number;
+
+    @ApiPropertyOptional()
+    limit?: number;
+
     static validate(value: any) {
         super.validate(value);
         if (value.status && value.status !== '1' && value.status !== '2') {
             throw new ApiError(ErrorCodes.InvalidParameter, 'status must be 1 or 2');
+        }
+        const patt = /^[0-9]\d*$/;
+        if (value.txId && (!patt.test(value.txId) || value.txId < 0)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
+        }
+
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 100)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～100]');
         }
     }
 }
@@ -149,10 +163,28 @@ export class TxListWithContextIdReqDto extends DeepPagingReqDto {
 //txs/nfts request dto
 export class TxListWithNftReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
-    denom?: string;
+    denomId?: string;
 
     @ApiPropertyOptional()
     tokenId?: string;
+
+    @ApiPropertyOptional()
+    txId?: number;
+
+    @ApiPropertyOptional()
+    limit?: number;
+
+    static validate(value: any) {
+        super.validate(value);
+        const patt = /^[0-9]\d*$/;
+        if (value.txId && (!patt.test(value.txId) || value.txId < 0)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
+        }
+
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 100)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～100]');
+        }
+    }
 }
 
 //txs/ddcs request dto
@@ -253,8 +285,23 @@ export class ServiceTxReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     status?: string;
 
+    @ApiPropertyOptional()
+    txId?: number;
+
+    @ApiPropertyOptional()
+    limit?: number;
+
     static convert(value: any): any {
         value.status = Number(value.status);
+
+        const patt = /^[0-9]\d*$/;
+        if (value.txId && (!patt.test(value.txId) || value.txId < 0)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
+        }
+
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 100)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～100]');
+        }
         return value;
     }
 }
@@ -278,6 +325,7 @@ export class ServiceTxResDto {
     msgs: any;
     events: any;
     fee: any;
+    tx_id: number;
 
     constructor(
         hash: string,
@@ -288,7 +336,8 @@ export class ServiceTxResDto {
         msgs: any,
         events: any,
         signers: string[],
-        fee: any
+        fee: any,
+        tx_id: number
     ) {
         this.hash = hash;
         this.type = type;
@@ -299,6 +348,7 @@ export class ServiceTxResDto {
         this.events = events;
         this.signers = signers;
         this.fee = fee;
+        this.tx_id = tx_id;
     }
 }
 

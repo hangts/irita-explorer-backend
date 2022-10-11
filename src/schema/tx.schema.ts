@@ -246,9 +246,8 @@ TxSchema.statics.queryTxWithAddress = async function(query: ITxsWithAddressQuery
     const result: ListStruct = {};
     const queryParameters = await TxWithAddressParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.txList)
-        .sort({ time: -1 })
-        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-        .limit(Number(query.pageSize));
+        .sort({ tx_id: -1 })
+        .limit(Number(query.limit));
     return result;
 };
 TxSchema.statics.queryTxWithAddressCount = async function(query: ITxsWithAddressQuery): Promise<number> {
@@ -320,6 +319,16 @@ TxSchema.statics.queryTxWithNft = async function(query: ITxsWithNftQuery): Promi
         .limit(Number(query.pageSize));
     return result;
 };
+
+TxSchema.statics.queryTxWithNftAndTxId = async function(query: ITxsWithNftQuery): Promise<ListStruct> {
+    const result: ListStruct = {};
+    const queryParameters = queryTxWithNftHelper(query)
+    result.data = await this.find(queryParameters, dbRes.txList)
+        .sort({ tx_id: -1 })
+        .limit(Number(query.limit));
+    return result;
+};
+
 TxSchema.statics.queryTxWithNftCount = async function(query: ITxsWithNftQuery): Promise<number> {
   const queryParameters = queryTxWithNftHelper(query)
   return await this.find(queryParameters).countDocuments();
@@ -742,8 +751,8 @@ TxSchema.statics.findServiceTx = async function(
     serviceName: string,
     type: string,
     status: number,
-    pageNum: number,
-    pageSize: number,
+    txId: number,
+    limit: number,
 ): Promise<ITxStruct> {
     const queryParameters: any = {
         'msgs.msg.ex.service_name': serviceName,
@@ -780,10 +789,12 @@ TxSchema.statics.findServiceTx = async function(
         default:
             break;
     }
+    if (txId){
+        queryParameters['tx_id'] = { $lt: Number(txId)}
+    }
     return await this.find(queryParameters, dbRes.service)
-        .sort({ time: -1 })
-        .skip((Number(pageNum) - 1) * Number(pageSize))
-        .limit(Number(pageSize));
+        .sort({ tx_id: -1 })
+        .limit(Number(limit));
 };
 
 TxSchema.statics.findServiceTxCount = async function(serviceName: string, type: string, status: number): Promise<number> {

@@ -17,9 +17,11 @@ export interface ITxsWithHeightQuery extends IQueryBase {
 
 export interface ITxsWithAddressQuery extends IQueryBase {
     contract_addr?:string,
-	  address?:string,
+    address?:string,
     type?:string,
     status?:string,
+    txId?:number,
+    limit?:number,
 }
 
 export interface ITxsWithContextIdQuery extends IQueryBase {
@@ -31,6 +33,8 @@ export interface ITxsWithContextIdQuery extends IQueryBase {
 export interface ITxsWithNftQuery extends IQueryBase {
 	denomId?:string,
 	tokenId?:string,
+    txId?:number,
+    limit?:number,
 }
 
 export interface ITxsWithDdcQuery extends IQueryBase {
@@ -59,7 +63,8 @@ export interface ITxStruct {
     msgs:object[],
     signers: string[],
     addrs: string[],
-    fee: object[]
+    fee: object[],
+    tx_id: number
 }
 
 export interface callServiceStruct extends ITxStruct {

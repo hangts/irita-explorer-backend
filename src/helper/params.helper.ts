@@ -282,6 +282,10 @@ export function TxWithAddressParamsHelper(query: ITxsWithAddressQuery){
               break;
       }
   }
+
+  if (query.txId){
+      queryParameters["tx_id"] = { $lt: Number(query.txId)}
+  }
   return queryParameters
 }
 
@@ -332,6 +336,9 @@ export function queryTxWithNftHelper(query: ITxsWithNftQuery){
   }
   if (query.tokenId && query.tokenId.length) {
       queryParameters['msgs.msg.id'] = query.tokenId;
+  }
+  if (query.txId) {
+      queryParameters['tx_id'] = { $lt: Number(query.txId) }
   }
   return queryParameters
 }

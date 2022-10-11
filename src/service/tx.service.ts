@@ -41,7 +41,7 @@ import {
   TxWithHashReqDto,
 } from '../dto/txs.dto';
 import {ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName} from '../types/tx.interface';
-import {ITxsQuery, ITxStruct, ITxsWithAddressQuery} from '../types/schemaTypes/tx.interface';
+import {ITxsQuery, ITxStruct, ITxsWithAddressQuery, ITxsWithNftQuery} from '../types/schemaTypes/tx.interface';
 import {getReqContextIdFromEvents, getServiceNameFromMsgs} from '../helper/tx.helper';
 import Cache from '../helper/cache';
 import {
@@ -652,17 +652,17 @@ export class TxService {
 
     //  txs/addresses
     async queryTxWithAddress(query: TxListWithAddressReqDto): Promise<ListStruct<TxResDto[]>> {
-      const { pageNum, pageSize, useCount, type } = query;
+      const { txId, limit, useCount, type } = query;
       let txListData, txData = [];
-      if(pageNum && pageSize || useCount){
+      if(limit || useCount){
         await this.cacheTxTypes();
           let queryDb: ITxsWithAddressQuery = {
               type: type,
               status: query.status,
               address: query.address,
               useCount: useCount,
-              pageNum: `${pageNum}`,
-              pageSize: `${pageSize}`,
+              txId: txId,
+              limit: limit,
           }
           //search contract_address when type is ethereum_tx
           if (type && type.includes(DDCType.contractTag)) {
@@ -686,7 +686,7 @@ export class TxService {
               }
           }
 
-        if(pageNum && pageSize){
+        if(limit){
           txListData = await this.txModel.queryTxWithAddress(queryDb);
           if (txListData.data && txListData.data.length > 0) {
               txListData.data = this.handerEvents(txListData.data);
@@ -781,10 +781,24 @@ export class TxService {
 
     //  txs/nfts
     async queryTxWithNft(query: TxListWithNftReqDto): Promise<ListStruct<TxResDto[]>> {
-      const { pageNum, pageSize, useCount } = query;
+      const { txId, limit, pageNum, pageSize, denomId, tokenId, useCount } = query;
       let txListData, txData = [],count = null;
-      if(pageNum && pageSize){
-        txListData = await this.txModel.queryTxWithNft(query);
+      if (pageNum && pageSize || limit){
+        let queryDb: ITxsWithNftQuery = {
+            txId: txId,
+            limit: limit,
+            denomId: denomId,
+            tokenId: tokenId,
+            pageNum: `${pageNum}`,
+            pageSize: `${pageSize}`,
+            useCount: useCount,
+        }
+        if (limit){
+            txListData = await this.txModel.queryTxWithNftAndTxId(queryDb);
+        }
+        if(pageNum && pageSize){
+            txListData = await this.txModel.queryTxWithNft(query);
+        }
         txData = await this.addMonikerToTxs(txListData.data);
       }
       if(useCount){
@@ -1078,19 +1092,19 @@ export class TxService {
 
     // /txs/services/tx
     async queryServiceTx(query: ServiceTxReqDto): Promise<ListStruct<ServiceTxResDto[]>> {
-        const { serviceName, type, status, pageNum, pageSize, useCount } = query;
+        const { serviceName, type, status, txId, limit, useCount } = query;
         let res: ServiceTxResDto[], count = null;
-        if(pageNum && pageSize){
-          const txList: ITxStruct[] = await (this.txModel as any).findServiceTx(serviceName, type, status, pageNum, pageSize);
+        if(limit){
+          const txList: ITxStruct[] = await (this.txModel as any).findServiceTx(serviceName, type, status, txId, limit);
           res = txList.map((service: ITxStruct) => {
               return new ServiceTxResDto(service.tx_hash, service.type, service.height, service.time, service.status, service.msgs,
-                  service.events, service.signers, service.fee);
+                  service.events, service.signers, service.fee, service.tx_id);
           });
         }
         if (useCount) {
           count = await (this.txModel as any).findServiceTxCount(serviceName, type, status);
         }
-        return new ListStruct(res, pageNum, pageSize, count);
+        return new ListStruct(res, Number(query.pageNum), Number(query.pageSize), count);
     }
 
     async queryServiceBindInfo(query: ServiceBindInfoReqDto): Promise<ServiceBindInfoResDto | null> {
