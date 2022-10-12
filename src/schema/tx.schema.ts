@@ -132,9 +132,8 @@ TxSchema.statics.queryStakingTxList = async function(query: ITxsQuery): Promise<
     const result: ListStruct = {};
     const queryParameters = StakingTxListParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.delegations)
-        .sort({ time: -1 })
-        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-        .limit(Number(query.pageSize));
+        .sort({ tx_id: -1 })
+        .limit(Number(query.limit));
     return result;
 };
 TxSchema.statics.queryStakingTxListCount = async function(query: ITxsQuery): Promise<number> {
@@ -162,9 +161,8 @@ TxSchema.statics.queryDeclarationTxList = async function(query: ITxsQuery): Prom
     const result: ListStruct = {};
     const queryParameters = DeclarationTxListParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.validations)
-        .sort({time: -1})
-        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-        .limit(Number(query.pageSize));
+        .sort({tx_id: -1})
+        .limit(Number(query.limit));
     return result;
 };
 TxSchema.statics.queryDeclarationTxListCount = async function(query: ITxsQuery): Promise<number> {
@@ -177,9 +175,8 @@ TxSchema.statics.queryGovTxList = async function(query: ITxsQuery): Promise<List
     const result: ListStruct = {};
     const queryParameters = GovTxListParamsHelper(query)
     result.data = await this.find(queryParameters, dbRes.govs)
-        .sort({time: -1})
-        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-        .limit(Number(query.pageSize));
+        .sort({tx_id: -1})
+        .limit(Number(query.limit));
     return result;
 };
 TxSchema.statics.queryGovTxListCount = async function(query: ITxsQuery): Promise<number> {
@@ -1058,9 +1055,8 @@ TxSchema.statics.queryTxWithAsset = async function(query: ITxsWithAssetQuery): P
     const result: ListStruct = {};
     const queryParameters = queryTxWithAssetCountHelper(query)
     result.data = await this.find(queryParameters, dbRes.assetList)
-        .sort({ time: -1 })
-        .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-        .limit(Number(query.pageSize));
+        .sort({ tx_id: -1 })
+        .limit(Number(query.limit));
     return result;
 };
 TxSchema.statics.queryTxWithAssetCount = async function(query:ITxsWithAssetQuery): Promise<number> {

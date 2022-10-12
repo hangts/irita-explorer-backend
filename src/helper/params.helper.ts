@@ -106,6 +106,15 @@ export function StakingTxListParamsHelper(query: ITxsQuery){
   if (query.endTime && query.endTime.length) {
       queryParameters.time.$lte = Number(query.endTime);
   }
+
+  if (query.txId) {
+      queryParameters.tx_id = {};
+  }
+
+  if (query.txId) {
+      queryParameters.tx_id.$lt = Number(query.txId);
+  }
+
   return queryParameters
 }
 
@@ -176,6 +185,15 @@ export function DeclarationTxListParamsHelper(query: ITxsQuery){
   if (query.endTime && query.endTime.length) {
       queryParameters.time.$lte = Number(query.endTime);
   }
+
+  if (query.txId) {
+      queryParameters.tx_id = {};
+  }
+
+  if (query.txId) {
+      queryParameters.tx_id.$lt = Number(query.txId);
+  }
+
   return queryParameters
 }
 
@@ -208,6 +226,14 @@ export function GovTxListParamsHelper(query: ITxsQuery){
   }
   if (query.endTime && query.endTime.length) {
       queryParameters.time.$lte = Number(query.endTime);
+  }
+
+  if (query.txId) {
+      queryParameters.tx_id = {};
+  }
+
+  if (query.txId) {
+      queryParameters.tx_id.$lt = Number(query.txId);
   }
   return queryParameters
 }
@@ -412,6 +438,11 @@ export function queryTxWithAssetCountHelper(query: ITxsWithAssetQuery){
   if (query.symbol) {
       queryParameters['msgs.msg.symbol'] = query.symbol;
   }
+
+  if (query.txId) {
+      queryParameters['tx_id'] = { $lt:Number(query.txId) }
+  }
+
   return queryParameters
 }
 

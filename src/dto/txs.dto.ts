@@ -696,4 +696,22 @@ export class TxListWithAssetReqDto extends DeepPagingReqDto {
 
     @ApiPropertyOptional()
     symbol?: string;
+
+    @ApiPropertyOptional()
+    txId?: number;
+
+    @ApiPropertyOptional()
+    limit?: number;
+
+    static validate(value: any) {
+        super.validate(value);
+        const patt = /^[0-9]\d*$/;
+        if (value.txId && (!patt.test(value.txId) || value.txId < 0)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
+        }
+
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 100)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～100]');
+        }
+    }
 }

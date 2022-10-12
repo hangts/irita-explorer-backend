@@ -480,14 +480,13 @@ export class TxService {
 
     // txs/staking
     async queryStakingTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
-        // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        const { pageNum, pageSize, useCount } = query;
+        const { txId, limit, useCount } = query;
         let txListData , txData = [], count = null;
 
-        if(pageNum && pageSize || useCount){
+        if(limit || useCount){
           await this.cacheTxTypes();
 
-          if(pageNum && pageSize){
+          if(limit){
             txListData = await this.txModel.queryStakingTxList(query);
             if (txListData.data && txListData.data.length > 0) {
                 txListData.data = this.handerEvents(txListData.data)
@@ -498,8 +497,6 @@ export class TxService {
             count = await this.txModel.queryStakingTxListCount(query);
           }
         }
-        // }
-
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -521,13 +518,13 @@ export class TxService {
     // txs/declaration
     async queryDeclarationTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        const { pageNum, pageSize, useCount } = query;
+        const { txId, limit, useCount } = query;
         let txListData, txData = [],count = null;
 
-        if(pageNum && pageSize || useCount){
+        if(limit || useCount){
           await this.cacheTxTypes();
 
-          if(pageNum && pageSize){
+          if(limit){
             txListData = await this.txModel.queryDeclarationTxList(query);
             txData = await this.addMonikerToTxs(txListData.data);
           }
@@ -542,13 +539,13 @@ export class TxService {
     // txs/gov
     async queryGovTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        const { pageNum, pageSize, useCount } = query;
+        const { txId, limit, useCount } = query;
         let txListData, txData = [], txList = [], count = null;
 
-        if(pageNum && pageSize){
+        if(limit){
           await this.cacheTxTypes();
 
-          if(pageNum && pageSize){
+          if(limit){
             if (query.address) {
               query.address = addressTransform(query.address, addressPrefix.iaa)
             }
@@ -1349,9 +1346,9 @@ export class TxService {
 
     // txs/asset
     async queryTxWithAsset(query: TxListWithAssetReqDto): Promise<ListStruct<TxResDto[]>> {
-      const { pageNum, pageSize, useCount } = query;
+      const { txId, limit, useCount } = query;
       let txListData, txData = [], count = null;
-      if(pageNum && pageSize){
+      if(limit){
         txListData = await this.txModel.queryTxWithAsset(query);
         txData = txListData.data
       }
@@ -1359,7 +1356,7 @@ export class TxService {
         count = await this.txModel.queryTxWithAssetCount(query);
       }
 
-      return new ListStruct(TxResDto.bundleData(txData), Number(pageNum), Number(pageSize), count);
+      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     // txs/types/gov

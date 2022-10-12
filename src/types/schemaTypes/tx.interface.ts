@@ -110,6 +110,8 @@ export interface ITxsWithAssetQuery {
     pageNum?:number
     pageSize?:number
     useCount?:boolean
+    txId?:number
+    limit?:number
 }
 
 export interface ITxSubmitProposal  {
