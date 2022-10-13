@@ -40,8 +40,8 @@ export class TxListReqDto extends DeepPagingReqDto {
             throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
         }
 
-        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 200)) {
-            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～200]');
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 500)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～500]');
         }
     }
 }
@@ -99,8 +99,8 @@ export class TxListWithHeightReqDto extends DeepPagingReqDto {
             throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
         }
 
-        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 200)) {
-            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～200]');
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 500)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～500]');
         }
     }
 }
@@ -132,8 +132,8 @@ export class TxListWithAddressReqDto extends DeepPagingReqDto {
             throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
         }
 
-        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 200)) {
-            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～200]');
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 500)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～500]');
         }
     }
 }
@@ -199,8 +199,8 @@ export class TxListWithNftReqDto extends DeepPagingReqDto {
             throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
         }
 
-        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 200)) {
-            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～200]');
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 500)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～500]');
         }
     }
 }
@@ -245,8 +245,8 @@ export class TxListWithCallServiceReqDto extends DeepPagingReqDto {
             throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
         }
 
-        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 200)) {
-            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～200]');
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 500)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～500]');
         }
     }
 }
@@ -280,8 +280,8 @@ export class TxListWithRespondServiceReqDto extends DeepPagingReqDto {
             throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
         }
 
-        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 200)) {
-            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～200]');
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 500)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～500]');
         }
     }
 }
@@ -353,8 +353,8 @@ export class ServiceTxReqDto extends DeepPagingReqDto {
             throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
         }
 
-        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 200)) {
-            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～200]');
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 500)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～500]');
         }
         return value;
     }
@@ -426,8 +426,8 @@ export class ServiceRespondReqDto extends DeepPagingReqDto {
             throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
         }
 
-        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 200)) {
-            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～200]');
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 500)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～500]');
         }
     }
 }
@@ -449,8 +449,8 @@ export class IdentityTxReqDto extends DeepPagingReqDto {
             throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
         }
 
-        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 200)) {
-            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～200]');
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 500)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～500]');
         }
     }
 }
@@ -710,8 +710,8 @@ export class TxListWithAssetReqDto extends DeepPagingReqDto {
             throw new ApiError(ErrorCodes.InvalidParameter, 'The txId must be a positive integer greater or equal to 0');
         }
 
-        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 200)) {
-            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～200]');
+        if (value.limit && (!patt.test(value.limit) || value.limit < 1 || value.limit > 500)) {
+            throw new ApiError(ErrorCodes.InvalidParameter, 'The limit must be a positive integer at range [1～500]');
         }
     }
 }
