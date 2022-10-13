@@ -41,7 +41,7 @@ import {
   TxWithHashReqDto,
 } from '../dto/txs.dto';
 import {ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName} from '../types/tx.interface';
-import {ITxsQuery, ITxStruct, ITxsWithAddressQuery} from '../types/schemaTypes/tx.interface';
+import {ITxsQuery, ITxStruct, ITxsWithAddressQuery, ITxsWithNftQuery} from '../types/schemaTypes/tx.interface';
 import {getReqContextIdFromEvents, getServiceNameFromMsgs} from '../helper/tx.helper';
 import Cache from '../helper/cache';
 import {
@@ -480,14 +480,13 @@ export class TxService {
 
     // txs/staking
     async queryStakingTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
-        // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        const { pageNum, pageSize, useCount } = query;
+        const { txId, limit, useCount } = query;
         let txListData , txData = [], count = null;
 
-        if(pageNum && pageSize || useCount){
+        if(limit || useCount){
           await this.cacheTxTypes();
 
-          if(pageNum && pageSize){
+          if(limit){
             txListData = await this.txModel.queryStakingTxList(query);
             if (txListData.data && txListData.data.length > 0) {
                 txListData.data = this.handerEvents(txListData.data)
@@ -498,8 +497,6 @@ export class TxService {
             count = await this.txModel.queryStakingTxListCount(query);
           }
         }
-        // }
-
         return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
@@ -521,13 +518,13 @@ export class TxService {
     // txs/declaration
     async queryDeclarationTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        const { pageNum, pageSize, useCount } = query;
+        const { txId, limit, useCount } = query;
         let txListData, txData = [],count = null;
 
-        if(pageNum && pageSize || useCount){
+        if(limit || useCount){
           await this.cacheTxTypes();
 
-          if(pageNum && pageSize){
+          if(limit){
             txListData = await this.txModel.queryDeclarationTxList(query);
             txData = await this.addMonikerToTxs(txListData.data);
           }
@@ -542,13 +539,13 @@ export class TxService {
     // txs/gov
     async queryGovTxList(query: TxListReqDto): Promise<ListStruct<TxResDto[]>> {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
-        const { pageNum, pageSize, useCount } = query;
+        const { txId, limit, useCount } = query;
         let txListData, txData = [], txList = [], count = null;
 
-        if(pageNum && pageSize){
+        if(limit){
           await this.cacheTxTypes();
 
-          if(pageNum && pageSize){
+          if(limit){
             if (query.address) {
               query.address = addressTransform(query.address, addressPrefix.iaa)
             }
@@ -633,13 +630,13 @@ export class TxService {
 
     // txs/blocks
     async queryTxWithHeight(query: TxListWithHeightReqDto): Promise<ListStruct<TxResDto[]>> {
-      const { pageNum, pageSize, useCount } = query;
+      const { limit, useCount } = query;
       let txListData, txData = [],count = null;
 
-      if(pageNum && pageSize || useCount){
+      if(limit || useCount){
         await this.cacheTxTypes();
 
-        if(pageNum && pageSize){
+        if(limit){
           txListData = await this.txModel.queryTxWithHeight(query);
           txData = await this.addMonikerToTxs(txListData.data);
         }
@@ -652,17 +649,17 @@ export class TxService {
 
     //  txs/addresses
     async queryTxWithAddress(query: TxListWithAddressReqDto): Promise<ListStruct<TxResDto[]>> {
-      const { pageNum, pageSize, useCount, type } = query;
+      const { txId, limit, useCount, type } = query;
       let txListData, txData = [];
-      if(pageNum && pageSize || useCount){
+      if(limit || useCount){
         await this.cacheTxTypes();
           let queryDb: ITxsWithAddressQuery = {
               type: type,
               status: query.status,
               address: query.address,
               useCount: useCount,
-              pageNum: `${pageNum}`,
-              pageSize: `${pageSize}`,
+              txId: txId,
+              limit: limit,
           }
           //search contract_address when type is ethereum_tx
           if (type && type.includes(DDCType.contractTag)) {
@@ -686,7 +683,7 @@ export class TxService {
               }
           }
 
-        if(pageNum && pageSize){
+        if(limit){
           txListData = await this.txModel.queryTxWithAddress(queryDb);
           if (txListData.data && txListData.data.length > 0) {
               txListData.data = this.handerEvents(txListData.data);
@@ -781,10 +778,24 @@ export class TxService {
 
     //  txs/nfts
     async queryTxWithNft(query: TxListWithNftReqDto): Promise<ListStruct<TxResDto[]>> {
-      const { pageNum, pageSize, useCount } = query;
+      const { txId, limit, pageNum, pageSize, denomId, tokenId, useCount } = query;
       let txListData, txData = [],count = null;
-      if(pageNum && pageSize){
-        txListData = await this.txModel.queryTxWithNft(query);
+      if (pageNum && pageSize || limit){
+        let queryDb: ITxsWithNftQuery = {
+            txId: txId,
+            limit: limit,
+            denomId: denomId,
+            tokenId: tokenId,
+            pageNum: `${pageNum}`,
+            pageSize: `${pageSize}`,
+            useCount: useCount,
+        }
+        if (limit){
+            txListData = await this.txModel.queryTxWithNftAndTxId(queryDb);
+        }
+        if(pageNum && pageSize){
+            txListData = await this.txModel.queryTxWithNft(query);
+        }
         txData = await this.addMonikerToTxs(txListData.data);
       }
       if(useCount){
@@ -834,11 +845,11 @@ export class TxService {
 
     //  txs/services/call-service
     async queryTxWithCallService(query: TxListWithCallServiceReqDto): Promise<ListStruct<callServiceResDto[]>> {
-      const { pageNum, pageSize, useCount } = query;
+      const { txId, limit, useCount } = query;
       let txListData, txData = [], count = null;
 
-      if(pageNum && pageSize){
-        txListData = await this.txModel.queryCallServiceWithConsumerAddr(query.consumerAddr, pageNum, pageSize);
+      if(limit){
+        txListData = await this.txModel.queryCallServiceWithConsumerAddr(query.consumerAddr, txId, limit);
         if (txListData.data && txListData.data.length > 0) {
           for (const item of txListData.data) {
               const context_id: string = getReqContextIdFromEvents(item.events);
@@ -856,16 +867,16 @@ export class TxService {
         count = await this.txModel.queryCallServiceWithConsumerAddrCount(query.consumerAddr);
       }
 
-      return new ListStruct(callServiceResDto.bundleData(txData), Number(pageNum), Number(pageSize), count);
+      return new ListStruct(callServiceResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     //  txs/services/respond-service
     async queryTxWithRespondService(query: TxListWithRespondServiceReqDto): Promise<ListStruct<TxResDto[]>> {
-      const { pageNum, pageSize, useCount } = query;
+      const { txId, limit, useCount } = query;
       let txListData, txData = [], count = null;
 
-      if(pageNum && pageSize){
-        txListData = await this.txModel.queryBindServiceWithProviderAddr(query.providerAddr, query.pageNum, query.pageSize, query.useCount);
+      if(limit){
+        txListData = await this.txModel.queryBindServiceWithProviderAddr(query.providerAddr, query.txId, query.limit);
         if (txListData.data && txListData.data.length > 0) {
           for (const item of txListData.data) {
             const serviceName: string = getServiceNameFromMsgs(item.msgs);
@@ -887,7 +898,7 @@ export class TxService {
         count = await this.txModel.queryBindServiceWithProviderAddrCount(query.providerAddr);
       }
 
-      return new ListStruct(RespondServiceResDto.bundleData(txData), Number(pageNum), Number(pageSize), count);
+      return new ListStruct(RespondServiceResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     //  txs/services/detail/{serviceName}
@@ -1078,19 +1089,19 @@ export class TxService {
 
     // /txs/services/tx
     async queryServiceTx(query: ServiceTxReqDto): Promise<ListStruct<ServiceTxResDto[]>> {
-        const { serviceName, type, status, pageNum, pageSize, useCount } = query;
+        const { serviceName, type, status, txId, limit, useCount } = query;
         let res: ServiceTxResDto[], count = null;
-        if(pageNum && pageSize){
-          const txList: ITxStruct[] = await (this.txModel as any).findServiceTx(serviceName, type, status, pageNum, pageSize);
+        if(limit){
+          const txList: ITxStruct[] = await (this.txModel as any).findServiceTx(serviceName, type, status, txId, limit);
           res = txList.map((service: ITxStruct) => {
               return new ServiceTxResDto(service.tx_hash, service.type, service.height, service.time, service.status, service.msgs,
-                  service.events, service.signers, service.fee);
+                  service.events, service.signers, service.fee, service.tx_id);
           });
         }
         if (useCount) {
           count = await (this.txModel as any).findServiceTxCount(serviceName, type, status);
         }
-        return new ListStruct(res, pageNum, pageSize, count);
+        return new ListStruct(res, Number(query.pageNum), Number(query.pageSize), count);
     }
 
     async queryServiceBindInfo(query: ServiceBindInfoReqDto): Promise<ServiceBindInfoResDto | null> {
@@ -1110,10 +1121,10 @@ export class TxService {
 
     // /txs/services/respond
     async queryServiceRespondTx(query: ServiceRespondReqDto): Promise<ListStruct<ServiceRespondResDto[]>> {
-        const { serviceName, provider, pageNum, pageSize, useCount } = query;
+        const { serviceName, provider, txId, limit, useCount } = query;
         let count = null, res: ServiceRespondResDto[]
-        if(pageNum && pageSize){
-          const respondTxList: ITxStruct[] = await (this.txModel as any).queryServiceRespondTx(serviceName, provider, pageNum, pageSize);
+        if(limit){
+          const respondTxList: ITxStruct[] = await (this.txModel as any).queryServiceRespondTx(serviceName, provider, txId, limit);
           res = respondTxList.map((service: ITxStruct) => {
               const ex: any = (service.msgs as any)[0].msg.ex || {};
               return new ServiceRespondResDto(
@@ -1126,13 +1137,14 @@ export class TxService {
                   ex.request_context_id || '',
                   ex.service_name || '',
                   service.status,
+                  service.tx_id,
               );
           });
         }
         if (useCount) {
             count = await (this.txModel as any).findRespondServiceCount(serviceName, provider);
         }
-        return new ListStruct(res, pageNum, pageSize, count);
+        return new ListStruct(res, Number(query.pageNum), Number(query.pageSize), count);
 
     }
 
@@ -1319,9 +1331,9 @@ export class TxService {
     }
     //tx/identity
     async queryIdentityTx(query: IdentityTxReqDto): Promise<ListStruct<TxResDto[]>> {
-      const { pageNum, pageSize, useCount } = query;
+      const { txId, limit, useCount } = query;
       let txListData,txData = [],count = null;
-      if(pageNum && pageSize){
+      if(limit){
         txListData = await this.txModel.queryTxListByIdentity(query);
         txData = txListData.data
       }
@@ -1329,14 +1341,14 @@ export class TxService {
         count = await this.txModel.queryTxListByIdentityCount(query);
       }
 
-      return new ListStruct(TxResDto.bundleData(txData), Number(pageNum), Number(pageSize), count);
+      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     // txs/asset
     async queryTxWithAsset(query: TxListWithAssetReqDto): Promise<ListStruct<TxResDto[]>> {
-      const { pageNum, pageSize, useCount } = query;
+      const { txId, limit, useCount } = query;
       let txListData, txData = [], count = null;
-      if(pageNum && pageSize){
+      if(limit){
         txListData = await this.txModel.queryTxWithAsset(query);
         txData = txListData.data
       }
@@ -1344,7 +1356,7 @@ export class TxService {
         count = await this.txModel.queryTxWithAssetCount(query);
       }
 
-      return new ListStruct(TxResDto.bundleData(txData), Number(pageNum), Number(pageSize), count);
+      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count);
     }
 
     // txs/types/gov

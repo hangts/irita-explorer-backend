@@ -177,6 +177,7 @@ export const dbRes = {
         ...common,
         ...fromTo,
         events:1,
+        events_new:1,
         'msgs.msg.ex':1,
         'msgs.msg.request_context_id':1,
         'msgs.msg.service_name':1,

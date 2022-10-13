@@ -13,13 +13,17 @@ export interface ITxsQuery extends IQueryBase {
 
 export interface ITxsWithHeightQuery extends IQueryBase {
 	height?:string,
+    txId?:number,
+    limit?:number,
 }
 
 export interface ITxsWithAddressQuery extends IQueryBase {
     contract_addr?:string,
-	  address?:string,
+    address?:string,
     type?:string,
     status?:string,
+    txId?:number,
+    limit?:number,
 }
 
 export interface ITxsWithContextIdQuery extends IQueryBase {
@@ -31,6 +35,8 @@ export interface ITxsWithContextIdQuery extends IQueryBase {
 export interface ITxsWithNftQuery extends IQueryBase {
 	denomId?:string,
 	tokenId?:string,
+    txId?:number,
+    limit?:number,
 }
 
 export interface ITxsWithDdcQuery extends IQueryBase {
@@ -59,7 +65,8 @@ export interface ITxStruct {
     msgs:object[],
     signers: string[],
     addrs: string[],
-    fee: object[]
+    fee: object[],
+    tx_id: number
 }
 
 export interface callServiceStruct extends ITxStruct {
@@ -93,6 +100,8 @@ export interface ITXWithIdentity extends IQueryBase {
 }
 export interface IIdentityTx extends IQueryBase {
     id?: string
+    txId?:number,
+    limit?:number,
 }
 
 export interface ITxsWithAssetQuery {
@@ -101,6 +110,8 @@ export interface ITxsWithAssetQuery {
     pageNum?:number
     pageSize?:number
     useCount?:boolean
+    txId?:number
+    limit?:number
 }
 
 export interface ITxSubmitProposal  {

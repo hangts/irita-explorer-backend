@@ -162,13 +162,13 @@ describe('TxController', () => {
             req.pageNum = 1;
             req.pageSize = 10;
             req.useCount = true;
-            req.denom = 'bonddf';
+            req.denomId = 'bonddf';
             req.tokenId = 'id1';
 
             let data = await txService.queryTxWithNft(req);
             if (data && data.data.length) {
                 data.data.forEach((item)=>{
-                    expect(item.msgs[0].msg.denom).toBe(req.denom);
+                    expect(item.msgs[0].msg.denom).toBe(req.denomId);
                     expect(item.msgs[0].msg.id).toBe(req.tokenId);
                 });
             }else{
