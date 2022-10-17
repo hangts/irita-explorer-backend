@@ -110,6 +110,14 @@ TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<ListStr
     return result;
 };
 
+// txs /hashs
+TxSchema.statics.queryTxWithHashs = async function(hash: string[]): Promise<ITxStruct> {
+    return await this.find({ tx_hash: {$in: hash}})
+        .sort({ time: -1 });
+};
+
+
+
 // queryLatest20TxList for exporter
 TxSchema.statics.queryLatest20TxList = async function(): Promise<ListStruct> {
   const result: ListStruct = {};

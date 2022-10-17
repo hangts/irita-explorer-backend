@@ -305,7 +305,7 @@ export class TxService {
             return tx
           })
       }
-    async addDdcInfoToTxResDTo(txEvms) {
+    async addDdcInfoToTxResDTo(txEvms, map) {
       if (!txEvms?.length) {
         return txEvms
       }
@@ -313,8 +313,11 @@ export class TxService {
         evmTx.contract_addrs = []
         evmTx.msgs = []
         if (evmTx.fee.amount.length === 1) {
-          const actualFee = Number(evmTx.gas_used) * Number(deFaultGasPirce)
-          evmTx.fee.amount[0].amount = `${actualFee}`
+          const txInfo = map.get(evmTx.tx_hash)
+          const actualFee = Number(txInfo.gas_used) * Number(deFaultGasPirce)
+          if (actualFee) {
+              evmTx.fee.amount[0].amount = `${actualFee}`
+          }
         }
 
         if (evmTx?.evm_datas?.length){
@@ -808,10 +811,16 @@ export class TxService {
     //  txs/ddcs
     async queryTxWithDdc(query: TxListWithDdcReqDto): Promise<ListStruct<TxResDto[]>> {
       const { pageNum, pageSize, useCount } = query;
-      let txListData, txData = [],count = null;
+      let txEvmListData, txListData, txData = [],count = null;
+      const txMap = new Map<string, any>();
       if(pageNum && pageSize){
-        txListData = await this.txEvmModel.queryTxWithDdc(query);
-        txData = await this.addDdcInfoToTxResDTo(txListData.data);
+        txEvmListData = await this.txEvmModel.queryTxWithDdc(query);
+        if (txEvmListData.data && txEvmListData.data.length > 0) {
+            const hashs:string[] = txEvmListData.data.map((item) => item?.tx_hash)
+            txListData = await this.txModel.queryTxWithHashs(hashs)
+            txListData.forEach(item => txMap.set(item.tx_hash, item))
+        }
+        txData = await this.addDdcInfoToTxResDTo(txEvmListData.data, txMap);
       }
       if(useCount){
         count = await this.txEvmModel.queryTxWithDdcCount(query);
