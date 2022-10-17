@@ -103,16 +103,16 @@ describe('TxController', () => {
     describe('queryTxWithDdc', () => {
         it('should return an array of height', async () => {
             let reqDdc:TxListWithDdcReqDto = {pageNum:1,pageSize:4,useCount:true,
-                contract_address:'0x8f62501A49865dB905414DFC9e8D8E02d7B3bb26',ddc_id:'123'};
+                contract_address:'0x42e82933Dfa426995ff53835aD96C7b4aCcdB4C4',ddc_id:'16'};
             let data = await txService.queryTxWithDdc(reqDdc);
-            console.log(data)
+            console.log(JSON.stringify(data))
         });
     });
     describe('queryTxWithHash', () => {
         it('should return an array of height', async () => {
             jest.setTimeout(1000000000)
             let reqDdc:TxWithHashReqDto = {
-                hash:'0xbb2f7c3cd76a0ceead0209478971489fddb61259d68c7bf9998f833cb26e75b3'};
+                hash:'EEBA384B935614CD8A19C7310E0ACDFB26A4E47A946FF293BD7C26D2E543EC40'};
             let data = await txService.queryTxWithHash(reqDdc);
             console.log(JSON.stringify(data))
         });
