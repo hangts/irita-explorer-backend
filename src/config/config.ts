@@ -36,7 +36,8 @@ const {
     PROPOSALS_LIMIT,
     COMMUNITY_POOL_DENOM,
     ACCOUNT_EXECUTE_TIME,
-    ACCOUNT_INFO_EXECUTE_TIME
+    ACCOUNT_INFO_EXECUTE_TIME,
+    INDEX_NAME,
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -84,6 +85,7 @@ export const cfg = {
         communityPoolDenom:COMMUNITY_POOL_DENOM || '',
     },
     currentChain: CURRENT_CHAIN || 'iris',
+    indexName: INDEX_NAME || 'time_-1_msgs.type_-1_tx_id_-1',
    // MAIN_TOKEN: MAIN_TOKEN ? JSON.parse(MAIN_TOKEN) : {"min_unit":"umuon","scale":"6","symbol":"muon"}
 };
 
