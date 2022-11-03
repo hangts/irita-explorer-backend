@@ -196,6 +196,7 @@ export default class StakingService {
         result.withdrawAddress =  withdrawAddress && withdrawAddress.address
         result.address = address
         result.moniker =  validator && validator.is_black  ? validator.moniker_m : validator && validator.description && validator.description.moniker
+        result.icon =  validator && validator.is_black ? "" : validator && validator.icon
         result.operator_address = allValidatorsMap.has(operatorAddress) ? validator.operator_address : ''
         result.isProfiler = profilerAddressMap.size > 0 ? profilerAddressMap.has(address) : false
         if (allValidatorsMap.has(operatorAddress) && !validator.jailed) {
