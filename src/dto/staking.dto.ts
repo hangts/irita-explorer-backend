@@ -270,6 +270,7 @@ export class AccountAddrResDto {
     moniker: string;
     status: string;
     operator_address: string;
+    icons: string;
 
     constructor(account) {
         this.amount = account.amount || {}
@@ -280,6 +281,7 @@ export class AccountAddrResDto {
         this.moniker = account.moniker || ''
         this.status = account.status || ''
         this.operator_address = account.operator_address || ''
+        this.icons = account.icon || ''
     }
 }
 
