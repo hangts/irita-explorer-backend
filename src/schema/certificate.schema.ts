@@ -14,8 +14,8 @@ export const CertificateSchema = new mongoose.Schema({
   certificate_hash:String,
   create_time:Number
 })
-CertificateSchema.index({ identities_id: 1, certificate_hash: 1 }, { unique: true })
-CertificateSchema.index({ identities_id: 1, height: 1 })
+//CertificateSchema.index({ identities_id: 1, certificate_hash: 1 }, { unique: true })
+//CertificateSchema.index({ identities_id: 1, height: 1 })
 
 CertificateSchema.statics = {
   async insertCertificate(certificateData){

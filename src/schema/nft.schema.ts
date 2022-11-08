@@ -26,12 +26,12 @@ export const NftSchema = new mongoose.Schema({
     hash: String,
     time: Number
 }, { versionKey: false });
-NftSchema.index({ denom_id: 1, nft_id: 1 }, { unique: true });
+//NftSchema.index({ denom_id: 1, nft_id: 1 }, { unique: true });
 // 新增
-NftSchema.index({ last_block_height: 1, denom_id: 1, nft_id: 1 }, { background:true});
-NftSchema.index({ owner: 1, last_block_height: 1 }, { background:true });
-NftSchema.index({ nft_id: -1, last_block_height: -1 }, { background:true });
-NftSchema.index({ nft_name: -1, last_block_height: -1 }, { background:true });
+//NftSchema.index({ last_block_height: 1, denom_id: 1, nft_id: 1 }, { background:true});
+//NftSchema.index({ owner: 1, last_block_height: 1 }, { background:true });
+//NftSchema.index({ nft_id: -1, last_block_height: -1 }, { background:true });
+//NftSchema.index({ nft_name: -1, last_block_height: -1 }, { background:true });
 
 NftSchema.statics = {
     async findList(

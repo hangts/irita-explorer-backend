@@ -24,11 +24,11 @@ export const TxEvmSchema = new mongoose.Schema({
 
 // 新增
 // TxEvmSchema.index({ 'evm_datas.contract_address': -1 }, { background: true });
-TxEvmSchema.index({ 'evm_datas.evm_tx_hash': -1 }, { background: true });
-TxEvmSchema.index({ 'ex_ddc_infos.ddc_id': -1,'ex_ddc_infos.ddc_type': -1 }, { background: true });
+//TxEvmSchema.index({ 'evm_datas.evm_tx_hash': -1 }, { background: true });
+//TxEvmSchema.index({ 'ex_ddc_infos.ddc_id': -1,'ex_ddc_infos.ddc_type': -1 }, { background: true });
 // TxEvmSchema.index({ 'ex_ddc_infos.sender': -1,status:-1}, { background: true });
 // TxEvmSchema.index({ 'ex_ddc_infos.recipient': -1,status:-1}, { background: true });
-TxEvmSchema.index({ 'tx_hash': -1 }, { background: true });
+//TxEvmSchema.index({ 'tx_hash': -1 }, { background: true });
 
 TxEvmSchema.statics = {
   async findList(
