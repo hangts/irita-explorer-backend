@@ -17,9 +17,9 @@ export const AccountSchema = new mongoose.Schema({
     update_time: Number,
     handled_block_height: Number,
 })
-AccountSchema.index({ address: 1 }, { unique: true });
-AccountSchema.index({ account_total: -1 }, { background: true });
-AccountSchema.index({ handled_block_height: -1 }, { background: true });
+//AccountSchema.index({ address: 1 }, { unique: true });
+//AccountSchema.index({ account_total: -1 }, { background: true });
+//AccountSchema.index({ handled_block_height: -1 }, { background: true });
 
 AccountSchema.statics = {
     async queryHandledBlockHeight(): Promise<IAccountStruct>{

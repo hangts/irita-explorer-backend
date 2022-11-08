@@ -7,7 +7,7 @@ export const EvmContractConfigSchema = new mongoose.Schema({
     type: Number,
 }, {versionKey: false});
 
-EvmContractConfigSchema.index({'address': -1}, {unique: true, background: true});
+//EvmContractConfigSchema.index({'address': -1}, {unique: true, background: true});
 
 EvmContractConfigSchema.statics = {
     async queryAllContractCfgs() {

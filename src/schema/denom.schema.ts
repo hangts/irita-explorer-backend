@@ -17,8 +17,8 @@ export const DenomSchema = new mongoose.Schema({
     last_block_time: Number,
 }, { versionKey: false });
 // 新增
-DenomSchema.index({ height: 1}, { background:true});
-DenomSchema.index({ name: 1, height: 1}, { background:true});
+//DenomSchema.index({ height: 1}, { background:true});
+//DenomSchema.index({ name: 1, height: 1}, { background:true});
 
 DenomSchema.statics = {
     async findList(

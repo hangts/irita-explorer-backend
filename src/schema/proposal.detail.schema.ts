@@ -9,7 +9,7 @@ export const ProposalDetailSchema = new mongoose.Schema({
     create_time: Number,
     update_time: Number
 })
-ProposalDetailSchema.index({id: 1}, {unique: true})
+//ProposalDetailSchema.index({id: 1}, {unique: true})
 
 ProposalDetailSchema.statics = {
     async queryAllProposalsDetail() {

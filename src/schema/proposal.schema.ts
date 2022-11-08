@@ -29,7 +29,7 @@ export const ProposalSchema = new mongoose.Schema({
     create_time: Number,
     update_time: Number
 })
-ProposalSchema.index({id: 1}, {unique: true})
+//ProposalSchema.index({id: 1}, {unique: true})
 
 ProposalSchema.statics = {
     async queryAllProposals() {
