@@ -73,6 +73,7 @@ export class TokenService {
         update_block_height: 0,
         src_protocol: SRC_PROTOCOL.IBC,
         chain: tokenInfo.chain || cfg.currentChain,
+        is_authed: false,
       }
       return await (this.tokensModel as any).insertIbcToken(Itoken)
     }
