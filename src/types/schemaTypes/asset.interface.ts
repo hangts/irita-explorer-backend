@@ -9,4 +9,5 @@ export interface IAssetStruct {
     scale?:string,
     src_protocol?: string;
     chain?: string;
+    is_authed?: boolean;
 }

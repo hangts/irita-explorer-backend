@@ -65,6 +65,7 @@ export class TokensTaskService {
                 }
                 token.src_protocol = SRC_PROTOCOL.NATIVE;
                 token.chain = cfg.currentChain;
+                token.is_authed = true;
                 TokensDbMap.set(token.denom,token)
             }
             if(stakingToken && stakingToken.cur_value) {
