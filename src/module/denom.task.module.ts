@@ -5,6 +5,7 @@ import {DenomSchema} from '../schema/denom.schema';
 import { DenomHttp } from '../http/lcd/denom.http';
 import { TxSchema } from '../schema/tx.schema';
 import { SyncTaskSchema } from '../schema/sync.task.schema';
+import {StatisticsSchema} from "../schema/statistics.schema";
 import {
     CronTaskWorkingStatusMetric,
     CronTaskWorkingStatusProvider
@@ -23,6 +24,10 @@ import {
             name: 'SyncTask',
             schema: SyncTaskSchema,
             collection: 'sync_task'
+        },{
+            name: 'Statistics',
+            schema: StatisticsSchema,
+            collection: 'ex_statistics'
         }]),
     ],
     providers:[DenomTaskService, DenomHttp, CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],

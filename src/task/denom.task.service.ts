@@ -109,7 +109,7 @@ export class DenomTaskService {
         const statistic = await this.statisticsModel.findStatisticsRecord('denom_all');
         if (!statistic) {
             // 找不到，查询全部，设置回去
-            const count = await this.denomModel.findCount();
+            const count = await this.denomModel.queryAllCount();
             await this.statisticsModel.insertManyStatisticsRecord({
                 statistics_name: 'denom_all',
                 count: count,
