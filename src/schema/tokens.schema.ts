@@ -18,9 +18,10 @@ export const TokensSchema = new mongoose.Schema({
     update_block_height: Number,
     src_protocol: String,
     chain:String,
+    is_authed:Boolean,
 })
 //TokensSchema.index({symbol: 1}, {unique: true})
-TokensSchema.index({denom: 1, chain:1}, {unique: true})
+//TokensSchema.index({denom: 1, chain:1}, {unique: true})
 
 TokensSchema.statics = {
     async insertTokens(Tokens: ITokens) {
@@ -53,6 +54,7 @@ TokensSchema.statics = {
                 mintable: 1,
                 src_protocol:1,
                 chain:1,
+                is_authed:1,
             })
             .skip((pageNum - 1) * pageSize)
             .limit(pageSize).exec();
@@ -72,6 +74,7 @@ TokensSchema.statics = {
             denom:1,
             src_protocol:1,
             chain:1,
+            is_authed:1,
         });
     },
 }

@@ -40,37 +40,37 @@ export class StatisticsTaskService {
     }
 
     async doTask(): Promise<void> {
-        let service_all, nft_all, validator_all, validator_active, identity_all, bonded_tokens,
-            total_supply;
+        // let service_all, nft_all, validator_all, validator_active, identity_all, bonded_tokens,
+        //     total_supply;
 
-       //  const txStatusSuccess = "1",txStatusFailed = "2";
-       //  await Promise.all([
-       //      this.updateIncreTxCount(),this.updateIncreTxCount(txStatusSuccess),this.updateIncreTxCount(txStatusFailed),
-       //      this.updateIncreMsgsCount(),this.updateIncreMsgsCount(txStatusSuccess),this.updateIncreMsgsCount(txStatusFailed)
-       // ]);
+        const txStatusSuccess = "1",txStatusFailed = "2";
+        await Promise.all([
+            this.updateIncreTxCount(),this.updateIncreTxCount(txStatusSuccess),this.updateIncreTxCount(txStatusFailed),
+            this.updateIncreMsgsCount(),this.updateIncreMsgsCount(txStatusSuccess),this.updateIncreMsgsCount(txStatusFailed)
+       ]);
 
-        if (cfg && cfg.taskCfg && cfg.taskCfg.CRON_JOBS) {
-            if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.denom) >= 0) {
-                await this.updateIncreDenomCount()
-            }
-            if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.identity) >= 0) {
-                identity_all = await this.queryIdentityCount()
-            }
-            if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.txServiceName) >= 0) {
-                service_all = await this.queryServiceCount()
-            }
-            if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) >= 0) {
-                validator_all = await this.queryConsensusValidatorCount()
-            }
-            if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) >= 0) {
-                validator_active = await this.queryValidatorNumCount()
-            }
-            if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.tokens) >= 0) {
-                const {bondedTokens, totalSupply} = await this.queryBondedTokensInformation()
-                bonded_tokens = bondedTokens
-                total_supply = totalSupply
-            }
-        }
+        // if (cfg && cfg.taskCfg && cfg.taskCfg.CRON_JOBS) {
+        //     if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.denom) >= 0) {
+        //         await this.updateIncreDenomCount()
+        //     }
+        //     if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.identity) >= 0) {
+        //         identity_all = await this.queryIdentityCount()
+        //     }
+        //     if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.txServiceName) >= 0) {
+        //         service_all = await this.queryServiceCount()
+        //     }
+        //     if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) >= 0) {
+        //         validator_all = await this.queryConsensusValidatorCount()
+        //     }
+        //     if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) >= 0) {
+        //         validator_active = await this.queryValidatorNumCount()
+        //     }
+        //     if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.tokens) >= 0) {
+        //         const {bondedTokens, totalSupply} = await this.queryBondedTokensInformation()
+        //         bonded_tokens = bondedTokens
+        //         total_supply = totalSupply
+        //     }
+        // }
 
         // const [
         //   tx_all, service_all, nft_all,
@@ -82,46 +82,46 @@ export class StatisticsTaskService {
         //     this.queryIdentityCount(), this.queryDenomCount()
         //   ]);
 
-        const community_pool = await this.queryCommunityPool()
-        const accounts_all = await this.queryAccounts()
+        // const community_pool = await this.queryCommunityPool()
+        // const accounts_all = await this.queryAccounts()
+        //
+        // const parseCount = {
+        //     service_all,
+        //     nft_all,
+        //     validator_all,
+        //     validator_active,
+        //     identity_all,
+        //     bonded_tokens,
+        //     total_supply,
+        //     accounts_all,
+        // };
 
-        const parseCount = {
-            service_all,
-            nft_all,
-            validator_all,
-            validator_active,
-            identity_all,
-            bonded_tokens,
-            total_supply,
-            accounts_all,
-        };
 
-
-        for (const statistics_name of StatisticsNames) {
-            let data = ''
-            if (statistics_name === 'community_pool' && community_pool) {
-                data = JSON.stringify(community_pool)
-            }
-
-            const statisticsRecord = await this.findStatisticsRecord(
-                statistics_name,
-            );
-            if (!statisticsRecord) {
-                await this.statisticsModel.insertManyStatisticsRecord({
-                    statistics_name,
-                    count: parseCount[statistics_name],
-                    data,
-                    statistics_info: '',
-                    create_at: getTimestamp(),
-                    update_at: getTimestamp(),
-                });
-            } else {
-                statisticsRecord.count = parseCount[statistics_name];
-                statisticsRecord.update_at = getTimestamp();
-                statisticsRecord.data = data
-                await this.updateStatisticsRecord(statisticsRecord);
-            }
-        }
+        // for (const statistics_name of StatisticsNames) {
+        //     let data = ''
+        //     if (statistics_name === 'community_pool' && community_pool) {
+        //         data = JSON.stringify(community_pool)
+        //     }
+        //
+        //     const statisticsRecord = await this.findStatisticsRecord(
+        //         statistics_name,
+        //     );
+        //     if (!statisticsRecord) {
+        //         await this.statisticsModel.insertManyStatisticsRecord({
+        //             statistics_name,
+        //             count: parseCount[statistics_name],
+        //             data,
+        //             statistics_info: '',
+        //             create_at: getTimestamp(),
+        //             update_at: getTimestamp(),
+        //         });
+        //     } else {
+        //         statisticsRecord.count = parseCount[statistics_name];
+        //         statisticsRecord.update_at = getTimestamp();
+        //         statisticsRecord.data = data
+        //         await this.updateStatisticsRecord(statisticsRecord);
+        //     }
+        // }
         this.cronTaskWorkingStatusMetric.collect(TaskEnum.statistics, 1)
     }
 

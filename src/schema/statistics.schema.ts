@@ -19,7 +19,7 @@ export const StatisticsSchema = new mongoose.Schema(
   { versionKey: false },
 );
 
-StatisticsSchema.index({ statistics_name: 1 }, { unique: true });
+//StatisticsSchema.index({ statistics_name: 1 }, { unique: true });
 
 StatisticsSchema.statics = {
   async findStatisticsRecord(

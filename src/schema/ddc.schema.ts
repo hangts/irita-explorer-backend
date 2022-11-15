@@ -28,10 +28,10 @@ export const DdcSchema = new mongoose.Schema({
 }, { versionKey: false });
 
 // 新增
-DdcSchema.index({ latest_tx_height: 1, contract_address: 1, ddc_id: 1 }, { background: true });
-DdcSchema.index({ owner: 1, latest_tx_height: -1 }, { background: true });
-DdcSchema.index({ ddc_id: 1, latest_tx_height: -1 }, { background: true });
-DdcSchema.index({ ddc_name: 1, latest_tx_height: -1 }, { background: true });
+//DdcSchema.index({ latest_tx_height: 1, contract_address: 1, ddc_id: 1 }, { background: true });
+//DdcSchema.index({ owner: 1, latest_tx_height: -1 }, { background: true });
+//DdcSchema.index({ ddc_id: 1, latest_tx_height: -1 }, { background: true });
+//DdcSchema.index({ ddc_name: 1, latest_tx_height: -1 }, { background: true });
 
 DdcSchema.statics = {
   async findList(

@@ -38,9 +38,9 @@ export const StakingValidatorSchema = new mongoose.Schema({
     is_black: Boolean,
     moniker_m: String
 })
-StakingValidatorSchema.index({operator_address: 1}, {unique: true})
-StakingValidatorSchema.index({proposer_addr: 1})	
-StakingValidatorSchema.index({jailed: 1, status: 1,tokens:1})
+//StakingValidatorSchema.index({operator_address: 1}, {unique: true})
+//StakingValidatorSchema.index({proposer_addr: 1})
+//StakingValidatorSchema.index({jailed: 1, status: 1,tokens:1})
 
 StakingValidatorSchema.statics = {
 
