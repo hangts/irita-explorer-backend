@@ -15,6 +15,7 @@ export class DenomTaskService {
         @InjectModel('Denom') private denomModel: Model<IDenom>,
         @InjectModel('Tx') private txModel: any,
         @InjectModel('SyncTask') private taskModel: any,
+        @InjectModel('Statistics') private statisticsModel: any,
         private readonly denomHttp: DenomHttp,
         private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
     ) {
@@ -28,6 +29,7 @@ export class DenomTaskService {
             this.cronTaskWorkingStatusMetric.collect(TaskEnum.denom,1)
             return
         }
+        let denomCount = await this.initDenomAllStatistic();
         const denomList: IDenomStruct[] = await (this.denomModel as any).findLastBlockHeight();
         let lastBlockHeight = 0;
         if (denomList && denomList.length > 0) {
@@ -78,6 +80,7 @@ export class DenomTaskService {
                                             last_block_height: tx.height,
                                             last_block_time: tx.time,
                                         }
+                                        denomCount++;
                                         addDenom.push(denom)
                                     break;
                                 case TxType.transfer_denom:
@@ -92,6 +95,7 @@ export class DenomTaskService {
                 }
                 if (addDenom.length) {
                     await (this.denomModel as any).insertManyDenom(addDenom);
+                    await this.updateStatisticsRecord(denomCount);
                 }
                 if (promiseList.length) {
                     await Promise.all(promiseList);
@@ -99,6 +103,35 @@ export class DenomTaskService {
             }
         }
         this.cronTaskWorkingStatusMetric.collect(TaskEnum.denom,1)
+    }
+
+    private async initDenomAllStatistic() {
+        const statistic = await this.statisticsModel.findStatisticsRecord('denom_all');
+        if (!statistic) {
+            // 找不到，查询全部，设置回去
+            const count = await this.denomModel.findCount();
+            await this.statisticsModel.insertManyStatisticsRecord({
+                statistics_name: 'denom_all',
+                count: count,
+                data: '',
+                statistics_info: '',
+                create_at: getTimestamp(),
+                update_at: getTimestamp(),
+            });
+            return count
+        }
+        return statistic.count
+    }
+
+    private async updateStatisticsRecord(denomCount: number) {
+        await this.statisticsModel.updateStatisticsRecord({
+            statistics_name: 'denom_all',
+            count: denomCount,
+            data: '',
+            statistics_info: '',
+            create_at: getTimestamp(),
+            update_at: getTimestamp(),
+        });
     }
 }
 
