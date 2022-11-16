@@ -40,6 +40,7 @@ export class DenomTaskService {
         if (txList && txList.length > 0 && txList[0].height > 0) {
             maxHeight = txList[0].height;
         }
+        let count = await (this.denomModel as any).queryDenomCountWithHeight(lastBlockHeight)
         if (lastBlockHeight < maxHeight) {
             const denomTxList: ITxStruct[] = await (this.txModel as any).queryDenomTxList(lastBlockHeight);
             if (denomTxList && denomTxList.length > 0) {
@@ -95,7 +96,7 @@ export class DenomTaskService {
                 }
                 if (addDenom.length) {
                     await (this.denomModel as any).insertManyDenom(addDenom);
-                    await this.updateStatisticsRecord(denomCount);
+                    await this.updateStatisticsRecord(denomCount-count);
                 }
                 if (promiseList.length) {
                     await Promise.all(promiseList);
