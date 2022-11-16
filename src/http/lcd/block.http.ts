@@ -8,7 +8,7 @@ import { Validatorset, BlockDto} from '../../dto/http.dto';
 export class BlockHttp {
 
     static async queryLatestBlockFromLcd(): Promise<BlockDto> {
-        const url: string = `${cfg.serverCfg.lcdAddr}/blocks/latest`;
+        const url: string = `${cfg.serverCfg.lcdAddr}/cosmos/base/tendermint/v1beta1/blocks/latest`;
         try {
             return await new HttpService().get(url).toPromise().then(res => {
             	return new BlockDto(res.data);
@@ -38,7 +38,7 @@ export class BlockHttp {
     }
 
     static async queryBlockFromLcd(height: string|number): Promise<BlockDto> {
-        const url: string = `${cfg.serverCfg.lcdAddr}/blocks/${height}`;
+        const url: string = `${cfg.serverCfg.lcdAddr}/cosmos/base/tendermint/v1beta1/blocks/${height}`;
         try {
             const data: any = await new HttpService().get(url).toPromise().then(res => res.data);
             if (data) {
@@ -50,8 +50,8 @@ export class BlockHttp {
         }
     }
 
-    static async queryValidatorsets(height:string|number,page=1): Promise<Validatorset[]> {
-        const url: string = `${cfg.serverCfg.lcdAddr}/validatorsets/${height}?page=${page}`;
+    static async queryValidatorsets(height:string|number,offset =0): Promise<Validatorset[]> {
+        const url: string = `${cfg.serverCfg.lcdAddr}/cosmos/base/tendermint/v1beta1/validatorsets/${height}?pagination.offset=${offset}&pagination.limit=100`;
         try {
             const data: any = await new HttpService().get(url).toPromise().then(res => res.data);
             if (data && data.result) {
