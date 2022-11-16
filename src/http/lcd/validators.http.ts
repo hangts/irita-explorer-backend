@@ -6,8 +6,8 @@ import { VValidatorDto } from '../../dto/http.dto';
 @Injectable()
 
 export class ValidatorsHttp {
-    async queryValidatorsFromLcd(pageNum: number, pageSize: number,validatorStatus?: boolean): Promise<VValidatorDto[]>{
-        let validatorsLcdUrl: string = validatorStatus === undefined ? `${cfg.serverCfg.lcdAddr}/node/validators?page=${pageNum}&limit=${pageSize}` : `${cfg.serverCfg.lcdAddr}/node/validators?jailed=${validatorStatus}&page=${pageNum}&limit=${pageSize}`;
+    async queryValidatorsFromLcd(offset: number, limit: number): Promise<VValidatorDto[]>{
+        let validatorsLcdUrl: string = `${cfg.serverCfg.lcdAddr}/cosmos/staking/v1beta1/validators?pagination.offset=${offset}&pagination.limit=${limit}`;
         try {
             const validatorsData:any = await new HttpService().get(validatorsLcdUrl).toPromise().then(result => result.data)
             if(validatorsData && validatorsData.result){

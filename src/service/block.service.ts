@@ -149,15 +149,15 @@ export class BlockService {
 
     async queryAllValidatorset(height):Promise<Validatorset[]> {
         let allValidatorsets = [];
-        let PageNum = 1;
+        let offset = 0;
         let validatorsets = await BlockHttp.queryValidatorsets(height);
         if(validatorsets && validatorsets.length > 0) {
             allValidatorsets = allValidatorsets.concat(validatorsets);
         }
         //判断是否有第二页数据 如果有使用while循环请求
         while (validatorsets && validatorsets.length === 100){
-            PageNum++
-            validatorsets = await BlockHttp.queryValidatorsets(height,PageNum);
+            offset+=100
+            validatorsets = await BlockHttp.queryValidatorsets(height,offset);
             //将第二页及以后的数据合并
             allValidatorsets = allValidatorsets.concat(validatorsets)
         }
