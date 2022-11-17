@@ -242,7 +242,7 @@ export class BlockService {
                     validatorMap[v.proposer_addr] = v;
                 });
                 data.forEach((item)=>{
-                    item.pub_key = getConsensusPubkey(item.pub_key['value'])
+                    item.pub_key = getConsensusPubkey(item.pub_key['key'])
                     const proposer_addr = item.pub_key ? getAddress(item.pub_key).toLocaleUpperCase() : null
                     const validator = validatorMap[proposer_addr];
                     if (validator) {
