@@ -54,8 +54,8 @@ export class BlockHttp {
         const url: string = `${cfg.serverCfg.lcdAddr}/cosmos/base/tendermint/v1beta1/validatorsets/${height}?pagination.offset=${offset}&pagination.limit=100`;
         try {
             const data: any = await new HttpService().get(url).toPromise().then(res => res.data);
-            if (data && data.result) {
-            	return Validatorset.bundleData(data.result.validators);
+            if (data && data.validators) {
+            	return Validatorset.bundleData(data.validators);
             }
         } catch (e) {
             Logger.warn(`api-error from ${url}:`, e.message);
