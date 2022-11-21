@@ -4,7 +4,7 @@ import {BaseReqDto, BaseResDto, PagingReqDto, DeepPagingReqDto} from './base.dto
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
 import {IBindTx,ExternalIBindTx} from '../types/tx.interface';
-import { DefaultPaging } from '../constant';
+import {DefaultPaging, TxType} from '../constant';
 
 /************************   request dto   ***************************/
 //txs request dto
@@ -522,6 +522,8 @@ export class TxResDto extends BaseResDto {
     events_new?:any[];
     contract_addrs?: any[];
     tx_id?: number;
+    extend: object;
+    statistics_msg_type: Array<any>;
 
     constructor(txData) {
         super();
@@ -539,7 +541,6 @@ export class TxResDto extends BaseResDto {
         this.signer = txData.signer;
         this.events = txData.events;
         this.events_new = txData.events_new;
-        this.msgs = txData.msgs;
         this.signers = txData.signers;
         this.fee = txData.fee;
         this.monikers = txData.monikers || [];
@@ -548,6 +549,12 @@ export class TxResDto extends BaseResDto {
         if (txData.addrs) this.addrs = txData.addrs;
         this.contract_addrs = txData.contract_addrs || [];
         this.tx_id = txData.tx_id;
+        if (txData.type === TxType.issue_denom || txData.type === TxType.transfer_denom
+            || txData.type === TxType.mint_nft || txData.type === TxType.edit_nft
+            || txData.type === TxType.transfer_nft || txData.type === TxType.burn_nft) {
+            this.extend = txData.extend;
+        }
+        this.statistics_msg_type = txData.statistics_msg_type;
     }
 
     static bundleData(value: any): TxResDto[] {
