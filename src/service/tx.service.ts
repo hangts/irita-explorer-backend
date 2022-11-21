@@ -1434,9 +1434,13 @@ export class TxService {
                     }
                     extend['properties'] = properties
                     tx.extend = extend
+                    tx.msgs = []
                 }
             }
 
+            if (typeArr.length > 1 || typeArr.length == 0){
+                tx.msgs = []
+            }
 
             let typeList = [];
             typeMap.forEach((value, key) => {

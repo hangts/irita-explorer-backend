@@ -549,11 +549,8 @@ export class TxResDto extends BaseResDto {
         if (txData.addrs) this.addrs = txData.addrs;
         this.contract_addrs = txData.contract_addrs || [];
         this.tx_id = txData.tx_id;
-        if (txData.type === TxType.issue_denom || txData.type === TxType.transfer_denom
-            || txData.type === TxType.mint_nft || txData.type === TxType.edit_nft
-            || txData.type === TxType.transfer_nft || txData.type === TxType.burn_nft) {
-            this.extend = txData.extend;
-        }
+        this.extend = txData.extend;
+        this.msgs = txData.msgs;
         this.statistics_msg_type = txData.statistics_msg_type;
     }
 
