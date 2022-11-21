@@ -114,6 +114,8 @@ export class TxService {
                 }
             });
             item.monikers = monikers;
+            item.statistics_msg_type = tx.statistics_msg_type
+            item.extend = tx.extend
             return item;
         });
         return txData;
@@ -395,6 +397,7 @@ export class TxService {
             txListData = await this.txModel.queryTxList(queryDb);
             if (txListData.data && txListData.data.length > 0) {
                 txListData.data = this.handerEvents(txListData.data)
+                txListData.data = this.handleMsg(txListData.data, queryDb)
                 // add evm info about contract method
                 txListData.data = await this.addContractMethodToTxs(txListData.data)
                 txData = await this.addMonikerToTxs(txListData.data);
@@ -1372,6 +1375,83 @@ export class TxService {
     async queryGovTxTypeList(): Promise<TxTypeResDto[]> {
         const txTypeListData = await this.txTypeModel.queryGovTxTypeList();
         return TxTypeResDto.bundleData(txTypeListData);
+    }
+
+    private handleMsg(txList, queryDb: ITxsQuery) {
+        let typeArr = []
+        if (queryDb.type && queryDb.type.length){
+            typeArr = queryDb.type.split(",");
+        }
+        (txList).forEach(tx => {
+            const typeMap = new Map<string, any>();
+            const senderSet = new Set();
+            const recipientSet = new Set();
+            const idSet = new Set();
+            const nameSet = new Set();
+            const denomSet = new Set();
+            (tx.msgs || []).forEach((msg,index) => {
+                //nft处理多msgs
+                let typeList = typeMap.get(msg.type) || []
+                typeList.push(msg)
+                typeMap.set(msg.type, typeList)
+
+                if (typeArr.length == 1 && msg.type === typeArr[0]) {
+                    senderSet.add(msg.msg.sender)
+                    if (msg.msg.recipient && msg.msg.recipient.length){
+                        recipientSet.add(msg.msg.recipient)
+                    }
+                    if (msg.msg.id && msg.msg.id.length) {
+                        idSet.add(msg.msg.id)
+                    }
+                    if (msg.msg.denom && msg.msg.denom.length) {
+                        denomSet.add(msg.msg.denom)
+                    }
+                    if (msg.msg.name && msg.msg.name.length) {
+                        nameSet.add(msg.msg.name)
+                    }
+                }
+            });
+
+            if (typeArr.length == 1){
+                if (typeArr[0] == TxType.issue_denom || typeArr[0] === TxType.transfer_denom ||
+                    typeArr[0] === TxType.mint_nft || typeArr[0] === TxType.edit_nft ||
+                    typeArr[0] === TxType.burn_nft || typeArr[0] === TxType.transfer_nft) {
+                    let extend = {}, properties = {}
+                    if (idSet.size == 1){
+                        properties['id'] = idSet.values().next().value
+                    }
+                    if (denomSet.size == 1){
+                        properties['denom'] = denomSet.values().next().value
+                    }
+                    if (nameSet.size == 1){
+                        properties['name'] = nameSet.values().next().value
+                    }
+                    if (senderSet.size == 1){
+                        properties['sender'] = senderSet.values().next().value
+                    }
+                    if (recipientSet.size == 1){
+                        properties['recipient'] = recipientSet.values().next().value
+                    }
+                    extend['properties'] = properties
+                    tx.extend = extend
+                    tx.msgs = []
+                }
+            }
+
+            if (typeArr.length > 1 || typeArr.length == 0){
+                tx.msgs = []
+            }
+
+            let typeList = [];
+            typeMap.forEach((value, key) => {
+                let msgType = {}
+                msgType['msg_type'] = key
+                msgType['num'] = value.length
+                typeList.push(msgType)
+            })
+            tx.statistics_msg_type = typeList;
+        });
+        return txList
     }
 }
 
