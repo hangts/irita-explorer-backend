@@ -192,7 +192,10 @@ export class BlockService {
 
             const signaturesMap:any = {};
             block_lcd.block.last_commit.signatures.forEach((item:any)=>{
-                const address = hexToBech32(item.validator_address, addressPrefix.ica);
+                var buffer = new Buffer(item.validator_address,"base64");
+                var validator_address = buffer.toString("hex").toUpperCase()
+                const address = hexToBech32(validator_address, addressPrefix.ica);
+                item.validator_address = validator_address
                 signaturesMap[address] = item;
             }) 
             if (allValidatorsets) {
@@ -287,7 +290,8 @@ export class BlockService {
             blockStruct.height = res.block.header.height;
             blockStruct.time = res.block.header.time;
             blockStruct.txn = res.block.data.txs ? res.block.data.txs.length : 0;
-            blockStruct.hash = res.block_id.hash;
+            var buffer = new Buffer(res.block_id.hash,"base64");
+            blockStruct.hash = buffer.toString("hex").toUpperCase();
             return blockStruct;
         }else {
             return null;
