@@ -111,7 +111,8 @@ export class StatisticsService {
         if (latestBlock && latestBlock.block && latestBlock.block.header) {
             result.height = latestBlock.block.header.height;
             result.latestBlockTime = Math.floor(new Date(latestBlock.block.header.time || '').getTime() / 1000);
-            proposer_address = latestBlock.block.header.proposer_address;
+            var buffer = new Buffer(latestBlock.block.header.proposer_address,"base64");
+            proposer_address =  buffer.toString("hex").toUpperCase();
         }else {
             const res: IBlockStruct | null = await (this.blockModel as any).findOneByHeightDesc();
             if (res) {

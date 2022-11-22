@@ -107,11 +107,11 @@ export class VValidatorDto {
 // /blocks/{height} or /blocks/latest response dto
 export class BlockId {
     hash: string;
-    parts: { total:number, hash:string};
+    part_set_header: { total:number, hash:string};
     constructor(value) {
-        const { hash, parts } = value;
+        const { hash, part_set_header } = value;
         this.hash = hash || '';
-        this.parts = parts;
+        this.part_set_header = part_set_header;
     }
 }
 
