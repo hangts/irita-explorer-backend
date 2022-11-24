@@ -14,6 +14,7 @@ import { ProposalSchema } from '../schema/proposal.schema';
 import { GovHttp } from "../http/lcd/gov.http";
 import { StatisticsSchema } from '../schema/statistics.schema';
 import {MtDenomSchema} from "../schema/mtDenom.schema";
+import {BlockSchema} from "../schema/block.schema";
 @Module({
     imports:[
         MongooseModule.forFeature([{
@@ -65,10 +66,14 @@ import {MtDenomSchema} from "../schema/mtDenom.schema";
             schema: ProposalSchema,
             collection: 'ex_sync_proposal'
         },{
-                name: 'Statistics',
-                schema: StatisticsSchema,
-                collection: 'ex_statistics'
-            }])
+            name: 'Statistics',
+            schema: StatisticsSchema,
+            collection: 'ex_statistics'
+        },{
+            name: 'Block',
+            schema: BlockSchema,
+            collection: 'sync_block'
+        }])
     ],
     providers:[TxService,GovHttp],
     controllers:[TxController],
