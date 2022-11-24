@@ -56,22 +56,30 @@ export function txListParamsHelper(query: ITxsQuery){
           queryParameters['contract_addrs'] = {'$nin':contractAddrArr}
       }
   }
-  if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
-      queryParameters.time = {};
-  }
-  if (query.beginTime && query.beginTime.length) {
-      queryParameters.time.$gte = Number(query.beginTime);
-  }
-  if (query.endTime && query.endTime.length) {
-      queryParameters.time.$lte = Number(query.endTime);
-  }
-
-  if (query.txId) {
+  if ((query.beginTxId && query.beginTxId.length) || (query.endTxId && query.endTxId.length)) {
       queryParameters.tx_id = {};
-  }
 
-  if (query.txId) {
-      queryParameters.tx_id.$lt = Number(query.txId);
+      queryParameters.tx_id.$gte = Number(query.beginTxId);
+
+      if (query.endTxId && query.endTxId.length){
+          if (query.txId) {
+              queryParameters.tx_id.$lt = Number(query.txId);
+          } else {
+              queryParameters.tx_id.$lte = Number(query.endTxId);
+          }
+      } else {
+          if (query.txId) {
+              queryParameters.tx_id.$lt = Number(query.txId);
+          }
+      }
+  } else {
+      if (query.txId) {
+          queryParameters.tx_id = {};
+      }
+
+      if (query.txId) {
+          queryParameters.tx_id.$lt = Number(query.txId);
+      }
   }
   return queryParameters
 }
@@ -97,6 +105,7 @@ export function StakingTxListParamsHelper(query: ITxsQuery){
       queryParameters['addrs'] = query.address;
       // queryParameters['addrs'] = { $elemMatch: { $eq: query.address } };
   }
+
   if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
       queryParameters.time = {};
   }

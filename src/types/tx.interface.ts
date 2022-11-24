@@ -13,6 +13,8 @@ export interface ITxsQueryParams extends IQueryBase {
     },
     tx_id?: {
         $lt?: number,
+        $gte?: number,
+        $lte?: number,
     },
 }
 

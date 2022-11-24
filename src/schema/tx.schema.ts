@@ -104,16 +104,9 @@ export const TxSchema = new mongoose.Schema({
 TxSchema.statics.queryTxList = async function(query: ITxsQuery): Promise<ListStruct> {
     const result: ListStruct = {};
     const queryParameters = txListParamsHelper(query)
-    if ((query.beginTime && query.beginTime.length) || (query.endTime && query.endTime.length)) {
-        result.data = await this.find(queryParameters, dbRes.txList)
-            .hint(cfg.indexName)
-            .sort({ tx_id: -1 })
-            .limit(Number(query.limit));
-    }else {
-        result.data = await this.find(queryParameters, dbRes.txList)
-            .sort({ tx_id: -1 })
-            .limit(Number(query.limit));
-    }
+    result.data = await this.find(queryParameters, dbRes.txList)
+        .sort({ tx_id: -1 })
+        .limit(Number(query.limit));
     return result;
 };
 

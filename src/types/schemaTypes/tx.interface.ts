@@ -7,6 +7,8 @@ export interface ITxsQuery extends IQueryBase {
     contract_addr?:string,
 	beginTime?:string,
   	endTime?:string,
+    beginTxId?:string,
+    endTxId?:string,
     txId?:number,
     limit?:number,
 }
