@@ -73,6 +73,7 @@ export class TxService {
         @InjectModel('StakingValidator') private stakingValidatorModel: any,
         @InjectModel('Proposal') private proposalModel: any,
         @InjectModel('Statistics') private statisticsModel: any,
+        @InjectModel('Block') private blockModel: any,
         private readonly govHttp: GovHttp
     ) {
         this.cacheTxTypes();
@@ -394,6 +395,18 @@ export class TxService {
             }
 
           if(limit){
+              if (query.beginTime && query.beginTime.length) {
+                  const startHeight = await this.blockModel.findMinBlockWithTime(query.beginTime, query.endTime);
+                  queryDb.beginTxId = String(startHeight * 100000)
+              }
+
+              if (query.endTime && query.endTime.length) {
+                  if (new Date(Number(query.endTime)*1000).toDateString() != new Date().toDateString()){
+                      const endHeight = await this.blockModel.findMaxBlockWithTime(query.beginTime,query.endTime);
+                      queryDb.endTxId = String(endHeight * 100000 + 99999)
+                  }
+              }
+
             txListData = await this.txModel.queryTxList(queryDb);
             if (txListData.data && txListData.data.length > 0) {
                 txListData.data = this.handerEvents(txListData.data)
