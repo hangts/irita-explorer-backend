@@ -93,4 +93,16 @@ BlockSchema.statics = {
       return null;
     }
   },
+
+    async findMaxBlockWithTime(startTime: number,endTime: number): Promise<number> {
+        const data:IBlockStruct = await this.findOne({"time": {$gte:startTime,$lte:endTime}})
+            .sort({ time: -1 }).exec();
+        return data.height
+    },
+
+    async findMinBlockWithTime(startTime: number,endTime: number): Promise<number> {
+        const data:IBlockStruct = await this.findOne({"time": {$gte:startTime,$lte:endTime}})
+            .sort({ time: 1 }).exec();
+        return data.height
+    },
 };
