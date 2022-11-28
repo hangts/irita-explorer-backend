@@ -100,7 +100,7 @@ BlockSchema.statics = {
         if (data) {
             return data.height;
         } else {
-            return null;
+            return 0;
         }
     },
 
@@ -110,7 +110,7 @@ BlockSchema.statics = {
         if (data) {
             return data.height;
         } else {
-            return null;
+            return 0;
         }
     },
 };

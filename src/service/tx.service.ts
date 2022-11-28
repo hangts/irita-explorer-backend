@@ -397,12 +397,18 @@ export class TxService {
           if(limit){
               if (query.beginTime && query.beginTime.length) {
                   const startHeight = await this.blockModel.findMinBlockWithTime(query.beginTime, query.endTime);
+                  if (startHeight === 0){
+                      return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
+                  }
                   queryDb.beginTxId = String(startHeight * 100000)
               }
 
               if (query.endTime && query.endTime.length) {
                   if (new Date(Number(query.endTime)*1000).toDateString() != new Date().toDateString()){
                       const endHeight = await this.blockModel.findMaxBlockWithTime(query.beginTime,query.endTime);
+                      if (endHeight === 0){
+                          return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
+                      }
                       queryDb.endTxId = String(endHeight * 100000 + 99999)
                   }
               }
