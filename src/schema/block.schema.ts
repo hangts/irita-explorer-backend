@@ -97,12 +97,20 @@ BlockSchema.statics = {
     async findMaxBlockWithTime(startTime: number,endTime: number): Promise<number> {
         const data:IBlockStruct = await this.findOne({"time": {$gte:startTime,$lte:endTime}})
             .sort({ time: -1 }).exec();
-        return data.height
+        if (data) {
+            return data.height;
+        } else {
+            return null;
+        }
     },
 
     async findMinBlockWithTime(startTime: number,endTime: number): Promise<number> {
         const data:IBlockStruct = await this.findOne({"time": {$gte:startTime,$lte:endTime}})
             .sort({ time: 1 }).exec();
-        return data.height
+        if (data) {
+            return data.height;
+        } else {
+            return null;
+        }
     },
 };
