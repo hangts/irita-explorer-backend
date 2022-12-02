@@ -197,7 +197,7 @@ TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number
     const result: ListStruct = {};
     const queryParameters = TxListEdgeParamsHelper(types, gt_height, status, address, include_event_addr)
     result.data = await this.find(queryParameters)
-    .sort({ time: 1 })
+    .sort({ height: 1 })
     .skip((Number(pageNum) - 1) * Number(pageSize))
     .limit(Number(pageSize));
     return result;
