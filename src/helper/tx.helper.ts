@@ -171,6 +171,9 @@ export const dbRes = {
         'msgs.msg.total_reward':1,
         'msgs.msg.pool_id':1,
         'msgs.msg.hash':1,
+        'msgs.msg.counterparty_denom':1,
+        'msgs.msg.exact_token':1,
+        'msgs.msg.min_token':1,
 
     },
     service:{
