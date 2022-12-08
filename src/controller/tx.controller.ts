@@ -77,7 +77,7 @@ export class TxController {
         return new Result<any>(data);
     }
 
-    // 供eageServer调用  返回数据不做过滤
+    // 供edgeServer和coinswap调用  返回数据不做过滤
     @Get('/e')
     async queryTxListEdge(@Query() query: eTxListReqDto): Promise<Result<ListStruct<any>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxListEdge(query);

@@ -192,7 +192,7 @@ TxSchema.statics.queryGovTxListCount = async function(query: ITxsQuery): Promise
   return await this.find(queryParameters).countDocuments();
 }
 
-//  txs/e 供edgeServer调用  返回数据不做过滤
+//  txs/e 供edgeServer和coinswap调用  返回数据不做过滤
 TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, status?:number, address?:string, include_event_addr?:boolean): Promise<ListStruct> {
     const result: ListStruct = {};
     const queryParameters = TxListEdgeParamsHelper(types, gt_height, status, address, include_event_addr)
