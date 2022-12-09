@@ -23,6 +23,7 @@ export class proposalsVoterReqDto extends DeepPagingReqDto {
 
 export class govProposalResDto extends BaseResDto {
     id: string;
+    messages: object;
     content: object;
     status: string;
     final_tally_result: object;
@@ -37,10 +38,12 @@ export class govProposalResDto extends BaseResDto {
     quorum: string;
     threshold: string;
     veto_threshold: string;
+    metadata: string;
 
     constructor(proposal) {
         super();
         this.id = proposal.id || '';
+        this.messages = proposal.messages || [];
         this.content = proposal.content || {};
         this.status = proposal.status || '';
         this.final_tally_result = proposal.final_tally_result || {};
@@ -55,6 +58,7 @@ export class govProposalResDto extends BaseResDto {
         this.quorum = proposal.quorum || '';
         this.threshold = proposal.threshold || '';
         this.veto_threshold = proposal.veto_threshold || '';
+        this.metadata = proposal.metadata || '';
     }
 
     static bundleData(value: any): govProposalResDto[] {

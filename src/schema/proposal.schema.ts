@@ -10,6 +10,7 @@ import {
 export const ProposalSchema = new mongoose.Schema({
     id: Number,
     content: Object,
+    messages: Object,
     status: String,
     final_tally_result: Object,
     current_tally_result: Object,
@@ -26,6 +27,7 @@ export const ProposalSchema = new mongoose.Schema({
     quorum: String,
     threshold: String,
     veto_threshold: String,
+    metadata: String,
     create_time: Number,
     update_time: Number
 })
