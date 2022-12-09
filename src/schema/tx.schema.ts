@@ -715,6 +715,18 @@ TxSchema.statics.findBindServiceTxList = async function(
 
 };
 
+TxSchema.statics.findBindServiceInServiceName = async function(
+  serviceNames: string[],
+): Promise<ITxStruct> {
+    const queryParameters: any = {
+        'msgs.type': TxType.bind_service,
+        status: TxStatus.SUCCESS,
+        'msgs.msg.ex.service_name': {'$in': serviceNames},
+    };
+
+    return await this.find(queryParameters).sort({ time: -1 });
+};
+
 //查询某个provider在某个service下所有的响应次数
 TxSchema.statics.findProviderRespondTimesForService = async function(serviceName: string, provider: string): Promise<number> {
     const queryParameters: any = {

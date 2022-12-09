@@ -24,6 +24,7 @@ export interface IListStruct {
 }
 
 export interface IBindTx {
+    serviceName?: string,
     provider: string;
     respondTimes?: number,
     bindTime: string,
