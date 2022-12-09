@@ -6,6 +6,7 @@ import { ProposalSchema } from '../schema/proposal.schema';
 import { ProposalDetailSchema } from '../schema/proposal.detail.schema';
 import { ProposalTaskService } from "../task/proposal.task.service";
 import { GovHttp } from "../http/lcd/gov.http";
+import { Govv1Http } from "../http/lcd/govv1.http";
 import { StakingValidatorSchema } from "../schema/staking.validator.schema";
 import {StakingHttp} from "../http/lcd/staking.http";
 import {
@@ -48,7 +49,7 @@ import {ValidatorSchema} from "../schema/validators.schema";
             },
         ])
     ],
-    providers:[ProposalTaskService,GovHttp,StakingHttp,CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
+    providers:[ProposalTaskService,GovHttp,Govv1Http,StakingHttp,CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
     exports: [ProposalTaskService]
 })
 export class ProposalTaskModule{}

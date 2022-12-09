@@ -1,5 +1,6 @@
 export interface IGovProposal {
     id: string,
+    messages: object,
     content: object,
     status: string,
     final_tally_result: object,
@@ -12,6 +13,7 @@ export interface IGovProposal {
     voting_end_time: number,
     hash:string,
     proposer: string,
+    metadata: string,
     is_deleted: boolean,
     min_deposit: string,
     quorum: string,
