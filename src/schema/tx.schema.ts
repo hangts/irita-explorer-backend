@@ -192,7 +192,7 @@ TxSchema.statics.queryGovTxListCount = async function(query: ITxsQuery): Promise
   return await this.find(queryParameters).countDocuments();
 }
 
-//  txs/e 供edgeServer调用  返回数据不做过滤
+//  txs/e 供edgeServer和coinswap调用  返回数据不做过滤
 TxSchema.statics.queryTxListEdge = async function(types:string, gt_height:number, pageNum:number, pageSize:number, status?:number, address?:string, include_event_addr?:boolean): Promise<ListStruct> {
     const result: ListStruct = {};
     const queryParameters = TxListEdgeParamsHelper(types, gt_height, status, address, include_event_addr)
@@ -713,6 +713,18 @@ TxSchema.statics.findBindServiceTxList = async function(
         return await this.find(queryParameters).sort({ time: -1 });
     }
 
+};
+
+TxSchema.statics.findBindServiceInServiceName = async function(
+  serviceNames: string[],
+): Promise<ITxStruct> {
+    const queryParameters: any = {
+        'msgs.type': TxType.bind_service,
+        status: TxStatus.SUCCESS,
+        'msgs.msg.ex.service_name': {'$in': serviceNames},
+    };
+
+    return await this.find(queryParameters).sort({ time: -1 });
 };
 
 //查询某个provider在某个service下所有的响应次数

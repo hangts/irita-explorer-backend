@@ -9,6 +9,7 @@ const {
     DB_ADDR,
     ICONURI,
     VALIDATORS_API_CLOSE,
+    DISABLE_SERVICE_RESPOND_TIME,
     DB_DATABASE,
     NODE_ENV,
     DENOM_EXECUTE_TIME,
@@ -54,6 +55,7 @@ export const cfg = {
         chainId:CHAIN_ID,
         iconUri: ICONURI || 'https://keybase.io/_/api/1.0/user/lookup.json',
         validatorsApiClose: VALIDATORS_API_CLOSE || 'false',
+        disableServiceRespondTime: Boolean(DISABLE_SERVICE_RESPOND_TIME=='true'),
     },
     taskCfg:{
         interval:{

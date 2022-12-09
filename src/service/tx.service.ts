@@ -59,6 +59,7 @@ import {addressTransform, splitString} from '../util/util';
 import {GovHttp} from '../http/lcd/gov.http';
 import {txListParamsHelper, TxWithAddressParamsHelper} from '../helper/params.helper';
 import {getConsensusPubkey} from "../helper/staking.helper";
+import {cfg} from "../config/config";
 
 @Injectable()
 export class TxService {
@@ -1010,29 +1011,51 @@ export class TxService {
                   bind: ex.bind || 0,
               };
           });
-          for (const name of serviceNameList) {
-              if (name.bind && name.bind > 0) {
-                  // 通过服务名，查询出该服务下的所有提供者以及绑定的时间
-                  const bindServiceTxList: ITxStruct[] = await (this.txModel as any).findBindServiceTxList(name.serviceName);
-                  const bindTxList: IBindTx[] = bindServiceTxList.map((item: any) => {
-                      return {
-                          provider: item.msgs[0].msg.provider,
-                          bindTime: item.time,
-                      };
-                  });
-                  //查出每个provider在当前绑定的serviceName下的绑定次数
-                  for (const bindTx of bindTxList) {
-                      bindTx.respondTimes = await (this.txModel as any).findProviderRespondTimesForService(name.serviceName, bindTx.provider);
+
+          let serviceNameBindTxsMap = new Map<string, IBindTx[]>();
+          const serviceNames = serviceNameList.map(s => s.serviceName);
+          if (serviceNames.length > 0) {
+              // 通过服务名，查询所有服务下的所有提供者以及绑定的时间
+              const bindServiceTxList: ITxStruct[] = await (this.txModel as any).findBindServiceInServiceName(serviceNames);
+              const bindTxList: IBindTx[] = bindServiceTxList.map((item: any) => {
+                  return {
+                      serviceName: item.msgs[0].msg.ex.service_name,
+                      provider: item.msgs[0].msg.provider,
+                      bindTime: item.time,
+                  };
+              });
+              // 查出每个provider在当前绑定的serviceName下的绑定次数
+              // 并按serviceName分组，key：serviceName，value: 该serviceName的绑定列表
+              for (const bindTx of bindTxList) {
+                  bindTx.respondTimes = 0;
+                  if (!cfg.serverCfg.disableServiceRespondTime) {
+                      bindTx.respondTimes = await (this.txModel as any).findProviderRespondTimesForService(bindTx.serviceName, bindTx.provider);
                   }
-                  name.bindList = bindTxList;
-              } else {
-                  name.bindList = [];
+                  const bindTxs = serviceNameBindTxsMap.get(bindTx.serviceName);
+                  if (bindTxs) {
+                      bindTxs.push(bindTx)
+                      serviceNameBindTxsMap.set(bindTx.serviceName, bindTxs)
+                  }else {
+                      const temp:IBindTx[] = [];
+                      temp.push(bindTx)
+                      serviceNameBindTxsMap.set(bindTx.serviceName, temp)
+                  }
               }
           }
-              res = serviceNameList.map((service: IServiceName) => {
+
+          for (const service of serviceNameList) {
+              if (service.bind && service.bind > 0) {
+                  service.bindList = serviceNameBindTxsMap.get(service.serviceName) || [];
+              } else {
+                  service.bindList = [];
+              }
+          }
+
+          res = serviceNameList.map((service: IServiceName) => {
               return new ServiceResDto(service.serviceName, service.description, service.bindList);
           });
         }
+
         if (useCount) {
             count = await (this.txModel as any).findAllServiceCount(nameOrDescription);
         }
