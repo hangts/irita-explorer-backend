@@ -524,6 +524,7 @@ export class TxResDto extends BaseResDto {
     tx_id?: number;
     extend: object;
     statistics_msg_type: Array<any>;
+    payer: string;
 
     constructor(txData) {
         super();
@@ -552,6 +553,7 @@ export class TxResDto extends BaseResDto {
         this.extend = txData.extend;
         this.msgs = txData.msgs;
         this.statistics_msg_type = txData.statistics_msg_type;
+        this.payer = txData.payer
     }
 
     static bundleData(value: any): TxResDto[] {

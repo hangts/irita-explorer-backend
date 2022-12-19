@@ -15,6 +15,10 @@ import { GovHttp } from "../http/lcd/gov.http";
 import { StatisticsSchema } from '../schema/statistics.schema';
 import {MtDenomSchema} from "../schema/mtDenom.schema";
 import {BlockSchema} from "../schema/block.schema";
+import {ContractErc20Schema} from "../schema/ContractErc20.schema";
+import {ContractErc721Schema} from "../schema/ContractErc721.schema";
+import {ContractErc1155Schema} from "../schema/ContractErc1155.schema";
+import {ContractOtherSchema} from "../schema/ContractOther.schema";
 @Module({
     imports:[
         MongooseModule.forFeature([{
@@ -73,6 +77,22 @@ import {BlockSchema} from "../schema/block.schema";
             name: 'Block',
             schema: BlockSchema,
             collection: 'sync_block'
+        },{
+            name: 'ContractErc20',
+            schema: ContractErc20Schema,
+            collection: 'ex_contract_erc20'
+        },{
+            name: 'ContractErc721',
+            schema: ContractErc721Schema,
+            collection: 'ex_contract_erc721'
+        },{
+            name: 'ContractErc1155',
+            schema: ContractErc1155Schema,
+            collection: 'ex_contract_erc1155'
+        },{
+            name: 'ContractOther',
+            schema: ContractOtherSchema,
+            collection: 'ex_contract_other'
         }])
     ],
     providers:[TxService,GovHttp],

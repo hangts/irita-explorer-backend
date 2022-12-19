@@ -1,4 +1,4 @@
-import { cfg } from '../config/config';
+import {cfg} from '../config/config';
 
 export enum TaskEnum {
     denom = 'ex_sync_denom',
@@ -52,15 +52,25 @@ export enum ENV {
 };
 
 export enum DDCType {
-    contractTag= 'ddc_',
+    contractTag = 'ddc_',
     dataDdc = 'DDC',
     ddc721 = 'DDC721',
     ddc1155 = 'DDC1155',
 }
+
+export enum ERCType {
+    contractTag = 'erc_',
+    erc20 = 1,
+    erc721 = 2,
+    erc1155 = 3,
+    all = 4,
+}
+
+
 export const ContractType = {
-    'ddc_other':-1,
-    'ddc_721':1,
-    'ddc_1155':2,
+    'erc_20_transaction': 1,
+    'erc_721_transaction': 2,
+    'erc_1155_transaction': 3,
 }
 
 //txs/addresses/statistic (datangchain-explorer)
@@ -69,6 +79,7 @@ export enum TxCntQueryCond {
     sendQueryCnt,
     multisendQueryCnt
 }
+
 export enum TxType {
     // service
     define_service = 'define_service',
@@ -111,7 +122,7 @@ export enum TxType {
     edit_token = 'edit_token',
     mint_token = 'mint_token',
     transfer_token_owner = 'transfer_token_owner',
-    burn_token= 'burn_token',
+    burn_token = 'burn_token',
     //Transfer
     send = 'send',
     multisend = 'multisend',
@@ -205,11 +216,12 @@ export const PubKeyAlgorithm = {
     5: 'SM2',
 }
 
-export enum currentChain  {
-    cosmos ='cosmos',
-    iris ='iris',
+export enum currentChain {
+    cosmos = 'cosmos',
+    iris = 'iris',
     binance = 'binance'
 }
+
 export const deFaultGasPirce = 1
 export const signedBlocksWindow = 'signed_blocks_window'
 export const hubDefaultEmptyValue = '[do-not-modify]'
@@ -221,14 +233,13 @@ export const moduleGovDeposit = 'min_deposit'
 export const defaultEvmTxReceiptErrlog = 'failed to execute message'
 
 
-
 export const ValidatorStatus = {
     'Unbonded': 1,
     'Unbonding': 2,
     'bonded': 3,
 }
 
-let addressPrefix,validatorStatusStr;
+let addressPrefix, validatorStatusStr;
 switch (cfg.currentChain) {
     case currentChain.iris:
         // validatorStatusStr = {
@@ -265,7 +276,7 @@ switch (cfg.currentChain) {
         break;
 }
 export {
-    validatorStatusStr,addressPrefix
+    validatorStatusStr, addressPrefix
 }
 
 export const validatorStatusFromLcd = {
@@ -316,7 +327,7 @@ export const govParams = {
     min_deposit: 'min_deposit',
     quorum: 'quorum',
     threshold: 'threshold',
-    veto_threshold:'veto_threshold'
+    veto_threshold: 'veto_threshold'
 }
 
 export const voteOptions = {
@@ -337,9 +348,9 @@ export const queryVoteOptionCount = {
 export const addressAccount = 'xxx'
 
 export const SRC_PROTOCOL = {
-    NATIVE:'native',
-    HTLT:'htlt',
-    IBC:'ibc',
-    SWAP:'swap',
-    PEG:'peg',
+    NATIVE: 'native',
+    HTLT: 'htlt',
+    IBC: 'ibc',
+    SWAP: 'swap',
+    PEG: 'peg',
 }

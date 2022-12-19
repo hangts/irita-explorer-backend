@@ -9,7 +9,7 @@ import {
   ITXWithIdentity,
 } from '../types/schemaTypes/tx.interface';
 import { IGovProposalQuery } from '../types/schemaTypes/proposal.interface';
-import { ContractType, DDCType, TxStatus, TxType } from '../constant';
+import {ContractType, DDCType, ERCType, TxStatus, TxType} from '../constant';
 import { ITxsQueryParams } from '../types/tx.interface';
 import { coinswapTypes, declarationTypes, govTypes, stakingTypes } from '../helper/txTypes.helper';
 import Cache from '../helper/cache';
@@ -17,13 +17,9 @@ import Cache from '../helper/cache';
 export function txListParamsHelper(query: ITxsQuery){
   const queryParameters: ITxsQueryParams = {};
   let ddcType:number = 0
-  //ddc_1155/ddc_721/ddc_other
-  if (query.type && query.type.includes(DDCType.contractTag)) {
-    ddcType = ContractType[query.type]
-    //ddc_other
-    if (ddcType < 0) {
-        queryParameters['msgs.type'] = TxType.ethereum_tx
-    }
+  //合约交易
+  if (query.type && query.type.includes(ERCType.contractTag)) {
+      queryParameters['msgs.type'] = TxType.ethereum_tx
   }else if (query.type && query.type.length) {
       let typeArr = query.type.split(",");
       queryParameters['msgs.type'] = {
@@ -48,13 +44,14 @@ export function txListParamsHelper(query: ITxsQuery){
   }
   if (query.contract_addr && query.contract_addr.length) {
       let contractAddrArr = query.contract_addr.split(",");
-      //ddc_721 or ddc_1155
+      /*//ddc_721 or ddc_1155
       if (ddcType > 0) {
           queryParameters['contract_addrs'] = {'$in':contractAddrArr}
       }else if (ddcType < 0) {
           //ddc_other
           queryParameters['contract_addrs'] = {'$nin':contractAddrArr}
-      }
+      }*/
+      queryParameters['contract_addrs'] = {'$in':contractAddrArr}
   }
   if ((query.beginTxId && query.beginTxId.length) || (query.endTxId && query.endTxId.length)) {
       queryParameters.tx_id = {};
