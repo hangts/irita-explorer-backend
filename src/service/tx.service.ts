@@ -358,18 +358,21 @@ export class TxService {
                     const evm = EvmContract.get(msg?.msg?.hash)
                     //msg.msg.ex['ddc_method'] = evmData?.evm_method
                     if (evmData?.evm_method) {
-                        msg.msg.ex['method'] = evmData?.evm_method
+                        msg.msg.ex['method'] = "Contract_" + evmData?.evm_method
                         msg.msg.ex['contract_name'] = contractMap[evmData?.contract_address] ? contractMap[evmData?.contract_address] : evmData?.contract_address
+                        msg.msg.ex['address'] = evmData?.contract_address
                     }else if (evm?.evm_datas[0].input_data) {
                         if (evm?.evm_datas[0].input_data.name == "") {
-                            msg.msg.ex['method'] = evm?.evm_datas[0].input_data.id
+                            msg.msg.ex['method'] = "Contract_" + evm?.evm_datas[0].input_data.id
                         } else {
-                            msg.msg.ex['method'] = evm?.evm_datas[0].input_data.name
+                            msg.msg.ex['method'] = "Contract_" + evm?.evm_datas[0].input_data.name
                         }
                         msg.msg.ex['contract_name'] = contractMap[evm?.contract_address] ? contractMap[evm?.contract_address] : evm?.contract_address
+                        msg.msg.ex['address'] = evm?.contract_address
                     } else {
                         msg.msg.ex['method'] = "Ethereum_Tx"
                         msg.msg.ex['contract_name'] = contractMap[evm?.contract_address] ? contractMap[evm?.contract_address] : evm?.contract_address
+                        msg.msg.ex['address'] = evm?.contract_address
                     }
                   }
                 }

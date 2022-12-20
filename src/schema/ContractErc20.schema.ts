@@ -6,7 +6,7 @@ export const ContractErc20Schema = new mongoose.Schema({
   name: String,
   contract_addr: String,
   creator_contract_addr: String,
-  decimal: String,
+  decimal: Number,
   total_supply: String,
   holders: Number,
   icon: String,
