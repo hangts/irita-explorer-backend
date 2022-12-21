@@ -45,21 +45,22 @@ import {ITxsQuery, ITxStruct, ITxsWithAddressQuery, ITxsWithNftQuery} from '../t
 import {getReqContextIdFromEvents, getServiceNameFromMsgs} from '../helper/tx.helper';
 import Cache from '../helper/cache';
 import {
-  addressPrefix,
-  ContractType,
-  DDCType,
-  defaultEvmTxReceiptErrlog,
-  deFaultGasPirce,
-  proposal as proposalString,
-  TxCntQueryCond,
-  TxsListCountName,
-  TxType,
+    addressPrefix,
+    ContractType,
+    DDCType,
+    defaultEvmTxReceiptErrlog,
+    deFaultGasPirce, ERCType,
+    proposal as proposalString,
+    TxCntQueryCond,
+    TxsListCountName,
+    TxType,
 } from '../constant';
 import {addressTransform, splitString} from '../util/util';
 import {GovHttp} from '../http/lcd/gov.http';
 import {txListParamsHelper, TxWithAddressParamsHelper} from '../helper/params.helper';
 import {getConsensusPubkey} from "../helper/staking.helper";
 import {cfg} from "../config/config";
+import {ContractErc20Schema} from "../schema/ContractErc20.schema";
 
 @Injectable()
 export class TxService {
@@ -75,10 +76,14 @@ export class TxService {
         @InjectModel('Proposal') private proposalModel: any,
         @InjectModel('Statistics') private statisticsModel: any,
         @InjectModel('Block') private blockModel: any,
+        @InjectModel('ContractErc20') private ContractErc20Model: any,
+        @InjectModel('ContractErc721') private ContractErc721Model: any,
+        @InjectModel('ContractErc1155') private ContractErc1155Model: any,
+        @InjectModel('ContractOther') private ContractOtherModel: any,
         private readonly govHttp: GovHttp
     ) {
         this.cacheTxTypes();
-        this.cacheEvmContract();
+        //this.cacheEvmContract();
     }
 
     handleAcutalFee(tx) {
@@ -283,25 +288,92 @@ export class TxService {
           }
           const txEvms = await this.txEvmModel.findEvmTxsByHashes(txHashes)
           let mapEvmContract = new Map()
+          let EvmContract = new Map()
           if (!txEvms?.length) {
             return txList
           }
+          let contractAddrs = []
           for( const evmTx of txEvms) {
+            if (evmTx.contract_address) {
+                contractAddrs.push(evmTx.contract_address)
+            }
             if (evmTx?.evm_datas?.length){
               for (const data of evmTx.evm_datas) {
                 mapEvmContract.set(data?.evm_tx_hash, data)
+                contractAddrs.push(data?.contract_address)
               }
+                EvmContract.set(evmTx?.evm_tx_hash, evmTx)
             }
           }
+
+          //查配置表
+        const evmConfigs = await this.evmContractCfgModel.queryAllByContractAddr(contractAddrs)
+        let erc20Addr = [], erc721Addr = [], erc1155Addr = [], allAddr = []
+        evmConfigs.forEach(item => {
+              switch (item.contract_type) {
+                  case ERCType.erc20:
+                      erc20Addr.push(item.contract_addr)
+                      break
+                  case ERCType.erc721:
+                      erc721Addr.push(item.contract_addr)
+                      break
+                  case ERCType.erc1155:
+                      erc1155Addr.push(item.contract_addr)
+                      break
+                  case ERCType.all:
+                      allAddr.push(item.contract_addr)
+                      break
+              }
+        })
+
+        const contractMap = new Map();
+        if (erc20Addr.length){
+            const erc20List = await this.ContractErc20Model.findListInContractAddrs(erc20Addr)
+            erc20List.forEach(item => contractMap.set(item.contract_addr, item.name))
+        }
+
+        if (erc721Addr.length){
+            const erc721List = await this.ContractErc721Model.findListInContractAddrs(erc721Addr)
+            erc721List.forEach(item => contractMap.set(item.contract_addr, item.name))
+        }
+
+        if (erc1155Addr.length){
+            const erc1155List = await this.ContractErc1155Model.findListInContractAddrs(erc1155Addr)
+            erc1155List.forEach(item => contractMap.set(item.contract_addr, item.name))
+        }
+
+        if (allAddr.length){
+            const otherList = await this.ContractOtherModel.findListInContractAddrs(allAddr)
+            otherList.forEach(item => contractMap.set(item.contract_addr, item.name))
+        }
+
 
       return (txList || []).map((tx) => {
             if (tx.msgs?.length) {
               tx.msgs?.forEach((msg, index) => {
                 if (msg.type === TxType.ethereum_tx) {
                     msg.msg.ex = {}
-                  if (mapEvmContract.has(msg?.msg?.hash)) {
+                    if (mapEvmContract.has(msg?.msg?.hash) || EvmContract.has(msg?.msg?.hash)) {
                     const evmData = mapEvmContract.get(msg?.msg?.hash)
-                    msg.msg.ex['ddc_method'] = evmData?.evm_method
+                    const evm = EvmContract.get(msg?.msg?.hash)
+                    //msg.msg.ex['ddc_method'] = evmData?.evm_method
+                    if (evmData?.evm_method) {
+                        msg.msg.ex['method'] = "Contract_" + evmData?.evm_method
+                        msg.msg.ex['contract_name'] = contractMap[evmData?.contract_address] ? contractMap[evmData?.contract_address] : evmData?.contract_address
+                        msg.msg.ex['address'] = evmData?.contract_address
+                    }else if (evm?.evm_datas[0].input_data) {
+                        if (evm?.evm_datas[0].input_data.name == "") {
+                            msg.msg.ex['method'] = "Contract_" + evm?.evm_datas[0].input_data.id
+                        } else {
+                            msg.msg.ex['method'] = "Contract_" + evm?.evm_datas[0].input_data.name
+                        }
+                        msg.msg.ex['contract_name'] = contractMap[evm?.contract_address] ? contractMap[evm?.contract_address] : evm?.contract_address
+                        msg.msg.ex['address'] = evm?.contract_address
+                    } else {
+                        msg.msg.ex['method'] = "Ethereum_Tx"
+                        msg.msg.ex['contract_name'] = contractMap[evm?.contract_address] ? contractMap[evm?.contract_address] : evm?.contract_address
+                        msg.msg.ex['address'] = evm?.contract_address
+                    }
                   }
                 }
               })
@@ -374,7 +446,33 @@ export class TxService {
                 limit: limit,
             }
             //search contract_address when type is ethereum_tx
-            if (type && type.includes(DDCType.contractTag)) {
+            if (type && type.includes(ERCType.contractTag)) {
+                const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs();
+                let typeArr = type.split(",");
+                if (typeArr.length > 1) {
+                    //查询全部
+                    if (evmConfigs) {
+                        const addrs:string[] = evmConfigs.map((item) => item?.contract_addr)
+                        if (addrs && addrs.length) {
+                            queryDb.contract_addr = addrs.join(",");
+                        }
+                    }
+                } else {
+                    const ercType = ContractType[type]
+                    let addrs = [];
+                    evmConfigs.forEach(item => {
+                        if (item.contract_type == ercType) {
+                            addrs.push(item.contract_addr)
+                        }
+                    })
+                    if (addrs && addrs.length) {
+                        queryDb.contract_addr = addrs.join(",");
+                    }
+                }
+            }
+
+
+           /* if (type && type.includes(DDCType.contractTag)) {
                 await this.cacheEvmContract();
                 // queryDb.type = TxType.ethereum_tx
                 const ddcType = ContractType[type]
@@ -393,7 +491,7 @@ export class TxService {
                 } else {
                     return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
                 }
-            }
+            }*/
 
           if(limit){
               if (query.beginTime && query.beginTime.length) {
@@ -688,10 +786,10 @@ export class TxService {
               limit: limit,
           }
           //search contract_address when type is ethereum_tx
-          if (type && type.includes(DDCType.contractTag)) {
-              await this.cacheEvmContract();
+          if (type && type.includes(ERCType.contractTag)) {
+              //await this.cacheEvmContract();
               // queryDb.type = TxType.ethereum_tx
-              const ddcType = ContractType[type]
+              /*const ddcType = ContractType[type]
               if (ddcType) {
                   if (ddcType > 0) {
                       queryDb.contract_addr = Cache.supportEvmTypeAddr.get(ddcType)
@@ -706,6 +804,28 @@ export class TxService {
                   }
               } else {
                   return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
+              }*/
+              const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs();
+              let typeArr = type.split(",");
+              if (typeArr.length > 1) {
+                  //查询全部
+                  if (evmConfigs) {
+                      const addrs:string[] = evmConfigs.map((item) => item?.contract_addr)
+                      if (addrs && addrs.length) {
+                          queryDb.contract_addr = addrs.join(",");
+                      }
+                  }
+              } else {
+                  const ercType = ContractType[type]
+                  let addrs = [];
+                  evmConfigs.forEach(item => {
+                      if (item.contract_type == ercType) {
+                          addrs.push(item.contract_addr)
+                      }
+                  })
+                  if (addrs && addrs.length) {
+                      queryDb.contract_addr = addrs.join(",");
+                  }
               }
           }
 
@@ -1247,6 +1367,9 @@ export class TxService {
             let txEvms:any;
             if (query.hash && query.hash.startsWith("0x")) {
                 txEvms = await this.txEvmModel.findEvmTxsByEvmHash(query.hash)
+                if (!txEvms.length) {
+                    txEvms = await this.txEvmModel.findNewEvmTxsByEvmHash(query.hash)
+                }
             }else{
                 txEvms = await this.txEvmModel.findEvmTxsByHashes([query.hash])
             }
@@ -1310,7 +1433,47 @@ export class TxService {
   }
 
   handleEvmTx(txEvms,txData) {
+      //原来数据
       let mapEvmContract = new Map()
+      //修改后的数据
+      let EvmContract = new Map()
+      if (txEvms?.length) {
+          for (const evmTx of txEvms) {
+              if (evmTx?.evm_datas?.length) {
+                  for (const data of evmTx.evm_datas) {
+                      mapEvmContract.set(data?.evm_tx_hash, data)
+                  }
+                  EvmContract.set(evmTx?.evm_tx_hash, evmTx)
+              }
+          }
+      }
+
+      txData?.msgs?.forEach((msg,index) => {
+          switch (msg.type) {
+              case TxType.ethereum_tx:
+                  msg.msg.ex = {};
+                  if (mapEvmContract.has(msg?.msg?.hash) || EvmContract.has(msg?.msg?.hash)) {
+                      const evmCt = mapEvmContract.get(msg?.msg?.hash);
+                      const evm = EvmContract.get(msg?.msg?.hash);
+                      const msgData = JSON.parse(msg?.msg?.data)
+                      msg.msg.ex['data'] = msgData?.data || "";
+                      msg.msg.ex['contract_address'] = evmCt?.contract_address ? evmCt?.contract_address : evm.contract_address
+                      if (evmCt?.evm_method) {
+                          msg.msg.ex['method'] = evmCt?.evm_method
+                      } else if (evm?.evm_datas[0].input_data) {
+                          if (evm?.evm_datas[0].input_data.name == "") {
+                              msg.msg.ex['method'] = evm?.evm_datas[0].input_data.id
+                          } else {
+                              msg.msg.ex['method'] = evm?.evm_datas[0].input_data.name
+                          }
+                      } else {
+                          msg.msg.ex['method'] = "--"
+                      }
+                  }
+          }
+      });
+
+      /*let mapEvmContract = new Map()
       let mapEvmDdc = new Map()
       let ddcIdsOfBatch = [], ddcUrisOfBatch = [], isBatch = false
       if (txEvms?.length) {
@@ -1376,7 +1539,7 @@ export class TxService {
               }
           }
         });
-      }
+      }*/
       // const item = JSON.parse(JSON.stringify(txData));
       // if (!txData.contract_addrs?.length) {
       //     item.contract_addrs= contractAddrs

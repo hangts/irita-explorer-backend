@@ -11,6 +11,7 @@ export const TxEvmSchema = new mongoose.Schema({
   time: Number,
   height: Number,
   tx_hash: String,
+  evm_tx_hash: String,
   memo: String,
   status: Number,
   types: Array,
@@ -18,6 +19,7 @@ export const TxEvmSchema = new mongoose.Schema({
   fee: Object,
   evm_datas: Array,
   ex_ddc_infos: Array,
+  contract_address: String,
   create_time: Number,
   update_time: Number,
 }, { versionKey: false });
@@ -58,6 +60,10 @@ TxEvmSchema.statics = {
   },
   async findEvmTxsByEvmHash(evmTxHash: string): Promise<IDdcTxEvmStruct[]> {
     return await this.find({ 'evm_datas.evm_tx_hash': evmTxHash });
+  },
+
+  async findNewEvmTxsByEvmHash(evmTxHash: string): Promise<IDdcTxEvmStruct[]> {
+    return await this.find({ 'evm_tx_hash': evmTxHash });
   },
   // async findEvmTxsByContractAddrDdcId(contractAddr: string, ddcId: string): Promise<IDdcTxEvmStruct[]> {
   //   return await this.find({ 'evm_datas.contract_address': contractAddr, 'ex_ddc_infos.ddc_id': ddcId })
