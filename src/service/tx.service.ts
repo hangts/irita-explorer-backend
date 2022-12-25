@@ -359,7 +359,7 @@ export class TxService {
                     //msg.msg.ex['ddc_method'] = evmData?.evm_method
                     if (evmData?.evm_method) {
                         msg.msg.ex['method'] = "Contract_" + evmData?.evm_method
-                        msg.msg.ex['contract_name'] = contractMap[evmData?.contract_address] ? contractMap[evmData?.contract_address] : evmData?.contract_address
+                        msg.msg.ex['contract_name'] = contractMap[evmData?.contract_address] ? contractMap[evmData?.contract_address] : evmData?.contract_address.substr(0,12)
                         msg.msg.ex['address'] = evmData?.contract_address
                     }else if (evm?.evm_datas[0].input_data) {
                         if (evm?.evm_datas[0].input_data.name == "") {
@@ -367,11 +367,11 @@ export class TxService {
                         } else {
                             msg.msg.ex['method'] = "Contract_" + evm?.evm_datas[0].input_data.name
                         }
-                        msg.msg.ex['contract_name'] = contractMap[evm?.contract_address] ? contractMap[evm?.contract_address] : evm?.contract_address
+                        msg.msg.ex['contract_name'] = contractMap[evm?.contract_address] ? contractMap[evm?.contract_address] : evm?.contract_address.substr(0,12)
                         msg.msg.ex['address'] = evm?.contract_address
                     } else {
                         msg.msg.ex['method'] = "Ethereum_Tx"
-                        msg.msg.ex['contract_name'] = contractMap[evm?.contract_address] ? contractMap[evm?.contract_address] : evm?.contract_address
+                        msg.msg.ex['contract_name'] = contractMap[evm?.contract_address] ? contractMap[evm?.contract_address] : evm?.contract_address.substr(0,12)
                         msg.msg.ex['address'] = evm?.contract_address
                     }
                   }
@@ -461,7 +461,7 @@ export class TxService {
                     const ercType = ContractType[type]
                     let addrs = [];
                     evmConfigs.forEach(item => {
-                        if (item.contract_type == ercType) {
+                        if (item.contract_type == ercType && item.contract_addr) {
                             addrs.push(item.contract_addr)
                         }
                     })
@@ -819,7 +819,7 @@ export class TxService {
                   const ercType = ContractType[type]
                   let addrs = [];
                   evmConfigs.forEach(item => {
-                      if (item.contract_type == ercType) {
+                      if (item.contract_type == ercType && item.contract_addr) {
                           addrs.push(item.contract_addr)
                       }
                   })
