@@ -525,6 +525,7 @@ export class TxResDto extends BaseResDto {
     extend: object;
     statistics_msg_type: Array<any>;
     payer: string;
+    is_feegrant: boolean;
 
     constructor(txData) {
         super();
@@ -553,7 +554,8 @@ export class TxResDto extends BaseResDto {
         this.extend = txData.extend;
         this.msgs = txData.msgs;
         this.statistics_msg_type = txData.statistics_msg_type;
-        this.payer = txData.payer
+        this.payer = "";
+        this.is_feegrant = false;
     }
 
     static bundleData(value: any): TxResDto[] {

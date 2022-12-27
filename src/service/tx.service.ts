@@ -1374,7 +1374,6 @@ export class TxService {
                 txEvms = await this.txEvmModel.findEvmTxsByHashes([query.hash])
             }
             txData = this.handleEvmTx(txEvms,txData)
-
             const tx = await this.addMonikerToTxs([txData]);
             result = new TxResDto(tx[0] || {});
         }
