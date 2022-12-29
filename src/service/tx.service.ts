@@ -289,6 +289,8 @@ export class TxService {
           const txEvms = await this.txEvmModel.findEvmTxsByHashes(txHashes)
           let mapEvmContract = new Map()
           let EvmContract = new Map()
+          let txHashMap = new Map()
+          //let currentTxHashMap = new Map()
           if (!txEvms?.length) {
             return txList
           }
@@ -299,10 +301,15 @@ export class TxService {
             }
             if (evmTx?.evm_datas?.length){
               for (const data of evmTx.evm_datas) {
-                mapEvmContract.set(data?.evm_tx_hash, data)
-                contractAddrs.push(data?.contract_address)
+                if (data?.evm_tx_hash) {
+                    mapEvmContract.set(data.evm_tx_hash, data)
+                    contractAddrs.push(data.contract_address)
+                }
               }
-                EvmContract.set(evmTx?.evm_tx_hash, evmTx)
+              if (evmTx?.evm_tx_hash) {
+                  EvmContract.set(evmTx.evm_tx_hash, evmTx)
+              }
+              txHashMap.set(evmTx.tx_hash, evmTx)
             }
           }
 
@@ -377,6 +384,21 @@ export class TxService {
                   }
                 }
               })
+            }else {
+                if (tx.type === TxType.ethereum_tx){
+                    if (txHashMap.has(tx.tx_hash)) {
+                        const evmTx = txHashMap.get(tx.tx_hash);
+                        if (evmTx?.evm_datas?.evm_method) {
+                            tx.type = evmTx.evm_datas?.evm_method
+                        } else if (evmTx?.evm_datas[0].input_data) {
+                            if (evmTx?.evm_datas[0].input_data.name == "") {
+                                tx.type = evmTx?.evm_datas[0].input_data.id
+                            } else {
+                                tx.type = evmTx?.evm_datas[0].input_data.name
+                            }
+                        }
+                    }
+                }
             }
             return tx
           })
@@ -452,7 +474,13 @@ export class TxService {
                 if (typeArr.length > 1) {
                     //查询全部
                     if (evmConfigs) {
-                        const addrs:string[] = evmConfigs.map((item) => item?.contract_addr)
+                        let addrs = [];
+                        evmConfigs.forEach(item => {
+                            if (item.contract_addr) {
+                                addrs.push(item.contract_addr)
+                            }
+                        })
+                        //const addrs:string[] = evmConfigs.map((item) => item?.contract_addr)
                         if (addrs && addrs.length) {
                             queryDb.contract_addr = addrs.join(",");
                         }
@@ -1645,7 +1673,6 @@ export class TxService {
             if (typeArr.length > 1 || typeArr.length == 0){
                 tx.msgs = []
             }
-
             let typeList = [];
             typeMap.forEach((value, key) => {
                 let msgType = {}
