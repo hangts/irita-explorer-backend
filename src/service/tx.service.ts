@@ -398,6 +398,11 @@ export class TxService {
                             }
                         }
                     }
+                    tx.statistics_msg_type.forEach(item => {
+                        if (item.msg_type === TxType.ethereum_tx) {
+                            item.msg_type = tx.type
+                        }
+                    })
                 }
             }
             return tx
