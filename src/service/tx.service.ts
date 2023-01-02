@@ -795,7 +795,8 @@ export class TxService {
 
         if(limit){
           txListData = await this.txModel.queryTxWithHeight(query);
-          txData = await this.addMonikerToTxs(txListData.data);
+          txListData.data = await this.addMonikerToTxs(txListData.data);
+          txData = await this.addContractMethodToTxs(txListData.data);
         }
         if(useCount){
           count = await this.txModel.queryTxWithHeighCount(query);
@@ -1488,7 +1489,12 @@ export class TxService {
                       const evmCt = mapEvmContract.get(msg?.msg?.hash);
                       const evm = EvmContract.get(msg?.msg?.hash);
                       const msgData = JSON.parse(msg?.msg?.data)
-                      msg.msg.ex['data'] = msgData?.data || "";
+                     // msg.msg.ex['data'] = msgData?.data || "";
+                      if (evm?.evm_datas?.length) {
+                          msg.msg.ex['data'] = evm?.evm_datas[0].raw_input
+                      }else {
+                          msg.msg.ex['data'] = msgData?.data || "";
+                      }
                       msg.msg.ex['contract_address'] = evmCt?.contract_address ? evmCt?.contract_address : evm.contract_address
                       if (evmCt?.evm_method) {
                           msg.msg.ex['method'] = evmCt?.evm_method
