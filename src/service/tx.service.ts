@@ -366,7 +366,7 @@ export class TxService {
                     //msg.msg.ex['ddc_method'] = evmData?.evm_method
                     if (evmData?.evm_method) {
                         msg.msg.ex['method'] = evmData?.evm_method
-                        msg.msg.ex['contract_name'] = contractMap[evmData?.contract_address] ? contractMap[evmData?.contract_address] : evmData?.contract_address.substr(0,12)
+                        msg.msg.ex['contract_name'] = contractMap.get(evmData?.contract_address) ? contractMap.get(evmData?.contract_address) : evmData?.contract_address.substr(0,12)
                         msg.msg.ex['address'] = evmData?.contract_address
                         msg.msg.ex['is_deploy'] = evmData?.is_deploy || 0
                     }else if (evm?.evm_datas[0].input_data) {
@@ -375,12 +375,12 @@ export class TxService {
                         } else {
                             msg.msg.ex['method'] = evm?.evm_datas[0].input_data.name
                         }
-                        msg.msg.ex['contract_name'] = contractMap[evm?.contract_address] ? contractMap[evm?.contract_address] : evm?.contract_address.substr(0,12)
+                        msg.msg.ex['contract_name'] = contractMap.get(evm?.contract_address) ? contractMap.get(evm?.contract_address) : evm?.contract_address.substr(0,12)
                         msg.msg.ex['address'] = evm?.contract_address
                         msg.msg.ex['is_deploy'] = evm?.is_deploy || 0
                     } else {
                         msg.msg.ex['method'] = "Ethereum_Tx"
-                        msg.msg.ex['contract_name'] = contractMap[evm?.contract_address] ? contractMap[evm?.contract_address] : evm?.contract_address.substr(0,12)
+                        msg.msg.ex['contract_name'] = contractMap.get(evm?.contract_address) ? contractMap.get(evm?.contract_address) : evm?.contract_address.substr(0,12)
                         msg.msg.ex['address'] = evm?.contract_address
                         msg.msg.ex['is_deploy'] = evm?.is_deploy || 0
                     }
