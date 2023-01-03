@@ -11,5 +11,6 @@ export interface IDdcTxEvmStruct {
   signers: string[],
   fee: object[],
   evm_datas: object[],
-  ex_ddc_infos: object[]
+  ex_ddc_infos: object[],
+  is_deploy: number
 }

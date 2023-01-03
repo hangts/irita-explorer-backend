@@ -368,6 +368,7 @@ export class TxService {
                         msg.msg.ex['method'] = evmData?.evm_method
                         msg.msg.ex['contract_name'] = contractMap[evmData?.contract_address] ? contractMap[evmData?.contract_address] : evmData?.contract_address.substr(0,12)
                         msg.msg.ex['address'] = evmData?.contract_address
+                        msg.msg.ex['is_deploy'] = evmData?.is_deploy || 0
                     }else if (evm?.evm_datas[0].input_data) {
                         if (evm?.evm_datas[0].input_data.name == "") {
                             msg.msg.ex['method'] = evm?.evm_datas[0].input_data.id
@@ -376,10 +377,12 @@ export class TxService {
                         }
                         msg.msg.ex['contract_name'] = contractMap[evm?.contract_address] ? contractMap[evm?.contract_address] : evm?.contract_address.substr(0,12)
                         msg.msg.ex['address'] = evm?.contract_address
+                        msg.msg.ex['is_deploy'] = evm?.is_deploy || 0
                     } else {
                         msg.msg.ex['method'] = "Ethereum_Tx"
                         msg.msg.ex['contract_name'] = contractMap[evm?.contract_address] ? contractMap[evm?.contract_address] : evm?.contract_address.substr(0,12)
                         msg.msg.ex['address'] = evm?.contract_address
+                        msg.msg.ex['is_deploy'] = evm?.is_deploy || 0
                     }
                   }
                 }
@@ -395,15 +398,17 @@ export class TxService {
                         if (evmTx?.evm_datas?.evm_method) {
                             let ex = {},msg = {}
                             ex['method'] = evmTx.evm_datas?.evm_method
+                            ex['is_deploy'] = evmTx?.is_deploy || 0
                             msg['ex'] = ex
                             msgObj['msg'] = msg
                         } else if (evmTx?.evm_datas[0].input_data) {
                             let ex = {},msg = {}
                             if (evmTx?.evm_datas[0].input_data.name == "") {
-                               ex['method'] = evmTx?.evm_datas[0].input_data.id
+                                ex['method'] = evmTx?.evm_datas[0].input_data.id
                             } else {
                                 ex['method'] = evmTx?.evm_datas[0].input_data.name
                             }
+                            ex['is_deploy'] = evmTx?.is_deploy || 0
                             msg['ex'] = ex
                             msgObj['msg'] = msg
                         }
