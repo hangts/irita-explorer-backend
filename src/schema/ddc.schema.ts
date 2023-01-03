@@ -40,10 +40,11 @@ DdcSchema.statics = {
     contractAddr?: string,
     ddcId?: string,
     owner?: string,
+    ddcType?: number,
   ): Promise<ListStruct> {
     const result: ListStruct = {};
 
-    const queryParameters = findDdcListHelper(contractAddr, ddcId, owner);
+    const queryParameters = findDdcListHelper(contractAddr, ddcId, owner, ddcType);
     result.data = await this.find(queryParameters)
       .sort({ latest_tx_height: -1 })
       .skip((Number(pageNum) - 1) * Number(pageSize))
@@ -51,8 +52,8 @@ DdcSchema.statics = {
 
     return result;
   },
-  async findDdcListCount(contractAddr?: string, ddcId?: string, owner?: string): Promise<number> {
-    const params = findDdcListHelper(contractAddr, ddcId, owner);
+  async findDdcListCount(contractAddr?: string, ddcId?: string, owner?: string, ddcType?: number): Promise<number> {
+    const params = findDdcListHelper(contractAddr, ddcId, owner, ddcType);
     return await this.find(params).countDocuments();
   },
 

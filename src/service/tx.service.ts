@@ -386,23 +386,29 @@ export class TxService {
               })
             }else {
                 if (tx.type === TxType.ethereum_tx){
+                    let msgObj = {}
+                    msgObj['msg'] = {}
+                    msgObj['type'] =  TxType.ethereum_tx
+                    tx.msgs = []
                     if (txHashMap.has(tx.tx_hash)) {
                         const evmTx = txHashMap.get(tx.tx_hash);
                         if (evmTx?.evm_datas?.evm_method) {
-                            tx.type = evmTx.evm_datas?.evm_method
+                            let ex = {},msg = {}
+                            ex['method'] = evmTx.evm_datas?.evm_method
+                            msg['ex'] = ex
+                            msgObj['msg'] = msg
                         } else if (evmTx?.evm_datas[0].input_data) {
+                            let ex = {},msg = {}
                             if (evmTx?.evm_datas[0].input_data.name == "") {
-                                tx.type = evmTx?.evm_datas[0].input_data.id
+                               ex['method'] = evmTx?.evm_datas[0].input_data.id
                             } else {
-                                tx.type = evmTx?.evm_datas[0].input_data.name
+                                ex['method'] = evmTx?.evm_datas[0].input_data.name
                             }
+                            msg['ex'] = ex
+                            msgObj['msg'] = msg
                         }
+                        tx.msgs.push(msgObj)
                     }
-                    tx.statistics_msg_type.forEach(item => {
-                        if (item.msg_type === TxType.ethereum_tx) {
-                            item.msg_type = tx.type
-                        }
-                    })
                 }
             }
             return tx

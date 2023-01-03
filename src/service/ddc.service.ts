@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
 import { IDdc, IDdcStruct, IDdcMapStruct } from '../types/schemaTypes/ddc.interface';
 import { DdcDetailReqDto, DdcDetailResDto, DdcListReqDto, DdcListResDto } from '../dto/ddc.dto';
+import {DDCContractType, DDCType} from "../constant";
 
 @Injectable()
 export class DdcService {
@@ -14,10 +15,14 @@ export class DdcService {
   }
 
   async queryList(query: DdcListReqDto): Promise<ListStruct<DdcListResDto[]>> {
-    const { pageNum, pageSize, contract_address, ddc_id, useCount, owner } = query, res: DdcListResDto[] = [];
+    const { pageNum, pageSize, contract_address, ddc_id, useCount, owner, type } = query, res: DdcListResDto[] = [];
     let ddcData, count = null;
+    let ddcType;
+    if (type?.length && type.includes(DDCType.contractTag)) {
+      ddcType = DDCContractType[type]
+    }
     if (pageNum && pageSize) {
-      ddcData = await (this.ddcModel as any).findList(pageNum, pageSize, contract_address, ddc_id, owner);
+      ddcData = await (this.ddcModel as any).findList(pageNum, pageSize, contract_address, ddc_id, owner, ddcType);
       for (const ddc of ddcData?.data) {
         const result = new DdcListResDto(
           ddc.ddc_id,
@@ -37,8 +42,8 @@ export class DdcService {
       }
     }
     if (useCount) {
-      if (contract_address || ddc_id || owner){
-        count = await (this.ddcModel as any).findDdcListCount(contract_address, ddc_id, owner);
+      if (contract_address || ddc_id || owner || ddcType){
+        count = await (this.ddcModel as any).findDdcListCount(contract_address, ddc_id, owner, ddcType);
       }else {
         count = await this.queryDdcCount()
       }
