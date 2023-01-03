@@ -13,6 +13,9 @@ export class DdcListReqDto extends DeepPagingReqDto {
   @ApiPropertyOptional()
   owner?: string;
 
+  @ApiPropertyOptional()
+  type?: string;
+
 }
 
 export class DdcDetailReqDto {

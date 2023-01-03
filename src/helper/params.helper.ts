@@ -467,9 +467,9 @@ export function findListHelper(denomId, nftId, owner){
   return queryParameters
 }
 
-export function findDdcListHelper(contract_address, ddcId, owner){
+export function findDdcListHelper(contract_address, ddcId, owner, ddcType){
   const queryParameters:any = {};
-  if (contract_address || ddcId || owner) {
+  if (contract_address || ddcId || owner || ddcType) {
     if (contract_address) queryParameters.contract_address = contract_address;
     if (Number(ddcId)) {
         queryParameters.ddc_id = Number(ddcId);
@@ -480,6 +480,7 @@ export function findDdcListHelper(contract_address, ddcId, owner){
 
     if (owner) queryParameters.owner = owner;
     // condition.push({'$match': queryParameters});
+    if (ddcType) queryParameters.ddc_type = ddcType;
   }
   return queryParameters
 }

@@ -66,6 +66,10 @@ export enum ERCType {
     all = 4,
 }
 
+export const DDCContractType = {
+    'ddc_721': 1,
+    'ddc_1155': 2,
+}
 
 export const ContractType = {
     'erc_20_transaction': 1,
