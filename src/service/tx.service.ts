@@ -398,6 +398,8 @@ export class TxService {
                         if (evmTx?.evm_datas?.evm_method) {
                             let ex = {},msg = {}
                             ex['method'] = evmTx.evm_datas?.evm_method
+                            ex['contract_name'] = contractMap.get(evmTx?.contract_address) ? contractMap.get(evmTx?.contract_address) : evmTx?.contract_address.substr(0,12)
+                            ex['address'] = evmTx?.contract_address
                             ex['is_deploy'] = evmTx?.is_deploy || 0
                             msg['ex'] = ex
                             msgObj['msg'] = msg
@@ -408,6 +410,8 @@ export class TxService {
                             } else {
                                 ex['method'] = evmTx?.evm_datas[0].input_data.name
                             }
+                            ex['contract_name'] = contractMap.get(evmTx?.contract_address) ? contractMap.get(evmTx?.contract_address) : evmTx?.contract_address.substr(0,12)
+                            ex['address'] = evmTx?.contract_address
                             ex['is_deploy'] = evmTx?.is_deploy || 0
                             msg['ex'] = ex
                             msgObj['msg'] = msg
