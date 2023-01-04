@@ -22,6 +22,7 @@ export const TxEvmSchema = new mongoose.Schema({
   contract_address: String,
   create_time: Number,
   update_time: Number,
+  is_deploy: Number,
 }, { versionKey: false });
 
 // 新增
