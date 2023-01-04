@@ -44,13 +44,6 @@ export function txListParamsHelper(query: ITxsQuery){
   }
   if (query.contract_addr && query.contract_addr.length) {
       let contractAddrArr = query.contract_addr.split(",");
-      /*//ddc_721 or ddc_1155
-      if (ddcType > 0) {
-          queryParameters['contract_addrs'] = {'$in':contractAddrArr}
-      }else if (ddcType < 0) {
-          //ddc_other
-          queryParameters['contract_addrs'] = {'$nin':contractAddrArr}
-      }*/
       queryParameters['contract_addrs'] = {'$in':contractAddrArr}
   }
   if ((query.beginTxId && query.beginTxId.length) || (query.endTxId && query.endTxId.length)) {

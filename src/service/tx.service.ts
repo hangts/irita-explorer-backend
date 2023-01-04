@@ -487,21 +487,8 @@ export class TxService {
             if (type && type.includes(ERCType.contractTag)) {
                 const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs();
                 let typeArr = type.split(",");
-                if (typeArr.length > 1) {
-                    //查询全部
-                    if (evmConfigs) {
-                        let addrs = [];
-                        evmConfigs.forEach(item => {
-                            if (item.contract_addr) {
-                                addrs.push(item.contract_addr)
-                            }
-                        })
-                        //const addrs:string[] = evmConfigs.map((item) => item?.contract_addr)
-                        if (addrs && addrs.length) {
-                            queryDb.contract_addr = addrs.join(",");
-                        }
-                    }
-                } else {
+                //查全部不用传合约地址
+                if (typeArr.length === 1) {
                     const ercType = ContractType[type]
                     let addrs = [];
                     evmConfigs.forEach(item => {
@@ -852,15 +839,7 @@ export class TxService {
               }*/
               const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs();
               let typeArr = type.split(",");
-              if (typeArr.length > 1) {
-                  //查询全部
-                  if (evmConfigs) {
-                      const addrs:string[] = evmConfigs.map((item) => item?.contract_addr)
-                      if (addrs && addrs.length) {
-                          queryDb.contract_addr = addrs.join(",");
-                      }
-                  }
-              } else {
+              if (typeArr.length === 1) {
                   const ercType = ContractType[type]
                   let addrs = [];
                   evmConfigs.forEach(item => {
