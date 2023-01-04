@@ -1518,6 +1518,7 @@ export class TxService {
                       } else {
                           msg.msg.ex['method'] = "--"
                       }
+                      msg.msg.ex['is_deploy'] = evm?.is_deploy || 0
                   }
           }
       });
