@@ -503,6 +503,9 @@ export class TxService {
                     if (addrs && addrs.length) {
                         queryDb.contract_addr = addrs.join(",");
                     }
+                    if (typeof queryDb.contract_addr === 'undefined' ||  queryDb.contract_addr.length <=0) {
+                        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count,null, totalTxMsgs);
+                    }
                 }
             }
 
@@ -853,6 +856,9 @@ export class TxService {
                   })
                   if (addrs && addrs.length) {
                       queryDb.contract_addr = addrs.join(",");
+                  }
+                  if (typeof queryDb.contract_addr === 'undefined' ||  queryDb.contract_addr.length <=0) {
+                      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), 0,null,0);
                   }
               }
           }
