@@ -1495,7 +1495,13 @@ export class TxService {
                       }else {
                           msg.msg.ex['data'] = msgData?.data || "";
                       }
-                      msg.msg.ex['contract_address'] = evmCt?.contract_address ? evmCt?.contract_address : evm.contract_address
+                      if (evmCt?.contract_address) {
+                          msg.msg.ex['contract_address'] = evmCt?.contract_address
+                      } else if (evm?.contract_address) {
+                          msg.msg.ex['contract_address'] = evm?.contract_address
+                      } else {
+                          msg.msg.ex['contract_address'] = ""
+                      }
                       if (evmCt?.evm_method) {
                           msg.msg.ex['method'] = evmCt?.evm_method
                       } else if (evm?.evm_datas[0].input_data) {
