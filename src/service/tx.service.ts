@@ -1490,11 +1490,7 @@ export class TxService {
                       const evm = EvmContract.get(msg?.msg?.hash);
                       const msgData = JSON.parse(msg?.msg?.data)
                      // msg.msg.ex['data'] = msgData?.data || "";
-                      if (evm?.evm_datas?.length) {
-                          msg.msg.ex['data'] = evm?.evm_datas[0].raw_input
-                      }else {
-                          msg.msg.ex['data'] = msgData?.data || "";
-                      }
+                      msg.msg.ex['data'] = msgData?.data || "";
                       if (evmCt?.contract_address) {
                           msg.msg.ex['contract_address'] = evmCt?.contract_address
                       } else if (evm?.contract_address) {
