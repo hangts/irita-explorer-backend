@@ -54,7 +54,7 @@ import {ContractOtherSchema} from "../schema/ContractOther.schema";
         {
             name: 'TxEvm',
             schema: TxEvmSchema,
-            collection: 'ex_sync_tx_evm'
+            collection: 'ex_evm_tx'
         },{
             name: 'EvmContractConfig',
             schema: EvmContractConfigSchema,
