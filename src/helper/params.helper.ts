@@ -18,7 +18,7 @@ export function txListParamsHelper(query: ITxsQuery){
   const queryParameters: ITxsQueryParams = {};
   let ddcType:number = 0
   //合约交易
-  if (query.type && query.type.includes(ERCType.contractTag)) {
+  if (query.type && (query.type.includes(ERCType.contractTag) || query.type.includes(ERCType.contractOtherTag))) {
       queryParameters['msgs.type'] = TxType.ethereum_tx
   }else if (query.type && query.type.length) {
       let typeArr = query.type.split(",");
@@ -266,7 +266,7 @@ export function TxWithAddressParamsHelper(query: ITxsWithAddressQuery){
           addrs: query.address,
       };
   }
-  if (query.type && query.type.includes(ERCType.contractTag)) {
+  if (query.type && (query.type.includes(ERCType.contractTag) || query.type.includes(ERCType.contractOtherTag))) {
       queryParameters['msgs.type'] = TxType.ethereum_tx
   } else if (query.type && query.type.length) {
       let typeArr = query.type.split(",");

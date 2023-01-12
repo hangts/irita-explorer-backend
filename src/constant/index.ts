@@ -60,6 +60,7 @@ export enum DDCType {
 
 export enum ERCType {
     contractTag = 'erc_',
+    contractOtherTag = 'other_',
     erc20 = 1,
     erc721 = 2,
     erc1155 = 3,
@@ -72,9 +73,10 @@ export const DDCContractType = {
 }
 
 export const ContractType = {
-    'erc_20_transaction': 1,
-    'erc_721_transaction': 2,
-    'erc_1155_transaction': 3,
+    'erc_20_txs': 1,
+    'erc_721_txs': 2,
+    'erc_1155_txs': 3,
+    'other_contract_txs':4,
 }
 
 //txs/addresses/statistic (datangchain-explorer)
