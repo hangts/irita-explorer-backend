@@ -488,24 +488,21 @@ export class TxService {
                 limit: limit,
             }
             //search contract_address when type is ethereum_tx
-            if (type && type.includes(ERCType.contractTag)) {
-                const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs();
+            if (type && (type.includes(ERCType.contractTag) || type.includes(ERCType.contractOtherTag))) {
                 let typeArr = type.split(",");
-                //查全部不用传合约地址
-                if (typeArr.length === 1) {
-                    const ercType = ContractType[type]
-                    let addrs = [];
-                    evmConfigs.forEach(item => {
-                        if (item.contract_type == ercType && item.contract_addr) {
-                            addrs.push(item.contract_addr)
-                        }
-                    })
-                    if (addrs && addrs.length) {
-                        queryDb.contract_addr = addrs.join(",");
-                    }
-                    if (typeof queryDb.contract_addr === 'undefined' ||  queryDb.contract_addr.length <=0) {
-                        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count,null, totalTxMsgs);
-                    }
+                let addrs =[], contractTypes = [];
+                typeArr.forEach(item => {
+                    contractTypes.push(ContractType[item])
+                })
+                const evmConfigs = await this.evmContractCfgModel.queryContractAddrByContractType(contractTypes);
+                evmConfigs.forEach(item => {
+                    addrs.push(item.contract_addr)
+                })
+                if (addrs && addrs.length) {
+                    queryDb.contract_addr = addrs.join(",");
+                }
+                if (typeof queryDb.contract_addr === 'undefined' ||  queryDb.contract_addr.length <=0) {
+                    return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count,null, totalTxMsgs);
                 }
             }
 
@@ -825,41 +822,21 @@ export class TxService {
               limit: limit,
           }
           //search contract_address when type is ethereum_tx
-          if (type && type.includes(ERCType.contractTag)) {
-              //await this.cacheEvmContract();
-              // queryDb.type = TxType.ethereum_tx
-              /*const ddcType = ContractType[type]
-              if (ddcType) {
-                  if (ddcType > 0) {
-                      queryDb.contract_addr = Cache.supportEvmTypeAddr.get(ddcType)
-                  } else { //other contract
-                    const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs();
-                    if (evmConfigs) {
-                      const addrs:string[] = evmConfigs.map((item) => item?.address)
-                      if (addrs && addrs.length) {
-                        queryDb.contract_addr = addrs.join(",");
-                      }
-                    }
-                  }
-              } else {
-                  return new ListStruct([], Number(query.pageNum), Number(query.pageSize), 0);
-              }*/
-              const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs();
+          if (type && (type.includes(ERCType.contractTag) || type.includes(ERCType.contractOtherTag))) {
               let typeArr = type.split(",");
-              if (typeArr.length === 1) {
-                  const ercType = ContractType[type]
-                  let addrs = [];
-                  evmConfigs.forEach(item => {
-                      if (item.contract_type == ercType && item.contract_addr) {
-                          addrs.push(item.contract_addr)
-                      }
-                  })
-                  if (addrs && addrs.length) {
-                      queryDb.contract_addr = addrs.join(",");
-                  }
-                  if (typeof queryDb.contract_addr === 'undefined' ||  queryDb.contract_addr.length <=0) {
-                      return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), 0,null,0);
-                  }
+              let addrs = [], contractTypes = [];
+              typeArr.forEach(item => {
+                  contractTypes.push(ContractType[item])
+              })
+              const evmConfigs = await this.evmContractCfgModel.queryContractAddrByContractType(contractTypes);
+              evmConfigs.forEach(item => {
+                  addrs.push(item.contract_addr)
+              })
+              if (addrs && addrs.length) {
+                  queryDb.contract_addr = addrs.join(",");
+              }
+              if (typeof queryDb.contract_addr === 'undefined' ||  queryDb.contract_addr.length <=0) {
+                  return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), 0,null,0);
               }
           }
 

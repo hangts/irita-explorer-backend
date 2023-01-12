@@ -21,7 +21,7 @@ EvmContractConfigSchema.statics = {
     },
 
 
-    async queryContractAddrByType(type) {
-        return await this.findOne({'type':type}, {'address': 1, 'type': 1})
+    async queryContractAddrByContractType(type: number[]) {
+        return await this.find({'contract_type': {'$in':type}}, {'contract_addr': 1, 'contract_type': 1, 'tag_type':1})
     },
 };
