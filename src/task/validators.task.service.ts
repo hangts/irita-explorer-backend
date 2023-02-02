@@ -8,6 +8,7 @@ import md5 from "blueimp-md5"
 import { getTimestamp } from '../util/util';
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 import {TaskEnum} from "../constant";
+import {cfg} from "../config/config"
 @Injectable()
 export class ValidatorsTaskService {
  constructor(
@@ -18,23 +19,45 @@ export class ValidatorsTaskService {
      this.cronTaskWorkingStatusMetric.collect(TaskEnum.validators,0)
  }
     async doTask(): Promise<void> {
-        let offset = 0,limit = 100, allValidatorsFromLcd = [];
-        //验证人第一次默认请求 默认请求第一页
-        let validatorsFromLcd: any[] = await this.validatorsHttp.queryValidatorsFromLcd(offset,limit);
-        if (typeof validatorsFromLcd == 'undefined') {
-            this.cronTaskWorkingStatusMetric.collect(TaskEnum.validators,-1)
-            return;
-        }
-        if(validatorsFromLcd && validatorsFromLcd.length > 0) {
-            allValidatorsFromLcd = allValidatorsFromLcd.concat(validatorsFromLcd);
-        }
+        let allValidatorsFromLcd = [];
+        if (cfg.isUpgradeChainVersion === 'true') {
+            let offset = 0,limit = 100;
+            //验证人第一次默认请求 默认请求第一页
+            let validatorsFromLcd: any[] = await this.validatorsHttp.queryValidatorsFromLcd(offset,limit);
+            if (typeof validatorsFromLcd == 'undefined') {
+                this.cronTaskWorkingStatusMetric.collect(TaskEnum.validators,-1)
+                return;
+            }
+            if(validatorsFromLcd && validatorsFromLcd.length > 0) {
+                allValidatorsFromLcd = allValidatorsFromLcd.concat(validatorsFromLcd);
+            }
 
-        //判断是否有第二页数据 如果有使用while循环请求
-        while (validatorsFromLcd && validatorsFromLcd.length === limit){
-            offset+=100
-            validatorsFromLcd = await this.validatorsHttp.queryValidatorsFromLcd(offset,limit);
-            //将第二页及以后的数据合并
-            allValidatorsFromLcd = allValidatorsFromLcd.concat(validatorsFromLcd)
+            //判断是否有第二页数据 如果有使用while循环请求
+            while (validatorsFromLcd && validatorsFromLcd.length === limit){
+                offset+=100
+                validatorsFromLcd = await this.validatorsHttp.queryValidatorsFromLcd(offset,limit);
+                //将第二页及以后的数据合并
+                allValidatorsFromLcd = allValidatorsFromLcd.concat(validatorsFromLcd)
+            }
+        } else {
+            let PageNum = 1,limitSize = 100;
+            //验证人第一次默认请求 默认请求第一页
+            let validatorsFromLcd: any[] = await this.validatorsHttp.queryValidatorsFromLcdOld(PageNum,limitSize);
+            if (typeof validatorsFromLcd == 'undefined') {
+                this.cronTaskWorkingStatusMetric.collect(TaskEnum.validators,-1)
+                return;
+            }
+            if(validatorsFromLcd && validatorsFromLcd.length > 0) {
+                allValidatorsFromLcd = allValidatorsFromLcd.concat(validatorsFromLcd);
+            }
+
+            //判断是否有第二页数据 如果有使用while循环请求
+            while (validatorsFromLcd && validatorsFromLcd.length === limitSize){
+                PageNum++
+                validatorsFromLcd = await this.validatorsHttp.queryValidatorsFromLcdOld(PageNum,limitSize);
+                //将第二页及以后的数据合并
+                allValidatorsFromLcd = allValidatorsFromLcd.concat(validatorsFromLcd)
+            }
         }
 
         allValidatorsFromLcd.forEach( (item:any) => {
