@@ -4,6 +4,6 @@ WORKDIR /app
 COPY . .
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories && \
-apk add git && yarn install && npm run build  && yarn cache clean
+apk add git && yarn install --registry https://registry.npmmirror.com && npm run build  && yarn cache clean
 
 CMD npm run start:prod
