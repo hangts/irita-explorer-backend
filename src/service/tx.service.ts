@@ -713,6 +713,9 @@ export class TxService {
             const proposalsMap = new Map();
             if (proposalsData && proposalsData.length > 0) {
                 proposalsData.forEach(proposal => {
+                    if (typeof proposal.content == 'undefined') {
+                        proposal.content = {}
+                    }
                     proposal.content.id = proposal.id;
                     proposal.content.proposal_link = !proposal.is_deleted
                     proposalsMap.set(proposal.id, proposal.content);
@@ -722,22 +725,35 @@ export class TxService {
                 txList = txListData.data.map(async tx => {
                     const item = JSON.parse(JSON.stringify(tx));
                     const msgs = item && item.msgs && item.msgs[0];
-                    const events = item.events
                     if (msgs.type == TxType.vote || msgs.type == TxType.deposit) {
                         const ex = proposalsMap.get(msgs.msg.proposal_id);
                         item.ex = ex;
                         return item
                     } else {
                         let proposal_id;
-                        events.forEach(event => {
-                            if (event.type == TxType.submit_proposal) {
-                                event.attributes.forEach(element => {
-                                    if (element.key == 'proposal_id') {
-                                        proposal_id = element.value
+                        if (item.events_new.length > 0) {
+                            if (item.events_new[0] && item.events_new[0].events){
+                                item.events_new[0].events.forEach(event => {
+                                    if (event.type == TxType.submit_proposal) {
+                                        event.attributes.forEach(element => {
+                                            if (element.key == 'proposal_id') {
+                                                proposal_id = element.value
+                                            }
+                                        });
                                     }
                                 });
                             }
-                        });
+                        } else {
+                            item.events.forEach(event => {
+                                if (event.type == TxType.submit_proposal) {
+                                    event.attributes.forEach(element => {
+                                        if (element.key == 'proposal_id') {
+                                            proposal_id = element.value
+                                        }
+                                    });
+                                }
+                            });
+                        }
                         let ex = proposalsMap.get(Number(proposal_id));
                         if (!ex) {
                             const proposal = await this.govHttp.getProposalById(proposal_id);

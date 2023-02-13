@@ -2,14 +2,8 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from "mongoose";
 import {GovHttp} from "../http/lcd/gov.http";
-import {
-  addressPrefix,
-  govParams,
-  proposal,
-  proposalStatus,
-  TaskEnum,
-  voteOptions
-} from '../constant'
+import {Govv1Http} from "../http/lcd/govv1.http";
+import {addressPrefix, govParams, proposal, proposalStatus, TaskEnum, voteOptions} from '../constant'
 import {StakingHttp} from "../http/lcd/staking.http";
 import {addressTransform, formatDateStringToNumber, getTimestamp, splitString} from "../util/util";
 import {cfg} from "../config/config"
@@ -25,6 +19,7 @@ export class ProposalTaskService {
         @InjectModel('StakingSyncValidators') private stakingValidatorsModel: any,
         @InjectModel('SyncValidators') private syncValidatorsModel: any,
         private readonly govHttp: GovHttp,
+        private readonly govv1Http: Govv1Http,
         private readonly stakingHttp: StakingHttp,
         private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
     ) {
@@ -32,7 +27,12 @@ export class ProposalTaskService {
         this.cronTaskWorkingStatusMetric.collect(TaskEnum.proposal,0)
     }
     async doTask(): Promise<void> {
-        const proposalFromLcd = await this.govHttp.getProposals(cfg.taskCfg.proposalsLimit);
+        let proposalFromLcd = []
+        if (cfg.isUpgradeChainVersion === 'true') {
+            proposalFromLcd = await this.govv1Http.getProposals(cfg.taskCfg.proposalsLimit);
+        } else {
+            proposalFromLcd = await this.govHttp.getProposals(cfg.taskCfg.proposalsLimit);
+        }
         if (!proposalFromLcd) {
             this.cronTaskWorkingStatusMetric.collect(TaskEnum.proposal,-1)
             return;
