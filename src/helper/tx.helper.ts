@@ -206,6 +206,7 @@ export const dbRes = {
     govs:{
         ...common,
         'events':1,
+        'events_new':1,
         'msgs.msg':1,
     },
     syncServiceTask:{

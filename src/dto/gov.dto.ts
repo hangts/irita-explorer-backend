@@ -1,6 +1,7 @@
 import { BaseReqDto, PagingReqDto, BaseResDto, DeepPagingReqDto } from './base.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Coin } from './common.res.dto';
+import {cfg} from "../config/config"
 
 /***************Req***********************/
 
@@ -23,6 +24,7 @@ export class proposalsVoterReqDto extends DeepPagingReqDto {
 
 export class govProposalResDto extends BaseResDto {
     id: string;
+    messages: object;
     content: object;
     status: string;
     final_tally_result: object;
@@ -37,11 +39,17 @@ export class govProposalResDto extends BaseResDto {
     quorum: string;
     threshold: string;
     veto_threshold: string;
+    metadata: string;
 
     constructor(proposal) {
         super();
         this.id = proposal.id || '';
-        this.content = proposal.content || {};
+        if (cfg.isUpgradeChainVersion === 'true'){
+            this.messages = proposal.messages || [];
+            this.metadata = proposal.metadata || '';
+        } else {
+            this.content = proposal.content || {};
+        }
         this.status = proposal.status || '';
         this.final_tally_result = proposal.final_tally_result || {};
         this.current_tally_result = proposal.current_tally_result || {};

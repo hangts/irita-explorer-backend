@@ -737,3 +737,49 @@ export class GovProposalLcdDto {
         return data;
     }
 }
+
+export class GovV1ProposalLcdDto {
+    id: number;
+    messages: object;
+    status: string;
+    final_tally_result: {
+        yes_count: number,
+        abstain_count: number,
+        no_count: number,
+        no_with_veto_count: number
+    };
+    submit_time: string;
+    deposit_end_time: string;
+    total_deposit: Coin[];
+    voting_start_time: string;
+    voting_end_time: string;
+    is_deleted: boolean;
+    metadata: string;
+
+    constructor(value) {
+        this.id = Number(value.id) || 0;
+        this.messages = value.messages || [];
+        this.status = value.status || '';
+        this.final_tally_result = {
+            yes_count: Number(value.final_tally_result && value.final_tally_result.yes_count) || 0,
+            abstain_count: Number(value.final_tally_result && value.final_tally_result.abstain_count) || 0,
+            no_count: Number(value.final_tally_result && value.final_tally_result.no_count) || 0,
+            no_with_veto_count: Number(value.final_tally_result && value.final_tally_result.no_with_veto_count) || 0,
+        };
+        this.submit_time = value.submit_time || '';
+        this.deposit_end_time = value.deposit_end_time || '';
+        this.total_deposit = Coin.bundleData(value.total_deposit);
+        this.voting_start_time = value.voting_start_time || '0001-01-01T00:00:00Z';
+        this.voting_end_time = value.voting_end_time || '0001-01-01T00:00:00Z';
+        this.is_deleted = false;
+        this.metadata = value.metadata || '';
+    }
+
+    static bundleData(value: any): GovV1ProposalLcdDto[] {
+        let data: GovV1ProposalLcdDto[] = [];
+        data = value.map((v: any) => {
+            return new GovV1ProposalLcdDto(v);
+        });
+        return data;
+    }
+}
