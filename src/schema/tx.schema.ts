@@ -71,6 +71,9 @@ export const TxSchema = new mongoose.Schema({
     gas_used: Number,
     tx_index: Number,
     tx_id: Number,
+    fee_payer: String,
+    fee_granter: String,
+    fee_grantee: String
 }, { versionKey: false });
 // TxSchema.index({ time: -1, "msgs.type": -1,status:-1 }, { background: true });
 // TxSchema.index({ addrs: -1, time: -1, status:-1 }, { background: true });

@@ -134,6 +134,40 @@ export default class StakingService {
             item.icon = item.is_black ? '' : item.icon;
             item.voting_rate = item.voting_power / totalVotingPower;
         })
+
+        let active = [], candidate = [], jailed=[], all = []
+
+        validatorList.data.forEach(item => {
+            if (item.jailed == false && item.status == 3) {
+                active.push(item)
+            }else if ((item.jailed == false && item.status == 1) || (item.jailed == false && item.status == 2)){
+                candidate.push(item)
+            }else if (item.jailed == true){
+                jailed.push(item)
+            }
+        })
+
+        //排序规则
+        //第一排序级别： Active>Candidate>Jailed
+        //第二排序级别： Voting Power 倒序
+        active.sort((a, b) => {
+            return b.voting_power - a.voting_power
+        })
+
+        candidate.sort((a, b) => {
+            return b.voting_power - a.voting_power
+        })
+
+        jailed.sort((a, b) => {
+            return b.voting_power - a.voting_power
+        })
+
+        all = active.concat(candidate, jailed)
+
+        all.forEach( (item, index) => {
+            item.rank = index + 1
+        })
+        validatorList.data = all
         const result: any = {}
         result.data = stakingValidatorResDto.bundleData(validatorList.data)
         result.count = validatorList.count

@@ -68,7 +68,10 @@ export interface ITxStruct {
     signers: string[],
     addrs: string[],
     fee: object[],
-    tx_id: number
+    tx_id: number,
+    fee_payer: string,
+    fee_granter: string,
+    fee_grantee: string
 }
 
 export interface callServiceStruct extends ITxStruct {

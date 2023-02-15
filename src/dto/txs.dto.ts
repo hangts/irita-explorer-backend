@@ -554,8 +554,8 @@ export class TxResDto extends BaseResDto {
         this.extend = txData.extend;
         this.msgs = txData.msgs;
         this.statistics_msg_type = txData.statistics_msg_type;
-        this.payer = "";
-        this.is_feegrant = false;
+        this.payer = txData.payer;
+        this.is_feegrant = txData.is_feegrant;
     }
 
     static bundleData(value: any): TxResDto[] {
