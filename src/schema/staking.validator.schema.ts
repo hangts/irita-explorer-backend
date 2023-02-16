@@ -75,7 +75,7 @@ StakingValidatorSchema.statics = {
         const queryParameters: any = {};
         const result: IListStruct = {}
 
-        if(query.status === jailedValidatorLabel){
+       /* if(query.status === jailedValidatorLabel){
             queryParameters.jailed = true
         }else if(query.status === activeValidatorLabel){
             queryParameters.jailed = false
@@ -83,7 +83,7 @@ StakingValidatorSchema.statics = {
         }else if(query.status === candidateValidatorLabel){
             queryParameters.jailed = false
             queryParameters.status ={'$in':[ ValidatorStatus['Unbonded'], ValidatorStatus['Unbonding']]}
-        }
+        }*/
         if (query.useCount && query.useCount == true) {
             result.count = await this.find(queryParameters).countDocuments();
         }

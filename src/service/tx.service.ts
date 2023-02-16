@@ -109,6 +109,7 @@ export class TxService {
 
         const txData = (txList || []).map((tx) => {
             tx = this.handleAcutalFee(tx)
+            tx = this.handleGrant(tx)
             const item = JSON.parse(JSON.stringify(tx));
             let monikers = [];
             (item.addrs || []).forEach((addr) => {
@@ -120,6 +121,8 @@ export class TxService {
                     monikers.push(moniker);
                 }
             });
+            item.is_feegrant = tx.is_feegrant
+            item.payer = tx.payer
             item.monikers = monikers;
             item.statistics_msg_type = tx.statistics_msg_type
             item.extend = tx.extend
@@ -1690,6 +1693,22 @@ export class TxService {
             tx.statistics_msg_type = typeList;
         });
         return txList
+    }
+
+    handleGrant(tx) {
+        if (tx.fee_granter && tx.fee_granter.length) {
+            tx.payer = tx.fee_granter
+        }else if (tx.fee_payer && tx.fee_payer.length){
+            tx.payer = tx.fee_payer
+        }else {
+            tx.payer = tx.signers[0]
+        }
+        if (tx.fee_granter && tx.fee_granter.length && tx.payer == tx.fee_granter){
+            tx.is_feegrant = true
+        }else {
+            tx.is_feegrant = false
+        }
+        return tx
     }
 }
 

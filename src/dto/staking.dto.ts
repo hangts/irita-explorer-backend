@@ -69,7 +69,9 @@ export class PostBlacksReqDto {
 /***************Res*************************/
 
 export class stakingValidatorResDto extends BaseResDto {
+    rank: number;
     operator_address: string;
+    account_address: string;
     consensus_pubkey: string;
     jailed: boolean;
     status: number;
@@ -90,7 +92,9 @@ export class stakingValidatorResDto extends BaseResDto {
 
     constructor(validator) {
         super();
+        this.rank = validator.rank
         this.operator_address = validator.operator_address || ''
+        this.account_address = validator.account_address || ''
         this.consensus_pubkey = validator.consensus_pubkey || ''
         this.jailed = validator.jailed || false
         this.status = validator.status || 0
