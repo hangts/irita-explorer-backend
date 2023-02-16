@@ -135,7 +135,7 @@ export default class StakingService {
             item.voting_rate = item.voting_power / totalVotingPower;
         })
 
-        let active = [], candidate = [], jailed=[], all = []
+        let active = [], candidate = [], jailed=[], all: any[]
 
         validatorList.data.forEach(item => {
             if (item.jailed == false && item.status == 3) {
@@ -166,6 +166,7 @@ export default class StakingService {
 
         all.forEach( (item, index) => {
             item.rank = index + 1
+            item.account_address = addressTransform(item.operator_address, addressPrefix.iaa)
         })
         validatorList.data = all
         const result: any = {}

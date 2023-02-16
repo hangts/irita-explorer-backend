@@ -1680,11 +1680,16 @@ export class TxService {
     }
 
     handleGrant(tx) {
-        if (tx.fee_granter && tx.fee_granter != "" && tx.fee_payer == tx.fee_granter) {
+        if (tx.fee_granter && tx.fee_granter.length) {
+            tx.payer = tx.fee_granter
+        }else if (tx.fee_payer && tx.fee_payer.length){
             tx.payer = tx.fee_payer
+        }else {
+            tx.payer = tx.signers[0]
+        }
+        if (tx.fee_granter && tx.fee_granter.length && tx.payer == tx.fee_granter){
             tx.is_feegrant = true
         }else {
-            tx.payer = tx.fee_payer
             tx.is_feegrant = false
         }
         return tx
