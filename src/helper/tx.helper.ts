@@ -155,6 +155,7 @@ export const dbRes = {
         'msgs.msg.src_owner':1,
         'msgs.msg.proposal_id':1,
         'msgs.msg.option':1,
+        'msgs.msg.options':1,
         'msgs.msg.voter':1,
         'msgs.msg.content.title':1,
         'msgs.msg.client_id':1,
