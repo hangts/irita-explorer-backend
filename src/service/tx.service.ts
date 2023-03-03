@@ -734,7 +734,7 @@ export class TxService {
                         return item
                     } else {
                         let proposal_id;
-                        if (item.events_new.length > 0) {
+                        if (item.events_new && item.events_new.length > 0) {
                             if (item.events_new[0] && item.events_new[0].events){
                                 item.events_new[0].events.forEach(event => {
                                     if (event.type == TxType.submit_proposal) {
@@ -747,15 +747,17 @@ export class TxService {
                                 });
                             }
                         } else {
-                            item.events.forEach(event => {
-                                if (event.type == TxType.submit_proposal) {
-                                    event.attributes.forEach(element => {
-                                        if (element.key == 'proposal_id') {
-                                            proposal_id = element.value
-                                        }
-                                    });
-                                }
-                            });
+                            if (item.events && item.events.length > 0){
+                                item.events.forEach(event => {
+                                    if (event.type == TxType.submit_proposal) {
+                                        event.attributes.forEach(element => {
+                                            if (element.key == 'proposal_id') {
+                                                proposal_id = element.value
+                                            }
+                                        });
+                                    }
+                                });
+                            }
                         }
                         let ex = proposalsMap.get(Number(proposal_id));
                         if (!ex) {
