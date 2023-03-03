@@ -68,7 +68,7 @@ import {ContractOtherSchema} from "../schema/ContractOther.schema";
         {
             name: 'Proposal',
             schema: ProposalSchema,
-            collection: 'ex_sync_proposal'
+            collection: 'ex_proposal'
         },{
             name: 'Statistics',
             schema: StatisticsSchema,

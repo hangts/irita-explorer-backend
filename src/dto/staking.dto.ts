@@ -349,7 +349,7 @@ export class ValidatorVotesResDto extends BaseResDto {
     title: string;
     proposal_id: number;
     status: string;
-    voted: string;
+    voted: object;
     tx_hash: string;
     proposal_link: boolean;
 
