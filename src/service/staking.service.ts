@@ -28,7 +28,6 @@ import {
 } from "../dto/staking.dto";
 import {ListStruct} from "../api/ApiResult";
 import {BlockHttp} from "../http/lcd/block.http";
-import { cfg } from '../config/config';
 import {DistributionHttp} from "../http/lcd/distribution.http";
 
 @Injectable()
@@ -39,6 +38,7 @@ export default class StakingService {
                 @InjectModel('Tx') private txModel: Model<any>,
                 @InjectModel('Tokens') private tokensModel: any,
                 @InjectModel('Proposal') private proposalModel: any,
+                @InjectModel('ProposalVoter') private proposalVoterModel: any,
                 private readonly stakingHttp: StakingHttp,
     ) {
     }
@@ -307,38 +307,55 @@ export default class StakingService {
     async getValidatorVotesList(p: ValidatorDelegationsReqDto,q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorVotesResDto>> {
         const { address } = p;
         const iaaAddress = addressTransform(address, addressPrefix.iaa);
-        const votesAll = await (this.txModel as any).queryVoteByAddr(iaaAddress);
-        const votes = new Map();
-        if (votesAll && votesAll.length > 0) {
-            votesAll.forEach(voter => {
-                votes.set(voter.msgs[0].msg.proposal_id, voter.tx_hash);
-            });
-        }
+        const voters = await this.proposalVoterModel.queryByAddress(iaaAddress, q);
         const votesList = [];
-        let count;
-        if (votes.size > 0) {
-            const hashs = [...votes.values()];
-            const votersData = await (this.txModel as any).queryVoteByTxhashs(hashs, q);
-            count = votersData.count;
-            if (votersData && votersData.data && votersData.data.length > 0) {
-                for (const vote of votersData.data) {
-                    if (vote.msgs && vote.msgs[0] && vote.msgs[0].msg) {
-                        const msg = vote.msgs[0].msg;
-                        const proposal = await this.proposalModel.findOneById(msg.proposal_id);
-                        if (proposal) {
-                            votesList.push({
-                                title: proposal.content && proposal.content.title,
-                                proposal_id: msg.proposal_id,
-                                status: proposal.status,
-                                voted: voteOptions[msg.option],
-                                tx_hash: vote.tx_hash,
-                                proposal_link: !proposal.is_deleted
-                            })
-                        }
-                    }
-                }
+        const count = voters.count;
+
+        for (const vote of voters) {
+            const proposal = await this.proposalModel.findOneById(vote.proposal_id);
+            if (proposal) {
+                votesList.push({
+                    title: proposal.title,
+                    proposal_id: vote.proposal_id,
+                    status: proposal.status,
+                    voted: vote.weighted_vote,
+                    tx_hash: vote.tx_hash,
+                    proposal_link: !proposal.is_deleted
+                })
             }
         }
+        /* const votesAll = await (this.txModel as any).queryVoteByAddr(iaaAddress);
+         const votes = new Map();
+         if (votesAll && votesAll.length > 0) {
+             votesAll.forEach(voter => {
+                 votes.set(voter.msgs[0].msg.proposal_id, voter.tx_hash);
+             });
+         }
+         const votesList = [];
+         let count;
+         if (votes.size > 0) {
+             const hashs = [...votes.values()];
+             const votersData = await (this.txModel as any).queryVoteByTxhashs(hashs, q);
+             count = votersData.count;
+             if (votersData && votersData.data && votersData.data.length > 0) {
+                 for (const vote of votersData.data) {
+                     if (vote.msgs && vote.msgs[0] && vote.msgs[0].msg) {
+                         const msg = vote.msgs[0].msg;
+                         const proposal = await this.proposalModel.findOneById(msg.proposal_id);
+                         if (proposal) {
+                             votesList.push({
+                                 title: proposal.title,
+                                 proposal_id: proposal.id,
+                                 status: proposal.status,
+                                 voted: voteOptions[msg.option],
+                                 tx_hash: vote.tx_hash,
+                                 proposal_link: !proposal.is_deleted
+                             })
+                         }
+                     }
+                 }
+             }
+         }*/
         const result: any = {};
         result.data = ValidatorVotesResDto.bundleData(votesList);
         return new ListStruct(result.data, q.pageNum, q.pageSize, count);

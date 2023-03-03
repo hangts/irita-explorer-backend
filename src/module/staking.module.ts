@@ -8,8 +8,10 @@ import {StakingController} from "../controller/staking.controller";
 import {ParametersSchema} from "../schema/parameters.schema";
 import {TxSchema} from "../schema/tx.schema";
 import {DistributionHttp} from "../http/lcd/distribution.http";
-import { TokensSchema } from "../schema/tokens.schema";
-import { ProposalSchema } from '../schema/proposal.schema';
+import {TokensSchema} from "../schema/tokens.schema";
+import {ProposalSchema} from '../schema/proposal.schema';
+import {ProposalVoterSchema} from "../schema/proposal.voter.schema";
+
 @Module({
     imports: [
         MongooseModule.forFeature([
@@ -42,10 +44,15 @@ import { ProposalSchema } from '../schema/proposal.schema';
                 name: 'Proposal',
                 schema: ProposalSchema,
                 collection: 'ex_proposal'
+            },
+            {
+                name: 'ProposalVoter',
+                schema: ProposalVoterSchema,
+                collection: 'ex_proposal_voter'
             }
         ])
     ],
-    providers: [StakingService, StakingHttp,DistributionHttp],
+    providers: [StakingService, StakingHttp, DistributionHttp],
     controllers: [StakingController],
 })
 export class StakingModule {
