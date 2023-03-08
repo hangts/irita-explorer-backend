@@ -88,9 +88,7 @@ StakingValidatorSchema.statics = {
             result.count = await this.find(queryParameters).countDocuments();
         }
         // console.log('查询条件',queryParameters)
-        result.data = await this.find(queryParameters)
-            .skip((Number(query.pageNum) - 1) * Number(query.pageSize))
-            .limit(Number(query.pageSize)).sort({ tokens: -1 });
+        result.data = await this.find(queryParameters).sort({ tokens: -1 });
         return result
     },
 
