@@ -17,12 +17,18 @@ export const TxTypeSchema = new mongoose.Schema({
     update_time:{
     	type:Number,
     	default:getTimestamp(),
-    }
+    },
+	module_id: Number
 },{versionKey: false});
 
 // txs/types
 TxTypeSchema.statics.queryTxTypeList = async function ():Promise<ITxTypeStruct[]>{
 	return await this.find({})
+};
+
+
+TxTypeSchema.statics.queryTxTypeListByModuleId = async function (moduleId: number):Promise<ITxTypeStruct[]>{
+	return await this.find({module_id: moduleId})
 };
 
 // txs/types/service

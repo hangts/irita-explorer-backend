@@ -490,6 +490,16 @@ export class TxService {
                 txId: txId,
                 limit: limit,
             }
+
+            if (query.module_id && query.module_id != 0) {
+                const txTypeListData =  await this.txTypeModel.queryTxTypeListByModuleId(query.module_id);
+                const typesArr =[];
+                txTypeListData.forEach(item => {
+                    typesArr.push(item.type_name)
+                })
+                queryDb.type = typesArr.join(",")
+            }
+
             //search contract_address when type is ethereum_tx
             if (type && (type.includes(ERCType.contractTag) || type.includes(ERCType.contractOtherTag))) {
                 let typeArr = type.split(",");
@@ -842,6 +852,16 @@ export class TxService {
               txId: txId,
               limit: limit,
           }
+
+          if (query.module_id && query.module_id != 0) {
+              const txTypeListData =  await this.txTypeModel.queryTxTypeListByModuleId(query.module_id);
+              const typesArr =[];
+              txTypeListData.forEach(item => {
+                  typesArr.push(item.type_name)
+              })
+              queryDb.type = typesArr.join(",")
+          }
+
           //search contract_address when type is ethereum_tx
           if (type && (type.includes(ERCType.contractTag) || type.includes(ERCType.contractOtherTag))) {
               let typeArr = type.split(",");

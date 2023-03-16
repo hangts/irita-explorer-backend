@@ -4,6 +4,7 @@ export interface ITxsQuery extends IQueryBase {
 	type?:string,
 	status?:string,
     address?:string,
+    module_id?: number,
     contract_addr?:string,
 	beginTime?:string,
   	endTime?:string,
