@@ -16,6 +16,9 @@ export class TxListReqDto extends DeepPagingReqDto {
     status?: string;
 
     @ApiPropertyOptional()
+    module_id?: number;
+
+    @ApiPropertyOptional()
     address?: string;
 
     @ApiPropertyOptional()
@@ -112,6 +115,9 @@ export class TxListWithAddressReqDto extends DeepPagingReqDto {
 
     @ApiPropertyOptional()
     type?: string;
+
+    @ApiPropertyOptional()
+    module_id?: number;
 
     @ApiPropertyOptional({description: '1:success  2:fail'})
     status?: string;

@@ -7,4 +7,5 @@ export interface ITxTypeStruct {
     type_en: string,
     module_cn: string,
     module_en: string,
+    module_id: number,
 }
