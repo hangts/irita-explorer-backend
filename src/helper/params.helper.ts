@@ -334,6 +334,27 @@ export function TxWithContextIdParamsHelper(query: ITxsWithContextIdQuery){
   return queryParameters
 }
 
+export function queryTibcTxWithNftHelper(query: ITxsWithNftQuery){
+    const nftTypesList = [
+        TxType.tibc_nft_transfer,
+        TxType.tibc_recv_packet,
+        TxType.tibc_acknowledge_packet,
+    ];
+    // let queryParameters: { 'msgs.msg.denom'?: string, 'msgs.msg.id'?: string, $or: object[] } = { $or: [{ 'msgs.type': filterTxTypeRegExp(nftTypesList) }] };
+    const queryParameters: { 'msgs.type': object } = { 'msgs.type': { $in: nftTypesList || [] }};
+
+    if (query.tokenId) {
+        queryParameters['$or'] = [
+            { 'msgs.msg.packet.data.id': query.tokenId },
+            { 'msgs.msg.id': query.tokenId },
+        ];
+    }
+    if (query.txId) {
+        queryParameters['tx_id'] = { $lt: Number(query.txId) }
+    }
+    return queryParameters
+}
+
 export function queryTxWithNftHelper(query: ITxsWithNftQuery){
   const nftTypesList = [
     TxType.mint_nft,

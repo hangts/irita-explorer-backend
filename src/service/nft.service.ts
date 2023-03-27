@@ -71,7 +71,7 @@ export class NftService {
                 nft.uri,
                 nft.data,
                 denomDetail,
-                denomDetail.name,
+                denomDetail?.name ? denomDetail?.name : "",
                 nft.nft_name,
                 nft.last_block_time,
             );

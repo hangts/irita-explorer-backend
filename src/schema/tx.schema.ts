@@ -33,19 +33,19 @@ import {
     coinswapTypes
 } from '../helper/txTypes.helper';
 import {
-  txListParamsHelper,
-  StakingTxListParamsHelper,
-  CoinswapTxListParamsHelper,
-  DeclarationTxListParamsHelper,
-  GovTxListParamsHelper,
-  TxListEdgeParamsHelper,
-  TxWithAddressParamsHelper,
-  TxWithContextIdParamsHelper,
-  queryTxWithNftHelper,
-  queryTxListByIdentityHelper,
-  queryTxWithAssetCountHelper,
-  queryVoteByTxhashsAndAddressHelper,
-  queryDepositorByIdHelper,
+    txListParamsHelper,
+    StakingTxListParamsHelper,
+    CoinswapTxListParamsHelper,
+    DeclarationTxListParamsHelper,
+    GovTxListParamsHelper,
+    TxListEdgeParamsHelper,
+    TxWithAddressParamsHelper,
+    TxWithContextIdParamsHelper,
+    queryTxWithNftHelper,
+    queryTxListByIdentityHelper,
+    queryTxWithAssetCountHelper,
+    queryVoteByTxhashsAndAddressHelper,
+    queryDepositorByIdHelper, queryTibcTxWithNftHelper,
 } from '../helper/params.helper';
 
 export const TxSchema = new mongoose.Schema({
@@ -332,6 +332,16 @@ TxSchema.statics.queryTxWithNft = async function(query: ITxsWithNftQuery): Promi
     return result;
 };
 
+
+TxSchema.statics.queryNftTibcTx = async function(query: ITxsWithNftQuery): Promise<ListStruct> {
+    const result: ListStruct = {};
+    const queryParameters = queryTibcTxWithNftHelper(query)
+    result.data = await this.find(queryParameters, dbRes.txList)
+        .sort({ tx_id: -1 })
+        .limit(Number(query.limit));
+    return result;
+};
+
 TxSchema.statics.queryTxWithNftAndTxId = async function(query: ITxsWithNftQuery): Promise<ListStruct> {
     const result: ListStruct = {};
     const queryParameters = queryTxWithNftHelper(query)
@@ -342,7 +352,12 @@ TxSchema.statics.queryTxWithNftAndTxId = async function(query: ITxsWithNftQuery)
 };
 
 TxSchema.statics.queryTxWithNftCount = async function(query: ITxsWithNftQuery): Promise<number> {
-  const queryParameters = queryTxWithNftHelper(query)
+    let queryParameters;
+    if (query.denomId.startsWith("tibc")) {
+        queryParameters = queryTibcTxWithNftHelper(query)
+    }else {
+        queryParameters = queryTxWithNftHelper(query)
+    }
   return await this.find(queryParameters).countDocuments();
 }
 
