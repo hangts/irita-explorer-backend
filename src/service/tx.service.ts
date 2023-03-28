@@ -989,7 +989,10 @@ export class TxService {
             pageSize: `${pageSize}`,
             useCount: useCount,
         }
-        if (limit){
+
+        if (limit && denomId && denomId.startsWith("tibc")) {
+            txListData = await this.txModel.queryNftTibcTx(queryDb);
+        }else if (limit){
             txListData = await this.txModel.queryTxWithNftAndTxId(queryDb);
         }
         if(pageNum && pageSize){
