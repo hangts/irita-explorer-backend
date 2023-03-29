@@ -50,7 +50,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.5.4",
     "sha256": "^0.2.0",
-    "sm-crypto": "git+http://github.com/bianjieai/sm-crypto-js.git#main",
+    "sm-crypto-yonggui": "^0.2.2",
     "stacktrace-js": "^2.0.2",
     "swagger-ui-express": "^4.1.4"
   },
