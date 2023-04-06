@@ -279,6 +279,37 @@ export class TxService {
                         }
                     })
                 }
+
+                if (msg.type === TxType.mint_token) {
+                    let msgObj = {}
+                    msgObj['msg'] = {}
+                    msgObj['type'] = msg.type
+                    if (msg.msg?.symbol) {
+                        let coin = {}, newMsg = {}
+                        coin['denom'] = msg.msg.symbol
+                        coin['amount'] = msg.msg.amount
+                        newMsg['coin'] = coin
+                        newMsg['to'] = msg.msg.to
+                        newMsg['owner'] = msg.msg.owner
+                        msgObj['msg'] = newMsg
+                        tx.msgs[index] = msgObj
+                    }
+                }
+
+                if (msg.type === TxType.burn_token) {
+                    let msgObj = {}
+                    msgObj['msg'] = {}
+                    msgObj['type'] = msg.type
+                    if (msg.msg?.symbol) {
+                        let coin = {}, newMsg = {}
+                        coin['denom'] = msg.msg.symbol
+                        coin['amount'] = msg.msg.amount
+                        newMsg['sender'] = msg.msg.sender
+                        newMsg['coin'] = coin
+                        msgObj['msg'] = newMsg
+                        tx.msgs[index] = msgObj
+                    }
+                }
             });
             tx.events_new = undefined;
         });

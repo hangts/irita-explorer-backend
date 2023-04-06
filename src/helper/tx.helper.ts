@@ -175,6 +175,7 @@ export const dbRes = {
         'msgs.msg.counterparty_denom':1,
         'msgs.msg.exact_token':1,
         'msgs.msg.min_token':1,
+        'msgs.msg.coin':1,
 
     },
     service:{

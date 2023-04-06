@@ -1082,7 +1082,10 @@ TxSchema.statics.queryTxBySymbol = async function(
             $in:[TxType.mint_token,TxType.burn_token]
           },
         status: TxStatus.SUCCESS,
-        'msgs.msg.symbol': symbol,
+        $or: [
+              { 'msgs.msg.coin.denom': symbol },
+              { 'msgs.msg.symbol': symbol }
+        ],
         height: { $gt: height }
       }
     return await this.find(params, {height:1,msgs:1}).sort({time: 1}).limit(1000)

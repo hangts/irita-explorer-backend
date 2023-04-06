@@ -53,11 +53,13 @@ export class TokensTaskService {
                     data.forEach(item => {
                         token.update_block_height = item.height
                         item.msgs.forEach(element => {
-                            if (element.type === TxType.mint_token) {
-                                //TODO:duanjie 使用大数计算
+                            if (element.type === TxType.mint_token && element.msg?.coin) {
+                                token.total_supply = String(Number(token.total_supply) + Number(element.msg.coin.amount))
+                            } else if (element.type === TxType.mint_token && element.msg?.amount) {
                                 token.total_supply = String(Number(token.total_supply) + Number(element.msg.amount))
-                            } else if (element.type === TxType.burn_token) {
-                                //TODO:duanjie 使用大数计算
+                            } else if (element.type == TxType.burn_token && element.msg?.coin) {
+                                token.total_supply = String(Number(token.total_supply) - Number(element.msg.coin.amount))
+                            } else if (element.type == TxType.burn_token && element.msg?.amount) {
                                 token.total_supply = String(Number(token.total_supply) - Number(element.msg.amount))
                             }
                         })
