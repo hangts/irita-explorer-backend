@@ -3,7 +3,6 @@ import {ITokens} from "../types/schemaTypes/tokens.interface";
 import { IAssetStruct } from '../types/schemaTypes/asset.interface';
 import { TokensResDto } from '../dto/irita.dto';
 import {SRC_PROTOCOL} from '../constant';
-import any = jasmine.any;
 
 export const TokensSchema = new mongoose.Schema({
     symbol: String,

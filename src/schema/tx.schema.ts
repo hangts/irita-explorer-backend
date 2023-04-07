@@ -1075,7 +1075,7 @@ TxSchema.statics.queryDepositsAndSubmitByAddress = async function (address: stri
 // sync tokens task
 TxSchema.statics.queryTxBySymbol = async function(
     symbol: string,
-    denom: symbol,
+    denom: string,
     height: number
 ): Promise<ITxStruct | null>{
       const params =  {
