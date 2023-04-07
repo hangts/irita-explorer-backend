@@ -48,17 +48,26 @@ export class TokensTaskService {
                         token.update_block_height = item.update_block_height
                     }
                 })
-                const data = await this.txModel.queryTxBySymbol(token.symbol, token.update_block_height)
+                const data = await this.txModel.queryTxBySymbol(token.symbol, token.denom, token.update_block_height)
                 if (data && data.length) {
                     data.forEach(item => {
                         token.update_block_height = item.height
                         item.msgs.forEach(element => {
+                            //数据库存的total_supply是大单位下的
                             if (element.type === TxType.mint_token && element.msg?.coin) {
-                                token.total_supply = String(Number(token.total_supply) + Number(element.msg.coin.amount))
+                                if (token?.scale && token.scale != 0) {
+                                    token.total_supply = String(Number(token.total_supply) + (Number(element.msg.coin.amount) / token.scale))
+                                }else {
+                                    token.total_supply = String(Number(token.total_supply) + Number(element.msg.coin.amount))
+                                }
                             } else if (element.type === TxType.mint_token && element.msg?.amount) {
                                 token.total_supply = String(Number(token.total_supply) + Number(element.msg.amount))
                             } else if (element.type == TxType.burn_token && element.msg?.coin) {
-                                token.total_supply = String(Number(token.total_supply) - Number(element.msg.coin.amount))
+                                if (token?.scale && token.scale != 0) {
+                                    token.total_supply = String(Number(token.total_supply) - Number(element.msg.coin.amount) / token.scale)
+                                }else {
+                                    token.total_supply = String(Number(token.total_supply) - Number(element.msg.coin.amount))
+                                }
                             } else if (element.type == TxType.burn_token && element.msg?.amount) {
                                 token.total_supply = String(Number(token.total_supply) - Number(element.msg.amount))
                             }

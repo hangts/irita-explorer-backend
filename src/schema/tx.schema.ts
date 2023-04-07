@@ -1075,6 +1075,7 @@ TxSchema.statics.queryDepositsAndSubmitByAddress = async function (address: stri
 // sync tokens task
 TxSchema.statics.queryTxBySymbol = async function(
     symbol: string,
+    denom: symbol,
     height: number
 ): Promise<ITxStruct | null>{
       const params =  {
@@ -1083,7 +1084,7 @@ TxSchema.statics.queryTxBySymbol = async function(
           },
         status: TxStatus.SUCCESS,
         $or: [
-              { 'msgs.msg.coin.denom': symbol },
+              { 'msgs.msg.coin.denom': denom },
               { 'msgs.msg.symbol': symbol }
         ],
         height: { $gt: height }

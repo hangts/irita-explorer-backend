@@ -19,6 +19,7 @@ import {ContractErc20Schema} from "../schema/ContractErc20.schema";
 import {ContractErc721Schema} from "../schema/ContractErc721.schema";
 import {ContractErc1155Schema} from "../schema/ContractErc1155.schema";
 import {ContractOtherSchema} from "../schema/ContractOther.schema";
+import {TokensHttp} from "../http/lcd/tokens.http";
 @Module({
     imports:[
         MongooseModule.forFeature([{
@@ -95,7 +96,7 @@ import {ContractOtherSchema} from "../schema/ContractOther.schema";
             collection: 'ex_contract_other'
         }])
     ],
-    providers:[TxService,GovHttp],
+    providers:[TxService,GovHttp,TokensHttp],
     controllers:[TxController],
 })
 export class TxModule{}

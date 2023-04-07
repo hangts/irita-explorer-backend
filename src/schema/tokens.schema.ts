@@ -3,6 +3,7 @@ import {ITokens} from "../types/schemaTypes/tokens.interface";
 import { IAssetStruct } from '../types/schemaTypes/asset.interface';
 import { TokensResDto } from '../dto/irita.dto';
 import {SRC_PROTOCOL} from '../constant';
+import any = jasmine.any;
 
 export const TokensSchema = new mongoose.Schema({
     symbol: String,
@@ -19,6 +20,7 @@ export const TokensSchema = new mongoose.Schema({
     src_protocol: String,
     chain:String,
     is_authed:Boolean,
+    tags: Array,
 })
 //TokensSchema.index({symbol: 1}, {unique: true})
 //TokensSchema.index({denom: 1, chain:1}, {unique: true})
@@ -31,7 +33,7 @@ TokensSchema.statics = {
         await this.findOneAndUpdate({ denom }, Tokens, options)
     },
     async queryAllTokens() {
-        return await this.find({})
+        return await this.find({}).lean()
     },
 
     async insertIbcToken(Token: ITokens): Promise<any> {

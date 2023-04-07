@@ -46,7 +46,7 @@ import {getReqContextIdFromEvents, getServiceNameFromMsgs} from '../helper/tx.he
 import Cache from '../helper/cache';
 import {
     addressPrefix,
-    ContractType,
+    ContractType, currentChain,
     DDCType,
     defaultEvmTxReceiptErrlog,
     deFaultGasPirce, ERCType,
@@ -61,6 +61,8 @@ import {txListParamsHelper, TxWithAddressParamsHelper} from '../helper/params.he
 import {getConsensusPubkey} from "../helper/staking.helper";
 import {cfg} from "../config/config";
 import {ContractErc20Schema} from "../schema/ContractErc20.schema";
+import {Tx} from "@irisnet/irishub-sdk/dist/src/modules";
+import {TokensHttp} from "../http/lcd/tokens.http";
 
 @Injectable()
 export class TxService {
@@ -80,7 +82,8 @@ export class TxService {
         @InjectModel('ContractErc721') private ContractErc721Model: any,
         @InjectModel('ContractErc1155') private ContractErc1155Model: any,
         @InjectModel('ContractOther') private ContractOtherModel: any,
-        private readonly govHttp: GovHttp
+        private readonly govHttp: GovHttp,
+        private readonly TokensHttp:TokensHttp
     ) {
         this.cacheTxTypes();
         //this.cacheEvmContract();
@@ -278,37 +281,6 @@ export class TxService {
                             msg.msg['swap_amount'] = swapAddLiudityAmount;
                         }
                     })
-                }
-
-                if (msg.type === TxType.mint_token) {
-                    let msgObj = {}
-                    msgObj['msg'] = {}
-                    msgObj['type'] = msg.type
-                    if (msg.msg?.symbol) {
-                        let coin = {}, newMsg = {}
-                        coin['denom'] = msg.msg.symbol
-                        coin['amount'] = msg.msg.amount
-                        newMsg['coin'] = coin
-                        newMsg['to'] = msg.msg.to
-                        newMsg['owner'] = msg.msg.owner
-                        msgObj['msg'] = newMsg
-                        tx.msgs[index] = msgObj
-                    }
-                }
-
-                if (msg.type === TxType.burn_token) {
-                    let msgObj = {}
-                    msgObj['msg'] = {}
-                    msgObj['type'] = msg.type
-                    if (msg.msg?.symbol) {
-                        let coin = {}, newMsg = {}
-                        coin['denom'] = msg.msg.symbol
-                        coin['amount'] = msg.msg.amount
-                        newMsg['sender'] = msg.msg.sender
-                        newMsg['coin'] = coin
-                        msgObj['msg'] = newMsg
-                        tx.msgs[index] = msgObj
-                    }
                 }
             });
             tx.events_new = undefined;
@@ -597,6 +569,7 @@ export class TxService {
                 txListData.data = this.handerEvents(txListData.data)
                 txListData.data = this.handleMsg(txListData.data, queryDb)
                 // add evm info about contract method
+                txListData.data = await this.handleToken(txListData.data, queryDb)
                 txListData.data = await this.addContractMethodToTxs(txListData.data)
                 txData = await this.addMonikerToTxs(txListData.data);
             }
@@ -1766,6 +1739,67 @@ export class TxService {
             tx.is_feegrant = false
         }
         return tx
+    }
+
+    private async handleToken(txList, queryDb: ITxsQuery) {
+        let typeArr = []
+        if (queryDb.type && queryDb.type.length) {
+            typeArr = queryDb.type.split(",");
+        }
+
+        if (typeArr.length > 1 || (typeArr[0] != TxType.mint_token && typeArr[0] != TxType.burn_token)){
+            return txList
+        }
+
+        const tokenMap = {};
+        if (cfg.currentChain == currentChain.iris) {
+            const TokensData = await this.TokensHttp.getTokens()
+            TokensData.forEach((item) => {
+                tokenMap[item.symbol] = item;
+            });
+        }
+
+        (txList).forEach(tx => {
+            (tx.msgs || []).forEach((msg, index) => {
+                if (typeArr.length == 1 && (typeArr[0] == TxType.mint_token || typeArr[0] == TxType.burn_token)) {
+                    if (msg.type === TxType.mint_token) {
+                        let msgObj = {}
+                        msgObj['msg'] = {}
+                        msgObj['type'] = msg.type
+                        if (msg.msg?.symbol) {
+                            let coin = {}, newMsg = {}
+                            if (tokenMap[msg.msg.symbol]) {
+                                const token = tokenMap[msg.msg.symbol]
+                                coin['denom'] = token.denom
+                                coin['amount'] = String(Number(msg.msg.amount) * token.scale)
+                            }
+                            newMsg['coin'] = coin
+                            newMsg['to'] = msg.msg.to
+                            newMsg['owner'] = msg.msg.owner
+                            msgObj['msg'] = newMsg
+                            tx.msgs[index] = msgObj
+                        }
+                    } else if (msg.type === TxType.burn_token) {
+                        let msgObj = {}
+                        msgObj['msg'] = {}
+                        msgObj['type'] = msg.type
+                        if (msg.msg?.symbol) {
+                            let coin = {}, newMsg = {}
+                            if (tokenMap[msg.msg.symbol]) {
+                                const token = tokenMap[msg.msg.symbol]
+                                coin['denom'] = token.denom
+                                coin['amount'] = String(Number(msg.msg.amount) * token.scale)
+                            }
+                            newMsg['sender'] = msg.msg.sender
+                            newMsg['coin'] = coin
+                            msgObj['msg'] = newMsg
+                            tx.msgs[index] = msgObj
+                        }
+                    }
+                }
+            });
+        });
+        return txList
     }
 }
 
