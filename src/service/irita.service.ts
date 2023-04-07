@@ -29,7 +29,7 @@ export class IritaService {
                 case SRC_PROTOCOL.IBC:
                     item.tags.push(TokenTag.IBCTokenTag)
                     break
-                default:
+                case SRC_PROTOCOL.POOL:
                     item.tags.push(TokenTag.PoolTokenTag)
             }
         })

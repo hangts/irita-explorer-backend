@@ -32,7 +32,7 @@ TokensSchema.statics = {
         await this.findOneAndUpdate({ denom }, Tokens, options)
     },
     async queryAllTokens() {
-        return await this.find({}).lean()
+        return await this.find({})
     },
 
     async insertIbcToken(Token: ITokens): Promise<any> {

@@ -61,8 +61,9 @@ import {txListParamsHelper, TxWithAddressParamsHelper} from '../helper/params.he
 import {getConsensusPubkey} from "../helper/staking.helper";
 import {cfg} from "../config/config";
 import {ContractErc20Schema} from "../schema/ContractErc20.schema";
-import {Tx} from "@irisnet/irishub-sdk/dist/src/modules";
 import {TokensHttp} from "../http/lcd/tokens.http";
+import { Model } from 'mongoose';
+import BigNumber from "bignumber.js";
 
 @Injectable()
 export class TxService {
@@ -82,6 +83,7 @@ export class TxService {
         @InjectModel('ContractErc721') private ContractErc721Model: any,
         @InjectModel('ContractErc1155') private ContractErc1155Model: any,
         @InjectModel('ContractOther') private ContractOtherModel: any,
+        @InjectModel('Tokens') private tokensModel: Model<any>,
         private readonly govHttp: GovHttp,
         private readonly TokensHttp:TokensHttp
     ) {
@@ -1752,26 +1754,27 @@ export class TxService {
         }
 
         const tokenMap = {};
-        if (cfg.currentChain == currentChain.iris) {
-            const TokensData = await this.TokensHttp.getTokens()
-            TokensData.forEach((item) => {
-                tokenMap[item.symbol] = item;
-            });
-        }
+        const TokensData = await (this.tokensModel as any).queryAllTokens()
+        TokensData.forEach((item) => {
+            tokenMap[item.symbol] = item;
+        });
 
         (txList).forEach(tx => {
             (tx.msgs || []).forEach((msg, index) => {
                 if (typeArr.length == 1 && (typeArr[0] == TxType.mint_token || typeArr[0] == TxType.burn_token)) {
                     if (msg.type === TxType.mint_token) {
-                        let msgObj = {}
+                        const msgObj = {}
                         msgObj['msg'] = {}
                         msgObj['type'] = msg.type
                         if (msg.msg?.symbol) {
-                            let coin = {}, newMsg = {}
+                            const coin = {}, newMsg = {}
                             if (tokenMap[msg.msg.symbol]) {
                                 const token = tokenMap[msg.msg.symbol]
                                 coin['denom'] = token.denom
-                                coin['amount'] = String(Number(msg.msg.amount) * token.scale)
+                                coin['amount'] = new BigNumber(msg.msg.amount).shiftedBy(Number(token.scale)).toString()
+                            } else {
+                                coin['denom'] = msg.msg.symbol
+                                coin['amount'] = msg.msg.amount
                             }
                             newMsg['coin'] = coin
                             newMsg['to'] = msg.msg.to
@@ -1780,15 +1783,18 @@ export class TxService {
                             tx.msgs[index] = msgObj
                         }
                     } else if (msg.type === TxType.burn_token) {
-                        let msgObj = {}
+                        const msgObj = {}
                         msgObj['msg'] = {}
                         msgObj['type'] = msg.type
                         if (msg.msg?.symbol) {
-                            let coin = {}, newMsg = {}
+                            const coin = {}, newMsg = {}
                             if (tokenMap[msg.msg.symbol]) {
                                 const token = tokenMap[msg.msg.symbol]
                                 coin['denom'] = token.denom
-                                coin['amount'] = String(Number(msg.msg.amount) * token.scale)
+                                coin['amount'] = new BigNumber(msg.msg.amount).shiftedBy(Number(token.scale)).toString()
+                            } else {
+                                coin['denom'] = msg.msg.symbol
+                                coin['amount'] = msg.msg.amount
                             }
                             newMsg['sender'] = msg.msg.sender
                             newMsg['coin'] = coin

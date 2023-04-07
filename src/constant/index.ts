@@ -359,6 +359,7 @@ export const SRC_PROTOCOL = {
     IBC: 'ibc',
     SWAP: 'swap',
     PEG: 'peg',
+    POOL: 'lpt'
 }
 
 export enum TokenTag {
