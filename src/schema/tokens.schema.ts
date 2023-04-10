@@ -44,6 +44,11 @@ TokensSchema.statics = {
     async queryMainToken() {
         return await this.findOne({is_main_token:true});
     },
+
+    async queryTokensBySrcProtocol(protocol: string): Promise<IAssetStruct[]> {
+        return await this.find({"src_protocol": protocol})
+    },
+
     async findList(pageNum: number, pageSize: number): Promise<IAssetStruct[]> {
         return await this.find({'is_main_token':false, 'src_protocol':SRC_PROTOCOL.NATIVE})
             .select({

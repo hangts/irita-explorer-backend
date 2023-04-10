@@ -50,7 +50,7 @@ import {
     DDCType,
     defaultEvmTxReceiptErrlog,
     deFaultGasPirce, ERCType,
-    proposal as proposalString,
+    proposal as proposalString, SRC_PROTOCOL,
     TxCntQueryCond,
     TxsListCountName,
     TxType,
@@ -61,7 +61,6 @@ import {txListParamsHelper, TxWithAddressParamsHelper} from '../helper/params.he
 import {getConsensusPubkey} from "../helper/staking.helper";
 import {cfg} from "../config/config";
 import {ContractErc20Schema} from "../schema/ContractErc20.schema";
-import {TokensHttp} from "../http/lcd/tokens.http";
 import { Model } from 'mongoose';
 import BigNumber from "bignumber.js";
 
@@ -85,7 +84,6 @@ export class TxService {
         @InjectModel('ContractOther') private ContractOtherModel: any,
         @InjectModel('Tokens') private tokensModel: Model<any>,
         private readonly govHttp: GovHttp,
-        private readonly TokensHttp:TokensHttp
     ) {
         this.cacheTxTypes();
         //this.cacheEvmContract();
@@ -1754,7 +1752,7 @@ export class TxService {
         }
 
         const tokenMap = {};
-        const TokensData = await (this.tokensModel as any).queryAllTokens()
+        const TokensData = await (this.tokensModel as any).queryTokensBySrcProtocol(SRC_PROTOCOL.NATIVE)
         TokensData.forEach((item) => {
             tokenMap[item.symbol] = item;
         });
