@@ -8,6 +8,7 @@ import {moduleStaking, TaskEnum} from "../constant";
 import { TxType,currentChain, SRC_PROTOCOL } from '../constant';
 import { cfg } from '../config/config'
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
+import BigNumber from "bignumber.js";
 @Injectable()
 export class TokensTaskService {
     constructor(
@@ -48,17 +49,28 @@ export class TokensTaskService {
                         token.update_block_height = item.update_block_height
                     }
                 })
-                const data = await this.txModel.queryTxBySymbol(token.symbol, token.update_block_height)
+                const data = await this.txModel.queryTxBySymbol(token.symbol, token.denom, token.update_block_height)
                 if (data && data.length) {
                     data.forEach(item => {
                         token.update_block_height = item.height
                         item.msgs.forEach(element => {
-                            if (element.type === TxType.mint_token) {
-                                //TODO:duanjie 使用大数计算
-                                token.total_supply = String(Number(token.total_supply) + Number(element.msg.amount))
-                            } else if (element.type === TxType.burn_token) {
-                                //TODO:duanjie 使用大数计算
-                                token.total_supply = String(Number(token.total_supply) - Number(element.msg.amount))
+                            //数据库存的total_supply是大单位下的
+                            if (element.type === TxType.mint_token && element.msg?.coin) {
+                                if (token?.scale && token.scale != 0) {
+                                    token.total_supply = new BigNumber(element.msg.coin.amount).shiftedBy(-token.scale).plus(new BigNumber(token.total_supply)).toString()
+                                }else {
+                                    token.total_supply = new BigNumber(element.msg.coin.amount).plus(new BigNumber(token.total_supply)).toString()
+                                }
+                            } else if (element.type === TxType.mint_token && element.msg?.amount) {
+                                token.total_supply = new BigNumber(token.total_supply).plus(new BigNumber(element.msg.amount)).toString()
+                            } else if (element.type == TxType.burn_token && element.msg?.coin) {
+                                if (token?.scale && token.scale != 0) {
+                                    token.total_supply = new BigNumber(token.total_supply).minus(new BigNumber(element.msg.coin.amount).shiftedBy(-token.scale)).toString()
+                                }else {
+                                    token.total_supply = new BigNumber(token.total_supply).minus(new BigNumber(element.msg.coin.amount)).toString()
+                                }
+                            } else if (element.type == TxType.burn_token && element.msg?.amount) {
+                                token.total_supply = new BigNumber(token.total_supply).minus(new BigNumber(element.msg.amount)).toString()
                             }
                         })
                     })
