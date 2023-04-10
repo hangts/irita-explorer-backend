@@ -11,4 +11,5 @@ export interface IAssetStruct {
     chain?: string;
     is_authed?: boolean;
     tags?: number[];
+    token_alias: string;
 }

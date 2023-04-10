@@ -57,7 +57,7 @@ export class TokensTaskService {
                             //数据库存的total_supply是大单位下的
                             if (element.type === TxType.mint_token && element.msg?.coin) {
                                 if (token?.scale && token.scale != 0) {
-                                    token.total_supply = new BigNumber(element.msg.coin.amount).shiftedBy(token.scale.negated()).plus(new BigNumber(token.total_supply)).toString()
+                                    token.total_supply = new BigNumber(element.msg.coin.amount).shiftedBy(-token.scale).plus(new BigNumber(token.total_supply)).toString()
                                 }else {
                                     token.total_supply = new BigNumber(element.msg.coin.amount).plus(new BigNumber(token.total_supply)).toString()
                                 }
@@ -65,7 +65,7 @@ export class TokensTaskService {
                                 token.total_supply = new BigNumber(token.total_supply).plus(new BigNumber(element.msg.amount)).toString()
                             } else if (element.type == TxType.burn_token && element.msg?.coin) {
                                 if (token?.scale && token.scale != 0) {
-                                    token.total_supply = new BigNumber(token.total_supply).minus(new BigNumber(element.msg.coin.amount).shiftedBy(token.scale.negated())).toString()
+                                    token.total_supply = new BigNumber(token.total_supply).minus(new BigNumber(element.msg.coin.amount).shiftedBy(-token.scale)).toString()
                                 }else {
                                     token.total_supply = new BigNumber(token.total_supply).minus(new BigNumber(element.msg.coin.amount)).toString()
                                 }

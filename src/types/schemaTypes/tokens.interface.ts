@@ -14,4 +14,5 @@ export interface ITokens {
     src_protocol: string;
     chain: string;
     tags: number[];
+    token_alias: string;
 }

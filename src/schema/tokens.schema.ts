@@ -19,6 +19,7 @@ export const TokensSchema = new mongoose.Schema({
     src_protocol: String,
     chain:String,
     is_authed:Boolean,
+    token_alias: String,
     tags: Array,
 })
 //TokensSchema.index({symbol: 1}, {unique: true})
