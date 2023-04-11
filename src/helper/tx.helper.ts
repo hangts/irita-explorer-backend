@@ -176,6 +176,7 @@ export const dbRes = {
         'msgs.msg.exact_token':1,
         'msgs.msg.min_token':1,
         'msgs.msg.coin':1,
+        'msgs.msg.fee_paid':1,
 
     },
     service:{
