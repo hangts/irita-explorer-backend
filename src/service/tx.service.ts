@@ -55,7 +55,7 @@ import {
     TxsListCountName,
     TxType,
 } from '../constant';
-import {addressTransform, splitString} from '../util/util';
+import {addressTransform, getAddrBech32FromHex, hexToBech32, splitString} from '../util/util';
 import {GovHttp} from '../http/lcd/gov.http';
 import {txListParamsHelper, TxWithAddressParamsHelper} from '../helper/params.helper';
 import {getConsensusPubkey} from "../helper/staking.helper";
@@ -1726,17 +1726,35 @@ export class TxService {
     }
 
     handleGrant(tx) {
-        if (tx.fee_granter && tx.fee_granter.length) {
-            tx.payer = tx.fee_granter
-        }else if (tx.fee_payer && tx.fee_payer.length){
-            tx.payer = tx.fee_payer
+        if (tx.type == TxType.ethereum_tx) {
+            tx.msgs.forEach(item => {
+                if (item.msg.fee_payer && item.msg.fee_payer.length) {
+                    tx.payer = getAddrBech32FromHex(item.msg.fee_payer, "iaa")
+                    tx.is_feegrant = true
+                }else {
+                    if (tx.fee_granter && tx.fee_granter.length) {
+                        tx.payer = tx.fee_granter
+                    }else if (tx.fee_payer && tx.fee_payer.length){
+                        tx.payer = tx.fee_payer
+                    }else {
+                        tx.payer = tx.signers[0]
+                    }
+                    tx.is_feegrant = false
+                }
+            })
         }else {
-            tx.payer = tx.signers[0]
-        }
-        if (tx.fee_granter && tx.fee_granter.length && tx.payer == tx.fee_granter){
-            tx.is_feegrant = true
-        }else {
-            tx.is_feegrant = false
+            if (tx.fee_granter && tx.fee_granter.length) {
+                tx.payer = tx.fee_granter
+            }else if (tx.fee_payer && tx.fee_payer.length){
+                tx.payer = tx.fee_payer
+            }else {
+                tx.payer = tx.signers[0]
+            }
+            if (tx.fee_granter && tx.fee_granter.length && tx.payer == tx.fee_granter){
+                tx.is_feegrant = true
+            }else {
+                tx.is_feegrant = false
+            }
         }
         return tx
     }
