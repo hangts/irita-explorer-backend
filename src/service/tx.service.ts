@@ -1434,6 +1434,7 @@ export class TxService {
                 txEvms = await this.txEvmModel.findEvmTxsByHashes([query.hash])
             }
             txData = this.handleEvmTx(txEvms,txData)
+            txData = await this.handleTxToken(txData)
             const tx = await this.addMonikerToTxs([txData]);
             result = new TxResDto(tx[0] || {});
         }
@@ -1822,6 +1823,59 @@ export class TxService {
             });
         });
         return txList
+    }
+
+    private async handleTxToken(txData) {
+        const tokenMap = {};
+        const TokensData = await (this.tokensModel as any).queryTokensBySrcProtocol(SRC_PROTOCOL.NATIVE)
+        TokensData.forEach((item) => {
+            tokenMap[item.symbol] = item;
+        });
+
+        txData?.msgs?.forEach((msg, index) => {
+            if (msg.type === TxType.mint_token) {
+                const msgObj = {}
+                msgObj['msg'] = {}
+                msgObj['type'] = msg.type
+                if (msg.msg?.symbol) {
+                    const coin = {}, newMsg = {}
+                    if (tokenMap[msg.msg.symbol]) {
+                        const token = tokenMap[msg.msg.symbol]
+                        coin['denom'] = token.denom
+                        coin['amount'] = new BigNumber(msg.msg.amount).shiftedBy(Number(token.scale)).toString()
+                    } else {
+                        coin['denom'] = msg.msg.symbol
+                        coin['amount'] = msg.msg.amount
+                    }
+                    newMsg['coin'] = coin
+                    newMsg['to'] = msg.msg.to
+                    newMsg['owner'] = msg.msg.owner
+                    msgObj['msg'] = newMsg
+                    txData.msgs[index] = msgObj
+                }
+            } else if (msg.type === TxType.burn_token) {
+                const msgObj = {}
+                msgObj['msg'] = {}
+                msgObj['type'] = msg.type
+                if (msg.msg?.symbol) {
+                    const coin = {}, newMsg = {}
+                    if (tokenMap[msg.msg.symbol]) {
+                        const token = tokenMap[msg.msg.symbol]
+                        coin['denom'] = token.denom
+                        coin['amount'] = new BigNumber(msg.msg.amount).shiftedBy(Number(token.scale)).toString()
+                    } else {
+                        coin['denom'] = msg.msg.symbol
+                        coin['amount'] = msg.msg.amount
+                    }
+                    newMsg['sender'] = msg.msg.sender
+                    newMsg['coin'] = coin
+                    msgObj['msg'] = newMsg
+                    txData.msgs[index] = msgObj
+                }
+            }
+        });
+
+        return txData
     }
 }
 

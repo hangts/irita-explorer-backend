@@ -67,6 +67,7 @@ export class TokensResDto extends BaseResDto {
     chain:string;
     token_tags: Array<number>;
     alias: string;
+    icon: string;
     constructor(value) {
         super();
         this.symbol = value.symbol;
@@ -84,6 +85,7 @@ export class TokensResDto extends BaseResDto {
         this.chain = value.chain;
         this.token_tags = [...value.tags];
         this.alias = value.token_alias;
+        this.icon = value.icon;
     }
     static bundleData(value: any): TokensResDto[] {
         let data: TokensResDto[] = [];
