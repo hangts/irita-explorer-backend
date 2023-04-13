@@ -225,7 +225,8 @@ export const PubKeyAlgorithm = {
 export enum currentChain {
     cosmos = 'cosmos',
     iris = 'iris',
-    binance = 'binance'
+    binance = 'binance',
+    uptick = 'uptick'
 }
 
 export const deFaultGasPirce = 1
@@ -278,6 +279,19 @@ switch (cfg.currentChain) {
             icp: 'cosmosvalconspub'
         }
         break;
+    case currentChain.uptick:
+        validatorStatusStr = {
+            'unbonded': 'BOND_STATUS_UNBONDED',
+            'unbonding': 'BOND_STATUS_UNBONDING',
+            'bonded': 'BOND_STATUS_BONDED'
+        };
+        addressPrefix = {
+            iaa: 'uptick',
+            iva: 'uptickvaloper',
+            ica: 'uptickvalcons',
+            icp: 'uptickvalconspub'
+        }
+        break
     default:
         break;
 }
