@@ -91,7 +91,7 @@ export const cfg = {
     currentChain: CURRENT_CHAIN || 'iris',
     indexName: INDEX_NAME || 'time_-1_msgs.type_-1_tx_id_-1',
     isUpgradeChainVersion: IS_UPGRADE_CHAIN_VERSION || 'false',
-    evmGasPrice: EVM_GAS_PRICE || 1
+    evmGasPrice: Number(EVM_GAS_PRICE) || 1
    // MAIN_TOKEN: MAIN_TOKEN ? JSON.parse(MAIN_TOKEN) : {"min_unit":"umuon","scale":"6","symbol":"muon"}
 };
 
