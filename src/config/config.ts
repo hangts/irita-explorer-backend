@@ -40,6 +40,7 @@ const {
     ACCOUNT_INFO_EXECUTE_TIME,
     INDEX_NAME,
     IS_UPGRADE_CHAIN_VERSION,
+    EVM_GAS_PRICE,
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -90,6 +91,7 @@ export const cfg = {
     currentChain: CURRENT_CHAIN || 'iris',
     indexName: INDEX_NAME || 'time_-1_msgs.type_-1_tx_id_-1',
     isUpgradeChainVersion: IS_UPGRADE_CHAIN_VERSION || 'false',
+    evmGasPrice: EVM_GAS_PRICE || 1
    // MAIN_TOKEN: MAIN_TOKEN ? JSON.parse(MAIN_TOKEN) : {"min_unit":"umuon","scale":"6","symbol":"muon"}
 };
 

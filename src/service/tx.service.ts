@@ -94,7 +94,7 @@ export class TxService {
             return tx
         }
         if (tx.fee.amount.length === 1) {
-            const actualFee = Number(tx.gas_used) * Number(deFaultGasPirce)
+            const actualFee = Number(tx.gas_used) * Number(cfg.evmGasPrice)
             if (actualFee) {
                 tx.fee.amount[0].amount = `${actualFee}`
             }
@@ -438,7 +438,7 @@ export class TxService {
         evmTx.msgs = []
         if (evmTx.fee.amount.length === 1) {
           const txInfo = map.get(evmTx.tx_hash)
-          const actualFee = Number(txInfo.gas_used) * Number(deFaultGasPirce)
+          const actualFee = Number(txInfo.gas_used) * Number(cfg.evmGasPrice)
           if (actualFee) {
               evmTx.fee.amount[0].amount = `${actualFee}`
           }
