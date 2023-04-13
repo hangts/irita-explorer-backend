@@ -19,8 +19,8 @@ export class TokensReqDto extends BaseReqDto {
 
   static validate(value: any) {
     super.validate(value);
-    if (value.chain && value.chain !== currentChain.cosmos && value.chain !== currentChain.iris && value.chain !== currentChain.binance) {
-      throw new ApiError(ErrorCodes.InvalidParameter, 'chain must be one of iris, cosmos and binance');
+    if (value.chain && value.chain !== currentChain.cosmos && value.chain !== currentChain.iris && value.chain !== currentChain.binance && value.chain !== currentChain.uptick) {
+      throw new ApiError(ErrorCodes.InvalidParameter, 'chain must be one of iris, cosmos ,binance and uptick');
     }
   }
 }
