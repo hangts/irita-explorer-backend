@@ -91,7 +91,7 @@ export class TxService {
             return tx
         }
         if (tx.fee.amount.length === 1) {
-            const actualFee = Number(tx.gas_used) * Number(deFaultGasPirce)
+            const actualFee = Number(tx.gas_used) * Number(cfg.evmGasPrice)
             if (actualFee) {
                 tx.fee.amount[0].amount = `${actualFee}`
             }
