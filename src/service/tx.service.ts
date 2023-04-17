@@ -1730,7 +1730,7 @@ export class TxService {
         if (tx.type == TxType.ethereum_tx) {
             tx.msgs.forEach(item => {
                 if (item.msg.fee_payer && item.msg.fee_payer.length) {
-                    tx.payer = getAddrBech32FromHex(item.msg.fee_payer, "iaa")
+                    tx.payer = item.msg.fee_payer
                     tx.is_feegrant = true
                 }else {
                     if (tx.fee_granter && tx.fee_granter.length) {
