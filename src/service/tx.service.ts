@@ -99,15 +99,17 @@ export class TxService {
             (tx.msgs || []).forEach(msg => {
                 //DynamicFeeTx fee =  gas_used * (base_fee + gas_tip_cap 与 gas_fee_cap取较小值)
                 //LegacyTx fee = gas_price * gas_ued
-                const data = JSON.parse(msg.msg.data);
-                if (data.gas_price) {
-                    actualFee = Number(tx.gas_used) * Number(data.gas_price)
-                }else if (data.gas_tip_cap && data.gas_fee_cap){
-                    baseFee = getBaseFeeFromEvents(tx.events_new)
-                    actualFee = Number(baseFee) + Number(data.gas_tip_cap) < Number(data.gas_fee_cap) ? Number(tx.gas_used) * (Number(baseFee) + Number(data.gas_tip_cap)) : Number(tx.gas_used) * Number(data.gas_fee_cap)
-                }
-                if (actualFee) {
-                    tx.fee.amount[0].amount = `${actualFee}`
+                if (msg.msg && msg.msg?.data) {
+                    const data = JSON.parse(msg.msg.data);
+                    if (data.gas_price) {
+                        actualFee = Number(tx.gas_used) * Number(data.gas_price)
+                    }else if (data.gas_tip_cap && data.gas_fee_cap){
+                        baseFee = getBaseFeeFromEvents(tx.events_new)
+                        actualFee = Number(baseFee) + Number(data.gas_tip_cap) < Number(data.gas_fee_cap) ? Number(tx.gas_used) * (Number(baseFee) + Number(data.gas_tip_cap)) : Number(tx.gas_used) * Number(data.gas_fee_cap)
+                    }
+                    if (actualFee) {
+                        tx.fee.amount[0].amount = `${actualFee}`
+                    }
                 }
             });
         }
@@ -579,6 +581,7 @@ export class TxService {
             txListData = await this.txModel.queryTxList(queryDb);
             if (txListData.data && txListData.data.length > 0) {
                 txListData.data = this.handerEvents(txListData.data)
+                txListData.data = await this.handleEvmTxFee(txListData.data)
                 txListData.data = this.handleMsg(txListData.data, queryDb)
                 // add evm info about contract method
                 txListData.data = await this.handleToken(txListData.data, queryDb)
@@ -1889,5 +1892,13 @@ export class TxService {
 
         return txData
     }
+
+    private async handleEvmTxFee(txList) {
+        (txList).forEach(tx => {
+            this.handleAcutalFee(tx)
+        });
+        return txList
+    }
+
 }
 

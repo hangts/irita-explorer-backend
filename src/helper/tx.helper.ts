@@ -198,6 +198,8 @@ export const dbRes = {
         'msgs.msg.min_token':1,
         'msgs.msg.coin':1,
         'msgs.msg.fee_paid':1,
+        'msgs.msg.data': 1,
+        'msgs.msg.fee_payer':1
 
     },
     service:{
