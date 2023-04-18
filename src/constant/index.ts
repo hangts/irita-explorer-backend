@@ -227,6 +227,9 @@ export enum currentChain {
     iris = 'iris',
     binance = 'binance'
 }
+export const Eip1559 = 'eip1559_burnt'
+export const BaseFee = 'base_fee'
+
 
 export const deFaultGasPirce = 1
 export const signedBlocksWindow = 'signed_blocks_window'
