@@ -1,3 +1,5 @@
+import {BaseFee, Eip1559} from "../constant";
+
 export function getReqContextIdWithReqId(requestId:string):string{
     if (requestId && requestId.length && requestId.length>=80) {
         return requestId.substr(0,80).toUpperCase();
@@ -21,6 +23,25 @@ export function getReqContextIdFromEvents(events:any[]):string{
     }
     return reqContextId;
 }
+
+export function getBaseFeeFromEvents(events:any[]):string{
+    let baseFee:string = '';
+    if (events && events.length) {
+        (events || []).forEach((eventNew) => {
+            (eventNew.events || []).forEach(event => {
+                if(event.type === Eip1559) {
+                    (event.attributes || []).forEach(item => {
+                        if(item.key === BaseFee)  {
+                            baseFee = item.value
+                        }
+                    })
+                }
+            })
+        })
+    }
+    return baseFee;
+}
+
 
 export function getReqContextIdFromMsgs(msgs:any[]):string{
     let contextId:string = '';

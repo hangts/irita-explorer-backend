@@ -42,7 +42,7 @@ import {
 } from '../dto/txs.dto';
 import {ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName} from '../types/tx.interface';
 import {ITxsQuery, ITxStruct, ITxsWithAddressQuery, ITxsWithNftQuery} from '../types/schemaTypes/tx.interface';
-import {getReqContextIdFromEvents, getServiceNameFromMsgs} from '../helper/tx.helper';
+import {getBaseFeeFromEvents, getReqContextIdFromEvents, getServiceNameFromMsgs} from '../helper/tx.helper';
 import Cache from '../helper/cache';
 import {
     addressPrefix,
@@ -94,10 +94,22 @@ export class TxService {
             return tx
         }
         if (tx.fee.amount.length === 1) {
-            const actualFee = Number(tx.gas_used) * Number(cfg.evmGasPrice)
-            if (actualFee) {
-                tx.fee.amount[0].amount = `${actualFee}`
-            }
+            let baseFee;
+            let actualFee;
+            (tx.msgs || []).forEach(msg => {
+                //DynamicFeeTx fee =  gas_used * (base_fee + gas_tip_cap 与 gas_fee_cap取较小值)
+                //LegacyTx fee = gas_price * gas_ued
+                const data = JSON.parse(msg.msg.data);
+                if (data.gas_price) {
+                    actualFee = Number(tx.gas_used) * Number(data.gas_price)
+                }else if (data.gas_tip_cap && data.gas_fee_cap){
+                    baseFee = getBaseFeeFromEvents(tx.events_new)
+                    actualFee = Number(baseFee) + Number(data.gas_tip_cap) < Number(data.gas_fee_cap) ? Number(tx.gas_used) * (Number(baseFee) + Number(data.gas_tip_cap)) : Number(tx.gas_used) * Number(data.gas_fee_cap)
+                }
+                if (actualFee) {
+                    tx.fee.amount[0].amount = `${actualFee}`
+                }
+            });
         }
         return tx
     }
