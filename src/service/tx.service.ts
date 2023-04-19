@@ -580,8 +580,8 @@ export class TxService {
 
             txListData = await this.txModel.queryTxList(queryDb);
             if (txListData.data && txListData.data.length > 0) {
-                txListData.data = this.handerEvents(txListData.data)
                 txListData.data = await this.handleEvmTxFee(txListData.data)
+                txListData.data = this.handerEvents(txListData.data)
                 txListData.data = this.handleMsg(txListData.data, queryDb)
                 // add evm info about contract method
                 txListData.data = await this.handleToken(txListData.data, queryDb)
