@@ -34,7 +34,7 @@
     "@types/ws": "^7.4.5",
     "@willsoto/nestjs-prometheus": "^4.6.0",
     "bech32": "^1.1.4",
-    "bignumber.js": "^9.0.1",
+    "bignumber.js": "^9.1.1",
     "blueimp-md5": "^2.16.0",
     "cache-manager": "^4.1.0",
     "chalk": "^4.1.2",

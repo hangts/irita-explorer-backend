@@ -43,6 +43,17 @@ export function hexToBech32(hexStr:string, prefix:string = "") {
     }
 }
 
+//以太坊地址转iaa
+export function getAddrBech32FromHex(hexStr:string, prefix:string = "iaa") {
+    try {
+        const res = hexStr.slice(2, hexStr.length)
+        let words = Bech32.toWords(Buffer.from(res,'hex'));
+        return Bech32.encode(prefix, words);
+    }catch (e) {
+        console.warn('address transform fialed',e)
+    }
+}
+
 export function pageNation(dataArray: any[], pageSize: number = 0) {
     let index: number = 0;
     let newArray: any = [];

@@ -42,25 +42,27 @@ import {
 } from '../dto/txs.dto';
 import {ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName} from '../types/tx.interface';
 import {ITxsQuery, ITxStruct, ITxsWithAddressQuery, ITxsWithNftQuery} from '../types/schemaTypes/tx.interface';
-import {getReqContextIdFromEvents, getServiceNameFromMsgs} from '../helper/tx.helper';
+import {getBaseFeeFromEvents, getReqContextIdFromEvents, getServiceNameFromMsgs} from '../helper/tx.helper';
 import Cache from '../helper/cache';
 import {
     addressPrefix,
-    ContractType,
+    ContractType, currentChain,
     DDCType,
     defaultEvmTxReceiptErrlog,
     deFaultGasPirce, ERCType,
-    proposal as proposalString,
+    proposal as proposalString, SRC_PROTOCOL,
     TxCntQueryCond,
     TxsListCountName,
     TxType,
 } from '../constant';
-import {addressTransform, splitString} from '../util/util';
+import {addressTransform, getAddrBech32FromHex, hexToBech32, splitString} from '../util/util';
 import {GovHttp} from '../http/lcd/gov.http';
 import {txListParamsHelper, TxWithAddressParamsHelper} from '../helper/params.helper';
 import {getConsensusPubkey} from "../helper/staking.helper";
 import {cfg} from "../config/config";
 import {ContractErc20Schema} from "../schema/ContractErc20.schema";
+import { Model } from 'mongoose';
+import BigNumber from "bignumber.js";
 
 @Injectable()
 export class TxService {
@@ -80,7 +82,8 @@ export class TxService {
         @InjectModel('ContractErc721') private ContractErc721Model: any,
         @InjectModel('ContractErc1155') private ContractErc1155Model: any,
         @InjectModel('ContractOther') private ContractOtherModel: any,
-        private readonly govHttp: GovHttp
+        @InjectModel('Tokens') private tokensModel: Model<any>,
+        private readonly govHttp: GovHttp,
     ) {
         this.cacheTxTypes();
         //this.cacheEvmContract();
@@ -91,10 +94,24 @@ export class TxService {
             return tx
         }
         if (tx.fee.amount.length === 1) {
-            const actualFee = Number(tx.gas_used) * Number(cfg.evmGasPrice)
-            if (actualFee) {
-                tx.fee.amount[0].amount = `${actualFee}`
-            }
+            let baseFee;
+            let actualFee;
+            (tx.msgs || []).forEach(msg => {
+                //DynamicFeeTx fee =  gas_used * (base_fee + gas_tip_cap 与 gas_fee_cap取较小值)
+                //LegacyTx fee = gas_price * gas_ued
+                if (msg.msg && msg.msg?.data) {
+                    const data = JSON.parse(msg.msg.data);
+                    if (data.gas_price) {
+                        actualFee = Number(tx.gas_used) * Number(data.gas_price)
+                    }else if (data.gas_tip_cap && data.gas_fee_cap){
+                        baseFee = getBaseFeeFromEvents(tx.events_new)
+                        actualFee = Number(baseFee) + Number(data.gas_tip_cap) < Number(data.gas_fee_cap) ? Number(tx.gas_used) * (Number(baseFee) + Number(data.gas_tip_cap)) : Number(tx.gas_used) * Number(data.gas_fee_cap)
+                    }
+                    if (actualFee) {
+                        tx.fee.amount[0].amount = `${actualFee}`
+                    }
+                }
+            });
         }
         return tx
     }
@@ -435,7 +452,7 @@ export class TxService {
         evmTx.msgs = []
         if (evmTx.fee.amount.length === 1) {
           const txInfo = map.get(evmTx.tx_hash)
-          const actualFee = Number(txInfo.gas_used) * Number(deFaultGasPirce)
+          const actualFee = Number(txInfo.gas_used) * Number(cfg.evmGasPrice)
           if (actualFee) {
               evmTx.fee.amount[0].amount = `${actualFee}`
           }
@@ -563,9 +580,11 @@ export class TxService {
 
             txListData = await this.txModel.queryTxList(queryDb);
             if (txListData.data && txListData.data.length > 0) {
+                txListData.data = await this.handleEvmTxFee(txListData.data)
                 txListData.data = this.handerEvents(txListData.data)
                 txListData.data = this.handleMsg(txListData.data, queryDb)
                 // add evm info about contract method
+                txListData.data = await this.handleToken(txListData.data, queryDb)
                 txListData.data = await this.addContractMethodToTxs(txListData.data)
                 txData = await this.addMonikerToTxs(txListData.data);
             }
@@ -1430,6 +1449,7 @@ export class TxService {
                 txEvms = await this.txEvmModel.findEvmTxsByHashes([query.hash])
             }
             txData = this.handleEvmTx(txEvms,txData)
+            txData = await this.handleTxToken(txData)
             const tx = await this.addMonikerToTxs([txData]);
             result = new TxResDto(tx[0] || {});
         }
@@ -1722,19 +1742,163 @@ export class TxService {
     }
 
     handleGrant(tx) {
-        if (tx.fee_granter && tx.fee_granter.length) {
-            tx.payer = tx.fee_granter
-        }else if (tx.fee_payer && tx.fee_payer.length){
-            tx.payer = tx.fee_payer
+        if (tx.type == TxType.ethereum_tx) {
+            tx.msgs.forEach(item => {
+                if (item.msg.fee_payer && item.msg.fee_payer.length) {
+                    tx.payer = item.msg.fee_payer
+                    tx.is_feegrant = true
+                }else {
+                    if (tx.fee_granter && tx.fee_granter.length) {
+                        tx.payer = tx.fee_granter
+                    }else if (tx.fee_payer && tx.fee_payer.length){
+                        tx.payer = tx.fee_payer
+                    }else {
+                        tx.payer = tx.signers[0]
+                    }
+                    tx.is_feegrant = false
+                }
+            })
         }else {
-            tx.payer = tx.signers[0]
-        }
-        if (tx.fee_granter && tx.fee_granter.length && tx.payer == tx.fee_granter){
-            tx.is_feegrant = true
-        }else {
-            tx.is_feegrant = false
+            if (tx.fee_granter && tx.fee_granter.length) {
+                tx.payer = tx.fee_granter
+            }else if (tx.fee_payer && tx.fee_payer.length){
+                tx.payer = tx.fee_payer
+            }else {
+                tx.payer = tx.signers[0]
+            }
+            if (tx.fee_granter && tx.fee_granter.length && tx.payer == tx.fee_granter){
+                tx.is_feegrant = true
+            }else {
+                tx.is_feegrant = false
+            }
         }
         return tx
     }
+
+    private async handleToken(txList, queryDb: ITxsQuery) {
+        let typeArr = []
+        if (queryDb.type && queryDb.type.length) {
+            typeArr = queryDb.type.split(",");
+        }
+
+        if (typeArr.length > 1 || (typeArr[0] != TxType.mint_token && typeArr[0] != TxType.burn_token)){
+            return txList
+        }
+
+        const tokenMap = {};
+        const TokensData = await (this.tokensModel as any).queryTokensBySrcProtocol(SRC_PROTOCOL.NATIVE)
+        TokensData.forEach((item) => {
+            tokenMap[item.symbol] = item;
+        });
+
+        (txList).forEach(tx => {
+            (tx.msgs || []).forEach((msg, index) => {
+                if (typeArr.length == 1 && (typeArr[0] == TxType.mint_token || typeArr[0] == TxType.burn_token)) {
+                    if (msg.type === TxType.mint_token) {
+                        const msgObj = {}
+                        msgObj['msg'] = {}
+                        msgObj['type'] = msg.type
+                        if (msg.msg?.symbol) {
+                            const coin = {}, newMsg = {}
+                            if (tokenMap[msg.msg.symbol]) {
+                                const token = tokenMap[msg.msg.symbol]
+                                coin['denom'] = token.denom
+                                coin['amount'] = new BigNumber(msg.msg.amount).shiftedBy(Number(token.scale)).toString()
+                            } else {
+                                coin['denom'] = msg.msg.symbol
+                                coin['amount'] = msg.msg.amount
+                            }
+                            newMsg['coin'] = coin
+                            newMsg['to'] = msg.msg.to
+                            newMsg['owner'] = msg.msg.owner
+                            msgObj['msg'] = newMsg
+                            tx.msgs[index] = msgObj
+                        }
+                    } else if (msg.type === TxType.burn_token) {
+                        const msgObj = {}
+                        msgObj['msg'] = {}
+                        msgObj['type'] = msg.type
+                        if (msg.msg?.symbol) {
+                            const coin = {}, newMsg = {}
+                            if (tokenMap[msg.msg.symbol]) {
+                                const token = tokenMap[msg.msg.symbol]
+                                coin['denom'] = token.denom
+                                coin['amount'] = new BigNumber(msg.msg.amount).shiftedBy(Number(token.scale)).toString()
+                            } else {
+                                coin['denom'] = msg.msg.symbol
+                                coin['amount'] = msg.msg.amount
+                            }
+                            newMsg['sender'] = msg.msg.sender
+                            newMsg['coin'] = coin
+                            msgObj['msg'] = newMsg
+                            tx.msgs[index] = msgObj
+                        }
+                    }
+                }
+            });
+        });
+        return txList
+    }
+
+    private async handleTxToken(txData) {
+        const tokenMap = {};
+        const TokensData = await (this.tokensModel as any).queryTokensBySrcProtocol(SRC_PROTOCOL.NATIVE)
+        TokensData.forEach((item) => {
+            tokenMap[item.symbol] = item;
+        });
+
+        txData?.msgs?.forEach((msg, index) => {
+            if (msg.type === TxType.mint_token) {
+                const msgObj = {}
+                msgObj['msg'] = {}
+                msgObj['type'] = msg.type
+                if (msg.msg?.symbol) {
+                    const coin = {}, newMsg = {}
+                    if (tokenMap[msg.msg.symbol]) {
+                        const token = tokenMap[msg.msg.symbol]
+                        coin['denom'] = token.denom
+                        coin['amount'] = new BigNumber(msg.msg.amount).shiftedBy(Number(token.scale)).toString()
+                    } else {
+                        coin['denom'] = msg.msg.symbol
+                        coin['amount'] = msg.msg.amount
+                    }
+                    newMsg['coin'] = coin
+                    newMsg['to'] = msg.msg.to
+                    newMsg['owner'] = msg.msg.owner
+                    msgObj['msg'] = newMsg
+                    txData.msgs[index] = msgObj
+                }
+            } else if (msg.type === TxType.burn_token) {
+                const msgObj = {}
+                msgObj['msg'] = {}
+                msgObj['type'] = msg.type
+                if (msg.msg?.symbol) {
+                    const coin = {}, newMsg = {}
+                    if (tokenMap[msg.msg.symbol]) {
+                        const token = tokenMap[msg.msg.symbol]
+                        coin['denom'] = token.denom
+                        coin['amount'] = new BigNumber(msg.msg.amount).shiftedBy(Number(token.scale)).toString()
+                    } else {
+                        coin['denom'] = msg.msg.symbol
+                        coin['amount'] = msg.msg.amount
+                    }
+                    newMsg['sender'] = msg.msg.sender
+                    newMsg['coin'] = coin
+                    msgObj['msg'] = newMsg
+                    txData.msgs[index] = msgObj
+                }
+            }
+        });
+
+        return txData
+    }
+
+    private async handleEvmTxFee(txList) {
+        (txList).forEach(tx => {
+            this.handleAcutalFee(tx)
+        });
+        return txList
+    }
+
 }
 
