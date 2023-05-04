@@ -1,4 +1,3 @@
-import { addressPrefix } from '../constant'
 import {cfg} from '../config/config';
 import { Logger } from '../logger';
 //  todo: duanjie sdk待替换
@@ -16,7 +15,7 @@ export function getConsensusPubkey(value) {
             type: sdk.types.PubkeyType.ed25519,
             value: value
         })
-        let pk_bech32  = sdk.utils.Crypto.encodeAddress(pk, addressPrefix.icp);
+        let pk_bech32  = sdk.utils.Crypto.encodeAddress(pk, cfg.addressPrefix.icp);
         return pk_bech32
     }
     return ''

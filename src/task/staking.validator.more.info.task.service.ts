@@ -3,8 +3,9 @@ import {InjectModel} from '@nestjs/mongoose';
 import {StakingHttp} from "../http/lcd/staking.http";
 import {Model} from "mongoose"
 import {addressTransform} from "../util/util";
-import {addressPrefix, TaskEnum} from "../constant";
+import {TaskEnum} from "../constant";
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
+import {cfg} from "../config/config";
 
 @Injectable()
 export class StakingValidatorMoreInfoTaskService {
@@ -34,7 +35,7 @@ export class StakingValidatorMoreInfoTaskService {
 
     private async updateSelfBond(dbValidators) {
         if (dbValidators.operator_address) {
-            let valTranDelAddr = addressTransform(dbValidators.operator_address, addressPrefix.iaa);
+            let valTranDelAddr = addressTransform(dbValidators.operator_address, cfg.addressPrefix.iaa);
             // let [selfBondData, delegatorNum] = await Promise.all([this.stakingHttp.queryValidatorSelfBondFromLcd(dbValidators.operator_address, valTranDelAddr), this.stakingHttp.queryValidatordelegatorNumFromLcd(dbValidators.operator_address)]);
             // dbValidators.delegator_num = delegatorNum;
             let selfBondData:any = await this.stakingHttp.queryValidatorSelfBondFromLcd(dbValidators.operator_address, valTranDelAddr);

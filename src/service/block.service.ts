@@ -14,10 +14,10 @@ import {
 import { IBlock, IBlockStruct } from '../types/schemaTypes/block.interface';
 import { BlockHttp } from '../http/lcd/block.http';
 import { Logger } from '../logger';
-import { addressPrefix } from '../constant';
 import { getAddress, hexToBech32 } from '../util/util';
 import { getConsensusPubkey } from '../helper/staking.helper';
 import { Validatorset } from '../dto/http.dto';
+import {cfg} from "../config/config";
 
 @Injectable()
 export class BlockService {
@@ -194,13 +194,13 @@ export class BlockService {
             block_lcd.block.last_commit.signatures.forEach((item:any)=>{
                 var buffer = new Buffer(item.validator_address,"base64");
                 var validator_address = buffer.toString("hex").toUpperCase()
-                const address = hexToBech32(validator_address, addressPrefix.ica);
+                const address = hexToBech32(validator_address, cfg.addressPrefix.ica);
                 item.validator_address = validator_address
                 signaturesMap[address] = item;
             }) 
             if (allValidatorsets) {
                 data.total_validator_num = allValidatorsets ? allValidatorsets.length : 0;
-                const icaAddr = hexToBech32(block_db.proposer, addressPrefix.ica);
+                const icaAddr = hexToBech32(block_db.proposer, cfg.addressPrefix.ica);
                 data.total_voting_power = 0;
                 data.precommit_voting_power = 0;
                 allValidatorsets.forEach((item)=>{

@@ -5,6 +5,7 @@ import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
 import {IBindTx} from '../types/tx.interface';
 import { currentChain } from '../constant';
+import {cfg} from "../config/config";
 
 /************************   request dto   ***************************/
 export class TokensReqDto extends BaseReqDto {
@@ -19,8 +20,8 @@ export class TokensReqDto extends BaseReqDto {
 
   static validate(value: any) {
     super.validate(value);
-    if (value.chain && value.chain !== currentChain.cosmos && value.chain !== currentChain.iris && value.chain !== currentChain.binance && value.chain !== currentChain.uptick) {
-      throw new ApiError(ErrorCodes.InvalidParameter, 'chain must be one of iris, cosmos ,binance and uptick');
+    if (value.chain && value.chain !== cfg.currentChain) {
+      throw new ApiError(ErrorCodes.InvalidParameter, 'chain must be one of iris, cosmos, binance, uptick and wendu');
     }
   }
 }

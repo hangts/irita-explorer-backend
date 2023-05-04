@@ -45,7 +45,6 @@ import {ITxsQuery, ITxStruct, ITxsWithAddressQuery, ITxsWithNftQuery} from '../t
 import {getBaseFeeFromEvents, getReqContextIdFromEvents, getServiceNameFromMsgs} from '../helper/tx.helper';
 import Cache from '../helper/cache';
 import {
-    addressPrefix,
     ContractType, currentChain,
     DDCType,
     defaultEvmTxReceiptErrlog,
@@ -739,7 +738,7 @@ export class TxService {
 
           if(limit){
             if (query.address) {
-              query.address = addressTransform(query.address, addressPrefix.iaa)
+              query.address = addressTransform(query.address, cfg.addressPrefix.iaa)
             }
             txListData = await this.txModel.queryGovTxList(query);
             const proposalsData = await this.proposalModel.queryAllProposalsSelect();
