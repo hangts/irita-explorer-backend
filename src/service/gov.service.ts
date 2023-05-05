@@ -13,7 +13,7 @@ import {
     govProposalVoterResDto,
     govProposalDepositorResDto
 } from '../dto/gov.dto';
-import {govParams, addressPrefix, voteOptions, proposalStatus, queryVoteOptionCount, TaskEnum} from '../constant';
+import {govParams, voteOptions, proposalStatus, queryVoteOptionCount, TaskEnum} from '../constant';
 import { addressTransform,uniqueArr } from "../util/util";
 import {cfg} from "../config/config";
 @Injectable()
@@ -109,7 +109,7 @@ export class GovService {
 
           validatorMap = {};
           validators.forEach((item) => {
-              validatorMap[addressTransform(item.operator_address,addressPrefix.iaa)] = item;
+              validatorMap[addressTransform(item.operator_address,cfg.addressPrefix.iaa)] = item;
           });
           validatorAdd = Object.keys(validatorMap);
           delegatorAdd = uniqueArr(allAddress, validatorAdd);
@@ -206,7 +206,7 @@ export class GovService {
               moniker_m: v.name,
               description: {moniker: v.name},
               is_black: v.jailed,
-              operator_address: addressTransform(v.operator,addressPrefix.iva),
+              operator_address: addressTransform(v.operator,cfg.addressPrefix.iva),
             })
           })
         }
@@ -235,7 +235,7 @@ export class GovService {
                       const msg = deposotor.msgs[0].msg;
                       const type = deposotor.msgs[0].type;
                       if (type == 'deposit') {
-                          const ivaAddress = addressTransform(msg.depositor, addressPrefix.iva)
+                          const ivaAddress = addressTransform(msg.depositor, cfg.addressPrefix.iva)
                           const { moniker } = await this.addMonikerAndIva(ivaAddress)
                           depositorList.push({
                               hash: deposotor['tx_hash'],
@@ -246,7 +246,7 @@ export class GovService {
                               timestamp: deposotor.time
                           })
                       } else {
-                          const ivaAddress = addressTransform(msg.proposer, addressPrefix.iva)
+                          const ivaAddress = addressTransform(msg.proposer, cfg.addressPrefix.iva)
                           const { moniker } = await this.addMonikerAndIva(ivaAddress)
                           depositorList.push({
                               hash: deposotor['tx_hash'],

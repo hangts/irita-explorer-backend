@@ -10,4 +10,6 @@ export interface IAssetStruct {
     src_protocol?: string;
     chain?: string;
     is_authed?: boolean;
+    tags?: number[];
+    token_alias: string;
 }

@@ -19,6 +19,9 @@ export const TokensSchema = new mongoose.Schema({
     src_protocol: String,
     chain:String,
     is_authed:Boolean,
+    token_alias: String,
+    tags: Array,
+    icon: String,
 })
 //TokensSchema.index({symbol: 1}, {unique: true})
 //TokensSchema.index({denom: 1, chain:1}, {unique: true})
@@ -43,6 +46,11 @@ TokensSchema.statics = {
     async queryMainToken() {
         return await this.findOne({is_main_token:true});
     },
+
+    async queryTokensBySrcProtocol(protocol: string): Promise<IAssetStruct[]> {
+        return await this.find({"src_protocol": protocol})
+    },
+
     async findList(pageNum: number, pageSize: number): Promise<IAssetStruct[]> {
         return await this.find({'is_main_token':false, 'src_protocol':SRC_PROTOCOL.NATIVE})
             .select({

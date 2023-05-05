@@ -5,6 +5,7 @@ import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
 import {IBindTx} from '../types/tx.interface';
 import { currentChain } from '../constant';
+import {cfg} from "../config/config";
 
 /************************   request dto   ***************************/
 export class TokensReqDto extends BaseReqDto {
@@ -19,9 +20,6 @@ export class TokensReqDto extends BaseReqDto {
 
   static validate(value: any) {
     super.validate(value);
-    if (value.chain && value.chain !== currentChain.cosmos && value.chain !== currentChain.iris && value.chain !== currentChain.binance && value.chain !== currentChain.uptick) {
-      throw new ApiError(ErrorCodes.InvalidParameter, 'chain must be one of iris, cosmos ,binance and uptick');
-    }
   }
 }
 
@@ -65,6 +63,9 @@ export class TokensResDto extends BaseResDto {
     update_block_height: number;
     src_protocol: string;
     chain:string;
+    token_tags: Array<number>;
+    alias: string;
+    icon: string;
     constructor(value) {
         super();
         this.symbol = value.symbol;
@@ -80,6 +81,9 @@ export class TokensResDto extends BaseResDto {
         this.update_block_height = value.update_block_height;
         this.src_protocol = value.src_protocol;
         this.chain = value.chain;
+        this.token_tags = [...value.tags];
+        this.alias = value.token_alias;
+        this.icon = value.icon;
     }
     static bundleData(value: any): TokensResDto[] {
         let data: TokensResDto[] = [];

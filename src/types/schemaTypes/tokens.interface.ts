@@ -13,4 +13,6 @@ export interface ITokens {
     update_block_height:number;
     src_protocol: string;
     chain: string;
+    tags: number[];
+    token_alias: string;
 }
