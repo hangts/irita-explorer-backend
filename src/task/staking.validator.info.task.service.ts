@@ -4,9 +4,10 @@ import {StakingHttp} from "../http/lcd/staking.http";
 import {BlockHttp} from "../http/lcd/block.http";
 import {Model} from "mongoose"
 import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp, hexToBech32} from "../util/util";
-import {addressPrefix, moduleSlashing, TaskEnum, validatorStatusStr} from "../constant";
+import {moduleSlashing, TaskEnum} from "../constant";
 import { getConsensusPubkey } from '../helper/staking.helper';
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
+import {cfg} from "../config/config";
 
 @Injectable()
 export class StakingValidatorInfoTaskService {
@@ -21,9 +22,9 @@ export class StakingValidatorInfoTaskService {
     async doTask(): Promise<void> {
         let pageNum = 1, pageSize = 1000, allValidatorsFromLcd = []
         let validatorsFromDb = await (this.stakingSyncValidatorsModel as any).queryAllValidators();
-        let validatorsFromLcd_bonded = await this.stakingHttp.queryValidatorListFromLcd(validatorStatusStr.bonded ,pageNum, pageSize)
-        let validatorsFromLcd_unbonded = await this.stakingHttp.queryValidatorListFromLcd(validatorStatusStr.unbonded, pageNum, pageSize)
-        let validatorsFromLcd_unbonding = await this.stakingHttp.queryValidatorListFromLcd(validatorStatusStr.unbonding, pageNum, pageSize)
+        let validatorsFromLcd_bonded = await this.stakingHttp.queryValidatorListFromLcd(cfg.validatorStatusStr.bonded ,pageNum, pageSize)
+        let validatorsFromLcd_unbonded = await this.stakingHttp.queryValidatorListFromLcd(cfg.validatorStatusStr.unbonded, pageNum, pageSize)
+        let validatorsFromLcd_unbonding = await this.stakingHttp.queryValidatorListFromLcd(cfg.validatorStatusStr.unbonding, pageNum, pageSize)
         allValidatorsFromLcd = [...(validatorsFromLcd_bonded || []),...(validatorsFromLcd_unbonded || []),...(validatorsFromLcd_unbonding || [])];
         if (!validatorsFromLcd_bonded || !allValidatorsFromLcd.length) {
             this.cronTaskWorkingStatusMetric.collect(TaskEnum.stakingSyncValidatorsInfo,-1)
@@ -131,7 +132,7 @@ export class StakingValidatorInfoTaskService {
 
     private async updateSlashInfo(dbValidators) {        
         if (dbValidators.consensus_pubkey) {
-            let icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey), addressPrefix.ica);
+            let icaAddr = hexToBech32(getAddress(dbValidators.consensus_pubkey), cfg.addressPrefix.ica);
             let signingInfo = await this.stakingHttp.queryValidatorFormSlashing(icaAddr)
             let validatorObject = dbValidators
             validatorObject.index_offset = signingInfo && signingInfo.index_offset || 0;

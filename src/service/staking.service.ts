@@ -5,7 +5,6 @@ import {StakingHttp} from "../http/lcd/staking.http";
 import {addressTransform, pageNation} from "../util/util";
 import {
     activeValidatorLabel,
-    addressPrefix,
     jailedValidatorLabel,
     moduleSlashing,
     ValidatorNumberStatus,
@@ -29,6 +28,7 @@ import {
 import {ListStruct} from "../api/ApiResult";
 import {BlockHttp} from "../http/lcd/block.http";
 import {DistributionHttp} from "../http/lcd/distribution.http";
+import {cfg} from "../config/config";
 
 @Injectable()
 export default class StakingService {
@@ -166,7 +166,7 @@ export default class StakingService {
 
         all.forEach( (item, index) => {
             item.rank = index + 1
-            item.account_address = addressTransform(item.operator_address, addressPrefix.iaa)
+            item.account_address = addressTransform(item.operator_address, cfg.addressPrefix.iaa)
         })
         validatorList.data = all
         const result: any = {}
@@ -204,15 +204,15 @@ export default class StakingService {
             validatorDetail.total_power = await this.getTotalVotingPower()
             validatorDetail.tokens = Number(validatorDetail.tokens)
             validatorDetail.bonded_stake = ((validatorDetail.self_bond && validatorDetail.self_bond.amount ? Number(validatorDetail.self_bond.amount) : 0) * (Number(validatorDetail.tokens) / Number(validatorDetail.delegator_shares))).toString()
-            validatorDetail.owner_addr = addressTransform(validatorDetail.operator_address, addressPrefix.iaa)
+            validatorDetail.owner_addr = addressTransform(validatorDetail.operator_address, cfg.addressPrefix.iaa)
             result = new ValidatorDetailResDto(validatorDetail)
         }
         return result;
     }
 
     async getAddressAccount(q: AccountAddrReqDto): Promise<AccountAddrResDto> {
-        const address = addressTransform(q.address, addressPrefix.iaa)
-        const operatorAddress = addressTransform(q.address, addressPrefix.iva)
+        const address = addressTransform(q.address, cfg.addressPrefix.iaa)
+        const operatorAddress = addressTransform(q.address, cfg.addressPrefix.iva)
         const balancesArray = await this.stakingHttp.queryBalanceByAddress(address)
         const withdrawAddress =  await DistributionHttp.queryWithdrawAddressByDelegator(address)
         const allValidatorsMap = await this.getAllValidatorMonikerMap()
@@ -306,7 +306,7 @@ export default class StakingService {
 
     async getValidatorVotesList(p: ValidatorDelegationsReqDto,q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorVotesResDto>> {
         const { address } = p;
-        const iaaAddress = addressTransform(address, addressPrefix.iaa);
+        const iaaAddress = addressTransform(address, cfg.addressPrefix.iaa);
         const voters = await this.proposalVoterModel.queryByAddress(iaaAddress, q);
         const votesList = [];
         const count = voters.count;
@@ -363,7 +363,7 @@ export default class StakingService {
 
     async getValidatorDepositsList(p: ValidatorDelegationsReqDto,q: ValidatorDelegationsQueryReqDto): Promise<ListStruct<ValidatorDepositsResDto>> {
         const { address } = p;
-        const iaaAddress = addressTransform(address, addressPrefix.iaa);
+        const iaaAddress = addressTransform(address, cfg.addressPrefix.iaa);
         const depositsData = await (this.txModel as any).queryDepositsByAddress(iaaAddress, q);
         const depositsList = [];
         const proposalsListFromDb = await this.proposalModel.queryAllProposalsDeletedID();
@@ -374,7 +374,7 @@ export default class StakingService {
                     const msg = depost.msgs[0].msg;
                     const proposal = await (this.txModel as any).querySubmitProposalById(String(msg.proposal_id));
                     const proposer = proposal && proposal.msgs && proposal.msgs[0] && proposal.msgs[0].msg && proposal.msgs[0].msg.proposer;
-                    const ivaProposer = addressTransform(proposer, addressPrefix.iva);
+                    const ivaProposer = addressTransform(proposer, cfg.addressPrefix.iva);
                     const { moniker } = await this.addMonikerAndIva(ivaProposer);
                     depositsList.push({
                         proposal_id: msg.proposal_id,

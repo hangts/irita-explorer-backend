@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ListStruct, Result } from '../api/ApiResult';
-import {addressPrefix, SRC_PROTOCOL, TokenTag} from '../constant/index'
+import { Result } from '../api/ApiResult';
+import { SRC_PROTOCOL, TokenTag} from '../constant/index'
 import {NetworkResDto, TokensResDto,StatusResDto} from '../dto/irita.dto';
 import { getTaskStatus } from '../helper/task.helper'
+import {cfg} from "../config/config";
 @Injectable()
 export class IritaService {
     constructor(@InjectModel('Network') private networkModel: any,
@@ -34,7 +35,7 @@ export class IritaService {
             }
         })
         result.tokenData = TokensResDto.bundleData(TokensData)
-        result.addressPrefix = addressPrefix
+        result.addressPrefix = cfg.addressPrefix
         return result
     }
     async queryStatus(): Promise<StatusResDto>{

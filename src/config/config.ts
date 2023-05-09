@@ -41,6 +41,13 @@ const {
     INDEX_NAME,
     IS_UPGRADE_CHAIN_VERSION,
     EVM_GAS_PRICE,
+    IAA,
+    IVA,
+    ICA,
+    ICP,
+    UN_BONDED,
+    UN_BONDING,
+    BONDED,
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -50,6 +57,17 @@ export const cfg = {
         psd: DB_PASSWD,
         dbAddr: DB_ADDR,
         dbName: DB_DATABASE,
+    },
+    addressPrefix: {
+        iaa: IAA || 'iaa',
+        iva: IVA || 'iva',
+        ica: ICA || 'ica',
+        icp: ICP || 'icp',
+    },
+    validatorStatusStr: {
+        unbonded: UN_BONDED || 'BOND_STATUS_UNBONDED',
+        unbonding: UN_BONDING || 'BOND_STATUS_UNBONDING',
+        bonded: BONDED || 'BOND_STATUS_BONDED',
     },
     serverCfg:{
         lcdAddr:LCD_ADDR,

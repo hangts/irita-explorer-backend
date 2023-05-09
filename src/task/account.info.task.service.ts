@@ -11,7 +11,6 @@ import { StakingHttp } from "../http/lcd/staking.http";
 import { DistributionHttp } from "../http/lcd/distribution.http";
 import { moduleStaking,addressAccount } from "../constant";
 import {addressTransform} from "../util/util";
-import { addressPrefix } from "../constant";
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 
 @Injectable()
@@ -43,7 +42,7 @@ export class AccountInfoTaskService {
                 if (address !== addressAccount) {
                     // balance and rewards
                     let balances, delegatorRewards, commissionRewards;
-                    const ivaAddress = addressTransform(address, addressPrefix.iva);
+                    const ivaAddress = addressTransform(address, cfg.addressPrefix.iva);
                     if (ivaArray.includes(ivaAddress)) {
                         [balances,delegatorRewards,commissionRewards] = await Promise.all([this.stakingHttp.queryBalanceByAddress(address),DistributionHttp.queryDelegatorRewards(address),DistributionHttp.getCommissionRewards(ivaAddress)]);
                         if(!balances || !delegatorRewards || !commissionRewards) continue;

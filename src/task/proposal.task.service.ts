@@ -3,7 +3,7 @@ import {InjectModel} from '@nestjs/mongoose';
 import {Model} from "mongoose";
 import {GovHttp} from "../http/lcd/gov.http";
 import {Govv1Http} from "../http/lcd/govv1.http";
-import {addressPrefix, govParams, proposal, proposalStatus, TaskEnum, voteOptions} from '../constant'
+import {govParams, proposal, proposalStatus, TaskEnum, voteOptions} from '../constant'
 import {StakingHttp} from "../http/lcd/staking.http";
 import {addressTransform, formatDateStringToNumber, getTimestamp, splitString} from "../util/util";
 import {cfg} from "../config/config"
@@ -183,7 +183,7 @@ export class ProposalTaskService {
             }
             if (delegators.length > 0) {
               delegators.forEach(delegator => {
-                let voteIva = addressTransform(vote.voter, addressPrefix.iva)
+                let voteIva = addressTransform(vote.voter, cfg.addressPrefix.iva)
                 if (delegator.validator_address == voteIva) {
                   delegatorsGovInfo[vote.voter].isValidator = true;
                   let votingPower = Number(delegator.shares) * (validatorGovInfo[voteIva].bondedtokens / validatorGovInfo[voteIva].delShares);
@@ -209,7 +209,7 @@ export class ProposalTaskService {
           }
         }
         for (const address in delAndValGovInfo) {
-          let ivaAddress = addressTransform(address, addressPrefix.iva)
+          let ivaAddress = addressTransform(address, cfg.addressPrefix.iva)
           let validator = validatorGovInfo[ivaAddress];
           let votingPower = (validator.delShares - validator.delDeductionShares - validator.selfDelDeductionShares) * (validator.bondedtokens / validator.delShares);
           delegatorsGovInfo[address].notVoteVotingPower += votingPower;
