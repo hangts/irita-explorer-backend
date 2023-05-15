@@ -12,6 +12,8 @@ import {
     CronTaskWorkingStatusMetric,
     CronTaskWorkingStatusProvider
 } from "../monitor/metrics/cron_task_working_status.metric";
+import {DistributionHttp} from "../http/lcd/distribution.http";
+import {MintHttp} from "../http/lcd/mint.http";
 @Module({
     imports:[
         MongooseModule.forFeature([
@@ -32,7 +34,7 @@ import {
             },
         ])
     ],
-    providers:[TokensTaskService,StakingHttp,TokensHttp,ParametersTaskService,GovHttp,
+    providers:[TokensTaskService,StakingHttp,TokensHttp,DistributionHttp,MintHttp,ParametersTaskService,GovHttp,
         CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
     exports: [TokensTaskService,]
 })

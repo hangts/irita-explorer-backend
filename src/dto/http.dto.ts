@@ -498,6 +498,19 @@ export class communityPoolLcdDto {
 }
 
 
+// /cosmos/distribution/v1beta1/params
+export class DistributeParamsLcdDto {
+    community_tax: string;
+    base_proposer_reward: string;
+    bonus_proposer_reward: string;
+    withdraw_addr_enabled: string;
+    constructor(value) {
+        this.community_tax = value.community_tax || '';
+        this.base_proposer_reward = value.base_proposer_reward || '';
+        this.bonus_proposer_reward = value.bonus_proposer_reward || '';
+        this.withdraw_addr_enabled = value.withdraw_addr_enabled || '';
+    }
+}
 
 // /staking/validators/${address}/unbonding_delegations
 
@@ -693,6 +706,18 @@ export class GovDepositParamsLcdDto {
         this.max_deposit_period = value.max_deposit_period || '';
     }
 }
+
+
+export class MintParamsLcdDto {
+    mint_denom: string;
+    inflation: string;
+
+    constructor(value) {
+        this.mint_denom = value.mint_denom || '';
+        this.inflation = value.inflation || '';
+    }
+}
+
 
 export class GovProposalLcdDto {
     id: number;

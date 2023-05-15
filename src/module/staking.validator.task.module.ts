@@ -13,6 +13,8 @@ import {
   CronTaskWorkingStatusMetric,
   CronTaskWorkingStatusProvider
 } from "../monitor/metrics/cron_task_working_status.metric";
+import {DistributionHttp} from "../http/lcd/distribution.http";
+import {MintHttp} from "../http/lcd/mint.http";
 
 @Module({
   imports:[
@@ -30,7 +32,7 @@ import {
     ])
   ],
   providers:[StakingValidatorInfoTaskService,StakingValidatorMoreInfoTaskService,ParametersTaskService,StakingHttp,
-    TokensHttp,BlockHttp,GovHttp,CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
+    TokensHttp,BlockHttp,GovHttp,DistributionHttp,MintHttp,CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
   exports:[StakingValidatorInfoTaskService,StakingValidatorMoreInfoTaskService,ParametersTaskService],
 })
 

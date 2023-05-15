@@ -1,11 +1,11 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { cfg } from '../../config/config';
 import { Logger } from '../../logger';
-import { 
-    WithdrawAddressDto, 
+import {
+    WithdrawAddressDto,
     DelegatorRewardsDto,
     commissionRewardsLcdDto,
-    communityPoolLcdDto
+    communityPoolLcdDto, DistributeParamsLcdDto
 } from '../../dto/http.dto';
 
 @Injectable()
@@ -71,6 +71,20 @@ export class DistributionHttp {
             }
         } catch (e) {
             Logger.warn(`api-error from ${getCommunityPoolUri}`, e)
+        }
+    }
+
+    async getDistributionParams() {
+        const url = `${cfg.serverCfg.lcdAddr}/cosmos/distribution/v1beta1/params`
+        try {
+            const paramData: any = await new HttpService().get(url).toPromise().then(result => result.data)
+            if (paramData) {
+                return new DistributeParamsLcdDto(paramData.params)
+            } else {
+                Logger.warn('api-error:', 'there is no result of distribution params from lcd');
+            }
+        } catch (e) {
+            Logger.warn(`api-error from ${url}`, e)
         }
     }
 }
