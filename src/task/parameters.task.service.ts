@@ -10,9 +10,11 @@ import {
     moduleStakingBondDenom,
     moduleGov,
     moduleGovDeposit,
-    TaskEnum
+    TaskEnum, moduleDistribution, moduleMint
 } from "../constant";
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
+import {DistributionHttp} from "../http/lcd/distribution.http";
+import {MintHttp} from "../http/lcd/mint.http";
 
 @Injectable()
 export class ParametersTaskService {
@@ -20,6 +22,8 @@ export class ParametersTaskService {
         @InjectModel('ParametersTask') private parametersTaskModel: Model<any>, 
         private readonly stakingHttp: StakingHttp,
         private readonly govHttp: GovHttp,
+        private readonly distributionHttp: DistributionHttp,
+        private readonly mintHttp: MintHttp,
         private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
     ) {
         this.doTask = this.doTask.bind(this);
@@ -33,6 +37,8 @@ export class ParametersTaskService {
         const stakingTokensData = await this.stakingHttp.getStakingTokens()
         const govTallyParams = await this.govHttp.getTallying()
         const govDepositParams = await this.govHttp.getDeposit()
+        const distributeParams = await this.distributionHttp.getDistributionParams()
+        const mintParams = await this.mintHttp.getMintParams()
         for (const parameterKey in parametersData) {
             const dbData = {
                 module: moduleSlashing,
@@ -74,6 +80,33 @@ export class ParametersTaskService {
             }
             await needInsertData.push(depositData)
         }
+
+        for (const distributionKey in distributeParams) {
+            const distributionData = {
+                module: moduleDistribution,
+                key: distributionKey,
+                cur_value: distributeParams[distributionKey],
+                create_time: '',
+                update_time: ''
+            }
+            await needInsertData.push(distributionData)
+        }
+
+
+
+        for (const mintKey in mintParams) {
+            const mintData = {
+                module: moduleMint,
+                key: mintKey,
+                cur_value: mintParams[mintKey],
+                create_time: '',
+                update_time: ''
+            }
+            await needInsertData.push(mintData)
+        }
+
+
+
         if (dbParametersData.length === 0) {
             needInsertData.forEach(item => {
                 item.create_time = getTimestamp()

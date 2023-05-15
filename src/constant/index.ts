@@ -241,6 +241,8 @@ export const moduleStakingBondDenom = 'bond_denom'
 export const moduleGov = 'gov'
 export const moduleGovDeposit = 'min_deposit'
 export const defaultEvmTxReceiptErrlog = 'failed to execute message'
+export const moduleDistribution = 'distribution'
+export const moduleMint = 'mint'
 
 
 export const ValidatorStatus = {

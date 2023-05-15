@@ -19,6 +19,8 @@ import {
     CronTaskWorkingStatusMetric,
     CronTaskWorkingStatusProvider
 } from "../monitor/metrics/cron_task_working_status.metric";
+import {DistributionHttp} from "../http/lcd/distribution.http";
+import {MintHttp} from "../http/lcd/mint.http";
 @Module({
     imports: [
         MongooseModule.forFeature([
@@ -47,8 +49,8 @@ import {
             }
         ])
     ],
-    providers: [IritaService,TokenService, TokensTaskService, TokensHttp,ParametersTaskService,StakingHttp,GovHttp,
-        CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
+    providers: [IritaService,TokenService, TokensTaskService, TokensHttp,ParametersTaskService,StakingHttp,GovHttp,DistributionHttp,
+        MintHttp, CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
     controllers: [IritaController],
 })
 export class IritaModule {
