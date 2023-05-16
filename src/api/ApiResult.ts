@@ -12,13 +12,15 @@ export class ListStruct<T> implements IListStructBase<T> {
     count?: number;
     statistical?: GovVoterStatistical;
     total_tx_msgs?: number;
-    constructor(data: T,pageNum: number, pageSize: number, count?: number,statistical?:GovVoterStatistical,totalTxMsgs?:number) {
+    last_update_time?: number;
+    constructor(data: T,pageNum: number, pageSize: number, count?: number,statistical?:GovVoterStatistical,totalTxMsgs?:number, lastUpdateTime?:number) {
         this.data = data;
         this.pageNum = pageNum;
         this.pageSize = pageSize;
         if (count || count === 0) this.count = count;
         if (totalTxMsgs || totalTxMsgs === 0) this.total_tx_msgs = totalTxMsgs;
         if (statistical) this.statistical = statistical;
+        if (lastUpdateTime) this.last_update_time = lastUpdateTime
     }
 }
 

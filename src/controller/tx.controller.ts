@@ -40,6 +40,7 @@ import { TxResDto,
     ExternalServiceResDto,
     ExternalQueryRespondServiceResDto
 } from '../dto/txs.dto';
+import {ErrorCodes} from "../api/ResultCodes";
 
 @ApiTags('Txs')
 @Controller('txs')
@@ -50,6 +51,9 @@ export class TxController {
     @Get()
     async queryTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxList(query);
+        if (query.last_update_time && query.last_update_time != 0){
+            return new Result<any>(data, ErrorCodes.NoModified);
+        }
         return new Result<any>(data);
     }
 
