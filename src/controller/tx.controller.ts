@@ -51,7 +51,7 @@ export class TxController {
     @Get()
     async queryTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxList(query);
-        if (query.last_update_time && query.last_update_time != 0){
+        if (query.last_update_time && query.last_update_time != 0 && query.last_update_time == data.last_update_time){
             return new Result<any>(data, ErrorCodes.NoModified);
         }
         return new Result<any>(data);
