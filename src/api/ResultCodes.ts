@@ -1,6 +1,7 @@
 export enum ErrorCodes {
     failed = -1,
     success = 0,
+    NoModified = 1,
     unauthorization = 401,
     InvalidRequest = 10001,//custom error code
     InvalidParameter = 40000,

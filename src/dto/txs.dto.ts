@@ -33,6 +33,9 @@ export class TxListReqDto extends DeepPagingReqDto {
     @ApiPropertyOptional()
     limit?: number;
 
+    @ApiPropertyOptional()
+    last_update_time?: number;
+
     static validate(value: any) {
         super.validate(value);
         if (value.status && value.status !== '1' && value.status !== '2') {

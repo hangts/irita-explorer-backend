@@ -6,10 +6,12 @@ import { SRC_PROTOCOL, TokenTag} from '../constant/index'
 import {NetworkResDto, TokensResDto,StatusResDto} from '../dto/irita.dto';
 import { getTaskStatus } from '../helper/task.helper'
 import {cfg} from "../config/config";
+
 @Injectable()
 export class IritaService {
     constructor(@InjectModel('Network') private networkModel: any,
                 @InjectModel('Tokens') private tokensModel: Model<any>,
+                @InjectModel('CommonConfig') private commonConfig: Model<any>,
                 @InjectModel('SyncTask') private taskModel: any
                 ) {
     }
@@ -17,6 +19,7 @@ export class IritaService {
         let result:any = {}
         let netWorkDbData = await this.networkModel.queryNetworkList();
         const TokensData = await (this.tokensModel as any).queryAllTokens()
+        const config = await (this.commonConfig as any).queryByConfigName("polling_time")
         result.networkData = NetworkResDto.bundleData(netWorkDbData);
 
         TokensData.forEach(item => {
@@ -36,10 +39,12 @@ export class IritaService {
         })
         result.tokenData = TokensResDto.bundleData(TokensData)
         result.addressPrefix = cfg.addressPrefix
+        result.polling_time = config?.value
         return result
     }
-    async queryStatus(): Promise<StatusResDto>{
-        let status:boolean = await getTaskStatus(this.taskModel,'')
+
+    async queryStatus(): Promise<StatusResDto> {
+        let status: boolean = await getTaskStatus(this.taskModel, '')
         return new StatusResDto(status)
     }
 }

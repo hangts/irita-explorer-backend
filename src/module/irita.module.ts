@@ -21,6 +21,7 @@ import {
 } from "../monitor/metrics/cron_task_working_status.metric";
 import {DistributionHttp} from "../http/lcd/distribution.http";
 import {MintHttp} from "../http/lcd/mint.http";
+import {CommonConfigSchema} from "../schema/common.config.schema";
 @Module({
     imports: [
         MongooseModule.forFeature([
@@ -46,6 +47,10 @@ import {MintHttp} from "../http/lcd/mint.http";
                 name: 'SyncTask',
                 schema: SyncTaskSchema,
                 collection: 'sync_task'
+            },{
+                name: 'CommonConfig',
+                schema: CommonConfigSchema,
+                collection: 'ex_common_config'
             }
         ])
     ],
