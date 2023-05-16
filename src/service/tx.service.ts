@@ -495,6 +495,7 @@ export class TxService {
         // if (!Cache.supportTypes || !Cache.supportTypes.length) {
         const {txId, limit, useCount, type, countMsg } = query;
         let txListData, txData = [], count = null, totalTxMsgs = null;
+        let lastUpdateTime = query.last_update_time
         if(limit || useCount || countMsg){
           await this.cacheTxTypes();
             let queryDb: ITxsQuery = {
@@ -582,10 +583,9 @@ export class TxService {
                 if (query.last_update_time && query.last_update_time != 0) {
                     if (Number(query.last_update_time) == txListData.data[0].time){
                         return new ListStruct(null, Number(query.pageNum), Number(query.pageSize), null,null, null, Number(query.last_update_time));
-                    }else {
-                        query.last_update_time = txListData.data[0].time
                     }
                 }
+                lastUpdateTime = txListData.data[0].time
                 txListData.data = await this.handleEvmTxFee(txListData.data)
                 txListData.data = this.handerEvents(txListData.data)
                 txListData.data = this.handleMsg(txListData.data, queryDb)
@@ -645,7 +645,7 @@ export class TxService {
         }
 
 
-        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count,null, totalTxMsgs, Number(query.last_update_time));
+        return new ListStruct(TxResDto.bundleData(txData), Number(query.pageNum), Number(query.pageSize), count,null, totalTxMsgs, Number(lastUpdateTime));
     }
 
     async queryStatusStatistic(status: string,countMsg: boolean ,useCount: boolean): Promise<number> {
