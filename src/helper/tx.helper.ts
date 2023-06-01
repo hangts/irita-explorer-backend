@@ -199,8 +199,11 @@ export const dbRes = {
         'msgs.msg.coin':1,
         'msgs.msg.fee_paid':1,
         'msgs.msg.data': 1,
-        'msgs.msg.fee_payer':1
-
+        'msgs.msg.fee_payer':1,
+        'msgs.msg.space_id':1,
+        'msgs.msg.uri':1,
+        'msgs.msg.header':1,
+        'msgs.msg.height':1,
     },
     service:{
         ...common,
