@@ -808,3 +808,16 @@ export class GovV1ProposalLcdDto {
         return data;
     }
 }
+
+export class SpaceDetailDto {
+    id: string;
+    name: string;
+    uri: string;
+    owner: string;
+    constructor(value) {
+        this.id = value.id;
+        this.name = value.name;
+        this.uri = value.uri;
+        this.owner = value.owner;
+    }
+}

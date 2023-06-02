@@ -48,7 +48,6 @@ const {
     UN_BONDED,
     UN_BONDING,
     BONDED,
-    SPACE_ID_NAME,
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -110,8 +109,7 @@ export const cfg = {
     currentChain: CURRENT_CHAIN || 'iris',
     indexName: INDEX_NAME || 'time_-1_msgs.type_-1_tx_id_-1',
     isUpgradeChainVersion: IS_UPGRADE_CHAIN_VERSION || 'false',
-    evmGasPrice: Number(EVM_GAS_PRICE) || 1,
-    spaceIdName: SPACE_ID_NAME,
+    evmGasPrice: Number(EVM_GAS_PRICE) || 1
    // MAIN_TOKEN: MAIN_TOKEN ? JSON.parse(MAIN_TOKEN) : {"min_unit":"umuon","scale":"6","symbol":"muon"}
 };
 
