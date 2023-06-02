@@ -62,6 +62,7 @@ import {cfg} from "../config/config";
 import {ContractErc20Schema} from "../schema/ContractErc20.schema";
 import { Model } from 'mongoose';
 import BigNumber from "bignumber.js";
+import {Layer2Http} from "../http/lcd/layer2.http";
 
 @Injectable()
 export class TxService {
@@ -83,6 +84,7 @@ export class TxService {
         @InjectModel('ContractOther') private ContractOtherModel: any,
         @InjectModel('Tokens') private tokensModel: Model<any>,
         private readonly govHttp: GovHttp,
+        private readonly layer2Http: Layer2Http
     ) {
         this.cacheTxTypes();
         //this.cacheEvmContract();
@@ -480,6 +482,17 @@ export class TxService {
         const txTypes = await this.txTypeModel.queryTxTypeList();
         Cache.supportTypes = txTypes.map((item) => item.type_name);
         Cache.supportTypes.push(TxType.ethereum_tx)
+    }
+
+    async cacheSpaceIdName(spaceId :string) :Promise<string> {
+        const res = Cache.spaceIdName.get(spaceId)
+        if (res == null) {
+            const spaceDetail = await this.layer2Http.querySpaceFromLcdBySpaceId(spaceId)
+            Cache.spaceIdName.set(spaceId, spaceDetail.name)
+            return spaceDetail.name
+        } else {
+            return res
+        }
     }
     async cacheEvmContract() {
         const evmConfigs = await this.evmContractCfgModel.queryAllContractCfgs();
@@ -1440,8 +1453,15 @@ export class TxService {
                 break;
               }
 
-              case TxType.create_validator:
-                txData.msgs[i].msg.pubkey = getConsensusPubkey(JSON.parse(txData.msgs[0].msg.pubkey).key);
+              case TxType.create_validator: {
+                  txData.msgs[i].msg.pubkey = getConsensusPubkey(JSON.parse(txData.msgs[0].msg.pubkey).key);
+                  break;
+              }
+
+                case TxType.create_l2_block_header: {
+                    txData.msgs[i].msg.space_name = await this.cacheSpaceIdName(txData.msgs[i].msg.space_id)
+                }
+
             }
           }
 
