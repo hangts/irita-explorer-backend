@@ -192,6 +192,9 @@ export enum TxType {
     connection_open_confirm = 'connection_open_confirm',
     connection_open_try = 'connection_open_try',
     connection_open_ack = 'connection_open_ack',
+
+    // Layer2
+    create_l2_block_header = 'create_l2_block_header'
 }
 
 export enum TxStatus {

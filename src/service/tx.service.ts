@@ -1440,8 +1440,23 @@ export class TxService {
                 break;
               }
 
-              case TxType.create_validator:
-                txData.msgs[i].msg.pubkey = getConsensusPubkey(JSON.parse(txData.msgs[0].msg.pubkey).key);
+              case TxType.create_validator: {
+                  txData.msgs[i].msg.pubkey = getConsensusPubkey(JSON.parse(txData.msgs[0].msg.pubkey).key);
+                  break;
+              }
+
+                case TxType.create_l2_block_header: {
+                    let spaceIdName = cfg.spaceIdName
+                    const idNames = spaceIdName.split(";")
+                    idNames.forEach((idName) => {
+                        let idNameMap = idName.split(":")
+                        let m = txData.msgs[i].msg.space_id
+                        if (m == idNameMap[0]) {
+                            txData.msgs[i].msg.space_name = idNameMap[1]
+                        }
+                    })
+                }
+
             }
           }
 
