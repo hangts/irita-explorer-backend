@@ -20,6 +20,7 @@ export class IritaService {
         let netWorkDbData = await this.networkModel.queryNetworkList();
         const TokensData = await (this.tokensModel as any).queryAllTokens()
         const config = await (this.commonConfig as any).queryByConfigName("polling_time")
+        const layer2 = await (this.commonConfig as any).queryByConfigName("layer2_explorer_url")
         result.networkData = NetworkResDto.bundleData(netWorkDbData);
 
         TokensData.forEach(item => {
@@ -40,6 +41,7 @@ export class IritaService {
         result.tokenData = TokensResDto.bundleData(TokensData)
         result.addressPrefix = cfg.addressPrefix
         result.polling_time = config?.value
+        result.layer2_explorer_url = layer2?.value
         return result
     }
 
