@@ -488,8 +488,11 @@ export class TxService {
         const res = Cache.spaceIdName.get(spaceId)
         if (res == null) {
             const spaceDetail = await this.layer2Http.querySpaceFromLcdBySpaceId(spaceId)
-            Cache.spaceIdName.set(spaceId, spaceDetail.name)
-            return spaceDetail.name
+            if (spaceDetail && spaceDetail?.name) {
+                Cache.spaceIdName.set(spaceId, spaceDetail.name)
+                return spaceDetail.name
+            }
+            return ""
         } else {
             return res
         }
