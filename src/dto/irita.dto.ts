@@ -29,14 +29,16 @@ export class NetworkResDto extends BaseResDto{
     network_id: string;
     network_name: string;
     uri: string;
+    icon:string;
     is_main: boolean;
 
     constructor(value) {
         super();
-        const { network_id, network_name, uri, is_main } = value;
+        const { network_id, network_name, uri, icon, is_main } = value;
         this.network_id = network_id;
         this.network_name = network_name;
         this.uri = uri;
+        this.icon = icon;
         this.is_main = is_main || false;
     }
 
