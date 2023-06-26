@@ -181,6 +181,13 @@ NftSchema.statics = {
         return this.findOneAndUpdate(cond,nft,{ upsert:true,new: true});
     },
 
+    async updateLastBlockHeight(nft: INftStruct) {
+        return await this.updateOne({
+            denom_id: nft.denom_id,
+            nft_id: nft.nft_id,
+        }, {$set: {last_block_height: nft.last_block_height}})
+    },
+
     deleteNft(nft: INftStruct): Promise<INftStruct>{
         let cond = {
             denom_id:nft.denom_id,
