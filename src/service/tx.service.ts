@@ -1461,7 +1461,7 @@ export class TxService {
                   break;
               }
 
-                case TxType.create_l2_block_header: {
+                case TxType.create_block_header: {
                     txData.msgs[i].msg.space_name = await this.cacheSpaceIdName(txData.msgs[i].msg.space_id)
                 }
 

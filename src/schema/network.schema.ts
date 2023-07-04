@@ -6,6 +6,7 @@ export const NetworkSchema = new mongoose.Schema({
     network_id: {type:String, required:true, unique: true},
     network_name: String,
     uri:String,
+	icon:String,
     is_main: Boolean,
     create_time: {
     	type:Number,

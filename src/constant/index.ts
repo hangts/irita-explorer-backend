@@ -194,7 +194,7 @@ export enum TxType {
     connection_open_ack = 'connection_open_ack',
 
     // Layer2
-    create_l2_block_header = 'create_l2_block_header'
+    create_block_header = 'create_block_header'
 }
 
 export enum TxStatus {
