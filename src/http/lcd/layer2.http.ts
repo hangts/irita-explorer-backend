@@ -6,7 +6,7 @@ import {Logger} from "../../logger";
 @Injectable()
 export class Layer2Http {
     async querySpaceFromLcdBySpaceId(spaceId: string): Promise<SpaceDetailDto> {
-        const url: string = `${cfg.serverCfg.lcdAddr}/iritamod/layer2/v1/spaces/${spaceId}`;
+        const url: string = `${cfg.serverCfg.lcdAddr}/iritamod/side-chain/v1/spaces/${spaceId}`;
         try {
             const data: any = await new HttpService().get(url).toPromise().then(res => res.data);
             if(data && data.space){
