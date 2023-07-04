@@ -290,7 +290,7 @@ export class NftTaskService {
             let lastNft =  await (this.nftModel as any).queryLastNft();
             if(lastNft.last_block_height < last_block_height){
                 lastNft.last_block_height = last_block_height;
-                await (this.nftModel as any).updateNft(lastNft);
+                await (this.nftModel as any).updateLastBlockHeight(lastNft);
             }
         }
     }
