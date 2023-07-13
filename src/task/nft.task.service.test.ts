@@ -20,7 +20,7 @@ describe('NftTaskService', () => {
         it('handleNftTx', async () => {
             jest.setTimeout(10000000)
             let nftTxList = await nftTaskService.getNftTxList(15036890, 15044161); // 9384042
-            await nftTaskService.handleNftTx(nftTxList, 0);
+            await nftTaskService.handleNftTx(nftTxList, 0,0,0);
             // console.log("=====>handleNftTx:",pool)
         });
     });
