@@ -28,6 +28,14 @@ StatisticsSchema.statics = {
     return this.findOne({ statistics_name }, { _id: 0 });
   },
 
+
+    async findInStatisticsRecord(
+        statisticsNames: string[],
+    ): Promise<StatisticsType[]> {
+        return this.find({ statistics_name : statisticsNames}, { _id: 0 });
+    },
+
+
   async findAllRecord(): Promise<StatisticsType[]> {
     return this.find();
   },

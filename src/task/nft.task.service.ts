@@ -13,6 +13,7 @@ import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
 import { getTaskStatus } from '../helper/task.helper';
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
+import {StatisticsType} from "../types/schemaTypes/statistics.interface";
 @Injectable()
 export class NftTaskService {
     constructor(@InjectModel('Nft') private nftModel: Model<INft>,
@@ -38,7 +39,7 @@ export class NftTaskService {
         }
         taskLoggerHelper(`${taskName}: start to execute task`, randomKey);
 
-      let nftCount = await this.initNftAllStatistic();
+      let [nftCount, mintNftCount, burnNftCount] = await this.initNftAllStatistic();
       const nftList: INftStruct[] = await (this.nftModel as any).queryLastBlockHeight();
         taskLoggerHelper(`${taskName}: execute task (step should be start step + 1)`, randomKey);
         let lastBlockHeight = 0;
@@ -61,28 +62,62 @@ export class NftTaskService {
         taskLoggerHelper(`${taskName}: execute task (step should be start step + 3)`, randomKey);
         if (nftTxList && nftTxList.length > 0) {
             taskLoggerHelper(`${taskName}: execute task (step should be start step + 4)`, randomKey);
-            await this.handleNftTx(nftTxList, nftCount);
+            await this.handleNftTx(nftTxList, nftCount, mintNftCount, burnNftCount);
         }
         this.cronTaskWorkingStatusMetric.collect(TaskEnum.nft,1)
         taskLoggerHelper(`${taskName}: end to execute task (step should be start step + 4 or 5)`, randomKey);
     }
 
-  private async initNftAllStatistic(): Promise<number>{
-    const statistic = await this.statisticsModel.findStatisticsRecord('nft_all');
-    if (!statistic) {
-      // 找不到，查询全部，设置回去
-      const count = await this.nftModel.findCount();
-      await this.statisticsModel.insertManyStatisticsRecord({
-        statistics_name: 'nft_all',
-        count: count,
-        data: '',
-        statistics_info: '',
-        create_at: getTimestamp(),
-        update_at: getTimestamp(),
-      });
-      return count
+  private async initNftAllStatistic(): Promise<[number, number, number]>{
+    const names: string[] = ["nft_all", "mint_nft", "burn_nft"];
+    const statistic = await this.statisticsModel.findInStatisticsRecord(names);
+    const statisticMap = new Map<string, StatisticsType>();
+    statistic.forEach(obj => {
+        statisticMap.set(obj.statistics_name, obj);
+    })
+
+    let nftCount, mintNftCount = 0, burnNftCount = 0;
+    if (!statisticMap.has('nft_all')) {
+        const count = await this.nftModel.findCount();
+        await this.statisticsModel.insertManyStatisticsRecord({
+            statistics_name: 'nft_all',
+            count: count,
+            data: '',
+            statistics_info: '',
+            create_at: getTimestamp(),
+            update_at: getTimestamp(),
+        });
+    }else {
+        nftCount = statisticMap.get('nft_all').count
     }
-    return statistic.count
+
+    if (!statisticMap.has('mint_nft')) {
+        await this.statisticsModel.insertManyStatisticsRecord({
+            statistics_name: 'mint_nft',
+            count: 0,
+            data: '',
+            statistics_info: '',
+            create_at: getTimestamp(),
+            update_at: getTimestamp(),
+        });
+    }else {
+        mintNftCount = statisticMap.get('mint_nft').count
+    }
+
+    if (!statisticMap.has('burn_nft')) {
+        await this.statisticsModel.insertManyStatisticsRecord({
+            statistics_name: 'burn_nft',
+            count: 0,
+            data: '',
+            statistics_info: '',
+            create_at: getTimestamp(),
+            update_at: getTimestamp(),
+        });
+    }else {
+        burnNftCount = statisticMap.get('burn_nft').count
+    }
+
+      return [nftCount, mintNftCount, burnNftCount]
   }
 
   async getNftTxList(lastBlockHeight: number, maxHeight: number): Promise<ITxStruct[]> {
@@ -117,7 +152,7 @@ export class NftTaskService {
         return await (this.txModel as any).queryNftTxList(lastBlockHeight);
     }
 
-    async handleNftTx(nftTxList: any, nftCount: number): Promise<void> {
+    async handleNftTx(nftTxList: any, nftCount: number, mintNftCount: number, burnNftCount: number): Promise<void> {
         const promiseList: Promise<any>[] = [];
         const nftObj = {};
         let last_block_height = 0;
@@ -141,6 +176,7 @@ export class NftTaskService {
                             nftObj[idStr].last_block_time = tx.time;
                             nftObj[idStr].update_time = getTimestamp();
                             nftCount++;
+                            mintNftCount++;
                             break;
                         case TxType.edit_nft:
                             if (msg.name !== NFT_INFO_DO_NOT_MODIFY) {
@@ -181,6 +217,7 @@ export class NftTaskService {
                             nftObj[idStr].nft_id = msg.id;
                             nftObj[idStr].is_deleted = true;
                             nftCount--;
+                            burnNftCount++;
                             break;
                         }
                     }
@@ -193,6 +230,7 @@ export class NftTaskService {
                             nftObj[idTibcStr].nft_id = transferMsg.id;
                             nftObj[idTibcStr].is_deleted = true;
                             nftCount--;
+                            burnNftCount++;
                             break;
                         case TxType.tibc_recv_packet:
                             let ackResult = "";
@@ -237,6 +275,7 @@ export class NftTaskService {
                                 nftObj[idStr].last_block_time = tx.time;
                                 nftObj[idStr].update_time = getTimestamp();
                                 nftCount++;
+                                mintNftCount++;
                             }
                             break;
                         case TxType.tibc_acknowledge_packet:
@@ -261,6 +300,7 @@ export class NftTaskService {
                                 nftObj[idStr].update_time = getTimestamp();
                                 nftObj[idStr].create_time = getTimestamp();
                                 nftCount++;
+                                mintNftCount++;
                             }
                             break;
                 }
@@ -280,6 +320,22 @@ export class NftTaskService {
         promiseList.push((this.statisticsModel.updateStatisticsRecord({
             statistics_name: 'nft_all',
             count: nftCount,
+            data: '',
+            statistics_info: '',
+            create_at: getTimestamp(),
+            update_at: getTimestamp(),
+        })))
+        promiseList.push((this.statisticsModel.updateStatisticsRecord({
+            statistics_name: 'mint_nft',
+            count: mintNftCount,
+            data: '',
+            statistics_info: '',
+            create_at: getTimestamp(),
+            update_at: getTimestamp(),
+        })))
+        promiseList.push((this.statisticsModel.updateStatisticsRecord({
+            statistics_name: 'burn_nft',
+            count: burnNftCount,
             data: '',
             statistics_info: '',
             create_at: getTimestamp(),
