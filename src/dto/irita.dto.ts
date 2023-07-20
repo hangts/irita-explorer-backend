@@ -27,16 +27,18 @@ export class TokensReqDto extends BaseReqDto {
 //txs response dto
 export class NetworkResDto extends BaseResDto{
     network_id: string;
-    network_name: string;
+    network_name_cn: string;
+    network_name_en: string;
     uri: string;
     icon:string;
     is_main: boolean;
 
     constructor(value) {
         super();
-        const { network_id, network_name, uri, icon, is_main } = value;
+        const { network_id, network_name, network_name_en, uri, icon, is_main } = value;
         this.network_id = network_id;
-        this.network_name = network_name;
+        this.network_name_cn = network_name;
+        this.network_name_en = network_name_en;
         this.uri = uri;
         this.icon = icon;
         this.is_main = is_main || false;
