@@ -5,6 +5,7 @@ import { getTimestamp } from '../util/util';
 export const NetworkSchema = new mongoose.Schema({
     network_id: {type:String, required:true, unique: true},
     network_name: String,
+	network_name_en: String,
     uri:String,
 	icon:String,
     is_main: Boolean,
