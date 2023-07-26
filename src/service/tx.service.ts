@@ -481,7 +481,7 @@ export class TxService {
     async cacheTxTypes() {
         const txTypes = await this.txTypeModel.queryTxTypeList();
         Cache.supportTypes = txTypes.map((item) => item.type_name);
-        Cache.supportTypes.push(TxType.ethereum_tx)
+        //Cache.supportTypes.push(TxType.ethereum_tx)
     }
 
     async cacheSpaceIdName(spaceId :string) :Promise<string> {
