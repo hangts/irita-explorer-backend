@@ -5,6 +5,7 @@ import { IdentityService } from '../service/identity.service';
 import { IdentityController } from '../controller/identity.controller';
 import { PubkeySchema } from '../schema/pubkey.schema';
 import { CertificateSchema } from '../schema/certificate.schema';
+import {TxModule} from "./tx.module";
 
 @Module({
   imports:[
@@ -20,7 +21,8 @@ import { CertificateSchema } from '../schema/certificate.schema';
       name:'Certificate',
       schema: CertificateSchema,
       collection: 'ex_sync_identity_certificate'
-    }])
+    }]),
+    TxModule
   ],
   providers:[IdentityService],
   controllers:[IdentityController],

@@ -45,6 +45,7 @@ import {ITxsQuery, ITxStruct, ITxsWithAddressQuery, ITxsWithNftQuery} from '../t
 import {getBaseFeeFromEvents, getReqContextIdFromEvents, getServiceNameFromMsgs} from '../helper/tx.helper';
 import Cache from '../helper/cache';
 import {
+    AddressPrefix,
     ContractType, currentChain,
     DDCType,
     defaultEvmTxReceiptErrlog,
@@ -54,7 +55,7 @@ import {
     TxsListCountName,
     TxType,
 } from '../constant';
-import {addressTransform, getAddrBech32FromHex, hexToBech32, splitString} from '../util/util';
+import {addressTransform, getAddrHexFromBech32, splitString} from '../util/util';
 import {GovHttp} from '../http/lcd/gov.http';
 import {txListParamsHelper, TxWithAddressParamsHelper} from '../helper/params.helper';
 import {getConsensusPubkey} from "../helper/staking.helper";
@@ -83,6 +84,8 @@ export class TxService {
         @InjectModel('ContractErc1155') private ContractErc1155Model: any,
         @InjectModel('ContractOther') private ContractOtherModel: any,
         @InjectModel('Tokens') private tokensModel: Model<any>,
+        @InjectModel('ContractEnsToken') private contractEnsTokenModel: any,
+        @InjectModel('ContractEnsReverseRegistration') private contractEnsReverseRegistrationModel: any,
         private readonly govHttp: GovHttp,
         private readonly layer2Http: Layer2Http
     ) {
@@ -1929,5 +1932,131 @@ export class TxService {
         return txList
     }
 
-}
 
+
+
+    public async getDomainAddress(data, contain, notContain) {
+        const addresses = await this.handleDomainAddress(data, contain, notContain);
+
+        // Remove duplicates
+        const duplicateResult = [...new Set(addresses)];
+        const domainAddressMap = {};
+        const domainAddress = [];
+
+
+        for (const value of duplicateResult) {
+            if (value.startsWith(AddressPrefix.OrdinaryAddressPrefix)) {
+                try {
+                    const toHex = getAddrHexFromBech32(value, AddressPrefix.EvmAddressPrefix);
+                    domainAddress.push(toHex.toLowerCase());
+                } catch (err) {
+                    console.error(`getDomainAddress bech32ToHex error: ${err.message}`);
+                }
+            } else if (value.startsWith(AddressPrefix.EvmAddressPrefix)) {
+                domainAddress.push(value.toLowerCase());
+            }
+        }
+
+
+        const registrations = await this.contractEnsReverseRegistrationModel.findInAddr(domainAddress)
+        if (registrations.length <= 0) {
+            for (const value of duplicateResult) {
+                domainAddressMap[value] = ""
+            }
+            return domainAddressMap;
+        }
+        const addrMap = await this.getAddrMap(registrations);
+        const names = await this.getNames(registrations);
+        const domainNames = [...new Set(names)];
+
+        const ensTokens = await this.contractEnsTokenModel.findInDomainName(domainNames);
+
+        if (ensTokens.length <= 0) {
+            for (const value of duplicateResult) {
+                domainAddressMap[value] = ""
+            }
+            return domainAddressMap;
+        }
+
+        const domainMap = await this.getDomainMap(ensTokens);
+
+
+        for (const value of duplicateResult) {
+            if (value.startsWith(AddressPrefix.OrdinaryAddressPrefix)) {
+                try {
+                    const address = getAddrHexFromBech32(value, AddressPrefix.EvmAddressPrefix);
+                    if (addrMap.hasOwnProperty(address)) {
+                        const reverseRegistration = addrMap[address];
+                        if (domainMap.hasOwnProperty(reverseRegistration.name)) {
+                            domainAddressMap[value] = domainMap[reverseRegistration.name].domain_name;
+                        }
+                    }
+                } catch (err) {
+                    console.error(`getDomainAddress bech32ToHex error: ${err.message}`);
+                }
+            } else if (value.startsWith(AddressPrefix.EvmAddressPrefix)) {
+                if (addrMap.hasOwnProperty(value.toLowerCase())) {
+                    const reverseRegistration = addrMap[value.toLowerCase()];
+                    if (domainMap.hasOwnProperty(reverseRegistration.name)) {
+                        domainAddressMap[value] = domainMap[reverseRegistration.name].domain_name;
+                    }
+                }
+            }
+        }
+        return domainAddressMap;
+    }
+
+
+    public async getAddrMap(registrations) {
+        const addrMap = {};
+        for (const registration of registrations) {
+            addrMap[registration.lower_addr] = registration;
+        }
+        return addrMap;
+    }
+
+    public async getDomainMap(ensTokens) {
+        const domainMap = {};
+        for (const token of ensTokens) {
+            domainMap[token.domain_name] = token;
+        }
+        return domainMap;
+    }
+
+    public async getNames(registrations) {
+        const names = [];
+        for (const registration of registrations) {
+            names.push(registration.name);
+        }
+        return names;
+    }
+
+
+    public async handleDomainAddress(data, contain, notContain) {
+        const addresses = [];
+        if (typeof data === 'string') {
+            if (data.startsWith(AddressPrefix.OrdinaryAddressPrefix) ||
+                (data.startsWith(AddressPrefix.EvmAddressPrefix) && data.length == 42)) {
+                addresses.push(data);
+            }
+        } else if (typeof data === 'object' && data !== null) {
+            for (const [key, value] of Object.entries(data)) {
+                if ((contain.length > 0 && await this.containsCharacter(contain, key))) {
+                    addresses.push(...await this.handleDomainAddress(value, contain, notContain));
+                } else if (contain.length <=0 && notContain.length <=0) {
+                    addresses.push(...await this.handleDomainAddress(value, contain, notContain));
+                }
+            }
+        }else if (Array.isArray(data)) {
+            for (const value of data) {
+                addresses.push(...await this.handleDomainAddress(value,contain, notContain));
+            }
+        }
+        return addresses;
+    }
+
+    async containsCharacter(array, char) {
+        return array.some(str => str.includes(char));
+    }
+
+}

@@ -1,5 +1,18 @@
 import { PagingReqDto, DeepPagingReqDto } from './../dto/base.dto';
-import { Controller, Get, Post, Put, Delete, Param, Query, Res, Req, Body, HttpCode } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Put,
+    Delete,
+    Param,
+    Query,
+    Res,
+    Req,
+    Body,
+    HttpCode,
+    UseInterceptors
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { TxService } from '../service/tx.service';
 import { Result } from '../api/ApiResult';
@@ -41,6 +54,7 @@ import { TxResDto,
     ExternalQueryRespondServiceResDto
 } from '../dto/txs.dto';
 import {ErrorCodes} from "../api/ResultCodes";
+import {ResponseInterceptor} from "../interceptor/response.interceptor";
 
 @ApiTags('Txs')
 @Controller('txs')
@@ -49,6 +63,7 @@ export class TxController {
     }
 
     @Get()
+    @UseInterceptors(ResponseInterceptor)
     async queryTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxList(query);
         if (query.last_update_time && query.last_update_time != 0 && query.last_update_time == data.last_update_time){
@@ -107,6 +122,7 @@ export class TxController {
     }
 
     @Get("/blocks")
+    @UseInterceptors(ResponseInterceptor)
     async queryTxWithHeight(@Query() query: TxListWithHeightReqDto): Promise<Result<TxResDto>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithHeight(query);
         return new Result<any>(data);
@@ -130,6 +146,7 @@ export class TxController {
         return new Result<any>(data);
     }
     @Get("/nfts")
+    @UseInterceptors(ResponseInterceptor)
     async queryTxWithNft(@Query() query: TxListWithNftReqDto):Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithNft(query);
         return new Result<any>(data);
@@ -145,24 +162,28 @@ export class TxController {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithServiceName(query);
         return new Result<any>(data);
     }*/
+    @UseInterceptors(ResponseInterceptor)
     async queryServiceList(@Query() query: ServiceListReqDto):Promise<Result<ListStruct<ServiceResDto[]>>> {
         const data: ListStruct<ServiceResDto[]> = await this.txService.findServiceList(query);
         return new Result<ListStruct<ServiceResDto[]>>(data);
     }
 
     @Get("/services/call-service")
+    @UseInterceptors(ResponseInterceptor)
     async queryTxWithCallService(@Query() query: TxListWithCallServiceReqDto):Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithCallService(query);
         return new Result<any>(data);
     }
 
     @Get("/services/respond-service")
+    @UseInterceptors(ResponseInterceptor)
     async queryTxWithRespondService(@Query() query: TxListWithRespondServiceReqDto):Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithRespondService(query);
         return new Result<any>(data);
     }
 
     @Get("/services/detail/:serviceName")
+    @UseInterceptors(ResponseInterceptor)
     async queryTxDetailWithServiceName(@Param() query: ServicesDetailReqDto): Promise<Result<TxResDto>> {
         const data: TxResDto = await this.txService.queryTxDetailWithServiceName(query);
         return new Result<TxResDto>(data);
@@ -211,29 +232,34 @@ export class TxController {
     }
 
     @Get("/services/providers")
+    @UseInterceptors(ResponseInterceptor)
     async queryServiceProviders(@Query() query: ServiceProvidersReqDto): Promise<Result<ListStruct<ServiceProvidersResDto[]>>> {
         const data: ListStruct<ServiceProvidersResDto[]> = await this.txService.queryServiceProviders(query);
         return new Result<ListStruct<ServiceProvidersResDto[]>>(data);
     }
 
     @Get("/services/tx")
+    @UseInterceptors(ResponseInterceptor)
     async queryServiceTx(@Query() query: ServiceTxReqDto): Promise<Result<ListStruct<ServiceTxResDto[]>>> {
         const data: ListStruct<ServiceTxResDto[]> = await this.txService.queryServiceTx(query);
         return new Result<ListStruct<ServiceTxResDto[]>>(data);
     }
 
     @Get("/services/bind_info")
+    @UseInterceptors(ResponseInterceptor)
     async queryServiceBindInfo(@Query() query: ServiceBindInfoReqDto): Promise<Result<ServiceBindInfoResDto>> {
         const data: ServiceBindInfoResDto = await this.txService.queryServiceBindInfo(query);
         return new Result<ServiceBindInfoResDto>(data);
     }
 
     @Get("/services/respond")
+    @UseInterceptors(ResponseInterceptor)
     async queryServiceRespondTx(@Query() query: ServiceRespondReqDto): Promise<Result<ListStruct<ServiceRespondResDto[]>>> {
         const data: ListStruct<ServiceRespondResDto[]> = await this.txService.queryServiceRespondTx(query);
         return new Result<ListStruct<ServiceRespondResDto[]>>(data);
     }
     @Get("/identity")
+    @UseInterceptors(ResponseInterceptor)
     async queryIdentityTx(@Query() query: IdentityTxReqDto): Promise<Result<ListStruct<TxResDto[]>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryIdentityTx(query)
         return new Result<ListStruct<TxResDto[]>>(data);
@@ -247,9 +273,10 @@ export class TxController {
     }
 
     @Get(":hash")
+    @UseInterceptors(ResponseInterceptor)
     async queryTxWithHash(@Param() query: TxWithHashReqDto): Promise<Result<TxResDto>> {
         const data: TxResDto = await this.txService.queryTxWithHash(query);
-        return new Result<TxResDto>(data);
+        return new Result<any>(data);
     }
 
     @Get("/types/gov")
