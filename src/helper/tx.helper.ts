@@ -1,4 +1,5 @@
-import {BaseFee, Eip1559} from "../constant";
+import {AddressPrefix, BaseFee, Eip1559} from "../constant";
+import {cfg} from "../config/config";
 
 export function getReqContextIdWithReqId(requestId:string):string{
     if (requestId && requestId.length && requestId.length>=80) {
@@ -90,6 +91,33 @@ export function getConsumerFromMsgs(msgs:any[]):string{
     }
     return consumer;
 }
+
+export function containsCharacter(array, char) {
+    return array.some(str => str.includes(char));
+}
+
+export function getDomainAddress(data, contain, notContain) {
+    const addresses = [];
+    if (!data) {
+        return addresses;
+    } else if (typeof data === 'string') {
+        if (data.startsWith(cfg.addressPrefix.iaa) ||
+            (data.startsWith(AddressPrefix.EvmAddressPrefix) && data.length == 42)) {
+            addresses.push(data);
+        }
+    } else if (typeof data === 'object') {
+        for (const key in data) {
+            const value = data[key];
+            if ((contain.length > 0 && containsCharacter(contain, key)) ||
+                (contain.length <= 0 && notContain.length <= 0)) {
+                addresses.push(...getDomainAddress(value, contain, notContain));
+            }
+        }
+
+    }
+    return addresses;
+}
+
 
 export function getCtxKey(ctxId:string,type:string){
     return `${ctxId}-${type}`;

@@ -393,3 +393,7 @@ export enum TokenTag {
     FeeTokenTag      = 7,
     EvmFeeTokenTag   = 8,
 }
+
+export enum AddressPrefix {
+    EvmAddressPrefix = '0x',
+}

@@ -22,6 +22,8 @@ import {ContractOtherSchema} from "../schema/ContractOther.schema";
 import {TokensHttp} from "../http/lcd/tokens.http";
 import {TokensSchema} from "../schema/tokens.schema";
 import {Layer2Http} from "../http/lcd/layer2.http";
+import {ContractEnsTokenSchema} from "../schema/contract.ens.token.schema";
+import {ContractEnsReverseRegistrationSchema} from "../schema/contract.ens.reverse.registration.schema";
 @Module({
     imports:[
         MongooseModule.forFeature([{
@@ -100,9 +102,18 @@ import {Layer2Http} from "../http/lcd/layer2.http";
             name: 'Tokens',
             schema: TokensSchema,
             collection: 'ex_tokens'
+        },{
+            name: 'ContractEnsToken',
+            schema: ContractEnsTokenSchema,
+            collection: 'ex_contract_ens_token'
+        },{
+            name: 'ContractEnsReverseRegistration',
+            schema: ContractEnsReverseRegistrationSchema,
+            collection: 'ex_contract_ens_reverse_registration'
         }])
     ],
     providers:[TxService,GovHttp,TokensHttp,Layer2Http],
     controllers:[TxController],
+    exports:[TxService],
 })
 export class TxModule{}

@@ -42,9 +42,14 @@ import {
 } from '../dto/txs.dto';
 import {ExternalIBindTx, ExternalIServiceName, IBindTx, IServiceName} from '../types/tx.interface';
 import {ITxsQuery, ITxStruct, ITxsWithAddressQuery, ITxsWithNftQuery} from '../types/schemaTypes/tx.interface';
-import {getBaseFeeFromEvents, getReqContextIdFromEvents, getServiceNameFromMsgs} from '../helper/tx.helper';
+import {
+    getBaseFeeFromEvents, getDomainAddress,
+    getReqContextIdFromEvents,
+    getServiceNameFromMsgs,
+} from '../helper/tx.helper';
 import Cache from '../helper/cache';
 import {
+    AddressPrefix,
     ContractType, currentChain,
     DDCType,
     defaultEvmTxReceiptErrlog,
@@ -54,7 +59,7 @@ import {
     TxsListCountName,
     TxType,
 } from '../constant';
-import {addressTransform, getAddrBech32FromHex, hexToBech32, splitString} from '../util/util';
+import {addressTransform, getAddrHexFromBech32, splitString} from '../util/util';
 import {GovHttp} from '../http/lcd/gov.http';
 import {txListParamsHelper, TxWithAddressParamsHelper} from '../helper/params.helper';
 import {getConsensusPubkey} from "../helper/staking.helper";
@@ -63,6 +68,7 @@ import {ContractErc20Schema} from "../schema/ContractErc20.schema";
 import { Model } from 'mongoose';
 import BigNumber from "bignumber.js";
 import {Layer2Http} from "../http/lcd/layer2.http";
+import {Logger} from "../logger";
 
 @Injectable()
 export class TxService {
@@ -83,6 +89,8 @@ export class TxService {
         @InjectModel('ContractErc1155') private ContractErc1155Model: any,
         @InjectModel('ContractOther') private ContractOtherModel: any,
         @InjectModel('Tokens') private tokensModel: Model<any>,
+        @InjectModel('ContractEnsToken') private contractEnsTokenModel: any,
+        @InjectModel('ContractEnsReverseRegistration') private contractEnsReverseRegistrationModel: any,
         private readonly govHttp: GovHttp,
         private readonly layer2Http: Layer2Http
     ) {
@@ -1929,5 +1937,105 @@ export class TxService {
         return txList
     }
 
-}
 
+
+
+    public async formatDomainAddress(data, contain, notContain) {
+        const addresses = getDomainAddress(data, contain, notContain)
+
+        // Remove duplicates
+        const duplicateResult = [...new Set(addresses)];
+        const domainAddressMap = {};
+        const domainAddress = [];
+
+
+        for (const value of duplicateResult) {
+            if (value.startsWith(cfg.addressPrefix.iaa)) {
+                try {
+                    const toHex = getAddrHexFromBech32(value, AddressPrefix.EvmAddressPrefix);
+                    domainAddress.push(toHex.toLowerCase());
+                } catch (err) {
+                    Logger.warn(`getDomainAddress bech32ToHex error:`, err.message);
+                }
+            } else {
+                domainAddress.push(value.toLowerCase());
+            }
+        }
+
+
+        const registrations = await this.contractEnsReverseRegistrationModel.findInAddr(domainAddress)
+        if (registrations.length <= 0) {
+            for (const value of duplicateResult) {
+                domainAddressMap[value] = ""
+            }
+            return domainAddressMap;
+        }
+        const addrMap = this.getAddrMap(registrations);
+        const names = this.getNames(registrations);
+        const domainNames = [...new Set(names)];
+
+        const ensTokens = await this.contractEnsTokenModel.findInDomainName(domainNames);
+
+        if (ensTokens.length <= 0) {
+            for (const value of duplicateResult) {
+                domainAddressMap[value] = ""
+            }
+            return domainAddressMap;
+        }
+
+        const domainMap = this.getDomainMap(ensTokens);
+
+
+        for (const value of duplicateResult) {
+            let address = value;
+            if (value.startsWith(cfg.addressPrefix.iaa)) {
+                try {
+                    address = getAddrHexFromBech32(value, AddressPrefix.EvmAddressPrefix);
+                } catch (err) {
+                    Logger.warn(`getDomainAddress bech32ToHex error:`, err.message);
+                }
+            }
+
+            if (addrMap.hasOwnProperty(address)) {
+                const reverseRegistration = addrMap[address];
+                if (domainMap.hasOwnProperty(reverseRegistration.name)) {
+                    const ensToken = domainMap[reverseRegistration.name]
+                    if (ensToken && (ensToken.owner == address)) {
+                        domainAddressMap[value] = ensToken.domain_name;
+                    }else {
+                        domainAddressMap[value] = "";
+                    }
+                }
+            }else {
+                domainAddressMap[value] = "";
+            }
+        }
+        return domainAddressMap;
+    }
+
+
+    public getAddrMap(registrations) {
+        const addrMap = {};
+        for (const registration of registrations) {
+            addrMap[registration.lower_addr] = registration;
+        }
+        return addrMap;
+    }
+
+    public getDomainMap(ensTokens) {
+        const domainMap = {};
+        for (const token of ensTokens) {
+            domainMap[token.domain_name] = token;
+        }
+        return domainMap;
+    }
+
+    public getNames(registrations) {
+        const names = [];
+        for (const registration of registrations) {
+            names.push(registration.name);
+        }
+        return names;
+    }
+
+}

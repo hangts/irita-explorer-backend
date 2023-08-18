@@ -1,5 +1,6 @@
 import os from 'os'
 import BigNumber from 'bignumber.js'
+
 let Bech32 = require('bech32')
 let Sha256 = require("sha256")
 export function getIpAddress() {
@@ -42,6 +43,18 @@ export function hexToBech32(hexStr:string, prefix:string = "") {
         console.warn('address transform fialed',e)
     }
 }
+
+//iaa转以太坊地址
+export function getAddrHexFromBech32(hexStr:string, prefix:string = "0x") {
+    try {
+        const decodeAddress = Bech32.decode(hexStr);
+        const arr =  Buffer.from(Bech32.fromWords(decodeAddress.words));
+        return prefix + arr.toString('hex');
+    } catch (e) {
+        console.error('address transform fialed');
+    }
+}
+
 
 //以太坊地址转iaa
 export function getAddrBech32FromHex(hexStr:string, prefix:string = "iaa") {
