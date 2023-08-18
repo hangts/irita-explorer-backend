@@ -19,7 +19,7 @@ export const ContractEnsReverseRegistrationSchema = new mongoose.Schema({
 ContractEnsReverseRegistrationSchema.statics = {
 
     async findInAddr(addrs: string[]) {
-        return await this.find({'lower_addr': {'$in':addrs}})
+        return await this.find({'lower_addr': {'$in':addrs}}, {contract_addr:1, addr:1, lower_addr:1, resolver:1, name:1})
     },
 
 };

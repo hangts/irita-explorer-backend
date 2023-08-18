@@ -3,6 +3,7 @@ import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {TxService} from "../service/tx.service";
 import {cfg} from "../config/config";
+import {Logger} from "../logger";
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
@@ -15,7 +16,11 @@ export class ResponseInterceptor implements NestInterceptor {
         return next.handle().pipe(
             map(async data => {
                 if (cfg.wnsIsOpen === 'true') {
-                    data.data.domain_address = await this.txService.getDomainAddress(data, "", "");
+                    try {
+                        data.data.domain_address = await this.txService.formatDomainAddress(data, "", "");
+                    } catch (err) {
+                        Logger.warn(`ResponseInterceptor formatDomainAddress error:`, err.message);
+                    }
                 }
                 return data
             }),

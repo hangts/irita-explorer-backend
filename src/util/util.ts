@@ -49,13 +49,7 @@ export function getAddrHexFromBech32(hexStr:string, prefix:string = "0x") {
     try {
         const decodeAddress = Bech32.decode(hexStr);
         const arr =  Buffer.from(Bech32.fromWords(decodeAddress.words));
-        let result = '';
-        for (let i = 0; i < arr.length; i++) {
-            let str = arr[i].toString(16);
-            str = str.length === 0 ? '00' : str.length === 1 ? `0${str}` : str;
-            result += str;
-        }
-        return prefix + result;
+        return prefix + arr.toString('hex');
     } catch (e) {
         console.error('address transform fialed');
     }
