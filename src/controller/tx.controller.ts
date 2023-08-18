@@ -1,4 +1,4 @@
-import { PagingReqDto, DeepPagingReqDto } from './../dto/base.dto';
+import { DeepPagingReqDto } from './../dto/base.dto';
 import {
     Controller,
     Get,
@@ -7,16 +7,12 @@ import {
     Delete,
     Param,
     Query,
-    Res,
-    Req,
     Body,
-    HttpCode,
     UseInterceptors
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { TxService } from '../service/tx.service';
-import { Result } from '../api/ApiResult';
-import { ListStruct } from '../api/ApiResult';
+import {ListStruct, Result, DomainResult} from '../api/ApiResult';
 import {
     TxListReqDto,
     eTxListReqDto,
@@ -26,7 +22,6 @@ import {
     TxListWithContextIdReqDto,
     TxListWithNftReqDto,
     TxListWithDdcReqDto,
-    TxListWithServicesNameReqDto,
     ServicesDetailReqDto,
     TxListWithCallServiceReqDto,
     TxListWithRespondServiceReqDto,
@@ -184,9 +179,9 @@ export class TxController {
 
     @Get("/services/detail/:serviceName")
     @UseInterceptors(ResponseInterceptor)
-    async queryTxDetailWithServiceName(@Param() query: ServicesDetailReqDto): Promise<Result<TxResDto>> {
+    async queryTxDetailWithServiceName(@Param() query: ServicesDetailReqDto): Promise<Result<DomainResult<TxResDto>>> {
         const data: TxResDto = await this.txService.queryTxDetailWithServiceName(query);
-        return new Result<TxResDto>(data);
+        return new Result(new DomainResult(data));
     }
 
     @Get("/types")
@@ -247,9 +242,9 @@ export class TxController {
 
     @Get("/services/bind_info")
     @UseInterceptors(ResponseInterceptor)
-    async queryServiceBindInfo(@Query() query: ServiceBindInfoReqDto): Promise<Result<ServiceBindInfoResDto>> {
+    async queryServiceBindInfo(@Query() query: ServiceBindInfoReqDto): Promise<Result<DomainResult<ServiceBindInfoResDto>>> {
         const data: ServiceBindInfoResDto = await this.txService.queryServiceBindInfo(query);
-        return new Result<ServiceBindInfoResDto>(data);
+        return new Result(new DomainResult(data));
     }
 
     @Get("/services/respond")
@@ -274,9 +269,9 @@ export class TxController {
 
     @Get(":hash")
     @UseInterceptors(ResponseInterceptor)
-    async queryTxWithHash(@Param() query: TxWithHashReqDto): Promise<Result<TxResDto>> {
+    async queryTxWithHash(@Param() query: TxWithHashReqDto): Promise<Result<DomainResult<TxResDto>>> {
         const data: TxResDto = await this.txService.queryTxWithHash(query);
-        return new Result<any>(data);
+        return new Result(new DomainResult(data));
     }
 
     @Get("/types/gov")

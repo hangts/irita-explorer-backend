@@ -24,6 +24,13 @@ export class ListStruct<T> implements IListStructBase<T> {
     }
 }
 
+export class DomainResult<T> {
+    data: T;
+    constructor(data: T) {
+        this.data = data;
+    }
+}
+
 export class Result<T> implements IResultBase {
     public code: number = ErrorCodes.success;
     public data: T;

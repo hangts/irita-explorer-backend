@@ -1,6 +1,6 @@
 import { ApiTags } from '@nestjs/swagger';
 import {Controller, Get, Param, Query, UseInterceptors} from '@nestjs/common';
-import { ListStruct, Result } from '../api/ApiResult';
+import {DomainResult, ListStruct, Result} from '../api/ApiResult';
 import { IdentityService } from '../service/identity.service';
 import {
     IdentityByAddressReqDto,
@@ -41,8 +41,8 @@ export class IdentityController {
     }
     @Get(':id')
     @UseInterceptors(ResponseInterceptor)
-    async queryIdentityInfo(@Param() params:IdentityInfoReqDto): Promise<Result<IdentityInfoResDto>> {
+    async queryIdentityInfo(@Param() params:IdentityInfoReqDto): Promise<Result<DomainResult<any>>> {
         const identityData:IdentityInfoResDto = await this.identityService.queryIdentityInfoById(params)
-        return new Result<IdentityInfoResDto>(identityData)
+        return new Result(new DomainResult(identityData));
     }
 }
