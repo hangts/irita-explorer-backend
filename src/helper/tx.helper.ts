@@ -92,7 +92,9 @@ export function getConsumerFromMsgs(msgs:any[]):string{
     return consumer;
 }
 
-
+export function containsCharacter(array, char) {
+    return array.some(str => str.includes(char));
+}
 
 export function getDomainAddress(data, contain, notContain) {
     const addresses = [];
@@ -106,7 +108,7 @@ export function getDomainAddress(data, contain, notContain) {
     } else if (typeof data === 'object') {
         for (const key in data) {
             const value = data[key];
-            if ((contain.length > 0 && this.containsCharacter(contain, key)) ||
+            if ((contain.length > 0 && containsCharacter(contain, key)) ||
                 (contain.length <= 0 && notContain.length <= 0)) {
                 addresses.push(...getDomainAddress(value, contain, notContain));
             }

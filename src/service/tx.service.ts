@@ -2038,8 +2038,4 @@ export class TxService {
         return names;
     }
 
-    public containsCharacter(array, char) {
-        return array.some(str => str.includes(char));
-    }
-
 }

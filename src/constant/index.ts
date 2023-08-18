@@ -395,6 +395,5 @@ export enum TokenTag {
 }
 
 export enum AddressPrefix {
-    OrdinaryAddressPrefix = 'iaa',
     EvmAddressPrefix = '0x',
 }
