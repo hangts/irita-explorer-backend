@@ -124,6 +124,7 @@ export class TxController {
     }
 
     @Get("/addresses")
+    @UseInterceptors(ResponseInterceptor)
     async queryTxWithAddress(@Query() query: TxListWithAddressReqDto):Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithAddress(query);
         return new Result<any>(data);

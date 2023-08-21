@@ -6,6 +6,7 @@ export const ContractEnsTokenSchema = new mongoose.Schema({
     parent_node: String,
     domain_name: String,
     label: String,
+    owner_common_addr: String,
     owner: String,
     resolver: Number,
     ttl: Number,
@@ -21,7 +22,13 @@ export const ContractEnsTokenSchema = new mongoose.Schema({
 ContractEnsTokenSchema.statics = {
 
     async findInDomainName(names: string[]) {
-        return await this.find({'domain_name': {'$in':names}}, {contract_addr:1, token_id:1, domain_name:1,owner:1})
+        return await this.find({'domain_name': {'$in': names}}, {
+            contract_addr: 1,
+            token_id: 1,
+            domain_name: 1,
+            owner: 1,
+            owner_common_addr:1
+        })
     },
 
 };

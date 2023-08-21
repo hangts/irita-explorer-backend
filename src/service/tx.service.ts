@@ -1946,31 +1946,26 @@ export class TxService {
         // Remove duplicates
         const duplicateResult = [...new Set(addresses)];
         const domainAddressMap = {};
-        const domainAddress = [];
-
+        const evmAddress = [];
+        const commonAddress = [];
 
         for (const value of duplicateResult) {
             if (value.startsWith(cfg.addressPrefix.iaa)) {
-                try {
-                    const toHex = getAddrHexFromBech32(value, AddressPrefix.EvmAddressPrefix);
-                    domainAddress.push(toHex.toLowerCase());
-                } catch (err) {
-                    Logger.warn(`getDomainAddress bech32ToHex error:`, err.message);
-                }
+                commonAddress.push(value);
             } else {
-                domainAddress.push(value.toLowerCase());
+                evmAddress.push(value.toLowerCase());
             }
         }
 
 
-        const registrations = await this.contractEnsReverseRegistrationModel.findInAddr(domainAddress)
+        const registrations = await this.contractEnsReverseRegistrationModel.findInAddr(evmAddress, commonAddress)
         if (registrations.length <= 0) {
             for (const value of duplicateResult) {
                 domainAddressMap[value] = ""
             }
             return domainAddressMap;
         }
-        const addrMap = this.getAddrMap(registrations);
+        const [evmAddrMap, commonAddrMap] = this.getAddrMap(registrations);
         const names = this.getNames(registrations);
         const domainNames = [...new Set(names)];
 
@@ -1987,27 +1982,34 @@ export class TxService {
 
 
         for (const value of duplicateResult) {
-            let address = value;
             if (value.startsWith(cfg.addressPrefix.iaa)) {
-                try {
-                    address = getAddrHexFromBech32(value, AddressPrefix.EvmAddressPrefix);
-                } catch (err) {
-                    Logger.warn(`getDomainAddress bech32ToHex error:`, err.message);
-                }
-            }
-
-            if (addrMap.hasOwnProperty(address)) {
-                const reverseRegistration = addrMap[address];
-                if (domainMap.hasOwnProperty(reverseRegistration.name)) {
-                    const ensToken = domainMap[reverseRegistration.name]
-                    if (ensToken && (ensToken.owner == address)) {
-                        domainAddressMap[value] = ensToken.domain_name;
-                    }else {
-                        domainAddressMap[value] = "";
+                if (commonAddrMap.has(value)) {
+                    const reverseRegistration = commonAddrMap[value];
+                    if (domainMap.has(reverseRegistration.name)) {
+                        const ensToken = domainMap[reverseRegistration.name]
+                        if (ensToken && (ensToken.owner_common_addr == value)) {
+                            domainAddressMap[value] = ensToken.domain_name;
+                        }else {
+                            domainAddressMap[value] = "";
+                        }
                     }
+                }else {
+                    domainAddressMap[value] = "";
                 }
             }else {
-                domainAddressMap[value] = "";
+                if (evmAddrMap.has(value)) {
+                    const reverseRegistration = evmAddrMap[value];
+                    if (domainMap.has(reverseRegistration.name)) {
+                        const ensToken = domainMap[reverseRegistration.name]
+                        if (ensToken && (ensToken.owner == value)) {
+                            domainAddressMap[value] = ensToken.domain_name;
+                        }else {
+                            domainAddressMap[value] = "";
+                        }
+                    }
+                }else {
+                    domainAddressMap[value] = "";
+                }
             }
         }
         return domainAddressMap;
@@ -2015,15 +2017,17 @@ export class TxService {
 
 
     public getAddrMap(registrations) {
-        const addrMap = {};
+        const addrMap = new Map();
+        const commonAddrMap = new Map();
         for (const registration of registrations) {
             addrMap[registration.lower_addr] = registration;
+            commonAddrMap[registration.common_addr] = registration;
         }
-        return addrMap;
+        return [addrMap, commonAddrMap];
     }
 
     public getDomainMap(ensTokens) {
-        const domainMap = {};
+        const domainMap = new Map();
         for (const token of ensTokens) {
             domainMap[token.domain_name] = token;
         }
