@@ -14,7 +14,9 @@ export class HttpCacheInterceptor extends CacheInterceptor {
       '/txs/ddc',
       '/txs/asset',
       '/txs/addresses',
-      '/e'
+      '/e',
+      '/txs',
+      '/identities'
       // Routes to be excluded
     ];
 

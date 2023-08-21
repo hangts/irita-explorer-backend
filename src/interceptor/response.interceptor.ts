@@ -17,7 +17,9 @@ export class ResponseInterceptor implements NestInterceptor {
             map(async data => {
                 if (cfg.wnsIsOpen === 'true') {
                     try {
-                        data.data.domain_address = await this.txService.formatDomainAddress(data, "", "");
+                        if (data && data.data) {
+                            data.data.domain_address = await this.txService.formatDomainAddress(data, "", "");
+                        }
                     } catch (err) {
                         Logger.warn(`ResponseInterceptor formatDomainAddress error:`, err.message);
                     }
