@@ -1,7 +1,9 @@
 import * as mongoose from 'mongoose'
+import {queryDomainHelper} from "../helper/params.helper";
 
 export const ContractEnsReverseRegistrationSchema = new mongoose.Schema({
     contract_addr: String,
+    common_addr: String,
     addr: String,
     lower_addr: String,
     owner: String,
@@ -18,8 +20,17 @@ export const ContractEnsReverseRegistrationSchema = new mongoose.Schema({
 
 ContractEnsReverseRegistrationSchema.statics = {
 
-    async findInAddr(addrs: string[]) {
-        return await this.find({'lower_addr': {'$in':addrs}}, {contract_addr:1, addr:1, lower_addr:1, resolver:1, name:1})
+    async findInAddr(addrs: string[], commonAddrs: string[]) {
+        const query = queryDomainHelper(addrs, commonAddrs)
+
+        return await this.find(query, {
+            contract_addr: 1,
+            common_addr: 1,
+            addr: 1,
+            lower_addr: 1,
+            resolver: 1,
+            name: 1
+        })
     },
 
 };

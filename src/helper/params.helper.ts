@@ -540,8 +540,26 @@ export function queryProposalsCountHelper(query: IGovProposalQuery){
 }
 
 
+export function queryDomainHelper(addrs, commonAddrs) {
+    let queryParameters: any = {};
 
+    if (addrs && addrs.length > 0 && commonAddrs && commonAddrs.length > 0) {
+        queryParameters = {
+            $or: [
+                { lower_addr: { $in: addrs }},
+                { common_addr: { $in: commonAddrs}}
+            ]
+        }
+        return queryParameters;
+    }
 
+    if (addrs && addrs.length > 0) {
+        queryParameters['lower_addr'] = { $in: addrs }
+        return queryParameters
+    }
 
-
-
+    if (commonAddrs && commonAddrs.length > 0) {
+        queryParameters['common_addr'] = { $in: commonAddrs }
+        return queryParameters
+    }
+}
