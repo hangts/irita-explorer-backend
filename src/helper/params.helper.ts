@@ -559,7 +559,7 @@ export function queryDomainHelper(addrs, commonAddrs) {
     }
 
     if (commonAddrs && commonAddrs.length > 0) {
-        queryParameters['common_addr'] = { $in: addrs }
+        queryParameters['common_addr'] = { $in: commonAddrs }
         return queryParameters
     }
 }
