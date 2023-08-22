@@ -1984,9 +1984,9 @@ export class TxService {
         for (const value of duplicateResult) {
             if (value.startsWith(cfg.addressPrefix.iaa)) {
                 if (commonAddrMap.has(value)) {
-                    const reverseRegistration = commonAddrMap[value];
+                    const reverseRegistration = commonAddrMap.get(value);
                     if (domainMap.has(reverseRegistration.name)) {
-                        const ensToken = domainMap[reverseRegistration.name]
+                        const ensToken = domainMap.get(reverseRegistration.name);
                         if (ensToken && (ensToken.owner_common_addr == value)) {
                             domainAddressMap[value] = ensToken.domain_name;
                         }else {
@@ -1998,9 +1998,9 @@ export class TxService {
                 }
             }else {
                 if (evmAddrMap.has(value)) {
-                    const reverseRegistration = evmAddrMap[value];
+                    const reverseRegistration = evmAddrMap.get(value);
                     if (domainMap.has(reverseRegistration.name)) {
-                        const ensToken = domainMap[reverseRegistration.name]
+                        const ensToken = domainMap.get(reverseRegistration.name);
                         if (ensToken && (ensToken.owner == value)) {
                             domainAddressMap[value] = ensToken.domain_name;
                         }else {
@@ -2020,8 +2020,8 @@ export class TxService {
         const addrMap = new Map();
         const commonAddrMap = new Map();
         for (const registration of registrations) {
-            addrMap[registration.lower_addr] = registration;
-            commonAddrMap[registration.common_addr] = registration;
+            addrMap.set(registration.lower_addr, registration);
+            commonAddrMap.set(registration.common_addr, registration);
         }
         return [addrMap, commonAddrMap];
     }
@@ -2029,7 +2029,7 @@ export class TxService {
     public getDomainMap(ensTokens) {
         const domainMap = new Map();
         for (const token of ensTokens) {
-            domainMap[token.domain_name] = token;
+            domainMap.set(token.domain_name, token);
         }
         return domainMap;
     }
