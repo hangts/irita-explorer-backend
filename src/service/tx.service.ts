@@ -1997,11 +1997,11 @@ export class TxService {
                     domainAddressMap[value] = "";
                 }
             }else {
-                if (evmAddrMap.has(value)) {
-                    const reverseRegistration = evmAddrMap.get(value);
+                if (evmAddrMap.has(value.toLowerCase())) {
+                    const reverseRegistration = evmAddrMap.get(value.toLowerCase());
                     if (domainMap.has(reverseRegistration.name)) {
                         const ensToken = domainMap.get(reverseRegistration.name);
-                        if (ensToken && (ensToken.owner == value)) {
+                        if (ensToken && (ensToken.owner == value.toLowerCase())) {
                             domainAddressMap[value] = ensToken.domain_name;
                         }else {
                             domainAddressMap[value] = "";
