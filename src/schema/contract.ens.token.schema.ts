@@ -27,7 +27,8 @@ ContractEnsTokenSchema.statics = {
             token_id: 1,
             domain_name: 1,
             owner: 1,
-            owner_common_addr:1
+            owner_common_addr: 1,
+            expiry: 1,
         })
     },
 

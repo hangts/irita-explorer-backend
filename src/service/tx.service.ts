@@ -59,7 +59,7 @@ import {
     TxsListCountName,
     TxType,
 } from '../constant';
-import {addressTransform, getAddrHexFromBech32, splitString} from '../util/util';
+import {addressTransform, getAddrHexFromBech32, getTimestamp, splitString} from '../util/util';
 import {GovHttp} from '../http/lcd/gov.http';
 import {txListParamsHelper, TxWithAddressParamsHelper} from '../helper/params.helper';
 import {getConsensusPubkey} from "../helper/staking.helper";
@@ -1982,12 +1982,13 @@ export class TxService {
 
 
         for (const value of duplicateResult) {
+           const time = getTimestamp()
             if (value.startsWith(cfg.addressPrefix.iaa)) {
                 if (commonAddrMap.has(value)) {
                     const reverseRegistration = commonAddrMap.get(value);
                     if (domainMap.has(reverseRegistration.name)) {
                         const ensToken = domainMap.get(reverseRegistration.name);
-                        if (ensToken && (ensToken.owner_common_addr == value)) {
+                        if (ensToken && (ensToken.owner_common_addr == value) && ensToken.expiry >= time) {
                             domainAddressMap[value] = ensToken.domain_name;
                         }else {
                             domainAddressMap[value] = "";
@@ -2001,7 +2002,7 @@ export class TxService {
                     const reverseRegistration = evmAddrMap.get(value.toLowerCase());
                     if (domainMap.has(reverseRegistration.name)) {
                         const ensToken = domainMap.get(reverseRegistration.name);
-                        if (ensToken && (ensToken.owner == value.toLowerCase())) {
+                        if (ensToken && (ensToken.owner == value.toLowerCase()) && ensToken.expiry >= time) {
                             domainAddressMap[value] = ensToken.domain_name;
                         }else {
                             domainAddressMap[value] = "";
