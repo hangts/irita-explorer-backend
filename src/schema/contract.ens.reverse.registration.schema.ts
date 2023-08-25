@@ -20,8 +20,8 @@ export const ContractEnsReverseRegistrationSchema = new mongoose.Schema({
 
 ContractEnsReverseRegistrationSchema.statics = {
 
-    async findInAddr(addrs: string[], commonAddrs: string[]) {
-        const query = queryDomainHelper(addrs, commonAddrs)
+    async findInAddr(addrs: string[], commonAddrs: string[], resolver: string) {
+        const query = queryDomainHelper(addrs, commonAddrs, resolver)
 
         return await this.find(query, {
             contract_addr: 1,

@@ -540,8 +540,10 @@ export function queryProposalsCountHelper(query: IGovProposalQuery){
 }
 
 
-export function queryDomainHelper(addrs, commonAddrs) {
+export function queryDomainHelper(addrs, commonAddrs, resolver) {
     let queryParameters: any = {};
+
+    queryParameters['resolver'] = resolver
 
     if (addrs && addrs.length > 0 && commonAddrs && commonAddrs.length > 0) {
         queryParameters = {

@@ -1958,7 +1958,7 @@ export class TxService {
         }
 
 
-        const registrations = await this.contractEnsReverseRegistrationModel.findInAddr(evmAddress, commonAddress)
+        const registrations = await this.contractEnsReverseRegistrationModel.findInAddr(evmAddress, commonAddress, cfg.wns.publicResolverAddress.toLowerCase())
         if (registrations.length <= 0) {
             for (const value of duplicateResult) {
                 domainAddressMap[value] = ""
