@@ -15,7 +15,7 @@ export class ResponseInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         return next.handle().pipe(
             map(async data => {
-                if (cfg.wnsIsOpen === 'true') {
+                if (cfg.wns.wnsIsOpen === 'true') {
                     try {
                         if (data && data.data) {
                             data.data.domain_address = await this.txService.formatDomainAddress(data, "", "");
