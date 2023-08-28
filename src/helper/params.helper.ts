@@ -546,12 +546,10 @@ export function queryDomainHelper(addrs, commonAddrs, resolver) {
     queryParameters['resolver'] = resolver
 
     if (addrs && addrs.length > 0 && commonAddrs && commonAddrs.length > 0) {
-        queryParameters = {
-            $or: [
-                { lower_addr: { $in: addrs }},
-                { common_addr: { $in: commonAddrs}}
-            ]
-        }
+        queryParameters['$or'] = [
+            { lower_addr: { $in: addrs }},
+            { common_addr: { $in: commonAddrs}}
+        ]
         return queryParameters;
     }
 
