@@ -65,6 +65,7 @@ export interface ITxStruct {
     coins:object[],
     signer:string,
     events:object[],
+    events_new:object[],
     msgs:object[],
     signers: string[],
     addrs: string[],

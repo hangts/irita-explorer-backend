@@ -4,11 +4,11 @@ import { Logger } from '../logger'
 import {
     getReqContextIdWithReqId,
     getReqContextIdFromEvents,
-    getServiceNameFromMsgs, 
+    getServiceNameFromMsgs,
     getConsumerFromMsgs,
     getRequestIdFromMsgs,
     getReqContextIdFromMsgs,
-    getCtxKey
+    getCtxKey, getReqContextIdFromEventsNew
 } from '../helper/tx.helper';
 import { IExFieldQuery, ITxStruct } from '../types/schemaTypes/tx.interface';
 import { IExFieldTx } from '../types/tx.interface';
@@ -78,7 +78,7 @@ export class TxTaskService {
         callServiceTxs.forEach((item:ITxStruct)=>{
             let serviceName = getServiceNameFromMsgs(item.msgs);
             const consumer: string = getConsumerFromMsgs(item.msgs);
-            let reqContextId = getReqContextIdFromEvents(item.events);
+            let reqContextId = getReqContextIdFromEventsNew(item.events_new);
             let callTypes = [
                 getCtxKey(reqContextId, TxType.respond_service),
                 getCtxKey(reqContextId, TxType.pause_request_context),
@@ -89,12 +89,14 @@ export class TxTaskService {
             callTypes.forEach((key)=>{
                 let resTx:any = callServiceTxMap[key];
                 if (key == getCtxKey(reqContextId, TxType.respond_service)) {//respond_service 数据结构为Array
-                    resTx.forEach((respond_service_item:IExFieldTx)=>{
-                        respond_service_item.ex_service_name = serviceName;
-                        respond_service_item.ex_call_hash = item.tx_hash
-                        respond_service_item.ex_consumer = consumer;
-                        respond_service_item.ex_request_context_id = reqContextId;
-                    })
+                    if (resTx) {
+                        resTx.forEach((respond_service_item:IExFieldTx)=>{
+                            respond_service_item.ex_service_name = serviceName;
+                            respond_service_item.ex_call_hash = item.tx_hash
+                            respond_service_item.ex_consumer = consumer;
+                            respond_service_item.ex_request_context_id = reqContextId;
+                        })
+                    }
                 }else{
                     if (resTx) {
                         resTx.ex_service_name = serviceName;
@@ -103,7 +105,7 @@ export class TxTaskService {
             });
         });
         //更新到数据库
-        respondServiceTxData.forEach(async (item:IExFieldTx)=>{
+        for (const item of respondServiceTxData) {
             let exFieldQuery:IExFieldQuery = {hash:item.tx_hash};
             if (item.type == TxType.bind_service && item.status == TxStatus.SUCCESS) {
                 const res: ITxStruct = await this.txModel.queryDefineServiceTxHashByServiceName(getServiceNameFromMsgs(item.msgs), TxStatus.SUCCESS);
@@ -112,7 +114,7 @@ export class TxTaskService {
                         hash: res.tx_hash,
                         bind: 1,
                     };
-                    this.txModel.addExFieldForServiceTx(subExFieldQuery); 
+                    this.txModel.addExFieldForServiceTx(subExFieldQuery);
                 }
             }
             exFieldQuery.serviceName = item.ex_service_name;
@@ -120,7 +122,7 @@ export class TxTaskService {
             exFieldQuery.consumer = item.ex_consumer;
             exFieldQuery.callHash = item.ex_call_hash;
             this.txModel.addExFieldForServiceTx(exFieldQuery);
-        });
+        }
         this.cronTaskWorkingStatusMetric.collect(TaskEnum.txServiceName,1)
     }
 
