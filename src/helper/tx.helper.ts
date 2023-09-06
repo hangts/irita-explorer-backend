@@ -25,6 +25,27 @@ export function getReqContextIdFromEvents(events:any[]):string{
     return reqContextId;
 }
 
+export function getReqContextIdFromEventsNew(eventsNew:any[]):string{
+    let reqContextId:string = '';
+    if (eventsNew && eventsNew.length) {
+        eventsNew.forEach((eventItem => {
+            if (eventItem.events && eventItem.events.length) {
+                eventItem.events.forEach((event) => {
+                    if (event.attributes && event.attributes.length) {
+                        event.attributes.forEach((attribute) => {
+                            if (attribute.key == 'request_context_id') {
+                                reqContextId = attribute.value || '';
+                            }
+                        })
+                    }
+                })
+            }
+        }))
+    }
+    return reqContextId;
+}
+
+
 export function getBaseFeeFromEvents(events:any[]):string{
     let baseFee:string = '';
     if (events && events.length) {
