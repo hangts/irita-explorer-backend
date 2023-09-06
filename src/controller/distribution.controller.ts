@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Param } from '@nestjs/common';
+import {Controller, Get, Query, Param, UseInterceptors} from '@nestjs/common';
 import { DistributionService } from "../service/distribution.service"
 import { 
   WithdrawAddressReqDto,
@@ -8,9 +8,10 @@ import {
   WithdrawAddressResDto,
   DelegatorRewardsResDto,
   ValCommissionRewResDto } from "../dto/distribution.dto"
-import { Result } from "../api/ApiResult"
+import {DomainResult, Result} from "../api/ApiResult"
 import { ListStruct } from "../api/ApiResult"
 import { ApiTags } from '@nestjs/swagger';
+import {ResponseInterceptor} from "../interceptor/response.interceptor";
 
 @ApiTags('Distribution')
 @Controller('distribution')
@@ -18,9 +19,11 @@ export class DistributionController {
     constructor(private readonly distributionService: DistributionService) {}
 
     @Get("delegators/:delegatorAddr/withdraw_address")
-    async queryDelegatorWithdrawAddress(@Param() query: WithdrawAddressReqDto): Promise<Result<WithdrawAddressResDto>> {
+    @UseInterceptors(ResponseInterceptor)
+    async queryDelegatorWithdrawAddress(@Param() query: WithdrawAddressReqDto): Promise<Result<DomainResult<any>>> {
         const data: WithdrawAddressResDto = await this.distributionService.queryWithdrawAddress(query);
-        return new Result<WithdrawAddressResDto>(data);
+        return new Result(new DomainResult(data));
+
     }
 
     @Get("delegators/:delegatorAddr/rewards")

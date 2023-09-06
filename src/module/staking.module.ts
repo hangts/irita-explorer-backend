@@ -11,6 +11,7 @@ import {DistributionHttp} from "../http/lcd/distribution.http";
 import {TokensSchema} from "../schema/tokens.schema";
 import {ProposalSchema} from '../schema/proposal.schema';
 import {ProposalVoterSchema} from "../schema/proposal.voter.schema";
+import {TxModule} from "./tx.module";
 
 @Module({
     imports: [
@@ -50,7 +51,8 @@ import {ProposalVoterSchema} from "../schema/proposal.voter.schema";
                 schema: ProposalVoterSchema,
                 collection: 'ex_proposal_voter'
             }
-        ])
+        ]),
+        TxModule
     ],
     providers: [StakingService, StakingHttp, DistributionHttp],
     controllers: [StakingController],

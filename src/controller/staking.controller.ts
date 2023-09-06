@@ -1,6 +1,6 @@
-import {Controller, Query, Get, Param, Post, Body} from '@nestjs/common';
+import {Controller, Query, Get, Param, Post, Body, UseInterceptors} from '@nestjs/common';
 import {ApiTags} from '@nestjs/swagger';
-import {ListStruct, Result} from "../api/ApiResult";
+import {DomainResult, ListStruct, Result} from "../api/ApiResult";
 import StakingService from "../service/staking.service";
 import {
     // ValCommissionRewReqDto,
@@ -28,6 +28,7 @@ import {
     ValidatorDepositsResDto,
     PostBlacksReqDto
 } from "../dto/staking.dto";
+import {ResponseInterceptor} from "../interceptor/response.interceptor";
 
 @ApiTags('Staking')
 @Controller('staking')
@@ -42,6 +43,7 @@ export class StakingController {
     }
 
     @Get('/validators/:address/delegations')
+    @UseInterceptors(ResponseInterceptor)
     async getValidatorDelegations(@Param()p: ValidatorDelegationsReqDto,@Query()q: ValidatorDelegationsQueryReqDto): Promise<Result<ListStruct<ValidatorDelegationsResDto>>> {
         const validatorDelegations = await this.stakingService.getValidatorDelegationList(p,q)
         return new Result<ListStruct<ValidatorDelegationsResDto>>(validatorDelegations)
@@ -60,9 +62,10 @@ export class StakingController {
     }
 
     @Get('/validators/:address')
-    async getValidatorDetail(@Param()q: ValidatorDetailAddrReqDto): Promise<Result<ValidatorDetailResDto>> {
+    @UseInterceptors(ResponseInterceptor)
+    async getValidatorDetail(@Param()q: ValidatorDetailAddrReqDto): Promise<Result<DomainResult<any>>> {
         const queryValidatorDetail = await this.stakingService.getValidatorDetail(q)
-        return new Result<ValidatorDetailResDto>(queryValidatorDetail)
+        return new Result(new DomainResult(queryValidatorDetail));
     }
 
     @Get('/account/:address')
@@ -78,6 +81,7 @@ export class StakingController {
     }
 
     @Get('/delegators/:delegatorAddr/unbonding_delegations')
+    @UseInterceptors(ResponseInterceptor)
     async getDelegatorsUndelegations(@Param()p: DelegatorsUndelegationsParamReqDto,@Query()q: DelegatorsUndelegationsReqDto): Promise<Result<ListStruct<DelegatorsUndelegationsResDto>>> {
         const delegatorsUndelegations = await this.stakingService.getDelegatorsUndelegations(p,q)
         return new Result<ListStruct<DelegatorsUndelegationsResDto>>(delegatorsUndelegations)
@@ -90,6 +94,7 @@ export class StakingController {
     }
 
     @Get('/validators/:address/deposit')
+    @UseInterceptors(ResponseInterceptor)
     async getValidatorDeposits(@Param()p: ValidatorDelegationsReqDto,@Query()q: ValidatorDelegationsQueryReqDto): Promise<Result<ListStruct<ValidatorDepositsResDto>>> {
         const validatorDeposits = await this.stakingService.getValidatorDepositsList(p,q)
         return new Result<ListStruct<ValidatorDepositsResDto>>(validatorDeposits)

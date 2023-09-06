@@ -68,6 +68,7 @@ export class TxController {
     }
 
     @Get('/staking')
+    @UseInterceptors(ResponseInterceptor)
     async queryStakingTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryStakingTxList(query);
         return new Result<any>(data);
@@ -80,12 +81,14 @@ export class TxController {
     }
 
     @Get('/declaration')
+    @UseInterceptors(ResponseInterceptor)
     async queryDeclarationTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryDeclarationTxList(query);
         return new Result<any>(data);
     }
 
     @Get('/gov')
+    @UseInterceptors(ResponseInterceptor)
     async queryGovTxList(@Query() query: TxListReqDto): Promise<Result<ListStruct<TxResDto>>> {
         const data: ListStruct<TxResDto[]> = await this.txService.queryGovTxList(query);
         return new Result<any>(data);
