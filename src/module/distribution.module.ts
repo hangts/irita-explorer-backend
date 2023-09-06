@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { StakingValidatorSchema } from '../schema/staking.validator.schema';
 import { DistributionService } from "../service/distribution.service";
 import { DistributionController }  from "../controller/distribution.controller"
+import {TxModule} from "./tx.module";
 
 @Module({
     imports:[
@@ -12,7 +13,8 @@ import { DistributionController }  from "../controller/distribution.controller"
                 schema:StakingValidatorSchema,
                 collection:'ex_staking_validator'
             }
-        ])
+        ]),
+        TxModule
     ],
     providers: [  DistributionService ],
     controllers: [ DistributionController ]
