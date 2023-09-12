@@ -184,17 +184,24 @@ export class TxService {
                 if (msg.type === TxType.withdraw_delegator_reward) {
                     (tx.events_new || []).forEach((eventNew) => {
                         if (eventNew.msg_index === index) {
-                            let amount;
+                            let amount,recipient;
                             (eventNew.events || []).forEach((item) => {
                                 if(item.type === 'withdraw_rewards') {
                                     (item.attributes || []).forEach((attr) => {
                                         if (attr.key == 'amount') {
                                             amount = attr.value || '--';
                                         }
+                                        msg.msg['amount'] = amount;
+                                    });
+                                }else if (item.type === 'transfer') {
+                                    (item.attributes || []).forEach((attr) => {
+                                        if (attr.key == 'recipient') {
+                                            recipient = attr.value || '--';
+                                        }
+                                        msg.msg['withdraw_address'] = recipient;
                                     });
                                 }
                             });
-                            msg.msg['amount'] = amount;
                         }
                     })
                 }
