@@ -51,7 +51,7 @@ export class BlockService {
         res = blocks.map(block => {
             block = JSON.parse(JSON.stringify(block));
             const proposer = validatorsMap.get(block.proposer);
-            let proposer_addr, proposer_moniker, gas_used;
+            let proposer_addr, proposer_name, proposer_moniker, gas_used;
             if (cfg.blockCfg.supportBlockProposer == 'true' && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
                 if (proposer) {
                     proposer_moniker = proposer.is_black ?  proposer.moniker_m : (proposer.description || {}).moniker || '';
@@ -59,6 +59,7 @@ export class BlockService {
                 }
             }else if (cfg.blockCfg.supportBlockProposer == 'true' && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) !== -1) {
                 proposer_addr = proposer.proposer_addr
+                proposer_name = proposer.name
             }
 
             if (cfg.blockCfg.supportBlockGasUsed == 'true') {
@@ -71,6 +72,7 @@ export class BlockService {
                 txn: block.txn,
                 time: block.time,
                 proposer_addr,
+                proposer_name,
                 proposer_moniker,
                 gas_used,
             }
@@ -162,9 +164,16 @@ export class BlockService {
         const res: IBlockStruct | null = await (this.blockModel as any).findOneByHeight(height);
         if (res) {
             data = new BlockResDto(res.height, res.hash, res.txn, res.time);
-            if (cfg.blockCfg.supportBlockProposer == 'true') {
+            if (cfg.blockCfg.supportBlockProposer == 'true' && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) !== -1) {
+                const validators = await this.syncValidatorsModel.findAllValidators();
+                const validatorsMap = new Map();
+                validators.forEach(validator => {
+                    validatorsMap.set(validator.proposer_addr,validator)
+                });
+                data.proposer_name = validatorsMap.get(res.proposer)?.name || ''
                 data.proposer_addr = res.proposer
             }
+
             if (cfg.blockCfg.supportBlockGasUsed == 'true') {
                 data.gas_used = res.gas_used
             }
