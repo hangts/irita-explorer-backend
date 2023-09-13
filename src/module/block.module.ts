@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {BlockSchema} from '../schema/block.schema';
 import { StakingValidatorSchema } from '../schema/staking.validator.schema';
 import {HttpModule} from '@nestjs/common';
+import {ValidatorSchema} from "../schema/validators.schema";
 
 @Module({
     imports:[
@@ -16,6 +17,10 @@ import {HttpModule} from '@nestjs/common';
             name:'StakingValidator',
             schema:StakingValidatorSchema,
             collection:'ex_staking_validator'
+        },{
+            name: 'SyncValidators',
+            schema:ValidatorSchema,
+            collection:'ex_sync_validator'
         }]),
         HttpModule,
 

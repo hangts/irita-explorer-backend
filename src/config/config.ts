@@ -50,6 +50,8 @@ const {
     BONDED,
     WNS_IS_OPEN,
     PUBLIC_RESOLVER_ADDRESS,
+    SUPPORT_BLOCK_PROPOSER,
+    SUPPORT_BLOCK_GAS_USED,
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -79,6 +81,10 @@ export const cfg = {
         validatorsApiClose: VALIDATORS_API_CLOSE || 'false',
         disableServiceRespondTime: Boolean(DISABLE_SERVICE_RESPOND_TIME=='true'),
     },
+    blockCfg: {
+        supportBlockProposer: SUPPORT_BLOCK_PROPOSER || 'false',
+        supportBlockGasUsed: SUPPORT_BLOCK_GAS_USED || 'false'
+    },
     taskCfg:{
         interval:{
             heartbeatRate:Number(HEARTBEAT_RATE || 10000),
@@ -89,7 +95,7 @@ export const cfg = {
             txServiceName:TX_SERVICE_NAME_EXECUTE_TIME || '30 * * * * *',
             faultTolerance:FAULT_TOLERANCE_EXECUTE_TIME || '41 * * * * *',
             validators:VALIDATORS_EXECTUTE_TIME || '1 * * * * *',
-            identity: IDENTITY_EXECUTE_TIME || '1 * * * * *',
+            identity: IDENTITY_EXECUTE_TIME || '30 * * * * *',
             stakingValidatorsInfo: STAKING_VALIDATORS_INFO_TIME || '15 * * * * *',
             stakingValidatorsMoreInfo: STAKING_VALIDATORS_MORE_INFO_TIME || '0 */5 * * * *',
             stakingParameters: STAKING_PARAMETERS || '10 * * * * *',

@@ -13,6 +13,7 @@ export interface IBlockStruct {
     precommit_validator_num?: number;
     proposer_moniker?: string;
     proposer_addr?: string;
+    gas_used?: string;
 }
 
 export interface IBlock extends IBlockStruct, Document {

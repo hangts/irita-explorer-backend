@@ -8,7 +8,8 @@ export const ValidatorSchema = new mongoose.Schema({
     jailed: Boolean,
     operator: String,
     details:String,
-    hash:String
+    hash:String,
+    proposer_addr: String
 })
 //ValidatorSchema.index({name: 1},{unique: true})
 //ValidatorSchema.index({jailed: 1})

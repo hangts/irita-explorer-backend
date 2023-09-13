@@ -6,6 +6,8 @@ export const BlockSchema = new mongoose.Schema({
     hash: String,
     txn: Number,
     time: Number,
+    proposer: String,
+    gas_used: String,
 }, { versionKey: false });
 
 BlockSchema.statics = {

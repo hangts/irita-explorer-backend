@@ -1,14 +1,13 @@
-import { Injectable ,Logger } from '@nestjs/common';
-import { ValidatorsHttp } from "../http/lcd/validators.http"
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { ValidatorSchema } from '../schema/validators.schema';
-import { IValidatorsStruct } from "../types/schemaTypes/validators.interface"
+import {Injectable} from '@nestjs/common';
+import {ValidatorsHttp} from "../http/lcd/validators.http"
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from 'mongoose';
+import {IValidatorsStruct} from "../types/schemaTypes/validators.interface"
 import md5 from "blueimp-md5"
-import { getTimestamp } from '../util/util';
+import {getAddress, getTimestamp} from '../util/util';
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 import {TaskEnum} from "../constant";
-import {cfg} from "../config/config"
+
 @Injectable()
 export class ValidatorsTaskService {
  constructor(
@@ -100,6 +99,7 @@ export class ValidatorsTaskService {
                     if(dbValidatorHash && dbValidatorHash.hash !== lcdValidatorHash){
                         let dbValidator:IValidatorsStruct =  lcdValidatorMap.get(key)
                         dbValidator.hash = lcdValidatorHash
+                        dbValidator.proposer_addr = getAddress(dbValidator.pubkey).toLocaleUpperCase()
                         validatorsNeedUpdateMap.set(key,dbValidator)
                     }
                 }
@@ -129,8 +129,9 @@ export class ValidatorsTaskService {
     private async saveValidators(shouldInsertMap: Map<string, IValidatorsStruct>) :Promise<any>{
         let insertValidatorList = Array.from(shouldInsertMap.values()).map((validator) => {
             const {operator, power, jailed, name ,pubkey, details} = validator;
-            const str: string = `${operator}${power}${jailed}${details||''}`,
-            hash = md5(str);
+            const str: string = `${operator}${power}${jailed}${details||''}`
+            const proposer_addr = getAddress(pubkey).toLocaleUpperCase()
+            let hash = md5(str);
             return {
                 operator:operator,
                 name: name,
@@ -141,6 +142,7 @@ export class ValidatorsTaskService {
                 create_time: getTimestamp(),
                 update_time: getTimestamp(),
                 hash,
+                proposer_addr,
             };
         });
         await (this.ValidatorsModel as any).saveValidator(insertValidatorList);
