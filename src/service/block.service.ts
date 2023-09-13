@@ -37,9 +37,9 @@ export class BlockService {
         const blocks: IBlockStruct[] = await (this.blockModel as any).findListByRange(start, end);
 
         let validators = []
-        if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
+        if (cfg.blockCfg.supportBlockProposer && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
             validators = await this.stakingValidatorModel.queryAllValidators();
-        }else if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) !== -1){
+        }else if (cfg.blockCfg.supportBlockProposer && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) !== -1){
             validators = await this.syncValidatorsModel.findAllValidators();
         }
         //const allValidators = await this.stakingValidatorModel.queryAllValidators();
@@ -52,16 +52,16 @@ export class BlockService {
             block = JSON.parse(JSON.stringify(block));
             const proposer = validatorsMap.get(block.proposer);
             let proposer_addr, proposer_moniker, gas_used;
-            if (cfg.blockCfg.proposer == 'true' && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
+            if (cfg.blockCfg.supportBlockProposer == 'true' && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
                 if (proposer) {
                     proposer_moniker = proposer.is_black ?  proposer.moniker_m : (proposer.description || {}).moniker || '';
                     proposer_addr = proposer.operator_address || '';
                 }
-            }else if (cfg.blockCfg.proposer == 'true' && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) !== -1) {
+            }else if (cfg.blockCfg.supportBlockProposer == 'true' && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) !== -1) {
                 proposer_addr = proposer.proposer_addr
             }
 
-            if (cfg.blockCfg.blockGasUsed == 'true') {
+            if (cfg.blockCfg.supportBlockGasUsed == 'true') {
                 gas_used = block.gas_used
             }
 
@@ -162,10 +162,10 @@ export class BlockService {
         const res: IBlockStruct | null = await (this.blockModel as any).findOneByHeight(height);
         if (res) {
             data = new BlockResDto(res.height, res.hash, res.txn, res.time);
-            if (cfg.blockCfg.proposer == 'true') {
+            if (cfg.blockCfg.supportBlockProposer == 'true') {
                 data.proposer_addr = res.proposer
             }
-            if (cfg.blockCfg.blockGasUsed == 'true') {
+            if (cfg.blockCfg.supportBlockGasUsed == 'true') {
                 data.gas_used = res.gas_used
             }
         }

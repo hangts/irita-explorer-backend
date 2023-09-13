@@ -50,8 +50,8 @@ const {
     BONDED,
     WNS_IS_OPEN,
     PUBLIC_RESOLVER_ADDRESS,
-    PROPOSER,
-    BLOCK_GAS_USED,
+    SUPPORT_BLOCK_PROPOSER,
+    SUPPORT_BLOCK_GAS_USED,
 } = process.env;
 export const cfg = {
     env: NODE_ENV,
@@ -82,8 +82,8 @@ export const cfg = {
         disableServiceRespondTime: Boolean(DISABLE_SERVICE_RESPOND_TIME=='true'),
     },
     blockCfg: {
-        proposer: PROPOSER || 'false',
-        blockGasUsed: BLOCK_GAS_USED || 'false'
+        supportBlockProposer: SUPPORT_BLOCK_PROPOSER || 'false',
+        supportBlockGasUsed: SUPPORT_BLOCK_GAS_USED || 'false'
     },
     taskCfg:{
         interval:{
