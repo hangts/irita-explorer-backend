@@ -6,7 +6,8 @@ import {
     BlockListReqDto,
     BlockDetailReqDto,
     ValidatorsetsReqDto,
-    RangeBlockReqDto } from '../dto/block.dto';
+    RangeBlockReqDto, BlockDetailResDto, BlockResDto
+} from '../dto/block.dto';
 import {
     BlockListResDto,
     ValidatorsetsResDto,
@@ -18,12 +19,14 @@ import { getAddress, hexToBech32 } from '../util/util';
 import { getConsensusPubkey } from '../helper/staking.helper';
 import { Validatorset } from '../dto/http.dto';
 import {cfg} from "../config/config";
+import {TaskEnum} from "../constant";
 
 @Injectable()
 export class BlockService {
 
     constructor(
         @InjectModel('Block') private blockModel: Model<IBlock>,
+        @InjectModel('SyncValidators') private syncValidatorsModel: any,
         @InjectModel('StakingValidator') private stakingValidatorModel: any) {}
 
     async queryRangeBlockList(query: RangeBlockReqDto): Promise<ListStruct<BlockListResDto[]>> {
@@ -33,35 +36,51 @@ export class BlockService {
       if(start && end){
         const blocks: IBlockStruct[] = await (this.blockModel as any).findListByRange(start, end);
 
-        const allValidators = await this.stakingValidatorModel.queryAllValidators();
-        const validators = new Map();
-        allValidators.forEach(validator => {
-            validators.set(validator.proposer_addr,validator)
+        let validators = []
+        if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
+            validators = await this.stakingValidatorModel.queryAllValidators();
+        }else if (cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) !== -1){
+            validators = await this.syncValidatorsModel.findAllValidators();
+        }
+        //const allValidators = await this.stakingValidatorModel.queryAllValidators();
+        const validatorsMap = new Map();
+          validators.forEach(validator => {
+              validatorsMap.set(validator.proposer_addr,validator)
         });
 
         res = blocks.map(block => {
-        block = JSON.parse(JSON.stringify(block));
-        const proposer = validators.get(block.proposer);
-        let proposer_addr, proposer_moniker;
-        if (proposer) {
-            proposer_moniker = proposer.is_black ?  proposer.moniker_m : (proposer.description || {}).moniker || '';
-            proposer_addr = proposer.operator_address || '';
-        }
-        return {
-            height: block.height,
-            hash: block.hash,
-            txn: block.txn,
-            time: block.time,
-            proposer_addr,
-            proposer_moniker
-        }
+            block = JSON.parse(JSON.stringify(block));
+            const proposer = validatorsMap.get(block.proposer);
+            let proposer_addr, proposer_moniker, gas_used;
+            if (cfg.blockCfg.proposer == 'true' && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
+                if (proposer) {
+                    proposer_moniker = proposer.is_black ?  proposer.moniker_m : (proposer.description || {}).moniker || '';
+                    proposer_addr = proposer.operator_address || '';
+                }
+            }else if (cfg.blockCfg.proposer == 'true' && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.validators) !== -1) {
+                proposer_addr = proposer.proposer_addr
+            }
+
+            if (cfg.blockCfg.blockGasUsed == 'true') {
+                gas_used = block.gas_used
+            }
+
+            return {
+                height: block.height,
+                hash: block.hash,
+                txn: block.txn,
+                time: block.time,
+                proposer_addr,
+                proposer_moniker,
+                gas_used,
+            }
         });
       }
 
       if (useCount) {
         count = await (this.blockModel as any).findCount();
       }
-      return new ListStruct(res, start, end, count);     
+      return new ListStruct(res, start, end, count);
     }
 
     async queryBlockList(query: BlockListReqDto): Promise<ListStruct<BlockListResDto[]>> {
@@ -108,7 +127,7 @@ export class BlockService {
         //         block_lcd.block.last_commit.signatures.forEach((item:any)=>{
         //             let address = hexToBech32(item.validator_address, addressPrefix.ica);
         //             signaturesMap[address] = item;
-        //         }) 
+        //         })
         //         if (validatorsets) {
         //             block.total_validator_num = validatorsets ? validatorsets.length : 0;
         //             block.total_voting_power = 0;
@@ -137,12 +156,18 @@ export class BlockService {
         return new ListStruct(res, pageNum, pageSize, count);
     }
 
-    async queryBlockDetail(p: BlockDetailReqDto): Promise<BlockListResDto | null> {
-        let data: BlockListResDto | null = null;
+    async queryBlockDetail(p: BlockDetailReqDto): Promise<BlockDetailResDto | null> {
+        let data: BlockDetailResDto | null = null;
         const { height } = p;
         const res: IBlockStruct | null = await (this.blockModel as any).findOneByHeight(height);
         if (res) {
-            data = new BlockListResDto(res);
+            data = new BlockResDto(res.height, res.hash, res.txn, res.time);
+            if (cfg.blockCfg.proposer == 'true') {
+                data.proposer_addr = res.proposer
+            }
+            if (cfg.blockCfg.blockGasUsed == 'true') {
+                data.gas_used = res.gas_used
+            }
         }
         return data;
     }
@@ -197,7 +222,7 @@ export class BlockService {
                 const address = hexToBech32(validator_address, cfg.addressPrefix.ica);
                 item.validator_address = validator_address
                 signaturesMap[address] = item;
-            }) 
+            })
             if (allValidatorsets) {
                 data.total_validator_num = allValidatorsets ? allValidatorsets.length : 0;
                 const icaAddr = hexToBech32(block_db.proposer, cfg.addressPrefix.ica);
@@ -286,7 +311,7 @@ export class BlockService {
         }
 
         const res = await BlockHttp.queryLatestBlockFromLcd();
-        if(res && res.block_id && res.block && res.block.header && res.block.data){     
+        if(res && res.block_id && res.block && res.block.header && res.block.data){
             blockStruct.height = res.block.header.height;
             blockStruct.time = res.block.header.time;
             blockStruct.txn = res.block.data.txs ? res.block.data.txs.length : 0;

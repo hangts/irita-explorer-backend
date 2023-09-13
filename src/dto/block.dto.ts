@@ -96,6 +96,19 @@ export class BlockListResDto extends BlockResDto {
     }
 }
 
+
+export class BlockDetailResDto extends BlockResDto {
+    proposer_addr?: string;
+    gas_used?: string;
+
+    constructor(value) {
+        super(value.height, value.hash, value.txn, value.time);
+        this.proposer_addr = value.proposer;
+        this.gas_used = value.gas_used;
+    }
+}
+
+
 // blocks/staking/:height
 export class BlockStakingResDto {
     height: string;

@@ -6,7 +6,8 @@ import {
     BlockListReqDto, 
     BlockDetailReqDto,
     ValidatorsetsReqDto,
-    RangeBlockReqDto } from '../dto/block.dto';
+    RangeBlockReqDto, BlockDetailResDto
+} from '../dto/block.dto';
 import { 
     BlockListResDto,
     ValidatorsetsResDto,
@@ -53,9 +54,9 @@ export class BlockController {
     }
 
     @Get(':height')
-    async queryBlockDetail(@Param() query: BlockDetailReqDto): Promise<Result<BlockListResDto | null>> {
-        const data: BlockListResDto | null = await this.blockService.queryBlockDetail(query);
-        return new Result<BlockListResDto | null>(data);
+    async queryBlockDetail(@Param() query: BlockDetailReqDto): Promise<Result<BlockDetailResDto | null>> {
+        const data: BlockDetailResDto | null = await this.blockService.queryBlockDetail(query);
+        return new Result<BlockDetailResDto | null>(data);
     }
 
 

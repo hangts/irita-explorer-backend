@@ -6,5 +6,6 @@ export interface IValidatorsStruct {
   jailed?:boolean | string,
   details?:string;
   hash?: string;
+  proposer_addr?: string;
 }
 
