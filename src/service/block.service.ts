@@ -207,23 +207,23 @@ export class BlockService {
         let block_db = await (this.blockModel as any).findOneByHeight(height);
         block_db = JSON.parse(JSON.stringify(block_db));
         if (block_db) {
-            const block_lcd = await BlockHttp.queryBlockFromLcd(height);
-            const latestBlock = await BlockHttp.queryLatestBlockFromLcd();
-            const proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block_db.proposer || '');
-            const allValidatorsets = await this.queryAllValidatorset(height);
             data = {
                 height: block_db.height,
                 hash: block_db.hash,
                 txn: block_db.txn,
                 time: block_db.time,
-                proposer: block_db.proposer
             };
-
-            if (proposer && proposer.length) {
-                data.proposer_moniker = proposer[0].is_black ? proposer[0].moniker_m : (proposer[0].description || {}).moniker || '';
-                data.proposer_addr = proposer[0].operator_address || '';
+            const block_lcd = await BlockHttp.queryBlockFromLcd(height);
+            const latestBlock = await BlockHttp.queryLatestBlockFromLcd();
+            if (cfg.blockCfg.supportBlockProposer && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
+                const proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block_db.proposer || '');
+                if (proposer && proposer.length) {
+                    data.proposer_moniker = proposer[0].is_black ? proposer[0].moniker_m : (proposer[0].description || {}).moniker || '';
+                    data.proposer_addr = proposer[0].operator_address || '';
+                    data.proposer = block_db.proposer
+                }
             }
-
+            const allValidatorsets = await this.queryAllValidatorset(height);
             const signaturesMap:any = {};
             block_lcd.block.last_commit.signatures.forEach((item:any)=>{
                 var buffer = new Buffer(item.validator_address,"base64");
@@ -234,7 +234,7 @@ export class BlockService {
             })
             if (allValidatorsets) {
                 data.total_validator_num = allValidatorsets ? allValidatorsets.length : 0;
-                const icaAddr = hexToBech32(block_db.proposer, cfg.addressPrefix.ica);
+                //const icaAddr = hexToBech32(block_db.proposer, cfg.addressPrefix.ica);
                 data.total_voting_power = 0;
                 data.precommit_voting_power = 0;
                 allValidatorsets.forEach((item)=>{
