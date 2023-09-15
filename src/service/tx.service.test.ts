@@ -1,10 +1,8 @@
 import { Test } from '@nestjs/testing';
 import {TxController} from '../controller/tx.controller';
 import {TxService} from './tx.service';
-import {TxSchema} from '../schema/tx.schema';
 import { AppModule } from './../app.module';
 import { Logger } from '../logger';
-import { TxStatus, TxType } from '../constant';
 import {
     TxListReqDto,
     TxListWithDdcReqDto,
@@ -16,13 +14,9 @@ import {
     ServicesDetailReqDto,
     TxListWithCallServiceReqDto,
     TxListWithRespondServiceReqDto,
-    PostTxTypesReqDto,
-    PutTxTypesReqDto,
-    DeleteTxTypesReqDto,
     TxWithHashReqDto, IdentityTxReqDto, TxStatisticWithAddressReqDto,
 } from '../dto/txs.dto';
-import { TxResDto,
-         TxTypeResDto } from '../dto/txs.dto';
+import { TxResDto} from '../dto/txs.dto';
 import {ListStruct} from "../api/ApiResult";
 
 describe('TxController', () => {

@@ -2,7 +2,6 @@ import {Module } from '@nestjs/common';
 import {DenomTaskService} from '../task/denom.task.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {DenomSchema} from '../schema/denom.schema';
-import { DenomHttp } from '../http/lcd/denom.http';
 import { TxSchema } from '../schema/tx.schema';
 import { SyncTaskSchema } from '../schema/sync.task.schema';
 import {StatisticsSchema} from "../schema/statistics.schema";
@@ -30,7 +29,7 @@ import {
             collection: 'ex_statistics'
         }]),
     ],
-    providers:[DenomTaskService, DenomHttp, CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
+    providers:[DenomTaskService, CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
     exports:[DenomTaskService]
 })
 export class DenomTaskModule{}

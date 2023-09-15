@@ -1,8 +1,6 @@
-import { IsString, IsNotEmpty } from 'class-validator';
-import { BaseReqDto, BaseResDto, PagingReqDto } from './base.dto';
+import { BaseReqDto, BaseResDto} from './base.dto';
 import { Coin } from './common.res.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 
 /************************   request dto   ***************************/
 

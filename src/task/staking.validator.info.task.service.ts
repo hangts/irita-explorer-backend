@@ -3,7 +3,7 @@ import {InjectModel} from '@nestjs/mongoose';
 import {StakingHttp} from "../http/lcd/staking.http";
 import {BlockHttp} from "../http/lcd/block.http";
 import {Model} from "mongoose"
-import {addressTransform, formatDateStringToNumber, getAddress, getTimestamp, hexToBech32} from "../util/util";
+import {formatDateStringToNumber, getAddress, getTimestamp, hexToBech32} from "../util/util";
 import {moduleSlashing, TaskEnum} from "../constant";
 import { getConsensusPubkey } from '../helper/staking.helper';
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";

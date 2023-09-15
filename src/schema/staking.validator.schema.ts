@@ -1,13 +1,11 @@
 import * as mongoose from 'mongoose';
-import {Logger} from "../logger";
 import {IListStruct,ListStruct} from "../types";
 import {
     IQueryValidatorByStatus,
     IStakingValidator,
-    IStakingValidatorBlock,
-    IDetailByValidatorAddress
+    IStakingValidatorBlock
 } from "../types/schemaTypes/staking.interface";
-import {activeValidatorLabel, candidateValidatorLabel, jailedValidatorLabel, ValidatorStatus} from "../constant";
+import {ValidatorStatus} from "../constant";
 
 export const StakingValidatorSchema = new mongoose.Schema({
     operator_address: String,
@@ -38,9 +36,6 @@ export const StakingValidatorSchema = new mongoose.Schema({
     is_black: Boolean,
     moniker_m: String
 })
-//StakingValidatorSchema.index({operator_address: 1}, {unique: true})
-//StakingValidatorSchema.index({proposer_addr: 1})
-//StakingValidatorSchema.index({jailed: 1, status: 1,tokens:1})
 
 StakingValidatorSchema.statics = {
 

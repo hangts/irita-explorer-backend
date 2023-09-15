@@ -6,7 +6,7 @@ import {
     BlockListReqDto, 
     BlockListResDto,
     ValidatorsetsReqDto,
-    ValidatorsetsResDto, } from '../dto/block.dto';
+    } from '../dto/block.dto';
 import { ListStruct } from '../api/ApiResult';
 
 

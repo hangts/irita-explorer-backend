@@ -26,12 +26,7 @@ export const NftSchema = new mongoose.Schema({
     hash: String,
     time: Number
 }, { versionKey: false });
-//NftSchema.index({ denom_id: 1, nft_id: 1 }, { unique: true });
-// 新增
-//NftSchema.index({ last_block_height: 1, denom_id: 1, nft_id: 1 }, { background:true});
-//NftSchema.index({ owner: 1, last_block_height: 1 }, { background:true });
-//NftSchema.index({ nft_id: -1, last_block_height: -1 }, { background:true });
-//NftSchema.index({ nft_name: -1, last_block_height: -1 }, { background:true });
+
 
 NftSchema.statics = {
     async findList(
@@ -43,22 +38,7 @@ NftSchema.statics = {
         sortBy?: string
     ): Promise<ListStruct> {
         const result: ListStruct = {};
-        // const condition: any[] = [
-            // {
-            //     $lookup: {
-            //         from: 'ex_sync_denom',
-            //         localField: 'denom_id',
-            //         foreignField: 'denom_id',
-            //         as: 'denomDetail',
-            //     },
-            // }, {
-            //     $project: {
-            //         'denomDetail._id': 0,
-            //         'denomDetail.update_time': 0,
-            //         'denomDetail.create_time': 0,
-            //     },
-            // },
-        // ];
+
         let sortCond = {}
         //sortBy only support last_block_height、create_time sort
         if (sortBy && (sortBy.startsWith("last_block_height") || sortBy.startsWith("create_time"))) {
@@ -83,11 +63,6 @@ NftSchema.statics = {
             .sort(sortCond)
             .skip((Number(pageNum) - 1) * Number(pageSize))
             .limit(Number(pageSize));
-
-        // result.data = await this.aggregate(condition)
-        //     .sort({create_time:-1, nft_id:-1})
-        //     .skip((Number(pageNum) - 1) * Number(pageSize))
-        //     .limit(Number(pageSize));
         return result; 
     },
     async findListCount(denomId?: string, nftId?: string, owner?: string,): Promise<number> {

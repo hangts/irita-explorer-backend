@@ -2,16 +2,10 @@ import { Test } from '@nestjs/testing';
 import { DistributionController } from '../controller/distribution.controller';
 import { DistributionService } from './distribution.service';
 import { AppModule } from './../app.module';
-import { Logger } from '../logger';
-import { 
+import {
   WithdrawAddressReqDto,
   DelegatorRewardsReqDto,
   ValCommissionRewReqDto } from "../dto/distribution.dto"
-import { 
-  WithdrawAddressResDto,
-  DelegatorRewardsResDto,
-  ValCommissionRewResDto } from "../dto/distribution.dto"
-import {ListStruct} from "../api/ApiResult";
 
 describe('DistributionController', () => {
     let distributionController: DistributionController;

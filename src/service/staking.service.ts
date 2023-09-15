@@ -2,14 +2,12 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
 import {StakingHttp} from "../http/lcd/staking.http";
-import {addressTransform, pageNation} from "../util/util";
+import {addressTransform} from "../util/util";
 import {
-    activeValidatorLabel,
     jailedValidatorLabel,
     moduleSlashing,
     ValidatorNumberStatus,
-    ValidatorStatus,
-    voteOptions
+    ValidatorStatus
 } from "../constant";
 import {
     AccountAddrReqDto,

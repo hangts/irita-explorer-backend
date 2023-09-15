@@ -1,5 +1,5 @@
 import {BaseResDto, PagingReqDto, DeepPagingReqDto} from './base.dto';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty} from '@nestjs/swagger';
 import {ArrayNotEmpty} from 'class-validator';
 import { Coin } from './common.res.dto';
 

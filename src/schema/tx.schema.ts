@@ -1,4 +1,3 @@
-import { HttpException } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import {
     ITxsQuery,
@@ -10,7 +9,6 @@ import {
     IExFieldQuery, IIdentityTx,
     ITxStruct,
     ITxStructMsgs,
-    ITxStructHash,
     ITxsWithAssetQuery,
     ITxVoteProposal,
     ITxSubmitProposal,
@@ -18,20 +16,13 @@ import {
     ITxVoteALL,
     ITxMsgsCount
 } from '../types/schemaTypes/tx.interface';
-import { IBindTx, IServiceName, ITxsQueryParams } from '../types/tx.interface';
-import { IListStruct,IQueryBase,ListStruct } from '../types';
-import {INCREASE_HEIGHT, TxStatus, TxType, MAX_OPERATE_TX_COUNT, TxCntQueryCond, MAX_DENOM_TX_COUNT} from '../constant';
+import { IServiceName} from '../types/tx.interface';
+import { IListStruct,ListStruct } from '../types';
+import {INCREASE_HEIGHT, TxStatus, TxType, TxCntQueryCond, MAX_DENOM_TX_COUNT} from '../constant';
 import Cache from '../helper/cache';
 import { dbRes } from '../helper/tx.helper';
 import { cfg } from '../config/config';
 import { PagingReqDto } from '../dto/base.dto';
-import {
-    stakingTypes,
-    serviceTypes,
-    declarationTypes,
-    govTypes,
-    coinswapTypes
-} from '../helper/txTypes.helper';
 import {
     txListParamsHelper,
     StakingTxListParamsHelper,
@@ -75,13 +66,6 @@ export const TxSchema = new mongoose.Schema({
     fee_granter: String,
     fee_grantee: String
 }, { versionKey: false });
-// TxSchema.index({ time: -1, "msgs.type": -1,status:-1 }, { background: true });
-// TxSchema.index({ addrs: -1, time: -1, status:-1 }, { background: true });
-// TxSchema.index({ contract_addrs: -1, time: -1, status:-1 }, { background: true });
-// TxSchema.index({"msgs.type": -1,height:-1,"msgs.msg.ex.service_name":-1 }, { background: true });
-// TxSchema.index({"msgs.msg.id": -1, "msgs.msg.denom": -1, "msgs.type": -1, "height": -1}, { background: true });
-// TxSchema.index({"msgs.msg.hash":-1, "height": -1}, { background: true });
-// TxSchema.index({"msgs.type":-1, "status": -1, time: -1}, { background: true });
 
 //	csrb 浏览器交易记录过滤正则表达式
 // function filterExTxTypeRegExp(): object {

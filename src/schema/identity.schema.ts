@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose'
 import { IIdentityInfoQuery,IIdentityInfoResponse, IIdentityByAddressQuery} from '../types/schemaTypes/identity.interface';
 import { Logger } from '../logger';
 import { ITXWithIdentity } from '../types/schemaTypes/tx.interface';
-import { IListStruct, ListStruct } from '../types';
+import { ListStruct } from '../types';
 import {hubDefaultEmptyValue} from "../constant";
 import {
   queryIdentityListHelper
@@ -21,8 +21,7 @@ export const IdentitySchema = new mongoose.Schema({
   create_time: Number,
   update_time: Number,
 })
-//IdentitySchema.index({identities_id: 1},{unique: true})
-//IdentitySchema.index({update_block_height: -1,owner:-1})
+
 IdentitySchema.statics = {
   async queryIdentityList(query:ITXWithIdentity):Promise<ListStruct> {
     const result: ListStruct = {}

@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty } from 'class-validator';
-import { PagingReqDto, DeepPagingReqDto } from './base.dto';
+import { DeepPagingReqDto } from './base.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 

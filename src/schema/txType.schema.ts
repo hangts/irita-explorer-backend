@@ -7,7 +7,6 @@ import {
 	declarationTypes,
 	govTypes
 } from '../helper/txTypes.helper';
-import { TxType } from '../constant';
 export const TxTypeSchema = new mongoose.Schema({
     type_name:{type:String, required:true, unique: true},
     create_time:{

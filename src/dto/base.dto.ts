@@ -1,5 +1,5 @@
 import {IsOptional} from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
 import { DefaultPaging } from '../constant';

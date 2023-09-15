@@ -1,6 +1,5 @@
 import { Test } from '@nestjs/testing';
 import {TxTaskService} from './tx.task.service';
-import {TxSchema} from '../schema/tx.schema';
 import { AppModule } from './../app.module';
         
 describe('TxTaskService', () => {

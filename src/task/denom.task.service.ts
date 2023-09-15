@@ -1,7 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable} from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { DenomHttp } from '../http/lcd/denom.http';
 import {IDenom, IDenomStruct, IDenomMsgStruct, ITransferDenomMsgStruct} from '../types/schemaTypes/denom.interface';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
 import {TaskEnum, TxType} from '../constant';
@@ -16,7 +15,6 @@ export class DenomTaskService {
         @InjectModel('Tx') private txModel: any,
         @InjectModel('SyncTask') private taskModel: any,
         @InjectModel('Statistics') private statisticsModel: any,
-        private readonly denomHttp: DenomHttp,
         private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
     ) {
         this.doTask = this.doTask.bind(this);
@@ -44,22 +42,6 @@ export class DenomTaskService {
         if (lastBlockHeight < maxHeight) {
             const denomTxList: ITxStruct[] = await (this.txModel as any).queryDenomTxList(lastBlockHeight);
             if (denomTxList && denomTxList.length > 0) {
-                // let addDenom = denomTxList.map(denom => {
-                //     let msg:IDenomMsgStruct = denom.msgs[0]['msg']
-                //     return {
-                //         name: msg && msg.name,
-                //         denom_id: msg && msg.id,
-                //         json_schema: msg && msg.schema,
-                //         creator: msg && msg.sender,
-                //         owner: msg && msg.sender,
-                //         tx_hash: denom.tx_hash,
-                //         height: denom.height,
-                //         time: denom.time,
-                //         create_time: getTimestamp(),
-                //         last_block_height: denom.height,
-                //         last_block_time: denom.time,
-                //     }
-                // })
                 let addDenom = []
                 let promiseList: Promise<any>[] = [];
                 for (const tx of denomTxList) {

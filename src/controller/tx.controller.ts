@@ -2,12 +2,8 @@ import { DeepPagingReqDto } from './../dto/base.dto';
 import {
     Controller,
     Get,
-    Post,
-    Put,
-    Delete,
     Param,
     Query,
-    Body,
     UseInterceptors
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -25,9 +21,6 @@ import {
     ServicesDetailReqDto,
     TxListWithCallServiceReqDto,
     TxListWithRespondServiceReqDto,
-    PostTxTypesReqDto,
-    PutTxTypesReqDto,
-    DeleteTxTypesReqDto,
     TxWithHashReqDto,
     ServiceResDto,
     ServiceListReqDto,
@@ -114,10 +107,7 @@ export class TxController {
         const data: ExternalQueryRespondServiceResDto = await this.txService.externalQueryRespondService(query);
         return new Result<ExternalQueryRespondServiceResDto>(data);
     }
-    @Get("e/debug")//TODO (lvshenchao)
-    async debug():Promise<any[]> {
-        return ['debug'];
-    }
+
 
     @Get("/blocks")
     @UseInterceptors(ResponseInterceptor)
@@ -157,10 +147,6 @@ export class TxController {
     }
 
     @Get("/services")
-   /* async queryTxWithServiceName(@Query() query: TxListWithServicesNameReqDto):Promise<Result<ListStruct<TxResDto>>> {
-        const data: ListStruct<TxResDto[]> = await this.txService.queryTxWithServiceName(query);
-        return new Result<any>(data);
-    }*/
     @UseInterceptors(ResponseInterceptor)
     async queryServiceList(@Query() query: ServiceListReqDto):Promise<Result<ListStruct<ServiceResDto[]>>> {
         const data: ListStruct<ServiceResDto[]> = await this.txService.findServiceList(query);
@@ -210,24 +196,6 @@ export class TxController {
     async queryDeclarationTxTypeList(): Promise<Result<ListStruct<TxTypeResDto>>> {
         const data: ListStruct<TxTypeResDto[]> = await this.txService.queryDeclarationTxTypeList();
         return new Result<any>(data);
-    }
-
-    @Post("/types")
-    async insertTxTypes(@Body() prarms:PostTxTypesReqDto): Promise<Result<ListStruct<TxTypeResDto>>> {
-        const data: ListStruct<TxTypeResDto[]> = await this.txService.insertTxTypes(prarms);
-        return new Result<any>(data);
-    }
-
-    @Put("/types")
-    async updateTxType(@Body() prarms:PutTxTypesReqDto): Promise<Result<TxTypeResDto>> {
-        const data: TxTypeResDto = await this.txService.updateTxType(prarms);
-        return new Result<TxTypeResDto>(data);
-    }
-
-    @Delete("/types")
-    async deleteTxType(@Body() prarms:DeleteTxTypesReqDto): Promise<Result<TxTypeResDto>> {
-        const data: TxTypeResDto = await this.txService.deleteTxType(prarms);
-        return new Result<TxTypeResDto>(data);
     }
 
     @Get("/services/providers")

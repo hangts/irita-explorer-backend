@@ -1,10 +1,10 @@
-import { IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty, validate } from 'class-validator';
+import { MinLength, ArrayNotEmpty} from 'class-validator';
 import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
 import {BaseReqDto, BaseResDto, PagingReqDto, DeepPagingReqDto} from './base.dto';
 import {ApiError} from '../api/ApiResult';
 import {ErrorCodes} from '../api/ResultCodes';
 import {IBindTx,ExternalIBindTx} from '../types/tx.interface';
-import {DefaultPaging, TxType} from '../constant';
+import {DefaultPaging} from '../constant';
 
 /************************   request dto   ***************************/
 //txs request dto
