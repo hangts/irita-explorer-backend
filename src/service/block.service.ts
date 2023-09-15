@@ -215,7 +215,7 @@ export class BlockService {
             };
             const block_lcd = await BlockHttp.queryBlockFromLcd(height);
             const latestBlock = await BlockHttp.queryLatestBlockFromLcd();
-            if (cfg.blockCfg.supportBlockProposer && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
+            if (cfg.blockCfg.supportBlockProposer == 'true' && cfg.taskCfg.CRON_JOBS.indexOf(TaskEnum.stakingSyncValidatorsInfo) !== -1) {
                 const proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block_db.proposer || '');
                 if (proposer && proposer.length) {
                     data.proposer_moniker = proposer[0].is_black ? proposer[0].moniker_m : (proposer[0].description || {}).moniker || '';
