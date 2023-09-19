@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { IListStruct,ListStruct } from '../types';
+import { ListStruct } from '../types';
 import { IIdentityPubKeyAndCertificateQuery } from '../types/schemaTypes/identity.interface'
 export const PubkeySchema = new mongoose.Schema({
     identities_id: String,
@@ -12,8 +12,6 @@ export const PubkeySchema = new mongoose.Schema({
     certificate_hash:String,
     create_time:Number
 })
-//PubkeySchema.index({identities_id:1,pubkey_hash: 1},{unique: true})
-//PubkeySchema.index({identities_id:1,height: 1})
 
 PubkeySchema.statics = {
     async insertPubkey (pubkey) {

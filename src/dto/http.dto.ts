@@ -1,11 +1,4 @@
-import { IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BaseReqDto, BaseResDto, PagingReqDto } from './base.dto';
 import { Coin } from './common.res.dto';
-import { ApiError } from '../api/ApiResult';
-import { ErrorCodes } from '../api/ResultCodes';
-import { IBindTx } from '../types/tx.interface';
-import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 import { validatorStatusFromLcd } from '../constant'
 // lcd相关请求返回值数据模型
 

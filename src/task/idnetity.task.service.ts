@@ -1,4 +1,4 @@
-import {Injectable, Logger} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {hubDefaultEmptyValue, IdentityLimitSize, PubKeyAlgorithm, TxType,TaskEnum} from '../constant';
 import {
@@ -8,7 +8,6 @@ import {
 } from '../types/schemaTypes/identity.interface';
 import {getTimestamp} from '../util/util';
 import md5 from 'blueimp-md5';
-import { taskLoggerHelper } from '../helper/task.log.helper';
 import { getTaskStatus } from '../helper/task.helper';
 import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_status.metric";
 @Injectable()

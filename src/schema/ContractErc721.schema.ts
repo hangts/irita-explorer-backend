@@ -19,9 +19,6 @@ export const ContractErc721Schema = new mongoose.Schema({
 });
 
 ContractErc721Schema.statics = {
-  /*async findOneByDenomId(denomId: string): Promise<IContractErc20Struct> {
-    return await this.findOne({denom_id: denomId});
-  },*/
 
   async findListInContractAddrs(addrs: string[]): Promise<IContractErc721Struct[]> {
     return await this.find({contract_addr: {'$in': addrs}});

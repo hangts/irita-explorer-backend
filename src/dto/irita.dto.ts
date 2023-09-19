@@ -1,11 +1,5 @@
-import {IsString, IsInt, Length, Min, Max, IsOptional, Equals, MinLength, ArrayNotEmpty} from 'class-validator';
-import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
-import {BaseReqDto, BaseResDto, PagingReqDto} from './base.dto';
-import {ApiError} from '../api/ApiResult';
-import {ErrorCodes} from '../api/ResultCodes';
-import {IBindTx} from '../types/tx.interface';
-import { currentChain } from '../constant';
-import {cfg} from "../config/config";
+import {ApiProperty} from '@nestjs/swagger';
+import {BaseReqDto, BaseResDto} from './base.dto';
 
 /************************   request dto   ***************************/
 export class TokensReqDto extends BaseReqDto {

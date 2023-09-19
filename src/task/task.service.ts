@@ -15,10 +15,6 @@ import {StakingValidatorInfoTaskService} from "./staking.validator.info.task.ser
 import {StakingValidatorMoreInfoTaskService} from "./staking.validator.more.info.task.service";
 import {ParametersTaskService} from "./parameters.task.service";
 import {TokensTaskService} from "./tokens.task.service";
-import {ProposalTaskService} from "./proposal.task.service";
-import {AccountTaskService} from "./account.task.service";
-import {AccountInfoTaskService} from "./account.info.task.service";
-import {StatisticsTaskService} from "./statistics.task.service";
 import { IRandomKey } from '../types';
 import { taskLoggerHelper } from '../helper/task.log.helper';
 import { MongoConnectStatusTaskService } from "./mongo.connect.status.task.service";
@@ -39,10 +35,6 @@ export class TasksService {
         private readonly stakingValidatorTaskServiceMoreInfo: StakingValidatorMoreInfoTaskService,
         private readonly parametersTaskService: ParametersTaskService,
         private readonly tokensTaskService: TokensTaskService,
-        private readonly proposalTaskService: ProposalTaskService,
-        private readonly accountTaskService: AccountTaskService,
-        private readonly accountInfoTaskService: AccountInfoTaskService,
-        private readonly statisticsTaskService: StatisticsTaskService,
         private readonly mongoConnectStatusTaskService: MongoConnectStatusTaskService,
         private readonly explorerApiStatusTaskService: ExplorerApiStatusTaskService,
         private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,
@@ -57,9 +49,6 @@ export class TasksService {
         this[`${TaskEnum.stakingSyncValidatorsMoreInfo}_timer`] = null;
         this[`${TaskEnum.stakingSyncParameters}_timer`] = null;
         this[`${TaskEnum.tokens}_timer`] = null;
-        this[`${TaskEnum.proposal}_timer`] = null;
-        this[`${TaskEnum.account}_timer`] = null;
-        this[`${TaskEnum.accountInfo}_timer`] = null;
     }
     @Cron(cfg.taskCfg.executeTime.denom, {
         name: TaskEnum.denom
@@ -142,38 +131,7 @@ export class TasksService {
         this.handleDoTask(TaskEnum.stakingSyncParameters, this.parametersTaskService.doTask)
     }
 
-    
-    // @Cron('*/5 * * * * *')
-    @Cron(cfg.taskCfg.executeTime.proplsal, {
-        name: TaskEnum.proposal
-    })
-    async syncProposal() {
-        this.handleDoTask(TaskEnum.proposal, this.proposalTaskService.doTask)
-    }
 
-    // @Cron('*/5 * * * * *')
-    @Cron(cfg.taskCfg.executeTime.statistics, {
-        name: TaskEnum.statistics
-    })
-    async syncStatistics() {
-        this.handleDoTask(TaskEnum.statistics, this.statisticsTaskService.doTask)
-    }
-
-    // @Cron('*/5 * * * * *')
-    @Cron(cfg.taskCfg.executeTime.account, {
-        name: TaskEnum.account
-    })
-    async syncAccount() {
-        this.handleDoTask(TaskEnum.account, this.accountTaskService.doTask)
-    }
-
-    // @Cron('*/5 * * * * *')
-    @Cron(cfg.taskCfg.executeTime.accountInfo, {
-        name: TaskEnum.accountInfo
-    })
-    async syncAccountInfo() {
-        this.handleDoTask(TaskEnum.accountInfo, this.accountInfoTaskService.doTask)
-    }
 
     @Cron(cfg.taskCfg.executeTime.mongoConnect, {
         name: TaskEnum.mongoConnectStatus

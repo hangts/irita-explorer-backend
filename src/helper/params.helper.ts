@@ -9,14 +9,13 @@ import {
   ITXWithIdentity,
 } from '../types/schemaTypes/tx.interface';
 import { IGovProposalQuery } from '../types/schemaTypes/proposal.interface';
-import {ContractType, DDCType, ERCType, TxStatus, TxType} from '../constant';
+import {DDCType, ERCType, TxStatus, TxType} from '../constant';
 import { ITxsQueryParams } from '../types/tx.interface';
 import { coinswapTypes, declarationTypes, govTypes, stakingTypes } from '../helper/txTypes.helper';
 import Cache from '../helper/cache';
 
 export function txListParamsHelper(query: ITxsQuery){
   const queryParameters: ITxsQueryParams = {};
-  let ddcType:number = 0
   //合约交易
   if (query.type && (query.type.includes(ERCType.contractTag) || query.type.includes(ERCType.contractOtherTag))) {
       queryParameters['msgs.type'] = TxType.ethereum_tx
@@ -392,25 +391,6 @@ export function queryTxWithDdcHelper(query: ITxsWithDdcQuery){
   return queryParameters
 }
 
-// export function queryTxWithDdcAddrHelper(query: ITxsWithAddressQuery){
-//     let queryParameters: any = {};
-//
-//     switch (query.status) {
-//         case '1':
-//             queryParameters.status = TxStatus.SUCCESS;
-//             break;
-//         case '2':
-//             queryParameters.status = TxStatus.FAILED;
-//             break;
-//     }
-//     if (query.address && query.address.length) {
-//         queryParameters['$or'] = [
-//             {"ex_ddc_infos.sender":query.address},
-//             {"ex_ddc_infos.recipient":query.address}
-//         ]
-//     }
-//     return queryParameters
-// }
 
 export function queryTxListByIdentityHelper(query: IIdentityTx){
   const typesList: TxType[] = [

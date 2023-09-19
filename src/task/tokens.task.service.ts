@@ -1,4 +1,3 @@
-import { map } from 'rxjs/operators';
 import { Injectable } from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {TokensHttp} from "../http/lcd/tokens.http";

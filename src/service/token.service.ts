@@ -2,10 +2,8 @@ import { Injectable } from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {TokensHttp} from "../http/lcd/tokens.http";
 import {Model} from "mongoose"
-import { Result } from '../api/ApiResult';
 import { TokensReqDto, TokensResDto, } from '../dto/irita.dto';
 import { IbcTraceDto } from '../dto/http.dto';
-import { BaseResDto } from '../dto/base.dto'
 import { SRC_PROTOCOL } from '../constant'
 import md5 from "blueimp-md5"
 import { ApiError } from '../api/ApiResult';

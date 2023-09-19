@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ListStruct } from '../api/ApiResult';
-import { INft,INftStruct, INftMapStruct } from '../types/schemaTypes/nft.interface';
+import { INft,INftStruct} from '../types/schemaTypes/nft.interface';
 import { NftDetailReqDto, NftDetailResDto, NftListReqDto, NftListResDto } from '../dto/nft.dto';
 import { IDenom, IDenomStruct } from '../types/schemaTypes/denom.interface';
 @Injectable()
@@ -79,10 +79,5 @@ export class NftService {
             return null;
         }
     }
-
-    // async findListByName(name: string): Promise<INftStruct[]> {
-    //     return await (this.nftModel as any).findListByName(name);
-    // }
-
 }
 

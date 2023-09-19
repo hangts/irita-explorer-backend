@@ -2,7 +2,6 @@ import { BaseReqDto, PagingReqDto, DeepPagingReqDto } from './base.dto';
 import { ApiError } from '../api/ApiResult';
 import { ErrorCodes } from '../api/ResultCodes';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Coin } from './common.res.dto';
 
 export class RangeBlockReqDto extends BaseReqDto{
 

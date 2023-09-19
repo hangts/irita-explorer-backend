@@ -23,8 +23,7 @@ export const TokensSchema = new mongoose.Schema({
     tags: Array,
     icon: String,
 })
-//TokensSchema.index({symbol: 1}, {unique: true})
-//TokensSchema.index({denom: 1, chain:1}, {unique: true})
+
 
 TokensSchema.statics = {
     async insertTokens(Tokens: ITokens) {

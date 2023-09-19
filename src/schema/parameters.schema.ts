@@ -10,7 +10,6 @@ export const ParametersSchema = new mongoose.Schema({
     update_time: Number,
 })
 
-//ParametersSchema.index({module:1,key: 1},{unique: true})
 
 ParametersSchema.statics = {
 

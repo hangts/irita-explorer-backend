@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { getTimestamp } from '../util/util';
-import { IDenomMapStruct, IDenomStruct } from '../types/schemaTypes/denom.interface';
+import { IDenomStruct } from '../types/schemaTypes/denom.interface';
 import { Logger } from '../logger';
 
 export const DenomSchema = new mongoose.Schema({
@@ -16,9 +16,7 @@ export const DenomSchema = new mongoose.Schema({
     last_block_height: Number,
     last_block_time: Number,
 }, { versionKey: false });
-// 新增
-//DenomSchema.index({ height: 1}, { background:true});
-//DenomSchema.index({ name: 1, height: 1}, { background:true});
+
 
 DenomSchema.statics = {
     async findList(
@@ -61,33 +59,7 @@ DenomSchema.statics = {
     async findOneByDenomId(denomId:string): Promise<IDenomStruct> {
         return await this.findOne({denom_id:denomId});
     },
-    // async saveDenom(denoms: IDenomMapStruct): Promise<IDenomStruct[]> {
-    //     return await this.create({
-    //         name: denoms.name,
-    //         denom_id: denoms.denomId,
-    //         json_schema: denoms.jsonSchema,
-    //         creator: denoms.creator,
-    //         tx_hash: denoms.txHash,
-    //         height: denoms.height,
-    //         time: denoms.createTime,
-    //         create_time: getTimestamp(),
-    //         update_time: getTimestamp(),
-    //     });
-    // },
-    // async findAllNames(): Promise<IDenomStruct[]> {
-    //     return await this.find({}, { denom_id: 1, name: 1 }).exec();
-    // },
-    //
-    // async updateDenom(denom: IDenomMapStruct): Promise<IDenomStruct> {
-    //     return await this.findOneAndUpdate({
-    //         denom_id:denom.denomId,
-    //     }, {
-    //         tx_hash: denom.txHash,
-    //         height: denom.height,
-    //         time:denom.createTime,
-    //         update_time: getTimestamp(),
-    //     });
-    // },
+
     async updateDenomOwner(denomId: string, newOwner: string,txHeight: number,txTime: number): Promise<IDenomStruct> {
         return await this.findOneAndUpdate({
             denom_id: denomId,

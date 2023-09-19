@@ -1438,12 +1438,7 @@ export class TxService {
     async queryTxWithHash(query: TxWithHashReqDto): Promise<TxResDto> {
         let result: TxResDto | null = null;
         let txData: any;
-        if (query.hash && query.hash.startsWith("0x")) {
-            txData = await this.txModel.queryTxWithEvmHash(query.hash);
-        } else {
-            txData = await this.txModel.queryTxWithHash(query.hash);
-        }
-
+        txData = await this.txModel.queryTxWithHash(query.hash);
         if (txData) {
           const {denomIdNftIdNftMap, nftDenomIdNameMap, mtDenomIdNameMap} = await this.getMtNftNameInfoMap(txData);
 
@@ -1483,19 +1478,11 @@ export class TxService {
             }
           }
 
-            let txEvms:any;
-            if (query.hash && query.hash.startsWith("0x")) {
-                txEvms = await this.txEvmModel.findEvmTxsByEvmHash(query.hash)
-                if (!txEvms.length) {
-                    txEvms = await this.txEvmModel.findNewEvmTxsByEvmHash(query.hash)
-                }
-            }else{
-                txEvms = await this.txEvmModel.findEvmTxsByHashes([query.hash])
-            }
-            txData = this.handleEvmTx(txEvms,txData)
-            txData = await this.handleTxToken(txData)
-            const tx = await this.addMonikerToTxs([txData]);
-            result = new TxResDto(tx[0] || {});
+          const txEvms = await this.txEvmModel.findEvmTxsByHashes([query.hash])
+          txData = this.handleEvmTx(txEvms,txData)
+          txData = await this.handleTxToken(txData)
+          const tx = await this.addMonikerToTxs([txData]);
+          result = new TxResDto(tx[0] || {});
         }
         return result;
     }

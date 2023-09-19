@@ -2,7 +2,6 @@ import {Module } from '@nestjs/common';
 import {NftTaskService} from '../task/nft.task.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {NftSchema} from '../schema/nft.schema';
-import { NftHttp } from '../http/lcd/nft.http';
 import { DenomSchema } from '../schema/denom.schema';
 import { TxSchema } from '../schema/tx.schema';
 import { SyncTaskSchema } from '../schema/sync.task.schema';
@@ -32,7 +31,7 @@ import {StatisticsSchema} from "../schema/statistics.schema";
           collection: 'ex_statistics'
         }])
     ],
-    providers:[NftTaskService, NftHttp, CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
+    providers:[NftTaskService, CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],
     exports:[NftTaskService]
 })
 export class NftTaskModule{}

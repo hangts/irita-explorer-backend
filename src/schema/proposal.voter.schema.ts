@@ -18,7 +18,7 @@ export const ProposalVoterSchema = new mongoose.Schema({
     create_time: Number,
     update_time: Number,
 })
-//ProposalSchema.index({id: 1}, {unique: true})
+
 
 ProposalVoterSchema.statics = {
     async queryByAddress(address: string, query?: PagingReqDto): Promise<IProposalVoter> {

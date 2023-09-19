@@ -12,25 +12,9 @@ export enum TaskEnum {
     tokens = 'tokens',
     proposal = 'ex_sync_proposal',
     statistics = 'ex_statistics',
-    account = 'ex_sync_account',
-    accountInfo =  'ex_sync_account_info',
     mongoConnectStatus =  'mongo_connect_status',
     explorerApiStatus =  'explorer_api_status'
 }
-
-export const StatisticsNames = [
-    'tx_all',
-    'service_all',
-    'validator_all',
-    'validator_active',
-    'identity_all',
-    'nft_all',
-    'denom_all',
-    'bonded_tokens',
-    'total_supply',
-    'community_pool',
-    'accounts_all',
-];
 
 export enum TxsListCountName {
     txAll = "tx_all",
@@ -65,11 +49,6 @@ export enum ERCType {
     erc721 = 2,
     erc1155 = 3,
     all = 4,
-}
-
-export const DDCContractType = {
-    'ddc_721': 1,
-    'ddc_1155': 2,
 }
 
 export const ContractType = {

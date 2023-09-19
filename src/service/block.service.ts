@@ -114,47 +114,7 @@ export class BlockService {
                 proposer_moniker
             }
         });
-        // for (let block of blocks) {
-        //     block = JSON.parse(JSON.stringify(block));
-        //     let block_lcd = await BlockHttp.queryBlockFromLcd(block.height);
-        //     if (block_lcd) {
-        //         let proposer = await this.stakingValidatorModel.findValidatorByPropopserAddr(block.proposer || '');
-        //         let validatorsets = await BlockHttp.queryValidatorsets(block.height);
-        //         if (proposer && proposer.length) {
-        //             block.proposer_moniker = (proposer[0].description || {}).moniker || '';
-        //             block.proposer_addr = proposer[0].operator_address || '';
-        //         }
 
-        //         let signaturesMap:any = {};
-        //         block_lcd.block.last_commit.signatures.forEach((item:any)=>{
-        //             let address = hexToBech32(item.validator_address, addressPrefix.ica);
-        //             signaturesMap[address] = item;
-        //         })
-        //         if (validatorsets) {
-        //             block.total_validator_num = validatorsets ? validatorsets.length : 0;
-        //             block.total_voting_power = 0;
-        //             block.precommit_voting_power = 0;
-        //             validatorsets.forEach((item)=>{
-        //                 //TODO:hangtaishan 使用大数计算
-        //                 block.total_voting_power += Number(item.voting_power || 0);
-        //                 if (signaturesMap[item.address]) {
-        //                     block.precommit_voting_power += Number(item.voting_power || 0);
-        //                 }
-        //             });
-        //         }
-        //         block.precommit_validator_num = 0;
-        //         if (block_lcd) {
-        //             try{
-        //                 block.precommit_validator_num = block_lcd.block.last_commit.signatures.filter((item)=>{
-        //                     return item.validator_address && item.validator_address.length;
-        //                 }).length;
-        //             }catch(e){
-        //                 block.precommit_validator_num = 0;
-        //             }
-        //         }
-        //     }
-        //     res.push(new BlockListResDto(block));
-        // }
         return new ListStruct(res, pageNum, pageSize, count);
     }
 

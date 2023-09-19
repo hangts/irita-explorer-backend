@@ -1,6 +1,3 @@
-import { BaseReqDto, PagingReqDto } from './base.dto';
-import { ApiError } from '../api/ApiResult';
-import { ErrorCodes } from '../api/ResultCodes';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ParametersListReqDto {

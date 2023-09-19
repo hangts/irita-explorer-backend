@@ -2,8 +2,6 @@ import { Injectable, } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { INft, INftStruct, ITibcNftTransferMsgStruct, ITibcAcknowledgePacketMsgStruct, ITibcRecvPacketMsgStruct } from '../types/schemaTypes/nft.interface';
-import { IDenom, IDenomMsgStruct, IDenomStruct } from '../types/schemaTypes/denom.interface';
-import md5 from 'blueimp-md5';
 import { getTimestamp } from '../util/util';
 import { getAwayNewClassPath, ParseClassTrace, TibcClass, getBackNewClassPath } from '../util/util.class';
 import { ITxStruct } from '../types/schemaTypes/tx.interface';
@@ -26,10 +24,6 @@ export class NftTaskService {
         this.doTask = this.doTask.bind(this);
         this.cronTaskWorkingStatusMetric.collect(TaskEnum.nft,0);
     }
-
-    async denomList() {
-        return  await (this.denomModel as any).findList(0, 0, '', 'true');
-     }
 
     async doTask(taskName?: TaskEnum, randomKey?: IRandomKey): Promise<void> {
         let status: boolean = await getTaskStatus(this.taskModel,taskName)
