@@ -595,7 +595,7 @@ TxSchema.statics.findAllServiceTx = async function(pageSize?: number): Promise<I
         'msgs.type': { $in: serviceTypesList },
         'msgs.msg.ex.service_name': null,
     };
-    return await this.find(queryParameters, dbRes.syncServiceTask).sort({ time: -1 }).limit(Number(pageSize));
+    return await this.find(queryParameters, dbRes.syncServiceTask).sort({ tx_id: -1 }).limit(Number(pageSize));
 };
 
 //用request_context_id查询call_service的service_name

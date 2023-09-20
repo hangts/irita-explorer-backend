@@ -45,6 +45,38 @@ export function getReqContextIdFromEventsNew(eventsNew:any[]):string{
     return reqContextId;
 }
 
+export function getServiceNameFromEventsNew(eventsNew:any[]):string{
+    let serviceName:string = '';
+    if (eventsNew && eventsNew.length) {
+        eventsNew.forEach((eventItem => {
+            if (eventItem.events && eventItem.events.length) {
+                eventItem.events.forEach((event) => {
+                    if (event.attributes && event.attributes.length) {
+                        event.attributes.forEach((attribute) => {
+                            if (attribute.key == 'service_name') {
+                                serviceName = attribute.value || '';
+                            }
+                        })
+                    }
+                })
+            }
+        }))
+    }
+    return serviceName;
+}
+
+
+export function getProviderFromMsgs(msgs:any[]):string{
+    let provider:string = '';
+    if (msgs && msgs.length) {
+        msgs.forEach((msg:{msg:{provider:string}})=>{
+            if (!provider.length && msg.msg && msg.msg.provider) {
+                provider = msg.msg.provider || '';
+            }
+        });
+    }
+    return provider;
+}
 
 export function getBaseFeeFromEvents(events:any[]):string{
     let baseFee:string = '';
@@ -142,6 +174,24 @@ export function getDomainAddress(data, contain, notContain) {
 
 export function getCtxKey(ctxId:string,type:string){
     return `${ctxId}-${type}`;
+}
+
+export function getServiceNameKey(serviceName:string,provider:string){
+    return `${serviceName}-${provider}`;
+}
+
+export function splitServiceNameKey(key:string){
+    const [serviceName, provider] = key.split('-');
+    return { serviceName, provider };
+}
+
+export function getServiceTxKey(serviceName:string, txType:string, status:number){
+    return `${serviceName}-${txType}-${status}`;
+}
+
+export function splitServiceTxKey(key:string){
+    const [serviceName, txType, status] = key.split('-');
+    return { serviceName, txType, status };
 }
 
 const common = {

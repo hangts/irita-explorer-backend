@@ -6,6 +6,7 @@ import {
     CronTaskWorkingStatusMetric,
     CronTaskWorkingStatusProvider
 } from "../monitor/metrics/cron_task_working_status.metric";
+import {ServiceStatisticsSchema} from "../schema/service.statistics.schema";
 
 @Module({
     imports:[
@@ -13,6 +14,11 @@ import {
             name: 'Tx',
             schema: TxSchema,
             collection: 'sync_tx'
+        },
+        {
+            name: 'ServiceStatistics',
+            schema: ServiceStatisticsSchema,
+            collection: 'ex_service_statistics'
         }])
     ],
     providers:[TxTaskService, CronTaskWorkingStatusMetric, CronTaskWorkingStatusProvider()],

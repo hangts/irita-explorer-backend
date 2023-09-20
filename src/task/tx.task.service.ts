@@ -6,7 +6,12 @@ import {
     getConsumerFromMsgs,
     getRequestIdFromMsgs,
     getReqContextIdFromMsgs,
-    getCtxKey, getReqContextIdFromEventsNew
+    getCtxKey,
+    getReqContextIdFromEventsNew,
+    getServiceNameFromEventsNew,
+    getProviderFromMsgs,
+    getServiceNameKey,
+    splitServiceNameKey, getServiceTxKey, splitServiceTxKey
 } from '../helper/tx.helper';
 import { IExFieldQuery, ITxStruct } from '../types/schemaTypes/tx.interface';
 import { IExFieldTx } from '../types/tx.interface';
@@ -16,14 +21,18 @@ import {CronTaskWorkingStatusMetric} from "../monitor/metrics/cron_task_working_
 @Injectable()
 export class TxTaskService {
     constructor(@InjectModel('Tx') private txModel: any,
+                @InjectModel('ServiceStatistics') private serviceStatisticsModel: any,
                 private readonly cronTaskWorkingStatusMetric: CronTaskWorkingStatusMetric,) {
         this.doTask = this.doTask.bind(this);
         this.cronTaskWorkingStatusMetric.collect(TaskEnum.txServiceName,0)
     }
 
     async doTask(): Promise<void>{
+        const promiseList: Promise<any>[] = [];
         let callServiceTxMap:object = {};//将要请求call_service tx map
         let callContextIds = new Set();
+        let providerRespondCountMap = new Map();
+        let serviceTxCountMap = new Map();
         let respondServiceTxData = await this.txModel.findAllServiceTx();
         //不需要查询callService tx 的数据组装
         respondServiceTxData.forEach((item:IExFieldTx)=>{
@@ -39,6 +48,14 @@ export class TxTaskService {
                             callServiceTxMap[key] = [item];
                         }
                         callContextIds.add(reqContextId);
+                    }
+                    //统计每个服务，provider的响应次数
+                    if (item.status == TxStatus.SUCCESS) {
+                        const serviceName = getServiceNameFromEventsNew(item.events_new)
+                        const provider = getProviderFromMsgs(item.msgs)
+                        const key = getServiceNameKey(serviceName, provider)
+                        const count = providerRespondCountMap.get(key) || 0
+                        providerRespondCountMap.set(key, count + 1)
                     }
                 }
                 break;
@@ -105,6 +122,11 @@ export class TxTaskService {
         //更新到数据库
         for (const item of respondServiceTxData) {
             let exFieldQuery:IExFieldQuery = {hash:item.tx_hash};
+            //统计每个服务每种交易的类型的数量
+            const serviceTxKey = getServiceTxKey(item.ex_service_name, item.type, item.status)
+            const count = serviceTxCountMap.get(serviceTxKey) || 0
+            serviceTxCountMap.set(serviceTxKey, count + 1)
+
             if (item.type == TxType.bind_service && item.status == TxStatus.SUCCESS) {
                 const res: ITxStruct = await this.txModel.queryDefineServiceTxHashByServiceName(getServiceNameFromMsgs(item.msgs), TxStatus.SUCCESS);
                 if (res && res.tx_hash && res.tx_hash.length) {
@@ -121,69 +143,20 @@ export class TxTaskService {
             exFieldQuery.callHash = item.ex_call_hash;
             this.txModel.addExFieldForServiceTx(exFieldQuery);
         }
+
+        providerRespondCountMap.forEach((value, key) => {
+            const {serviceName, provider} = splitServiceNameKey(key);
+            promiseList.push(this.serviceStatisticsModel.updateServiceProviderCount(serviceName, provider, value));
+        })
+
+        serviceTxCountMap.forEach((value, key) => {
+            const {serviceName, txType, status} = splitServiceTxKey(key);
+            promiseList.push(this.serviceStatisticsModel.updateServiceTxCount(serviceName, txType, Number(status), value));
+        })
+
+        await Promise.all(promiseList);
+
         this.cronTaskWorkingStatusMetric.collect(TaskEnum.txServiceName,1)
     }
-
-//     async doTask(): Promise<void>{
-//         //查询所有关于service的交易
-//         let txList: ITxStruct[] = await this.txModel.findAllServiceTx();
-//         //await this.syncRespondServiceTxServiceName();
-//         for(let tx of txList){
-//             if(
-//                 tx.type === TxType.pause_request_context ||
-//                 tx.type === TxType.start_request_context ||
-//                 tx.type === TxType.kill_request_context ||
-//                 tx.type === TxType.update_request_context
-//             ){
-//                 const serviceTx: any = await this.queryServiceName(tx);
-//                 const serviceName = serviceTx.msgs[0].msg.service_name;
-//                 let exFieldQuery: IExFieldQuery = {
-//                     hash: tx.tx_hash,
-//                     serviceName,
-//                 };
-//                 //在msg结构中加上ex:{service_name:""}
-//                 await this.txModel.addExFieldForServiceTx(exFieldQuery);
-//             }else if(tx.type === TxType.bind_service){
-//                 let exFieldQuery: IExFieldQuery = {
-//                     hash: tx.tx_hash,
-//                     serviceName:(tx as any).msgs[0].msg.service_name,
-//                 };
-//                 //在msg结构中加上ex:{service_name:""}
-//                 await this.txModel.addExFieldForServiceTx(exFieldQuery);
-//                 const res: ITxStruct = await this.queryDefineServiceTxHashByServiceName((tx as any).msgs[0].msg.service_name);
-//                 let subExFieldQuery: IExFieldQuery = {
-//                     hash: res.tx_hash,
-//                     bind: 1,
-//                 };
-//                 await this.txModel.addExFieldForServiceTx(subExFieldQuery);
-//             }else {
-//                 let serviceName: string = '';
-//                 if(tx.type === TxType.define_service){
-//                     serviceName = (tx as any).msgs[0].msg.name
-//                 }else {
-//                     serviceName = (tx as any).msgs[0].msg.service_name
-//                 }
-//                 let exFieldQuery: IExFieldQuery = {
-//                     hash: tx.tx_hash,
-//                     serviceName,
-//                 };
-//                 //在msg结构中加上ex:{service_name:""}
-//                 await this.txModel.addExFieldForServiceTx(exFieldQuery);
-//             }
-//         }
-
-
-
-//     }
-
-//     async queryServiceName(tx: ITxStruct): Promise<string>{
-//         return await this.txModel.queryServiceName((tx as any).msgs[0].msg.request_context_id);
-
-//     }
-
-//     async queryDefineServiceTxHashByServiceName(serviceName: string): Promise<ITxStruct>{
-//         return await this.txModel.queryDefineServiceTxHashByServiceName(serviceName);
-
-//     }
 }
 

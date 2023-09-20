@@ -13,6 +13,7 @@ import {DDCType, ERCType, TxStatus, TxType} from '../constant';
 import { ITxsQueryParams } from '../types/tx.interface';
 import { coinswapTypes, declarationTypes, govTypes, stakingTypes } from '../helper/txTypes.helper';
 import Cache from '../helper/cache';
+import {IQueryParams} from "../types/schemaTypes/service.statistics.interface";
 
 export function txListParamsHelper(query: ITxsQuery){
   const queryParameters: ITxsQueryParams = {};
@@ -542,4 +543,43 @@ export function queryDomainHelper(addrs, commonAddrs, resolver) {
         queryParameters['common_addr'] = { $in: commonAddrs }
         return queryParameters
     }
+}
+
+
+
+export function countServiceTxHelper(serviceName, type, status){
+    const queryParameters: IQueryParams = {};
+    if (serviceName && serviceName.length) {
+        queryParameters.service_name = serviceName
+    }
+
+    if (type && type.length) {
+        queryParameters.type = type
+    } else {
+        queryParameters.type = {
+            $in: [
+                TxType.define_service,
+                TxType.bind_service,
+                TxType.call_service,
+                TxType.respond_service,
+                TxType.update_service_binding,
+                TxType.disable_service_binding,
+                TxType.enable_service_binding,
+                TxType.refund_service_deposit,
+                TxType.pause_request_context,
+                TxType.start_request_context,
+                TxType.kill_request_context,
+                TxType.update_request_context,
+            ]
+        }
+    }
+
+    if (status && status.length) {
+        queryParameters.status = Number(status)
+    }else {
+        queryParameters.status = {
+            $in: [TxStatus.SUCCESS, TxStatus.FAILED]
+        }
+    }
+    return queryParameters
 }
