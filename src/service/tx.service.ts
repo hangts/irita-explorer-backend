@@ -91,6 +91,7 @@ export class TxService {
         @InjectModel('Tokens') private tokensModel: Model<any>,
         @InjectModel('ContractEnsToken') private contractEnsTokenModel: any,
         @InjectModel('ContractEnsReverseRegistration') private contractEnsReverseRegistrationModel: any,
+        @InjectModel('ServiceStatistics') private serviceStatisticsModel: any,
         private readonly govHttp: GovHttp,
         private readonly layer2Http: Layer2Http
     ) {
@@ -1147,7 +1148,13 @@ export class TxService {
             item.respond_times = 0;
             item.unbinding_time = 0;
             if (serviceName && serviceName.length) {
-                const respond_times = await this.txModel.queryRespondCountWithServceName(serviceName, query.providerAddr);
+                let respond_times = 0
+                const respondTimesRes = await this.serviceStatisticsModel.findProviderRespondTimesByServiceName(serviceName, [query.providerAddr])
+                if (respondTimesRes && respondTimesRes.length) {
+                    respondTimesRes.forEach(item => {
+                        respond_times += item.count
+                    })
+                }
                 const disableTxs = await this.txModel.querydisableServiceBindingWithServceName(serviceName, query.providerAddr);
                 item.respond_times = respond_times;
                 if (disableTxs && disableTxs.length) {
@@ -1357,11 +1364,22 @@ export class TxService {
                   bindTime: item.time,
               };
           });
-          // console.log(query, bindServiceTxList);
-          //查出每个provider在当前绑定的serviceName下所有的绑定次数
+          //获取所有所有的provider
+          const providerArr = [];
+          bindTxList.forEach(item => {
+              providerArr.push(item.provider)
+          });
+          //基于统计，查出每个provider在当前绑定的serviceName下所有的绑定次数
+          const serviceRespondTimes =  await (this.serviceStatisticsModel as any).findProviderRespondTimesByServiceName(serviceName, providerArr)
+          const respondMap = new Map();
+          serviceRespondTimes.forEach(item => {
+              respondMap.set(item.provider, item.count);
+          });
+
           for (const bindTx of bindTxList) {
-              bindTx.respondTimes = await (this.txModel as any).findProviderRespondTimesForService(serviceName, bindTx.provider);
+              bindTx.respondTimes = respondMap.get(bindTx.provider) || 0
           }
+
           res = bindTxList.map((service: ServiceProvidersResDto) => {
               return new ServiceProvidersResDto(service.provider, service.respondTimes, service.bindTime);
           });
@@ -1385,7 +1403,8 @@ export class TxService {
           });
         }
         if (useCount) {
-          count = await (this.txModel as any).findServiceTxCount(serviceName, type, status);
+            const result = await (this.serviceStatisticsModel as any).findTxCount(serviceName, type, status)
+            count = result.length > 0 ? result[0].count : 0;
         }
         return new ListStruct(res, Number(query.pageNum), Number(query.pageSize), count);
     }
